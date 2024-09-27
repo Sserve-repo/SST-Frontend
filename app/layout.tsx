@@ -68,7 +68,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+      <link href="https://fonts.cdnfonts.com/css/mandau-2" rel="stylesheet" />
       <link rel="manifest" href="/manifest.json" />
+                
       </head>
       <body
         // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
