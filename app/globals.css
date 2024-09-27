@@ -2,23 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+  font-family: "Mandau";
+  src: url("../public/assets/fonts/Mandau-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: "Mandau";
+  src: url("../public/assets/fonts/Mandau-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
 }
 
-body {
+@font-face {
+  font-family: "Mandau";
+  src: url("../public/assets/fonts/Mandau-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Mandau";
+  src: url("../public/assets/fonts/Mandau-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* body {
   color: var(--foreground);
   background: var(--background);
+  color: hsl(281, 50%, 27%);
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
 
 @layer utilities {
   .text-balance {
@@ -34,7 +51,7 @@ body {
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    --primary: 281 50% 27%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -61,7 +78,7 @@ body {
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
+    --primary: 281 50% 27%;
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -87,6 +104,21 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    font-family: "Mandau", "sans-serif";
+  }
+  ::selection {
+    @apply bg-primary text-white;
+  }
+  /* ===== ::-webkit-scrollbar ===== */
+  ::-webkit-scrollbar {
+    @apply bg-gray-300 h-[6px] w-[6px];
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white rounded-full;
+  }
+
+  ::-webkit-scrollbar-corner {
+    @apply bg-gray-200;
   }
 }
