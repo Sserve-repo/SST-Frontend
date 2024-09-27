@@ -1,22 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
+import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
-// const geistSans = localFont({
-//   src: "/fonts/GeistVF.woff",
-//   variable: "--font-geist-sans",
-//   weight: "100 900",
-// });
-// const geistMono = localFont({
-//   src: "/fonts/GeistMonoVF.woff",
-//   variable: "--font-geist-mono",
-//   weight: "100 900",
-// });
 const APP_NAME = "SphereServes";
 const APP_DEFAULT_TITLE = "SphereServes";
 const APP_TITLE_TEMPLATE = "%s - SphereServes";
 const APP_DESCRIPTION = "Best PWA app in the world!";
-
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
@@ -54,11 +45,9 @@ export const metadata: Metadata = {
   },
 };
 
-
 export const viewport: Viewport = {
   themeColor: "#FFFFFF",
 };
-
 
 export default function RootLayout({
   children,
@@ -68,15 +57,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-      <link href="https://fonts.cdnfonts.com/css/mandau-2" rel="stylesheet" />
       <link rel="manifest" href="/manifest.json" />
-                
       </head>
-      <body
-        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-
-      >
-        {children}
+      <body suppressHydrationWarning={true}>
+        <NextTopLoader color="hsl(281, 50%, 27%)" />
+        <Toaster />
+        <ThemeProvider attribute="class" enableSystem={false}>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
