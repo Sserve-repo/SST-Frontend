@@ -5,7 +5,7 @@ import Tailor from "../../assets/images/tailor.png";
 
 const Section3 = () => {
   return (
-    <div className="flex flex-col justify-center items-center bg-white pt-10  min-h-screen px-[6rem] font-primaryFont">
+    <div className="flex flex-col justify-center items-center bg-white pt-10  min-h-screen px-[6rem] ">
       <h1 className="text-[40px] text-[#502266] font-semibold">
         Recommended Artisans
       </h1>
