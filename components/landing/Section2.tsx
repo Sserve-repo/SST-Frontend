@@ -13,9 +13,9 @@ const Section2 = () => {
     "Ongoing Support & Assistance",
   ];
   return (
-    <div className="grid grid-cols-2 bg-white  mt-20 min-h-screen px-[6rem] font-primaryFont">
+    <div className="grid grid-cols-2 bg-white  mt-20 min-h-screen px-[6rem]">
       <div className="flex flex-col justify-start items-start  text-[#502266] gap-y-8 mt-auto">
-        <h1 className="text-[40px] ">Get More with SphereServe</h1>
+        <h1 className="text-[40px] font-bold">Get More with SphereServe</h1>
         <div>
           {Items.map((item, index) => {
             return (
