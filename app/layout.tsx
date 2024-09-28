@@ -3,6 +3,8 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import Header from "@/components/landing/Header";
+import Footer from "@/components/landing/Footer";
 
 const APP_NAME = "SphereServes";
 const APP_DEFAULT_TITLE = "SphereServes";
@@ -63,7 +65,9 @@ export default function RootLayout({
         <NextTopLoader color="hsl(281, 50%, 27%)" />
         <Toaster />
         <ThemeProvider attribute="class" enableSystem={false}>
+          <Header />
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

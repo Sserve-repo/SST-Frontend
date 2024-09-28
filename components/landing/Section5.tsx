@@ -4,7 +4,7 @@ import Tailor from "../../assets/images/tailor.png";
 
 const Section5 = () => {
   return (
-    <div className="flex flex-col justify-center items-center bg-white pt-36  min-h-screen px-[6rem]  font-primaryFont">
+    <div className="flex flex-col justify-center items-center bg-white pt-36  min-h-screen px-[6rem]">
       <h1 className="text-[40px] text-[#502266] font-semibold">
         Featured Services
       </h1>
@@ -28,7 +28,7 @@ const Section5 = () => {
                     <p className="text-[18px] text-[#FF7F00]">
                       Wooden Sculpture - (African Elephant).
                     </p>
-                    <p className="text-[13px] text-white rounded-lg p-1 bg-rose-300 w-[6rem]">
+                    <p className="text-[13px] text-white rounded-lg p-1 bg-[#F7F0FA] bg-opacity-60 w-[6rem]">
                       Home Decor
                     </p>
                     <div className="flex justify-between items-center px-2 text-white">

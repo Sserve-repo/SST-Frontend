@@ -4,7 +4,7 @@ import Cement from "../../assets/images/cement.png";
 
 const Section6 = () => {
   return (
-    <div className="flex flex-col justify-center items-center bg-white pt-36 mt-36  min-h-screen px-[6rem]  font-primaryFont">
+    <div className="flex flex-col justify-center items-center bg-white pt-36 mt-36  min-h-screen px-[6rem]">
       <h1 className="text-[40px] text-[#502266] font-semibold">
         Featured Products
       </h1>
