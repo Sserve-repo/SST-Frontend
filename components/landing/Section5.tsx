@@ -1,6 +1,4 @@
 import React from "react";
-import Image from "next/image";
-import Tailor from "../../assets/images/tailor.png";
 
 const Section5 = () => {
   return (

@@ -1,8 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import HeroBg from "../../assets/images/contact-us.png";
-import Search from "../../assets/icons/search.svg";
-import { Form } from "react-hook-form";
 
 const ContactUs = () => {
   return (
