@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import verifiedIcon from "../../assets/images/verifiedIcon.svg";
 import Tailor from "../../assets/images/tailor.png";
 
 const Section3 = () => {
