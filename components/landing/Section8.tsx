@@ -7,10 +7,8 @@ import Hide from "../../assets/icons/minus.svg";
 import Circus from "../../assets/images/vector.png";
 
 const Section8 = () => {
-  const [openCard, setOpenCard] = useState(null);
-
-  const toggleCard = (cardIndex: any) => {
-    // If the clicked card is already open, close it; otherwise, open the clicked card and close others
+  const [openCard, setOpenCard] = useState<number | null>(null);
+  const toggleCard = (cardIndex: number) => {
     setOpenCard(openCard === cardIndex ? null : cardIndex);
   };
 

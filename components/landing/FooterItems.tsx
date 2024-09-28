@@ -1,6 +1,4 @@
 import React from "react";
-import Image from "next/image";
-import FooterImg from "../../assets/images/footerShape.png";
 
 const FooterItems = () => {
   const join = ["Artisans", "Vendors", "Shoppers"];

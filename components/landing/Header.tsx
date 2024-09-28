@@ -82,21 +82,6 @@ const Header = () => {
     ],
   };
 
-  const metrics = [
-    {
-      counts: "137,673",
-      desc: "Freelance Artisans",
-    },
-    {
-      counts: "5 - 60+",
-      desc: "Crafts per project",
-    },
-    {
-      counts: "47,321",
-      desc: "Completed Crafts",
-    },
-  ];
-
   return (
     <div className="grid grid-cols-3  bg-white h-28 w-full items-center gap-x-4 border px-20 text-[#240F2E]">
       {/* Background Image */}
@@ -120,7 +105,7 @@ const Header = () => {
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Home Services/Improvement</p>
                     {services["Home Services/Improvement"].map(
-                      (item: any, index: any) => {
+                      (item: string, index: number) => {
                         return (
                           <React.Fragment key={index}>
                             <Link
@@ -138,7 +123,7 @@ const Header = () => {
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Custom Crafting</p>
                     {services["Custom Crafting"].map(
-                      (item: any, index: any) => {
+                      (item: string, index: number) => {
                         return (
                           <React.Fragment key={index}>
                             <Link
@@ -156,7 +141,7 @@ const Header = () => {
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Beauty & Fashion</p>
                     {services["Beauty & Fashion"].map(
-                      (item: any, index: any) => {
+                      (item: string, index: number) => {
                         return (
                           <React.Fragment key={index}>
                             <Link
@@ -174,7 +159,7 @@ const Header = () => {
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Mechanical & Technical</p>
                     {services["Mechanical & Technical"].map(
-                      (item: any, index: any) => {
+                      (item: string, index: number) => {
                         return (
                           <React.Fragment key={index}>
                             <Link
@@ -191,7 +176,7 @@ const Header = () => {
 
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Event Services</p>
-                    {services["Event Services"].map((item: any, index: any) => {
+                    {services["Event Services"].map((item: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
                           <Link
@@ -208,7 +193,7 @@ const Header = () => {
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Cultural & Educational</p>
                     {services["Cultural & Educational"].map(
-                      (item: any, index: any) => {
+                      (item: string, index: number) => {
                         return (
                           <React.Fragment key={index}>
                             <Link
@@ -235,7 +220,7 @@ const Header = () => {
                 <div className="w-[35rem] h-[48rem] grid grid-cols-2 p-4">
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">African</p>
-                    {products.African.map((item: any, index: any) => {
+                    {products.African.map((item: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
                           <Link
@@ -251,7 +236,7 @@ const Header = () => {
 
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Asian</p>
-                    {products.Asian.map((item: any, index: any) => {
+                    {products.Asian.map((item: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
                           <Link
@@ -267,7 +252,7 @@ const Header = () => {
 
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Indian</p>
-                    {products.Indian.map((item: any, index: any) => {
+                    {products.Indian.map((item: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
                           <Link
@@ -283,7 +268,7 @@ const Header = () => {
 
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Caribbean</p>
-                    {products.Caribbean.map((item: any, index: any) => {
+                    {products.Caribbean.map((item: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
                           <Link
@@ -299,7 +284,7 @@ const Header = () => {
 
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">European</p>
-                    {products.European.map((item: any, index: any) => {
+                    {products.European.map((item: string, index: number) => {
                       return (
                         <React.Fragment key={index}>
                           <Link
