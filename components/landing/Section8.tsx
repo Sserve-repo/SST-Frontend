@@ -11,7 +11,6 @@ const Section8 = () => {
   const toggleCard = (cardIndex: number) => {
     setOpenCard(openCard === cardIndex ? null : cardIndex);
   };
-
   return (
     <div className="flex flex-col bg-white mt-32 pt-32 min-h-screen px-[6rem]">
       <div
