@@ -40,6 +40,7 @@ const Hero = () => {
     <div className="relative grid grid-cols-1 bg-white min-h-screen w-full">
       {/* Background Image */}
       <Image className="" src={HeroBg} alt="property" />
+   
 
       {/* Main Content Section */}
       <div className="absolute flex flex-col py-2 mt-40 text-start text-white text-[55px] w-full">

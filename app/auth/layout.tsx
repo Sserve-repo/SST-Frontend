@@ -1,7 +1,7 @@
 import React from "react";
 import Splash from "./_components/splash";
 
-export default function RootLayout({
+export default function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

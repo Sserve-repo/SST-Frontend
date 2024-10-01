@@ -83,15 +83,21 @@ const Header = () => {
   };
 
   return (
-    <div className="grid grid-cols-3  bg-white h-28 w-full items-center gap-x-4 border px-20 text-[#240F2E]">
+    <div
+      className="fixed top-0 left-0 bg-white h-28 w-full z-50 items-center border px-20 text-[#240F2E] shadow-lg"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr",
+        gap: "16px",
+      }}
+    >
+      {" "}
       {/* Background Image */}
-
       <div className="flex justify-between mr-auto ">
         <Link href="/">
           <Image className="" src={Logo} alt="property" />
         </Link>
       </div>
-
       <div className="flex gap-x-8 ">
         <NavigationMenu>
           <NavigationMenuList>
@@ -176,18 +182,20 @@ const Header = () => {
 
                   <div className="flex flex-col">
                     <p className="py-2 font-bold">Event Services</p>
-                    {services["Event Services"].map((item: string, index: number) => {
-                      return (
-                        <React.Fragment key={index}>
-                          <Link
-                            href={"/"}
-                            className="hover:cursor-pointer my-1"
-                          >
-                            {item}
-                          </Link>
-                        </React.Fragment>
-                      );
-                    })}
+                    {services["Event Services"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
                   </div>
 
                   <div className="flex flex-col">
@@ -309,13 +317,14 @@ const Header = () => {
           </NavigationMenuList>
         </NavigationMenu>
       </div>
-
       <div className="flex justify-between ml-auto items-center gap-x-4">
-        <button>Login</button>
-        <button>Register</button>
-        <p className="bg-[#502266] px-6 py-2 text-white rounded-lg hover:cursor-pointer">
-          Join SphereServer
-        </p>
+        <Link href={"/auth/login"}>Login</Link>
+        <Link href={"/auth/register"}>Register</Link>
+        <Link href={"/auth/register"}>
+          <p className="bg-[#502266] px-6 py-2 text-white rounded-lg hover:cursor-pointer">
+            Join SphereServer
+          </p>
+        </Link>
       </div>
     </div>
   );

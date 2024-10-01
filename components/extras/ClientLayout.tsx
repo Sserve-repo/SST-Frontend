@@ -1,0 +1,19 @@
+// /components/ClientLayout.tsx
+'use client';
+
+import { usePathname } from 'next/navigation';
+import Header from '../landing/Header';
+import Footer from '../landing/Footer';
+
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isAuthPage = pathname.startsWith('/auth');
+
+  return (
+    <>
+      {!isAuthPage && <Header />}
+      <main>{children}</main>
+      {!isAuthPage && <Footer />}
+    </>
+  );
+}
