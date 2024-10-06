@@ -4,7 +4,7 @@ import Referrer from "../../assets/images/referrer.svg";
 
 const Section8 = () => {
   return (
-    <div className="grid grid-cols-3  relative bg-[#502266]  py-16 px-[6rem]">
+    <div className="grid grid-cols-3  relative bg-[#70358b]  py-16 px-[6rem]">
       <div className="flex flex-col justify-center items-start  text-[#502266] gap-y-8 col-span-2">
         <div className="text-[40px]  text-white ">
           <p className="text-white font-bold">

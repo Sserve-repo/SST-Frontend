@@ -13,7 +13,7 @@ const Section2 = () => {
     "Ongoing Support & Assistance",
   ];
   return (
-    <div className="sm:grid sm:grid-cols-1 sm:gap-y-8  lg:flex lg:flex-row-reverse bg-white  mt-20 min-h-screen px-[6rem] ">
+    <div className="sm:grid sm:grid-cols-1 sm:gap-y-8  lg:flex lg:flex-row-reverse bg-white   min-h-screen px-[6rem] ">
       <div className="lg:w-[50%]  mt-auto">
         <Image className="relative" src={Property} alt="property" />
       </div>

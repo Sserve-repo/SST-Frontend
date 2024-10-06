@@ -37,15 +37,9 @@ const Hero = () => {
     "Home Services/Improvement",
   ];
   return (
-    <div
-      className="relative grid grid-cols-1 min-h-screen w-full"
-      style={{
-        background:
-          "linear-gradient(90deg, #240F2E 20%, rgba(116, 48, 148, 0.00) 79.5%)",
-      }}
-    >
+    <div className="relative grid grid-cols-1 min-h-screen w-full">
       {/* Background Image */}
-      <Image className="" src={HeroBg} alt="property" />
+      <Image className=" inset-0" src={HeroBg} alt="property" />
 
       {/* Main Content Section */}
       <div className="absolute flex flex-col py-2 mt-40 text-start text-white text-[55px] w-full">
@@ -76,7 +70,7 @@ const Hero = () => {
           </div>
 
           {/* Metrics Section */}
-          <div className="mt-[7rem] flex ml-[18rem] items-center gap-x-4 text-white text-xl">
+          <div className="lg:hidden mt-[7rem] flex ml-[18rem] items-center gap-x-4 text-white text-xl">
             {metrics.map((metric, index) => {
               return (
                 <>
@@ -89,44 +83,43 @@ const Hero = () => {
             })}
           </div>
         </div>
+      </div>
+      {/* Products Section */}
+      <div className="absolute bottom-0 border-red-600 mt-auto flex flex-col w-full justify-center items-center px-2 pt-[7rem] text-start text-white text-[55px]">
+        <div className="bg-[#FFB46A] flex flex-col py-4 w-full justify-center items-center text-2xl">
+          <p className="text-[#502266]">Products</p>
+          <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
+            {[
+              ...products,
+              ...products,
+              ...products,
+              ...products,
+              ...products,
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
+              >
+                <p>{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        {/* Products Section */}
-        <div className="flex flex-col w-full justify-center items-center px-2 pt-[7rem] text-start text-white text-[55px]">
-          <div className="bg-[#FFB46A] flex flex-col py-4 w-full justify-center items-center text-2xl">
-            <p className="text-[#502266]">Products</p>
-            <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
-              {[
-                ...products,
-                ...products,
-                ...products,
-                ...products,
-                ...products,
-              ].map((item, index) => (
+        {/* Services Section */}
+        <div className="bg-[#9E4FC4] flex flex-col py-4 w-full justify-center items-center text-2xl rounded-b-lg">
+          <p className="text-white">Services</p>
+          <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
+            {[services, ...services, ...services, ...services].map(
+              (item, index) => (
                 <div
                   key={index}
                   className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
                 >
                   <p>{item}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Services Section */}
-          <div className="bg-[#9E4FC4] flex flex-col py-4 w-full justify-center items-center text-2xl rounded-b-lg">
-            <p className="text-white">Services</p>
-            <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
-              {[services, ...services, ...services, ...services].map(
-                (item, index) => (
-                  <div
-                    key={index}
-                    className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
-                  >
-                    <p>{item}</p>
-                  </div>
-                )
-              )}
-            </div>
+              )
+            )}
           </div>
         </div>
       </div>
