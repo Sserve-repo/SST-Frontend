@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Cement from "../../assets/images/cement.png";
+import plusIcon from "../../assets/icons/plusIcon.svg";
 
 const Section6 = () => {
   return (
@@ -9,7 +10,7 @@ const Section6 = () => {
         Featured Products
       </h1>
       <div className="border-2 border-slate-800 w-full  rounded-2xl  p-7 ">
-        <div className="grid grid-cols-4 gap-8 w-full">
+        <div className="grid lg:grid-cols-4 grid-cols-2  gap-4 w-full">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item, index) => {
             return (
               <div
@@ -18,23 +19,36 @@ const Section6 = () => {
               >
                 <div className="grid grid-rows-2 overflow-hidden rounded-t-lg">
                   <Image
-                  className="rounded-t-lg h-[13rem]"
-                  src={Cement}
-                  alt="tailor"
-                />
+                    className="rounded-t-lg h-[13rem]"
+                    src={Cement}
+                    alt="tailor"
+                  />
 
-                  <div className="flex flex-col px-2 font-semibold pt-2 bg-[#240F2E]  h-[10rem] rounded-b-lg overflow-hidden">
-                    <p className="text-[18px] text-[#FF7F00]">
-                      Wooden Sculpture - (African Elephant).
+                  <div className="flex flex-col px-2 font-semibold pt-2 bg-[#FF9F3F]  h-[10rem] rounded-b-lg overflow-hidden gap-y-1 justify-center items-start">
+                    <p className="text-[18px] text-black">
+                      Triple Rock - Plaster of Paris(POP)
                     </p>
-                    <p className="text-[13px] text-white rounded-lg p-1 bg-rose-300 w-[6rem]">
-                      Home Decor
-                    </p>
-                    <div className="flex justify-between items-center px-2 text-white">
-                      <p className="text-sm">⭐⭐⭐⭐ (3.5/5.0)</p>
-                      <p className="p-2 bg-white rounded-2xl text-black w-[6rem] hover:cursor-pointer">
-                        Book Now
+                    <div className="flex text-[10px] gap-x-2 text-black">
+                      <p className=" rounded-lg p-1 bg-[#f4c391]">Home Decor</p>
+                      <p className=" rounded-lg p-1 bg-[#f4c391]">
+                        House Decoration
                       </p>
+                    </div>
+                    <div className="flex justify-between items-center gap-x-6">
+                      <p className="p-2 rounded-2xl text-white w-[6rem] border border-white">
+                        $2,999.99
+                      </p>
+                      <div className="flex justify-center items-center gap-x-2  w-[9rem] p-3 rounded-2xl bg-white">
+                        <Image
+                          className="rounded-t-lg h-5"
+                          src={plusIcon}
+                          alt="plusIcon"
+                        />
+
+                        <p className="text-sm text-black hover:cursor-pointer text-center">
+                          Add to Cart
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

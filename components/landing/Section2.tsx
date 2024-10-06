@@ -13,8 +13,11 @@ const Section2 = () => {
     "Ongoing Support & Assistance",
   ];
   return (
-    <div className="grid grid-cols-2 bg-white  mt-20 min-h-screen px-[6rem]">
-      <div className="flex flex-col justify-start items-start  text-[#502266] gap-y-8 mt-auto">
+    <div className="sm:grid sm:grid-cols-1 sm:gap-y-8  lg:flex lg:flex-row-reverse bg-white  mt-20 min-h-screen px-[6rem] ">
+      <div className="lg:w-[50%]  mt-auto">
+        <Image className="relative" src={Property} alt="property" />
+      </div>
+      <div className="lg:w-[50%]  flex flex-col justify-start items-start  text-[#502266] gap-y-8 mt-auto">
         <h1 className="text-[40px] font-bold">Get More with SphereServe</h1>
         <div>
           {Items.map((item, index) => {
@@ -30,9 +33,6 @@ const Section2 = () => {
         <p className="py-2 my-8 text-white bg-[#502266] rounded w-[14rem] text-center hover:cursor-pointer">
           Get Started
         </p>
-      </div>
-      <div className=" mt-auto">
-        <Image className="relative" src={Property} alt="property" />
       </div>
     </div>
   );

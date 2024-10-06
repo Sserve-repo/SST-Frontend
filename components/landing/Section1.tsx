@@ -19,7 +19,7 @@ const Section1 = () => {
     "Home Services/Improvement",
   ];
   return (
-    <div className="w-full grid grid-cols-1 bg-white pt-10 h-[60rem] border">
+    <div className="w-full grid grid-cols-1 bg-white pt-10 h-[60rem]  border-2 border-red-700">
       <div className="flex flex-col w-full justify-center items-center  absolute py-2 text-start text-white text-[55px] rounded">
         <div className=" bg-[#FFB46A] flex flex-col py-4 w-full  justify-center items-center text-2xl">
           <p className="text-[#502266]">Products</p>

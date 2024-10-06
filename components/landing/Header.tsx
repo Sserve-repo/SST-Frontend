@@ -1,6 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import Logo from "../../assets/images/logo.svg";
+import Token from "../../assets/icons/token.svg";
+import Cart from "../../assets/icons/cart.svg";
+import Favorite from "../../assets/icons/favorite.svg";
+
 import Link from "next/link";
 
 import {
@@ -84,7 +88,7 @@ const Header = () => {
 
   return (
     <div
-      className="fixed top-0 left-0 bg-white h-28 w-full z-50 items-center border px-20 text-[#240F2E] shadow-lg"
+      className="fixed top-0 left-0 bg-white h-24 w-full z-50 items-center  px-20 text-[#240F2E] shadow-lg"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr 1fr",
@@ -98,10 +102,11 @@ const Header = () => {
           <Image className="" src={Logo} alt="property" />
         </Link>
       </div>
-      <div className="flex gap-x-8 ">
-        <NavigationMenu>
-          <NavigationMenuList>
-            {/* Services */}
+      <NavigationMenu>
+        <NavigationMenuList>
+          {/* Services */}
+
+          <div className="flex w-[40rem] ">
             <NavigationMenuItem>
               <NavigationMenuTrigger className="text-[1rem]">
                 Services
@@ -309,17 +314,45 @@ const Header = () => {
               </NavigationMenuContent>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <Link href="/contact-us">
-                <p className="text-[1rem] hover:cursor-pointer">Contact Us</p>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>
+            <div className="flex flex-1 items-center justify-center gap-x-6">
+              <NavigationMenuItem>
+                <Link href="/contact-us">
+                  <Image src={Favorite} alt="" />
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link href="/contact-us">
+                  <Image src={Cart} alt="" />
+                </Link>
+              </NavigationMenuItem>
+
+              <div className="flex py-1 px-4 bg-[#E5D0EF] rounded-lg">
+                <NavigationMenuItem>
+                  <Link href={"/auth/login"}>
+                    <div className="flex h-9 px-6 w-auto items-center justify-center gap-x-2">
+                      <Image
+                        src={Token}
+                        alt="refer and earn"
+                        height={20}
+                        width={20}
+                      />
+                      <p>Refer & Earn</p>
+                    </div>
+                  </Link>
+                </NavigationMenuItem>
+              </div>
+            </div>
+          </div>
+        </NavigationMenuList>
+      </NavigationMenu>
       <div className="flex justify-between ml-auto items-center gap-x-4">
-        <Link href={"/auth/login"}>Login</Link>
-        <Link href={"/auth/register"}>Register</Link>
+        <Link
+          href={"/auth/login"}
+          className="py-2 px-4 border-2 border-amber-500	 rounded-lg"
+        >
+          Login
+        </Link>
         <Link href={"/auth/register"}>
           <p className="bg-[#502266] px-6 py-2 text-white rounded-lg hover:cursor-pointer">
             Join SphereServer

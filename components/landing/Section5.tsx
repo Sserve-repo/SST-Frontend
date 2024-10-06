@@ -7,7 +7,7 @@ const Section5 = () => {
         Featured Services
       </h1>
       <div className="border-2 border-slate-800 w-full  rounded-2xl  p-7 ">
-        <div className="grid grid-cols-4 gap-8 w-full">
+        <div className="grid lg:grid-cols-4 grid-cols-2  gap-4 w-full">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item, index) => {
             return (
               <div

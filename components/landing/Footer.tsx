@@ -6,7 +6,7 @@ import FooterItems from "./FooterItems";
 
 const Footer = () => {
   return (
-    <div className="flex flex-col relative bg-white h-screen  w-full ">
+    <div className="flex flex-col relative bg-white h-screen w-full">
       <div className="flex flex-col justify-center items-center  text-[#502266] gap-y-8 mb-36">
         <Image src={FooterImg} alt="shape" />
 

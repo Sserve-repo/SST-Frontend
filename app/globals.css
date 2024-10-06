@@ -122,3 +122,19 @@
     @apply bg-gray-200;
   }
 }
+
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-scroll {
+  display: inline-flex;
+  animation: scroll 30s linear infinite;
+  width: max-content;
+}

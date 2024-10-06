@@ -37,16 +37,21 @@ const Hero = () => {
     "Home Services/Improvement",
   ];
   return (
-    <div className="relative grid grid-cols-1 bg-white min-h-screen w-full">
+    <div
+      className="relative grid grid-cols-1 min-h-screen w-full"
+      style={{
+        background:
+          "linear-gradient(90deg, #240F2E 20%, rgba(116, 48, 148, 0.00) 79.5%)",
+      }}
+    >
       {/* Background Image */}
       <Image className="" src={HeroBg} alt="property" />
-   
 
       {/* Main Content Section */}
       <div className="absolute flex flex-col py-2 mt-40 text-start text-white text-[55px] w-full">
         {/* Text Content */}
         <div className="flex flex-col pl-44 text-start text-white text-[55px]">
-          <p className="text-2xl">Welcome, AgboCity</p>
+          <p className="text-2xl my-4">Welcome, AgboCity</p>
           <div className="font-bold flex flex-col space-y-0">
             <p>Find trusted Vendors</p>
             <p>& Artisans for your</p>
@@ -72,12 +77,16 @@ const Hero = () => {
 
           {/* Metrics Section */}
           <div className="mt-[7rem] flex ml-[18rem] items-center gap-x-4 text-white text-xl">
-            {metrics.map((metric, index) => (
-              <div key={index}>
-                <p>{metric.counts}</p>
-                <p className="text-[#E97400]">{metric.desc}</p>
-              </div>
-            ))}
+            {metrics.map((metric, index) => {
+              return (
+                <>
+                  <div key={index}>
+                    <p>{metric.counts}</p>
+                    <p className="text-[#E97400]">{metric.desc}</p>
+                  </div>
+                </>
+              );
+            })}
           </div>
         </div>
 
@@ -85,8 +94,14 @@ const Hero = () => {
         <div className="flex flex-col w-full justify-center items-center px-2 pt-[7rem] text-start text-white text-[55px]">
           <div className="bg-[#FFB46A] flex flex-col py-4 w-full justify-center items-center text-2xl">
             <p className="text-[#502266]">Products</p>
-            <div className="flex justify-center items-center gap-x-4 text-white text-[1rem]">
-              {products.map((item, index) => (
+            <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
+              {[
+                ...products,
+                ...products,
+                ...products,
+                ...products,
+                ...products,
+              ].map((item, index) => (
                 <div
                   key={index}
                   className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
@@ -100,15 +115,17 @@ const Hero = () => {
           {/* Services Section */}
           <div className="bg-[#9E4FC4] flex flex-col py-4 w-full justify-center items-center text-2xl rounded-b-lg">
             <p className="text-white">Services</p>
-            <div className="flex justify-center items-center gap-x-4 text-white text-[1rem]">
-              {services.map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
-                >
-                  <p>{item}</p>
-                </div>
-              ))}
+            <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
+              {[services, ...services, ...services, ...services].map(
+                (item, index) => (
+                  <div
+                    key={index}
+                    className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
+                  >
+                    <p>{item}</p>
+                  </div>
+                )
+              )}
             </div>
           </div>
         </div>
