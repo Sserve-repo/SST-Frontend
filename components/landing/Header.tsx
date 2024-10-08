@@ -97,7 +97,12 @@ export default function Header() {
       <div className="container mx-auto px-4 h-16 md:h-24 flex items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="mr-4">
-            <Image src="/assets/images/logo.svg" alt="Logo" width={220} height={60} />
+            <Image
+              src="/assets/images/logo.svg"
+              alt="Logo"
+              width={220}
+              height={60}
+            />
           </Link>
           <nav className="hidden md:flex space-x-4">
             <NavigationMenu>
