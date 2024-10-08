@@ -109,217 +109,215 @@ const Header = () => {
                   <Image className="" src={Logo} alt="logo" />
                 </Link>
               </NavigationMenuItem>
-
-              {/* Services */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[1rem]">
-                  Services
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[35rem] h-[34rem] grid grid-cols-2 p-4">
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">
-                        Home Services/Improvement
-                      </p>
-                      {services["Home Services/Improvement"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Custom Crafting</p>
-                      {services["Custom Crafting"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Beauty & Fashion</p>
-                      {services["Beauty & Fashion"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Mechanical & Technical</p>
-                      {services["Mechanical & Technical"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Event Services</p>
-                      {services["Event Services"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Cultural & Educational</p>
-                      {services["Cultural & Educational"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Products */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[1rem]">
-                  Products
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[35rem] h-[48rem] grid grid-cols-2 p-4">
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">African</p>
-                      {products.African.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Asian</p>
-                      {products.Asian.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Indian</p>
-                      {products.Indian.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Caribbean</p>
-                      {products.Caribbean.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">European</p>
-                      {products.European.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
             </div>
+
+            {/* Services */}
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="text-[1rem]">
+                Services
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="w-[35rem] h-[34rem] grid grid-cols-2 p-4">
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Home Services/Improvement</p>
+                    {services["Home Services/Improvement"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Custom Crafting</p>
+                    {services["Custom Crafting"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Beauty & Fashion</p>
+                    {services["Beauty & Fashion"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Mechanical & Technical</p>
+                    {services["Mechanical & Technical"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Event Services</p>
+                    {services["Event Services"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Cultural & Educational</p>
+                    {services["Cultural & Educational"].map(
+                      (item: string, index: number) => {
+                        return (
+                          <React.Fragment key={index}>
+                            <Link
+                              href={"/"}
+                              className="hover:cursor-pointer my-1"
+                            >
+                              {item}
+                            </Link>
+                          </React.Fragment>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            {/* Products */}
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="text-[1rem]">
+                Products
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="w-[35rem] h-[48rem] grid grid-cols-2 p-4">
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">African</p>
+                    {products.African.map((item: string, index: number) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <Link
+                            href={"/"}
+                            className="hover:cursor-pointer my-1"
+                          >
+                            {item}
+                          </Link>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Asian</p>
+                    {products.Asian.map((item: string, index: number) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <Link
+                            href={"/"}
+                            className="hover:cursor-pointer my-1"
+                          >
+                            {item}
+                          </Link>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Indian</p>
+                    {products.Indian.map((item: string, index: number) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <Link
+                            href={"/"}
+                            className="hover:cursor-pointer my-1"
+                          >
+                            {item}
+                          </Link>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">Caribbean</p>
+                    {products.Caribbean.map((item: string, index: number) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <Link
+                            href={"/"}
+                            className="hover:cursor-pointer my-1"
+                          >
+                            {item}
+                          </Link>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col">
+                    <p className="py-2 font-bold">European</p>
+                    {products.European.map((item: string, index: number) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <Link
+                            href={"/"}
+                            className="hover:cursor-pointer my-1"
+                          >
+                            {item}
+                          </Link>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
 
             <NavigationMenuItem>
               <Link href="/contact-us">
