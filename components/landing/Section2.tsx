@@ -19,7 +19,7 @@ const Section2 = () => {
       </div>
       <div className="lg:w-[50%]  flex flex-col justify-start items-start  text-[#502266] gap-y-8 mt-auto">
         <h1 className="text-[40px] font-bold">Get More with SphereServe</h1>
-        <div>
+        <div className="flex flex-col  gap-y-5">
           {Items.map((item, index) => {
             return (
               <div className="flex gap-x-4" key={index}>
@@ -30,7 +30,7 @@ const Section2 = () => {
           })}
         </div>
 
-        <p className="py-2 my-8 text-white bg-[#502266] rounded w-[14rem] text-center hover:cursor-pointer">
+        <p className="text-2xl py-2 my-8 text-white bg-[#502266] rounded-2xl w-[14rem] text-center hover:cursor-pointer">
           Get Started
         </p>
       </div>

@@ -123,7 +123,6 @@
   }
 }
 
-
 @keyframes scroll {
   0% {
     transform: translateX(0);
@@ -133,8 +132,23 @@
   }
 }
 
+@keyframes scroll-reverse {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
 .animate-scroll {
   display: inline-flex;
-  animation: scroll 30s linear infinite;
+  animation: scroll 40s linear infinite;
+  width: max-content;
+}
+
+.animate-scroll-reverse {
+  display: inline-flex;
+  animation: scroll-reverse 40s linear infinite;
   width: max-content;
 }

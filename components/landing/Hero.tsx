@@ -39,7 +39,7 @@ const Hero = () => {
   return (
     <div className="relative grid grid-cols-1 min-h-screen w-full">
       {/* Background Image */}
-      <Image className=" inset-0" src={HeroBg} alt="property" />
+      <Image className="w-full inset-0" src={HeroBg} alt="property" />
 
       {/* Main Content Section */}
       <div className="absolute flex flex-col py-2 mt-40 text-start text-white text-[55px] w-full">
@@ -84,18 +84,13 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      {/* Products Section */}
-      <div className="absolute bottom-0 border-red-600 mt-auto flex flex-col w-full justify-center items-center px-2 pt-[7rem] text-start text-white text-[55px]">
+
+      <div className="absolute bottom-0  flex flex-col w-full justify-center items-center px-2 pt-[7rem] text-start text-white text-[55px] mt-auto">
+        {/* Products Section */}
         <div className="bg-[#FFB46A] flex flex-col py-4 w-full justify-center items-center text-2xl">
           <p className="text-[#502266]">Products</p>
-          <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
-            {[
-              ...products,
-              ...products,
-              ...products,
-              ...products,
-              ...products,
-            ].map((item, index) => (
+          <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll-reverse">
+            {[...products, ...products].map((item, index) => (
               <div
                 key={index}
                 className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
@@ -110,16 +105,14 @@ const Hero = () => {
         <div className="bg-[#9E4FC4] flex flex-col py-4 w-full justify-center items-center text-2xl rounded-b-lg">
           <p className="text-white">Services</p>
           <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
-            {[services, ...services, ...services, ...services].map(
-              (item, index) => (
-                <div
-                  key={index}
-                  className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
-                >
-                  <p>{item}</p>
-                </div>
-              )
-            )}
+            {[...services, ...services].map((item, index) => (
+              <div
+                key={index}
+                className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
+              >
+                <p>{item}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

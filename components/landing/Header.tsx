@@ -15,6 +15,17 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import Role from "@/app/auth/register/_components/Role";
+
 const Header = () => {
   const products = {
     African: [
@@ -94,7 +105,7 @@ const Header = () => {
             {/* Logo */}
             <div className="flex mr-auto items-center justify-start">
               <NavigationMenuItem>
-                <Link href="/contact-us">
+                <Link href="/">
                   <Image className="" src={Logo} alt="logo" />
                 </Link>
               </NavigationMenuItem>
@@ -344,11 +355,21 @@ const Header = () => {
               >
                 Login
               </Link>
-              <Link href={"/auth/register"}>
+
+              {/* <Link href={"/auth/register"}>
                 <p className="bg-[#502266] px-6 py-2 text-white rounded-lg hover:cursor-pointer">
                   Join SphereServer
                 </p>
-              </Link>
+              </Link> */}
+
+              <Menubar>
+                <MenubarMenu>
+                  <MenubarTrigger> Join SphereServer</MenubarTrigger>
+                  <MenubarContent>
+                    <Role />
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
             </div>
           </div>
         </NavigationMenuList>

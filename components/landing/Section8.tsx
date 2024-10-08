@@ -17,7 +17,7 @@ const Section8 = () => {
           </div>
         </div>
 
-        <p className="py-2 my-8  text-[#502266] bg-white rounded w-[14rem] text-center hover:cursor-pointer">
+        <p className="text-[28px]  p-2 my-8  text-[#502266] bg-white rounded-xl text-center hover:cursor-pointer">
           Get Your Referral Link
         </p>
       </div>
