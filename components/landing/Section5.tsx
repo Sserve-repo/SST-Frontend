@@ -1,59 +1,117 @@
+"use client";
+
 import React from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 const Section5 = () => {
+  const featuredServices = [
+    {
+      title: "Wooden Sculpture - (African Elephant)",
+      category: "Home Decor",
+      rating: 3.5,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Custom Portrait Painting",
+      category: "Art",
+      rating: 4.2,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Handcrafted Leather Bag",
+      category: "Fashion",
+      rating: 4.8,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Bespoke Furniture Design",
+      category: "Home Decor",
+      rating: 4.5,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Traditional Beadwork Jewelry",
+      category: "Accessories",
+      rating: 4.0,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Customized Pottery Set",
+      category: "Home Decor",
+      rating: 4.7,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Handwoven Tapestry",
+      category: "Art",
+      rating: 4.3,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      title: "Carved Wooden Mask",
+      category: "Art",
+      rating: 4.6,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+  ];
+
   return (
-    <div className="flex flex-col justify-center items-center bg-white pt-36  min-h-screen px-[6rem]">
-      <h1 className="text-[40px] text-[#502266] font-semibold">
-        Featured Services
-      </h1>
-      <div className="border-2 border-slate-800 w-full  rounded-2xl  p-7 ">
-        <div className="grid lg:grid-cols-4 grid-cols-2  gap-4 w-full">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((item, index) => {
-            return (
-              <div
-                className=" h-[23rem] w-[18rem]  rounded-lg rounded-b-none"
-                key={index}
-              >
-                <div className="grid grid-rows-2 overflow-hidden bg-white rounded-t-lg">
-                  <div className="border h-13"></div>
-                  {/* <Image
-                  className="rounded-t-lg h-[13rem]"
-                  src={Tailor}
-                  alt="tailor"
-                /> */}
-
-                  <div className="flex flex-col px-2 font-semibold pt-2 bg-[#240F2E]  h-[10rem] rounded-b-lg overflow-hidden">
-                    <p className="text-[18px] text-[#FF7F00]">
-                      Wooden Sculpture - (African Elephant).
-                    </p>
-                    <p className="text-[13px] text-white rounded-lg p-1 bg-[#F7F0FA] bg-opacity-60 w-[6rem]">
-                      Home Decor
-                    </p>
-                    <div className="flex justify-between items-center px-2 text-white">
-                      <p className="text-sm">⭐⭐⭐⭐ (3.5/5.0)</p>
-                      <p className="p-2 bg-white rounded-2xl text-black w-[6rem] hover:cursor-pointer">
-                        Book Now
-                      </p>
-                    </div>
-                  </div>
+    <section className="bg-white py-12 md:py-24">
+      <div className="container mx-auto px-4 md:px-6">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#502266] text-center mb-12">
+          Featured Services
+        </h2>
+        <div className="border-2 border-slate-800 rounded-2xl p-4 md:p-7">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {featuredServices.map((service, index) => (
+              <Card key={index} className="overflow-hidden">
+                <div className="relative h-48">
+                  <Image
+                    src={service.image}
+                    alt={service.title}
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-t-lg"
+                  />
                 </div>
-              </div>
-            );
-          })}
-        </div>
+                <CardContent className="bg-[#240F2E] text-white p-4">
+                  <h3 className="text-lg font-semibold text-[#FF7F00] mb-2">
+                    {service.title}
+                  </h3>
+                  <Badge variant="secondary" className="mb-2">
+                    {service.category}
+                  </Badge>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm">
+                      {"⭐".repeat(Math.round(service.rating))} (
+                      {service.rating.toFixed(1)}/5.0)
+                    </p>
+                    <Button variant="secondary" size="sm">
+                      Book Now
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-        <div className="flex items-center justify-center w-full">
-            <p className="bg-[#502266] px-4 py-2 ml-[30rem] text-white rounded-lg">
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-8">
+            <Button className="bg-[#502266] text-white hover:bg-[#502266]/90 mb-4 sm:mb-0">
               Next Page
-            </p>
-          <div className="flex gap-x-6 ml-auto">
-            <p className="  py-2 rounded-lg "> Page </p>
-            <input type="number" className="w-[6rem] outline-2 outline-black" />
-            <p className="  py-2 rounded-lg "> 100 </p>
+            </Button>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm">Page</span>
+              <Input type="number" className="w-20" defaultValue="1" />
+              <span className="text-sm">of 100</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
