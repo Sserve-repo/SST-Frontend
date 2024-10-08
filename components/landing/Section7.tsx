@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import verifiedIcon from "../../assets/images/verifiedIcon.svg";
 import People from "../../assets/images/many.png";
 import { Button } from "../ui/button";
 
