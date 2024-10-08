@@ -1,12 +1,11 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
-import Logo from "../../assets/images/logo.svg";
-import Token from "../../assets/icons/token.svg";
-import Cart from "../../assets/icons/cart.svg";
-import Favorite from "../../assets/icons/favorite.svg";
-
 import Link from "next/link";
-
+import { Menu, ShoppingCart, Heart } from "lucide-react";
+import { AiFillGift } from "react-icons/ai";
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -14,19 +13,15 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-import Role from "@/app/auth/register/_components/Role";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const Header = () => {
+export default function Header() {
   const products = {
     African: [
       "African Foodstuffs",
@@ -98,284 +93,123 @@ const Header = () => {
   };
 
   return (
-    <div className="flex items-center justify-center fixed top-0 left-0 bg-white h-24 w-full z-50   px-20 text-[#240F2E] shadow-lg">
-      <NavigationMenu>
-        <NavigationMenuList>
-          <div className="flex items-center justify-center  gap-x-9 ">
-            {/* Logo */}
-            <div className="flex mr-auto items-center justify-start">
-              <NavigationMenuItem>
-                <Link href="/">
-                  <Image className="" src={Logo} alt="logo" />
-                </Link>
-              </NavigationMenuItem>
-
-              {/* Services */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[1rem]">
-                  Services
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[35rem] h-[34rem] grid grid-cols-2 p-4">
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">
-                        Home Services/Improvement
-                      </p>
-                      {services["Home Services/Improvement"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Custom Crafting</p>
-                      {services["Custom Crafting"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Beauty & Fashion</p>
-                      {services["Beauty & Fashion"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Mechanical & Technical</p>
-                      {services["Mechanical & Technical"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Event Services</p>
-                      {services["Event Services"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Cultural & Educational</p>
-                      {services["Cultural & Educational"].map(
-                        (item: string, index: number) => {
-                          return (
-                            <React.Fragment key={index}>
-                              <Link
-                                href={"/"}
-                                className="hover:cursor-pointer my-1"
-                              >
-                                {item}
-                              </Link>
-                            </React.Fragment>
-                          );
-                        }
-                      )}
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Products */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-[1rem]">
-                  Products
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="w-[35rem] h-[48rem] grid grid-cols-2 p-4">
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">African</p>
-                      {products.African.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
+    <header className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
+      <div className="container mx-auto px-4 h-16 md:h-24 flex items-center justify-between">
+        <div className="flex items-center">
+          <Link href="/" className="mr-4">
+            <Image src="/assets/images/logo.svg" alt="Logo" width={220} height={60} />
+          </Link>
+          <nav className="hidden md:flex space-x-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Services</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-[35rem] max-h-[80vh] overflow-y-auto grid grid-cols-2 p-4">
+                      {Object.entries(services).map(([category, items]) => (
+                        <div key={category} className="flex flex-col mb-4">
+                          <p className="font-bold mb-2">{category}</p>
+                          {items.map((item, index) => (
                             <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
+                              key={index}
+                              href="/"
+                              className="hover:underline mb-1"
                             >
                               {item}
                             </Link>
-                          </React.Fragment>
-                        );
-                      })}
+                          ))}
+                        </div>
+                      ))}
                     </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Asian</p>
-                      {products.Asian.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="w-[35rem] max-h-[80vh] overflow-y-auto grid grid-cols-2 p-4">
+                      {Object.entries(products).map(([category, items]) => (
+                        <div key={category} className="flex flex-col mb-4">
+                          <p className="font-bold mb-2">{category}</p>
+                          {items.map((item, index) => (
                             <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
+                              key={index}
+                              href="/"
+                              className="hover:underline mb-1"
                             >
                               {item}
                             </Link>
-                          </React.Fragment>
-                        );
-                      })}
+                          ))}
+                        </div>
+                      ))}
                     </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Indian</p>
-                      {products.Indian.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">Caribbean</p>
-                      {products.Caribbean.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col">
-                      <p className="py-2 font-bold">European</p>
-                      {products.European.map((item: string, index: number) => {
-                        return (
-                          <React.Fragment key={index}>
-                            <Link
-                              href={"/"}
-                              className="hover:cursor-pointer my-1"
-                            >
-                              {item}
-                            </Link>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </div>
-
-            <NavigationMenuItem>
-              <Link href="/contact-us">
-                <Image src={Favorite} alt="" />
-              </Link>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <Link href="/contact-us">
-                <Image src={Cart} alt="" />
-              </Link>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <div className="flex bg-[#E5D0EF] rounded-lg">
-                <Link href={"/auth/login"}>
-                  <div className="flex h-9 px-6 w-auto items-center justify-center gap-x-2">
-                    <Image
-                      src={Token}
-                      alt="refer and earn"
-                      height={20}
-                      width={20}
-                    />
-                    <p>Refer & Earn</p>
-                  </div>
-                </Link>
-              </div>
-            </NavigationMenuItem>
-            <div className="flex justify-between  items-center gap-x-4">
-              <Link
-                href={"/auth/login"}
-                className="py-2 px-4 border-2 border-amber-500	 rounded-lg"
-              >
-                Login
-              </Link>
-
-              {/* <Link href={"/auth/register"}>
-                <p className="bg-[#502266] px-6 py-2 text-white rounded-lg hover:cursor-pointer">
-                  Join SphereServer
-                </p>
-              </Link> */}
-
-              <Menubar>
-                <MenubarMenu>
-                  <MenubarTrigger> Join SphereServer</MenubarTrigger>
-                  <MenubarContent>
-                    <Role />
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
-            </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Link href="/favorites" className="text-gray-600 hover:text-gray-900">
+            <Heart className="h-6 w-6" />
+          </Link>
+          <Link href="/cart" className="text-gray-600 hover:text-gray-900">
+            <ShoppingCart className="h-6 w-6" />
+          </Link>
+          <Button
+            variant="outline"
+            className="hidden sm:flex items-center space-x-2"
+          >
+            <AiFillGift className="h-4 w-4" />
+            <span>Refer & Earn</span>
+          </Button>
+          <div className="hidden md:flex items-center space-x-2">
+            <Button variant="outline" asChild>
+              <Link href="/auth/login">Login</Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button>Join SphereServer</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Role 1</DropdownMenuItem>
+                <DropdownMenuItem>Role 2</DropdownMenuItem>
+                <DropdownMenuItem>Role 3</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </NavigationMenuList>
-      </NavigationMenu>
-    </div>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="md:hidden">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <nav className="flex flex-col space-y-4">
+                <Link href="/services">Services</Link>
+                <Link href="/products">Products</Link>
+                <Link href="/auth/login">Login</Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>Join SphereServer</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>Role 1</DropdownMenuItem>
+                    <DropdownMenuItem>Role 2</DropdownMenuItem>
+                    <DropdownMenuItem>Role 3</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <AiFillGift className="h-4 w-4" />
+                  <span>Refer & Earn</span>
+                </Button>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+    </header>
   );
-};
-
-export default Header;
+}
