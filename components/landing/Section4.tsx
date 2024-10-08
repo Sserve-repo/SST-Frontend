@@ -2,57 +2,115 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Tailor from "../../assets/images/tailor.png";
-import BeforeLike from "../../assets/icons/beforeLike.png";
-import AfterLike from "../../assets/icons/afterLike.svg";
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 const Section4 = () => {
-  // Use a state to track the index of the currently hovered item
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  const vendors = [
+    {
+      name: "Building Solutions Co.",
+      description: "Reliable Supplier for Builders",
+      rating: 3.5,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Tech Gadgets Inc.",
+      description: "Cutting-edge Electronics Supplier",
+      rating: 4.2,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Green Thumb Nursery",
+      description: "Quality Plants and Gardening Supplies",
+      rating: 4.8,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Gourmet Ingredients Co.",
+      description: "Premium Food Products Supplier",
+      rating: 4.5,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Artistic Creations Ltd.",
+      description: "Unique Handcrafted Art Supplies",
+      rating: 4.0,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Fitness Gear Pro",
+      description: "Top-quality Exercise Equipment",
+      rating: 4.7,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Auto Parts Express",
+      description: "Reliable Automotive Components",
+      rating: 4.3,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Eco-Friendly Packaging",
+      description: "Sustainable Packaging Solutions",
+      rating: 4.6,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+  ];
+
   return (
-    <div className="flex flex-col justify-center items-center bg-white pt-10 min-h-screen px-[6rem]">
-      <h1 className="text-[40px] text-[#502266] font-semibold">
-        Recommended Vendors
-      </h1>
-      <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 w-full">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((item, index) => {
-          return (
-            <div
-              className="border h-[20rem] w-[18rem] rounded-lg"
+    <section className="bg-white py-12 md:py-24">
+      <div className="container mx-auto px-4 md:px-6">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#502266] text-center mb-12">
+          Recommended Vendors
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {vendors.map((vendor, index) => (
+            <Card
               key={index}
+              className="overflow-hidden"
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              <div className="relative grid grid-rows-2 h-[50%] overflow-hidden">
-                <Image className="rounded-lg" src={Tailor} alt="tailor" />
+              <div className="relative h-48">
+                <Image
+                  src={vendor.image}
+                  alt={vendor.name}
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-t-lg"
+                />
                 {hoveredIndex === index && (
-                  <div className="absolute flex flex-col items-center justify-center h-50 w-50 bg-white rounded-full top-10 right-3">
-                    <Image
-                      className="rounded-lg h-5 w-5 m-2"
-                      src={AfterLike || BeforeLike}
-                      alt="favorite"
-                    />
-                  </div>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="absolute top-2 right-2 bg-white rounded-full"
+                  >
+                    <Heart className="h-4 w-4" />
+                  </Button>
                 )}
               </div>
-              <div className="flex flex-col pl-6 pt-2 bg-[#240F2E] text-white h-[50%] rounded-b-lg">
-                <p className="text-[18px] font-semibold">
-                  Building Solutions Co.
-                </p>
-                <p className="text-[13px] text-[#FFCA95] rounded-lg p-1">
-                  Reliable Supplier for Builders
-                </p>
-                <p>⭐ (3.5/5.0)</p>
-                <div className="p-2 bg-[#FF7F00] rounded-2xl text-center text-white w-[6rem] hover:cursor-pointer">
-                  Explore
+              <CardContent className="bg-[#240F2E] text-white p-4 h-48 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{vendor.name}</h3>
+                  <p className="text-sm text-[#FFCA95]">{vendor.description}</p>
+                  <p className="text-sm mt-2">
+                    ⭐ ({vendor.rating.toFixed(1)}/5.0)
+                  </p>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+                <CardFooter className="p-0">
+                  <Button className="w-full bg-[#FF7F00] hover:bg-[#FF7F00]/90 text-white rounded-full">
+                    Explore
+                  </Button>
+                </CardFooter>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
