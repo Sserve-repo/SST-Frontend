@@ -2,57 +2,118 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Tailor from "../../assets/images/tailor.png";
-import BeforeLike from "../../assets/icons/beforeLike.png";
-import AfterLike from "../../assets/icons/afterLike.svg";
+import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const Section3 = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  const artisans = [
+    {
+      name: "Adebayo Craftsman",
+      skills: ["Carpentry", "Furniture Design"],
+      rating: 3.5,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Chioma Tailor",
+      skills: ["Fashion Design", "Alterations"],
+      rating: 4.2,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Kwesi Electrician",
+      skills: ["Electrical Repairs", "Installations"],
+      rating: 4.8,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Amina Chef",
+      skills: ["Catering", "Baking"],
+      rating: 4.5,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Oluwaseun Painter",
+      skills: ["Interior Painting", "Exterior Painting"],
+      rating: 4.0,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Fatima Hairstylist",
+      skills: ["Haircuts", "Styling"],
+      rating: 4.7,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Kofi Plumber",
+      skills: ["Plumbing Repairs", "Installations"],
+      rating: 4.3,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+    {
+      name: "Zainab Makeup Artist",
+      skills: ["Bridal Makeup", "Special Effects"],
+      rating: 4.6,
+      image: "/placeholder.svg?height=300&width=400",
+    },
+  ];
+
   return (
-    <div className="flex flex-col justify-center items-center bg-white pt-10  min-h-screen px-[6rem] ">
-      <h1 className="text-[25px] lg:text-[40px]  text-[#502266] font-semibold">
-        Recommended Artisans
-      </h1>
-      <div className=" grid lg:grid-cols-4 grid-cols-2 gap-2 sm:gap-x-8  w-full ">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((item, index) => {
-          return (
-            <div
-              className="border h-[20rem]    lg:w-[18rem]  rounded-lg overflow-hidden"
+    <section className="bg-white py-12 md:py-24">
+      <div className="container mx-auto px-4 md:px-6">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#502266] text-center mb-12">
+          Recommended Artisans
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {artisans.map((artisan, index) => (
+            <Card
               key={index}
+              className="overflow-hidden"
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              <div className="relative  grid grid-rows-2 h-[50%] overflow-hidden">
-                <div className=" h-full">
-                  <Image className="rounded-lg " src={Tailor} alt="tailor" />
-                  {hoveredIndex === index && (
-                    <div className="absolute flex flex-col items-center justify-center h-50 w-50 bg-white rounded-full top-10 right-3">
-                      <Image
-                        className="rounded-lg h-5 w-5 m-2"
-                        src={AfterLike || BeforeLike}
-                        alt="favorite"
-                      />
-                    </div>
-                  )}
-                </div>
+              <div className="relative">
+                <Image
+                  src={artisan.image}
+                  alt={artisan.name}
+                  width={400}
+                  height={300}
+                  className="w-full h-48 object-cover"
+                />
+                {hoveredIndex === index && (
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="absolute top-2 right-2 bg-white rounded-full"
+                  >
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
-              <div className="flex flex-col pl-6 font-semibold gap-y-2">
-                <p className="text-[18px]">Adebayo Craftsman</p>
-                <div className="flex gap-2 text-[9.3px]">
-                  <p className="bg-[#D3AFE4] rounded-lg p-1">Capentry</p>
-                  <p className="bg-[#D3AFE4] rounded-lg p-1">Funiture Design</p>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-semibold mb-2">{artisan.name}</h3>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {artisan.skills.map((skill, skillIndex) => (
+                    <Badge key={skillIndex} variant="secondary">
+                      {skill}
+                    </Badge>
+                  ))}
                 </div>
-                <p>⭐ (3.5/5.0)</p>
-                <div className="p-2 bg-[#FF7F00] rounded-lg text-white w-[6rem] hover:cursor-pointer">
+                <p className="text-sm">⭐ ({artisan.rating.toFixed(1)}/5.0)</p>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full bg-[#FF7F00] hover:bg-[#FF7F00]/90 text-white">
                   Hire Now!
-                </div>
-              </div>
-            </div>
-          );
-        })}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
