@@ -1,9 +1,10 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
-import HeroBg from "../../assets/images/hero.png";
-import Search from "../../assets/icons/search.svg";
+import { Search } from "lucide-react";
 
-const Hero = () => {
+export default function Hero() {
   const metrics = [
     {
       counts: "137,673",
@@ -36,88 +37,96 @@ const Hero = () => {
     "Cultural & Educational Services",
     "Home Services/Improvement",
   ];
+
   return (
-    <div className="relative grid grid-cols-1 min-h-screen w-full">
+    <div className="relative min-h-screen w-full overflow-hidden">
       {/* Background Image */}
-      <Image className="w-full inset-0" src={HeroBg} alt="property" />
+      <Image
+        className="absolute inset-0 object-cover w-full h-full"
+        src="/assets/images/hero.png?height=1080&width=1920"
+        alt="background"
+        width={1920}
+        height={1080}
+      />
 
       {/* Main Content Section */}
-      <div className="absolute flex flex-col py-2 mt-40 text-start text-white text-[55px] w-full">
-        {/* Text Content */}
-        <div className="flex flex-col pl-44 text-start text-white text-[55px]">
-          <p className="text-2xl my-4">Welcome, AgboCity</p>
-          <div className="font-bold flex flex-col space-y-0">
-            <p>Find trusted Vendors</p>
-            <p>& Artisans for your</p>
-            <p>needs.</p>
-          </div>
-          <p className="text-[#FFDFC0] text-[25px]">
-            Get quality products & services—all in one place.
-          </p>
+      <div className="relative z-10 flex flex-col w-full min-h-screen">
+        <div className="flex-grow container flex min-h-screen item-center w-full mx-auto px-4 py-48 lg:pt-64">
+          {/* Text Content */}
+          <div className="text-white max-w-3xl">
+            <p className="text-xl md:text-2xl mb-4">Welcome, AgboCity</p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+              Find trusted Vendors & Artisans for your needs.
+            </h1>
+            <p className="text-xl md:text-2xl text-[#FFDFC0] mb-8">
+              Get quality products & services—all in one place.
+            </p>
 
-          {/* Search Input and Button */}
-          <div className="relative w-[60rem] mt-14">
-            <div className=" flex items-center w-full">
+            {/* Search Input and Button */}
+            <div className="relative max-w-2xl mb-12">
               <input
                 placeholder="I am looking for..."
-                className="w-full h-[5rem] text-xl rounded-lg pl-12 text-black"
+                className="w-full h-12 md:h-16 text-lg md:text-xl rounded-lg pl-4 pr-24 text-black"
               />
-              <button className="absolute flex items-center justify-center gap-x-2 bg-black rounded-lg text-2xl h-[4rem] px-3 right-2 top-1/2 transform -translate-y-1/2">
-                <Image src={Search} alt="search-icon" />
-                Search
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center gap-x-2 bg-black rounded-lg text-white text-sm md:text-base h-10 md:h-12 px-3">
+                <Search className="h-5 w-5" />
+                <span className="hidden sm:inline">Search</span>
               </button>
+            </div>
+
+            {/* Metrics Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white text-center sm:text-left">
+              {metrics.map((metric, index) => (
+                <div key={index}>
+                  <p className="text-2xl font-bold">{metric.counts}</p>
+                  <p className="text-[#E97400]">{metric.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Products and Services Section */}
+        <div className="mt-auto w-full">
+          {/* Products Section */}
+          <div className="bg-[#FFB46A] py-4 w-full">
+            <div className="container mx-auto px-4 w-full">
+              <p className="text-[#502266] text-xl md:text-2xl mb-2 text-center">
+                Products
+              </p>
+              <div className="flex justify-center w-full items-center overflow-x-auto gap-4 pb-2">
+                {products.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-orange-100 p-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+                  >
+                    <p>{item}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Metrics Section */}
-          <div className="lg:hidden mt-[7rem] flex ml-[18rem] items-center gap-x-4 text-white text-xl">
-            {metrics.map((metric, index) => {
-              return (
-                <>
-                  <div key={index}>
-                    <p>{metric.counts}</p>
-                    <p className="text-[#E97400]">{metric.desc}</p>
+          {/* Services Section */}
+          <div className="bg-[#9E4FC4] py-4 w-full rounded-b-lg">
+            <div className="container w-full mx-auto px-4">
+              <p className="text-white text-xl md:text-2xl mb-2 text-center">
+                Services
+              </p>
+              <div className="flex justify-center w-full items-center overflow-x-auto gap-4 pb-2">
+                {services.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-orange-100 p-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+                  >
+                    <p>{item}</p>
                   </div>
-                </>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-0  flex flex-col w-full justify-center items-center px-2 pt-[7rem] text-start text-white text-[55px] mt-auto">
-        {/* Products Section */}
-        <div className="bg-[#FFB46A] flex flex-col py-4 w-full justify-center items-center text-2xl">
-          <p className="text-[#502266]">Products</p>
-          <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll-reverse">
-            {[...products, ...products].map((item, index) => (
-              <div
-                key={index}
-                className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
-              >
-                <p>{item}</p>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Services Section */}
-        <div className="bg-[#9E4FC4] flex flex-col py-4 w-full justify-center items-center text-2xl rounded-b-lg">
-          <p className="text-white">Services</p>
-          <div className="flex justify-center items-center gap-x-4 text-white text-[1rem] animate-scroll">
-            {[...services, ...services].map((item, index) => (
-              <div
-                key={index}
-                className="bg-orange-100 p-2 rounded-lg text-[#240F2E]"
-              >
-                <p>{item}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default Hero;
+}
