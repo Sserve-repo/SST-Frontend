@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import Logo from "../../assets/images/logo.svg";
-import Token from "../../assets/icons/token.svg";
 import Cart from "../../assets/icons/cart.svg";
 import Favorite from "../../assets/icons/favorite.svg";
 
@@ -15,13 +14,6 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import {
-  Menubar,
-  MenubarContent,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-import Role from "@/app/auth/register/_components/Role";
 
 const Header = () => {
   const products = {
