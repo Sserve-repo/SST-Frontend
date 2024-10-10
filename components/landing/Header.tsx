@@ -14,7 +14,6 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-
 const Header = () => {
   const products = {
     African: [
@@ -87,10 +86,10 @@ const Header = () => {
   };
 
   return (
-    <div className="flex items-center justify-center fixed top-0 left-0 bg-white h-24 w-full z-50   px-20 text-[#240F2E] shadow-lg">
+    <div className="flex items-center justify-between px-[9rem] fixed top-0 left-0 bg-white h-24 w-full z-50   text-[#240F2E] shadow-lg">
       <NavigationMenu>
         <NavigationMenuList>
-          <div className="grid grid-cols-4 items-center justify-between gap-x-9">
+          <div className="grid grid-cols-4 items-center justify-between">
             {/* Logo */}
             <NavigationMenuItem>
               <Link href="/">
@@ -332,7 +331,7 @@ const Header = () => {
               </NavigationMenuItem>
             </div>
 
-            <div className="flex justify-between  items-center gap-x-4  ">
+            <div className="flex justify-between  items-center gap-x-4  ml-auto">
               <Link
                 href={"/auth/login"}
                 className="py-2 px-4 border-2 border-amber-500	 rounded-lg"

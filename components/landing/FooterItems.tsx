@@ -23,8 +23,8 @@ const FooterItems = () => {
   const help = ["Help Center", "Piracy Policy", "Contact Us"];
 
   return (
-    <div className="flex bg-white justify-center items-center mt-26 pt-26  w-[80%] mx-40 text-[#502266]">
-      <div className="grid grid-cols-5 w-full gap-x-6">
+    <div className="flex  bg-white justify-center items-center mt-26 pt-26  lg:w-[80%] lg:mx-40 text-[#502266]">
+      <div className="grid sm:grid-cols-1 lg:grid-cols-5 w-full gap-6 justify-center ">
         <div>
           <p className="font-bold my-2">Join</p>
           {join.map((item, index) => {
