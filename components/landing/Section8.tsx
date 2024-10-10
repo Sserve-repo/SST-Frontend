@@ -12,15 +12,15 @@ const Section8 = () => {
     setOpenCard(openCard === cardIndex ? null : cardIndex);
   };
   return (
-    <div className="flex flex-col bg-white mt-32 pt-32 min-h-screen px-[6rem]">
+    <div className="flex flex-col bg-white mt-10  min-h-screen lg:px-[6rem]">
       <div
-        className={`h-[36rem]  py-12 bg-[#F7F0FA] w-full flex flex-col items-center justify-start`}
+        className={`h-auto  py-12 bg-[#F7F0FA] w-full flex flex-col items-center justify-start`}
       >
-        <p className="pb-4 text-[#502266] text-[2.5rem] font-bold">
+        <p className="inline-flex text-center pb-4 text-[#502266] text-[1.6rem] lg:text-[2.5rem] font-bold">
           What is SphereServe?
         </p>
 
-        <div className="grid grid-cols-2 w-full gap-6 px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-6 px-6">
           {/* Item1 */}
           <div
             className={`bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg`}
@@ -225,8 +225,8 @@ const Section8 = () => {
           <Image src={Circus} alt="" />
           <div className="absolute top-[8rem] ">
             <div className="absolute bg-white shadow-2xl border rounded-2xl h-[314px] w-[682px]"></div>
-            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[342px] w-[650px]"></div> 
-            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[362px] w-[612px]"></div> 
+            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[342px] w-[650px]"></div>
+            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[362px] w-[612px]"></div>
           </div>
         </div>
       </div>

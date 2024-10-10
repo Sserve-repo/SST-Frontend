@@ -348,22 +348,12 @@ const Header = () => {
                 Login
               </Link>
 
-              {/* <Link href={"/auth/register"}>
+              <Link href={"/auth/register"}>
                 <p className="bg-[#502266] px-6 py-2 text-white rounded-lg hover:cursor-pointer">
                   Join SphereServer
                 </p>
-              </Link> */}
-
-              <Menubar>
-                <MenubarMenu>
-                  <MenubarTrigger> Join SphereServer</MenubarTrigger>
-                  <MenubarContent>
-                    <Role />
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
+              </Link>
             </div>
-            
           </div>
         </NavigationMenuList>
       </NavigationMenu>
