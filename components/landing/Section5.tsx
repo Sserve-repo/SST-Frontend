@@ -13,49 +13,49 @@ const Section5 = () => {
       title: "Wooden Sculpture - (African Elephant)",
       category: "Home Decor",
       rating: 3.5,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Custom Portrait Painting",
       category: "Art",
       rating: 4.2,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Handcrafted Leather Bag",
       category: "Fashion",
       rating: 4.8,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Bespoke Furniture Design",
       category: "Home Decor",
       rating: 4.5,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Traditional Beadwork Jewelry",
       category: "Accessories",
       rating: 4.0,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Customized Pottery Set",
       category: "Home Decor",
       rating: 4.7,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Handwoven Tapestry",
       category: "Art",
       rating: 4.3,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       title: "Carved Wooden Mask",
       category: "Art",
       rating: 4.6,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
   ];
 
@@ -78,7 +78,7 @@ const Section5 = () => {
                     className="rounded-t-lg"
                   />
                 </div>
-                <CardContent className="bg-[#240F2E] text-white p-4">
+                <CardContent className="bg-[#240F2E] text-white p-4 h-full">
                   <h3 className="text-lg font-semibold text-[#FF7F00] mb-2">
                     {service.title}
                   </h3>
