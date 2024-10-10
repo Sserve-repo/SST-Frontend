@@ -14,49 +14,49 @@ const Section6 = () => {
       name: "Triple Rock - Plaster of Paris(POP)",
       categories: ["Home Decor", "House Decoration"],
       price: 2999.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Premium Ceramic Tiles",
       categories: ["Flooring", "Interior Design"],
       price: 1499.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Eco-Friendly Paint Set",
       categories: ["Wall Decor", "DIY"],
       price: 799.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Luxury Bathroom Fixtures",
       categories: ["Plumbing", "Home Improvement"],
       price: 3499.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Smart Home Lighting System",
       categories: ["Electronics", "Home Automation"],
       price: 1999.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Hardwood Flooring Kit",
       categories: ["Flooring", "DIY"],
       price: 2499.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Designer Wallpaper Collection",
       categories: ["Wall Decor", "Interior Design"],
       price: 599.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
       name: "Energy-Efficient Windows",
       categories: ["Home Improvement", "Eco-Friendly"],
       price: 4999.99,
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/assets/images/tailor.png?height=300&width=400",
     },
   ];
 
@@ -79,7 +79,7 @@ const Section6 = () => {
                     className="rounded-t-lg"
                   />
                 </div>
-                <CardContent className="bg-[#FF9F3F] p-4">
+                <CardContent className="bg-[#FF9F3F] p-4  h-full">
                   <h3 className="text-lg font-semibold text-black mb-2">
                     {product.name}
                   </h3>
