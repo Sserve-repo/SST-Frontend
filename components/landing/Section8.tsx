@@ -14,9 +14,20 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const Section8 = () => {
   const [openCard, setOpenCard] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const toggleCard = (cardId: string) => {
     setOpenCard(openCard === cardId ? null : cardId);
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+  };
+
+  const handlePrev = () => {
+    setActiveIndex((prevIndex) =>
+      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+    );
   };
 
   const cards = [
@@ -58,8 +69,32 @@ const Section8 = () => {
     },
   ];
 
+  const testimonials = [
+    {
+      name: "Hannah Schmitt",
+      title: "CEO, Julie Cuisine",
+      feedback:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cursus nibh mauris nec turpis orci lectus maecenas.",
+      imageUrl: "/assets/images/passport.png",
+    },
+    {
+      name: "John Doe",
+      title: "Manager, XYZ Corp",
+      feedback:
+        "Suspendisse sed magna eget nibh in turpis. Consequat dui diam lacus arcu. Faucibus venenatis felis id.",
+      imageUrl: "/assets/images/person.png",
+    },
+    {
+      name: "Jane Smith",
+      title: "Founder, ABC Inc",
+      feedback:
+        "Faubus venenatis felis id augue sit cursus pellentesque enim. Lorem ipsum dolor sit amet.",
+      imageUrl: "/assets/images/passport.png",
+    },
+  ];
+
   return (
-    <section className="bg-white py-12 md:py-24">
+    <section className="bg-white py-12 md:py-24 ">
       <div className="container mx-auto px-4 md:px-6">
         <div className="bg-[#F7F0FA] rounded-3xl p-6 md:p-12">
           <h2 className="text-center text-[#502266] text-3xl md:text-4xl font-bold mb-12">
@@ -105,25 +140,85 @@ const Section8 = () => {
         </div>
 
         {/* Client Testimonials Section */}
-        <div className="mt-24 md:mt-40 text-center">
+        <div className="mt-24 md:mt-40 text-center ">
           <h2 className="text-3xl md:text-4xl text-[#240F2E] font-bold mb-12">
             What Our Clients Say About Us
           </h2>
-          <div className="relative">
+
+          <div className="relative max-w-3xl mx-auto border border-red-600">
             <Image
-              src="/placeholder.svg?height=400&width=800"
-              alt="Decorative background"
-              width={800}
-              height={400}
-              className="mx-auto"
+              className="absolute inset-0 object-cover bg-center"
+              src="/assets/images/vector.png"
+              alt="background"
+              width={1920}
+              height={1080}
             />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl">
-              <div className="relative flex justify-center items-center">
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-14 w-11/12 h-64 bg-white shadow-2xl"></div>
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-16 w-10/12 h-72 bg-white shadow-2xl"></div>
-                <div className="w-9/12 h-80 mx-auto bg-white shadow-2xl"></div>
-              </div>
+
+            {/* Cards container */}
+            <div className="relative h-96 w-full flex justify-center items-center">
+              {testimonials.map((testimonial, index) => {
+                const isActive = index === activeIndex;
+                const isPrev =
+                  index ===
+                  (activeIndex - 1 + testimonials.length) % testimonials.length;
+                const isNext =
+                  index === (activeIndex + 1) % testimonials.length;
+
+                return (
+                  <div
+                    key={index}
+                    className={`absolute top-[9rem] w-9/12 h-80 bg-white shadow-2xl rounded-lg transition-transform duration-700 ease-in-out 
+                ${
+                  isActive
+                    ? "z-30 translate-x-0 scale-100 opacity-100 blur-0"
+                    : ""
+                }
+                ${isNext ? "z-20 translate-x-[8%] scale-95 opacity-80 " : ""}
+                ${isPrev ? "z-10 -translate-x-[8%] scale-95 opacity-80 " : ""}
+                ${!isActive && !isPrev && !isNext ? "opacity-0" : ""}`}
+                  >
+                    <div className="relative flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className=" flex items-center justify-center mb-4">
+                          <img
+                            src={testimonial.imageUrl}
+                            alt={testimonial.name}
+                            className={` ${
+                              isActive && `absolute top-[-2rem]`
+                            }  w-16 h-16 rounded-full mr-4`}
+                          />
+                          <div>
+                            <h3 className="text-lg font-semibold">
+                              {testimonial.name}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                              {testimonial.title}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="mt-4 text-gray-600 px-8">
+                          {testimonial.feedback}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+
+            {/* Previous and Next buttons */}
+            <button
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full z-40"
+              onClick={handlePrev}
+            >
+              ‹
+            </button>
+            <button
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full z-40"
+              onClick={handleNext}
+            >
+              ›
+            </button>
           </div>
         </div>
       </div>
