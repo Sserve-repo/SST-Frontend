@@ -51,7 +51,7 @@ export default function Hero() {
 
       {/* Main Content Section */}
       <div className="relative z-10 flex flex-col w-full min-h-screen">
-        <div className="flex-grow container flex min-h-screen item-center w-full mx-auto px-4 py-48 lg:pt-64">
+        <div className="flex-grow container flex min-h-screen item-center w-full mx-auto px-4 py-48 lg:pt-56">
           {/* Text Content */}
           <div className="text-white max-w-3xl">
             <p className="text-xl md:text-2xl mb-4">Welcome, AgboCity</p>
