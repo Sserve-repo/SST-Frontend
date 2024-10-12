@@ -2,235 +2,132 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Show from "../../assets/icons/plus.svg";
-import Hide from "../../assets/icons/minus.svg";
-import Circus from "../../assets/images/vector.png";
+import { Plus, Minus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Section8 = () => {
-  const [openCard, setOpenCard] = useState<number | null>(null);
-  const toggleCard = (cardIndex: number) => {
-    setOpenCard(openCard === cardIndex ? null : cardIndex);
+  const [openCard, setOpenCard] = useState<string | null>(null);
+
+  const toggleCard = (cardId: string) => {
+    setOpenCard(openCard === cardId ? null : cardId);
   };
+
+  const cards = [
+    {
+      id: "1",
+      title: "Why is SphereServe the best?",
+      description:
+        "SphereServe connects you to verified artisans and vendors, ensuring quality service delivery. With our user-friendly platform, finding the perfect professional has never been easier!",
+    },
+    {
+      id: "2",
+      title: "How to join as an artisan?",
+      description:
+        "To join SphereServe as an artisan, sign up, complete your profile, and get verified. You'll then be able to showcase your skills and connect with clients in your local area.",
+    },
+    {
+      id: "3",
+      title: "When was SphereServe Inc founded?",
+      description:
+        "SphereServe Inc was founded in 2023 with the mission of creating a reliable platform that empowers local artisans and vendors by connecting them to customers.",
+    },
+    {
+      id: "4",
+      title: "Who founded SphereServe Inc?",
+      description:
+        "SphereServe Inc was founded by a team of seasoned entrepreneurs with experience in technology, marketing, and customer service. Their goal is to make local services more accessible.",
+    },
+    {
+      id: "5",
+      title: "Is SphereServe the future of work?",
+      description:
+        "SphereServe embraces the gig economy, offering flexible opportunities for artisans and vendors to grow their businesses, making it the future of localized work.",
+    },
+    {
+      id: "6",
+      title: "Who are the founders?",
+      description:
+        "The founders of SphereServe are industry experts with a vision to bridge the gap between service providers and clients, ensuring everyone has access to quality local services.",
+    },
+  ];
+
   return (
-    <div className="flex flex-col bg-white mt-10  min-h-screen lg:px-[6rem]">
-      <div
-        className={`h-auto  py-12 bg-[#F7F0FA] w-full flex flex-col items-center justify-start`}
-      >
-        <p className="inline-flex text-center pb-4 text-[#502266] text-[1.6rem] lg:text-[2.5rem] font-bold">
-          What is SphereServe?
-        </p>
+    <section className="bg-white py-12 md:py-24">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="bg-[#F7F0FA] rounded-3xl p-6 md:p-12">
+          <h2 className="text-center text-[#502266] text-3xl md:text-4xl font-bold mb-12">
+            What is SphereServe?
+          </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-6 px-6">
-          {/* Item1 */}
-          <div
-            className={`bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg`}
+          <Accordion
+            type="single"
+            collapsible
+            className="grid md:grid-cols-2 gap-6"
           >
-            <div
-              className={`flex items-center ${openCard === 1 && "h-26"} ${
-                openCard !== 1 && "h-auto pt-4"
-              }`}
-            >
-              <p className="font-bold">Why is SphereServe the best?</p>
-              {openCard === 1 ? (
-                <div
-                  className="bg-[#FF7F00] inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(1)}
-                >
-                  <Image src={Hide} alt="Show Icon" />
-                </div>
-              ) : (
-                <div
-                  className="bg-black inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(1)}
-                >
-                  <Image src={Show} alt="" />
-                </div>
-              )}
-            </div>
-            {openCard === 1 && (
-              <p className="pt-4 mr-[4rem] text-start">
-                Ut enim ad minim veniam quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat aute irure dolor
-              </p>
-            )}
-          </div>
+            {cards.map((item) => (
+              <AccordionItem key={item.id} value={item.id}>
+                <Card className="rounded-2xl shadow-none border-none">
+                  <CardContent className="px-6 py-1">
+                    <AccordionTrigger
+                      onClick={() => toggleCard(item.id)}
+                      className="flex items-center justify-between w-full"
+                    >
+                      <span className="font-bold text-left">{item.title}</span>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className={`ml-auto rounded-xl ${
+                          openCard === item.id ? "bg-[#FF7F00]" : "bg-black"
+                        } text-white`}
+                      >
+                        {openCard === item.id ? (
+                          <Minus className="h-4 w-4" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <p className="mt-4">{item.description}</p>
+                    </AccordionContent>
+                  </CardContent>
+                </Card>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
 
-          {/* Item2 */}
-          <div className="bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg">
-            <div
-              className={`flex items-center ${openCard === 2 && "h-26"} ${
-                openCard !== 2 && "h-auto pt-4"
-              }`}
-            >
-              <p className="font-bold">How to launch a join as an artisan?</p>
-              {openCard === 2 ? (
-                <div
-                  className="bg-[#FF7F00] inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(2)}
-                >
-                  <Image src={Hide} alt="Show Icon" />
-                </div>
-              ) : (
-                <div
-                  className="bg-black inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(2)}
-                >
-                  <Image src={Show} alt="" />
-                </div>
-              )}
+        {/* Client Testimonials Section */}
+        <div className="mt-24 md:mt-40 text-center">
+          <h2 className="text-3xl md:text-4xl text-[#240F2E] font-bold mb-12">
+            What Our Clients Say About Us
+          </h2>
+          <div className="relative">
+            <Image
+              src="/placeholder.svg?height=400&width=800"
+              alt="Decorative background"
+              width={800}
+              height={400}
+              className="mx-auto"
+            />
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl">
+              <div className="relative flex justify-center items-center">
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-14 w-11/12 h-64 bg-white shadow-2xl"></div>
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-16 w-10/12 h-72 bg-white shadow-2xl"></div>
+                <div className="w-9/12 h-80 mx-auto bg-white shadow-2xl"></div>
+              </div>
             </div>
-            {openCard === 2 && (
-              <p className="pt-4 mr-[4rem] text-start">
-                Ut enim ad minim veniam quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat aute irure dolor
-              </p>
-            )}
-          </div>
-
-          {/* Item3 */}
-          <div className="bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg">
-            <div
-              className={`flex items-center ${openCard === 3 && "h-26"} ${
-                openCard !== 3 && "h-auto pt-4"
-              }`}
-            >
-              <p className="font-bold">When was SphereServe Inc founded?</p>
-              {openCard === 3 ? (
-                <div
-                  className="bg-[#FF7F00] inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(3)}
-                >
-                  <Image src={Hide} alt="Show Icon" />
-                </div>
-              ) : (
-                <div
-                  className="bg-black inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(3)}
-                >
-                  <Image src={Show} alt="" />
-                </div>
-              )}
-            </div>
-            {openCard === 3 && (
-              <p className="pt-4 mr-[4rem] text-start">
-                Ut enim ad minim veniam quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat aute irure dolor
-              </p>
-            )}
-          </div>
-
-          {/* Item4 */}
-          <div className="bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg">
-            <div
-              className={`flex items-center ${openCard === 4 && "h-26"} ${
-                openCard !== 4 && "h-auto pt-4"
-              }`}
-            >
-              <p className="font-bold">Who founded SphereServe Inc?</p>
-              {openCard === 4 ? (
-                <div
-                  className="bg-[#FF7F00] inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(4)}
-                >
-                  <Image src={Hide} alt="Show Icon" />
-                </div>
-              ) : (
-                <div
-                  className="bg-black inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(4)}
-                >
-                  <Image src={Show} alt="" />
-                </div>
-              )}
-            </div>
-            {openCard === 4 && (
-              <p className="pt-4 mr-[4rem] text-start">
-                Ut enim ad minim veniam quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat aute irure dolor
-              </p>
-            )}
-          </div>
-
-          {/* Item5 */}
-          <div className="bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg">
-            <div
-              className={`flex items-center ${openCard === 5 && "h-26"} ${
-                openCard !== 5 && "h-auto pt-4"
-              }`}
-            >
-              <p className="font-bold">Is SphereServe the future of work?</p>
-              {openCard === 5 ? (
-                <div
-                  className="bg-[#FF7F00] inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(5)}
-                >
-                  <Image src={Hide} alt="Show Icon" />
-                </div>
-              ) : (
-                <div
-                  className="bg-black inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(5)}
-                >
-                  <Image src={Show} alt="" />
-                </div>
-              )}
-            </div>
-            {openCard === 5 && (
-              <p className="pt-4 mr-[4rem] text-start">
-                Ut enim ad minim veniam quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat aute irure dolor
-              </p>
-            )}
-          </div>
-
-          {/* Item6 */}
-          <div className="bg-white h-auto rounded-lg flex flex-col px-6 py-4 drop-shadow-lg">
-            <div
-              className={`flex items-center ${openCard === 6 && "h-26"} ${
-                openCard !== 6 && "h-auto pt-4"
-              }`}
-            >
-              <p className="font-bold">Who are the founders?</p>
-              {openCard === 6 ? (
-                <div
-                  className="bg-[#FF7F00] inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(6)}
-                >
-                  <Image src={Hide} alt="Show Icon" />
-                </div>
-              ) : (
-                <div
-                  className="bg-black inline-flex justify-center items-center h-10 w-10 rounded-lg ml-auto cursor-pointer"
-                  onClick={() => toggleCard(6)}
-                >
-                  <Image src={Show} alt="" />
-                </div>
-              )}
-            </div>
-            {openCard === 6 && (
-              <p className="pt-4 mr-[4rem] text-start">
-                Ut enim ad minim veniam quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat aute irure dolor
-              </p>
-            )}
           </div>
         </div>
       </div>
-
-      <div className="flex flex-col items-center justify-center my-[10rem]">
-        <p className="text-[36px] text-[#240F2E] font-bold my-4">
-          What Our Clients Say About Us
-        </p>
-        <div className="relative">
-          <Image src={Circus} alt="" />
-          <div className="absolute top-[8rem] ">
-            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[314px] w-[682px]"></div>
-            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[342px] w-[650px]"></div>
-            <div className="absolute bg-white shadow-2xl border rounded-2xl h-[362px] w-[612px]"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
 
