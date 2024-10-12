@@ -40,7 +40,7 @@ export default function Hero() {
   ];
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden z-10">
       {/* Background Image */}
       <Image
         className="absolute inset-0 object-cover bg-center w-full h-full"
