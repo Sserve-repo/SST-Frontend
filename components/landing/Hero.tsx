@@ -6,6 +6,21 @@ import { Search } from "lucide-react";
 import Marquee from "react-fast-marquee";
 
 export default function Hero() {
+  // const metrics = [
+  //   {
+  //     counts: "137,673",
+  //     desc: "Freelance Artisans",
+  //   },
+  //   {
+  //     counts: "5 - 60+",
+  //     desc: "Crafts per project",
+  //   },
+  //   {
+  //     counts: "47,321",
+  //     desc: "Completed Crafts",
+  //   },
+  // ];
+
   const products = [
     "Cuisines",
     "Fashion and textiles",
@@ -25,10 +40,10 @@ export default function Hero() {
   ];
 
   return (
-    <div className="relative h-screen w-full overflow-hidden ">
+    <div className="relative h-full w-full overflow-hidden">
       {/* Background Image */}
       <Image
-        className="absolute inset-0 object-cover w-full h-full"
+        className="absolute inset-0 object-cover bg-center w-full h-full"
         src="/assets/images/hero.png?height=1080&width=1920"
         alt="background"
         width={1920}
@@ -36,76 +51,91 @@ export default function Hero() {
       />
 
       {/* Main Content Section */}
-      <div className="relative z-10 flex flex-col w-full min-h-screen">
-        <div className="flex-grow container flex min-h-screen item-center w-full mx-auto px-4 py-48 lg:pt-56">
+      <div className="relative z-10 flex flex-col w-full min-h-[70vh]">
+        <div className="flex-grow container flex min-h-[70vh] item-center w-full mx-auto px-4 py-8 lg:pt-44 pt-36">
           {/* Text Content */}
-          <div className="text-white max-w-6xl">
+          <div className="text-white max-w-3xl">
             <p className="text-xl md:text-2xl mb-4">Welcome, AgboCity</p>
-            <h1 className="text-4xl max-w-3xl md:text-5xl lg:text-[55px] font-bold mb-4">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
               Find trusted Vendors & Artisans for your needs.
             </h1>
             <p className="text-xl md:text-2xl text-[#FFDFC0] mb-8">
               Get quality products & services—all in one place.
             </p>
-          </div>
-          {/* Search Input and Button */}
-          <div className="relative max-w-[60rem] mb-12 ">
-            <input
-              placeholder="I am looking for..."
-              className="w-full h-12 md:h-16 text-lg md:text-xl rounded-lg pl-4 pr-24 text-black"
-            />
-            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center gap-x-2 bg-black rounded-lg text-white text-sm md:text-base h-10 md:h-12 px-3">
-              <Search className="h-5 w-5" />
-              <span className="hidden sm:inline">Search</span>
-            </button>
+
+            {/* Search Input and Button */}
+            <div className="relative max-w-2xl mb-12">
+              <input
+                placeholder="I am looking for..."
+                className="w-full h-12 md:h-16 text-md md:text-lg rounded-lg pl-4 pr-24 text-black"
+              />
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center gap-x-4 bg-black rounded-lg text-white text-sm md:text-base h-10 md:h-12 sm:px-6 px-4">
+                <Search className="h-5 w-5" />
+                <span className="hidden sm:inline">Search</span>
+              </button>
+            </div>
+
+            {/* Metrics Section */}
+            {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white text-center sm:text-left">
+              {metrics.map((metric, index) => (
+                <div key={index}>
+                  <p className="text-2xl font-bold">{metric.counts}</p>
+                  <p className="text-[#E97400]">{metric.desc}</p>
+                </div>
+              ))}
+            </div> */}
           </div>
         </div>
-      </div>
 
-      {/* Products and Services Section */}
-      <div className="absolute z-10  bottom-0 pt-6 w-full ">
-        {/* Products Section */}
-        <div className="bg-[#FFB46A] py-2 w-full text-2xl">
-          <p className="text-[#502266] text-xl md:text-2xl mb-2 text-center">
-            Products
-          </p>
-          <Marquee
-            direction="right"
-            pauseOnHover={true}
-            loop={0}
-            className="flex justify-center w-full items-center overflow-x-auto text-[1rem]"
-          >
-            {[...products, ...products].map((item, index) => (
-              <div
-                key={index}
-                className="bg-orange-100 p-2 mx-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+        {/* Products and Services Section */}
+        <div className="mt-auto w-full">
+          {/* Products Section */}
+          <div className="bg-[#FFB46A] py-3 w-full">
+            <div className="container mx-auto px-4 w-full">
+              <p className="text-[#502266] text-xl md:text-2xl mb-2 text-center">
+                Products
+              </p>
+              <Marquee
+                direction="right"
+                pauseOnHover={true}
+                loop={0}
+                className="flex justify-center w-full items-center overflow-x-auto text-[1rem]"
               >
-                <p>{item}</p>
-              </div>
-            ))}
-          </Marquee>
-        </div>
+                {[...products, ...products].map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-orange-100 p-2 mx-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+                  >
+                    <p>{item}</p>
+                  </div>
+                ))}
+              </Marquee>
+            </div>
+          </div>
 
-        {/* Services Section */}
-        <div className="bg-[#9E4FC4] flex flex-col py-2 justify-center items-center text-2xl rounded-b-lg">
-          <p className="text-white text-xl md:text-2xl mb-2 text-center">
-            Services
-          </p>
-          <Marquee
-            direction="left"
-            pauseOnHover={true}
-            loop={0}
-            className="flex justify-center w-full items-center overflow-x-auto text-[1rem]"
-          >
-            {[...services, ...services].map((item, index) => (
-              <div
-                key={index}
-                className="bg-orange-100 p-2 mx-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+          {/* Services Section */}
+          <div className="bg-[#9E4FC4] py-4 w-full rounded-b-lg">
+            <div className="container w-full mx-auto px-4">
+              <p className="text-white text-xl md:text-2xl mb-2 text-center">
+                Services
+              </p>
+              <Marquee
+                direction="left"
+                pauseOnHover={true}
+                loop={0}
+                className="flex justify-center w-full items-center overflow-x-auto text-[1rem]"
               >
-                <p>{item}</p>
-              </div>
-            ))}
-          </Marquee>
+                {[...services, ...services].map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-orange-100 p-2 mx-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+                  >
+                    <p>{item}</p>
+                  </div>
+                ))}
+              </Marquee>
+            </div>
+          </div>
         </div>
       </div>
     </div>
