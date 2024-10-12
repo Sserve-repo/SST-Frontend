@@ -225,7 +225,7 @@ export default function Header() {
       {/* Modal Component */}
       {isModalOpen && (
         <div
-          onClick={handleOpenRole}
+          // onClick={handleOpenRole}
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
         >
           <div className="bg-white p-6 rounded-lg shadow-lg relative">
