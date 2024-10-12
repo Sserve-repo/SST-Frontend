@@ -143,12 +143,15 @@
 
 .animate-scroll {
   display: inline-flex;
-  animation: scroll 40s linear infinite;
+  animation: scroll 30s linear infinite;
   width: max-content;
+  overflow: hidden;
 }
 
 .animate-scroll-reverse {
   display: inline-flex;
-  animation: scroll-reverse 40s linear infinite;
+  animation: scroll-reverse 30s linear infinite;
   width: max-content;
+  overflow: hidden;
+
 }
