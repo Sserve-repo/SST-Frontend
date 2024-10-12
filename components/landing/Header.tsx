@@ -13,12 +13,12 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import Role from "@/app/auth/register/_components/Role";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleOpenRole = () => {
-    console.log("loger:", isModalOpen);
     isModalOpen ? setModalOpen(false) : setModalOpen(true);
   };
 
