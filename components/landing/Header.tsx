@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, ShoppingCart, Heart } from "lucide-react";
@@ -19,8 +19,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Role from "@/app/auth/register/_components/Role";
 
 export default function Header() {
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleOpenRole = () => {
+    console.log("loger:", isModalOpen);
+    isModalOpen ? setModalOpen(false) : setModalOpen(true);
+  };
+
   const products = {
     African: [
       "African Foodstuffs",
@@ -93,7 +101,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
-      <div className="container mx-auto px-4 h-20 md:h-24 flex items-center justify-between">
+      <div className="relative container mx-auto px-4 h-20 md:h-24 flex items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="mr-4">
             <Image
@@ -172,68 +180,74 @@ export default function Header() {
             </div>
           </nav>
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="hidden md:flex items-center space-x-2">
-            <Button variant="outline" className="border-[#FFB46A]" asChild>
-              <Link href="/auth/login">Login</Link>
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button>Join SphereServer</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Role 1</DropdownMenuItem>
-                <DropdownMenuItem>Role 2</DropdownMenuItem>
-                <DropdownMenuItem>Role 3</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <nav className="flex flex-col space-y-12">
-                <Link href="/" className="mr-4">
-                  <Image
-                    src="/assets/images/logo.svg"
-                    alt="Logo"
-                    width={220}
-                    height={60}
-                  />
-                </Link>
-                <div className="flex flex-col space-y-6 mt-6">
-                  <Link href="/services">Services</Link>
-                  <Link href="/products">Products</Link>
-                  <Link href="/refer-earn">Refer & Earn</Link>
-                </div>
 
-                <div className="flex flex-col space-y-3">
-                  <Button
-                    variant="outline"
-                    className="border-[#FFB46A]"
-                    asChild
-                  >
-                    <Link href="/auth/login">Login</Link>
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button>Join SphereServer</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>Role 1</DropdownMenuItem>
-                      <DropdownMenuItem>Role 2</DropdownMenuItem>
-                      <DropdownMenuItem>Role 3</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </nav>
-            </SheetContent>
-          </Sheet>
-        </div>
+        {/* Mobile */}
+        {!isModalOpen && (
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2">
+              <Button variant="outline" className="border-[#FFB46A]" asChild>
+                <Link href="/auth/login">Login</Link>
+              </Button>
+              <Button onClick={handleOpenRole}>Join SphereServer</Button>
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="md:hidden">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <nav className="flex flex-col space-y-12">
+                  <Link href="/" className="mr-4">
+                    <Image
+                      src="/assets/images/logo.svg"
+                      alt="Logo"
+                      width={220}
+                      height={60}
+                    />
+                  </Link>
+                  <div className="flex flex-col space-y-6 mt-6">
+                    <Link href="/services">Services</Link>
+                    <Link href="/products">Products</Link>
+                    <Link href="/refer-earn">Refer & Earn</Link>
+                  </div>
+
+                  <div className="flex flex-col space-y-3">
+                    <Button
+                      variant="outline"
+                      className="border-[#FFB46A]"
+                      asChild
+                    >
+                      <Link href="/auth/login">Login</Link>
+                    </Button>
+                    <Button onClick={handleOpenRole}>Join SphereServer</Button>
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+        )}
       </div>
+
+      {/* Modal Component */}
+      {isModalOpen && (
+        <div
+          onClick={handleOpenRole}
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+        >
+          <div className="bg-white p-6 rounded-lg shadow-lg relative">
+            <button
+              onClick={handleOpenRole}
+              className="absolute top-4 right-6 text-gray-500 hover:text-gray-700"
+            >
+              Close
+            </button>
+            <div className="bg-white p-6 rounded-2xl ">
+              <Role />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
