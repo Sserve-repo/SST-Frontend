@@ -19,7 +19,7 @@ export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleOpenRole = () => {
-    isModalOpen ? setModalOpen(false) : setModalOpen(true);
+    setModalOpen(!isModalOpen);
   };
 
   const products = {
