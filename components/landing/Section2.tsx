@@ -1,6 +1,6 @@
 import React from "react"
 import Image from "next/image"
-import { CheckCircle } from "lucide-react"
+import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { Button } from "@/components/ui/button"
 
 const Section2 = () => {
@@ -17,7 +17,7 @@ const Section2 = () => {
     <section className="bg-white py-12 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col lg:flex-row-reverse justify-center w-full items-center gap-12">
-          <div className="w-full lg:w-1/3">
+          <div className="w-full lg:w-1/2">
             <Image
               src="/assets/images/property.png?height=600&width=800"
               alt="Property"
@@ -32,13 +32,13 @@ const Section2 = () => {
             </h2>
             <ul className="space-y-4">
               {items.map((item, index) => (
-                <li key={index} className="flex items-start gap-4">
-                  <CheckCircle className="h-6 w-6 text-[#502266] flex-shrink-0 mt-1" />
+                <li key={index} className="flex items-center gap-4">
+                  <RiVerifiedBadgeFill className="h-8 w-8 text-[#502266] flex-shrink-0" />
                   <p className="text-lg md:text-xl text-[#502266]">{item}</p>
                 </li>
               ))}
             </ul>
-            <Button className="bg-[#502266] text-white hover:bg-[#502266]/90 text-lg px-14 py-6 rounded-xl">
+            <Button className="bg-[#502266] text-white hover:bg-[#502266]/90 text-lg px-24 py-6 rounded-xl">
               Get Started
             </Button>
           </div>
