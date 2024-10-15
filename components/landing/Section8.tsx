@@ -148,7 +148,7 @@ const Section8 = () => {
 
           <div className="relative max-w-3xl mx-auto">
             <Image
-              className="absolute hidden md:block -top-10 right-10 object-cover bg-center"
+              className="absolute hidden md:block -top-14 right-10 object-cover bg-center"
               src="/assets/images/vector.png"
               alt="background"
               width={520}
