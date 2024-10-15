@@ -118,14 +118,14 @@ const Section8 = () => {
                       <Button
                         size="icon"
                         variant="outline"
-                        className={`ml-auto rounded-xl ${
+                        className={`ml-auto rounded-xl aspect-square ${
                           openCard === item.id ? "bg-[#FF7F00]" : "bg-black"
                         } text-white`}
                       >
                         {openCard === item.id ? (
-                          <Minus className="h-4 w-4" />
+                          <Minus className="h-4 w-4 aspect-square" />
                         ) : (
-                          <Plus className="h-4 w-4" />
+                          <Plus className="h-4 w-4 aspect-square" />
                         )}
                       </Button>
                     </AccordionTrigger>
