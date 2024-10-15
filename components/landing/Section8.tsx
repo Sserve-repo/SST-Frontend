@@ -11,6 +11,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Section8 = () => {
   const [openCard, setOpenCard] = useState<string | null>(null);
@@ -140,22 +141,21 @@ const Section8 = () => {
         </div>
 
         {/* Client Testimonials Section */}
-        <div className="mt-24 md:mt-40 text-center ">
-          <h2 className="text-3xl md:text-4xl text-[#240F2E] font-bold mb-12">
+        <div className="mt-24 md:mt-40 text-center">
+          <h2 className="sm:text-3xl text-2xl md:text-4xl text-[#240F2E] font-bold mb-12 sm:mb-24">
             What Our Clients Say About Us
           </h2>
 
-          <div className="relative max-w-3xl mx-auto border border-red-600">
+          <div className="relative max-w-3xl mx-auto">
             <Image
-              className="absolute inset-0 object-cover bg-center"
+              className="absolute hidden md:block -top-10 right-10 object-cover bg-center"
               src="/assets/images/vector.png"
               alt="background"
-              width={1920}
-              height={1080}
+              width={520}
+              height={580}
             />
 
-            {/* Cards container */}
-            <div className="relative h-96 w-full flex justify-center items-center">
+            <div className="relative h-[24rem] sm:h-[28rem] w-full">
               {testimonials.map((testimonial, index) => {
                 const isActive = index === activeIndex;
                 const isPrev =
@@ -167,58 +167,75 @@ const Section8 = () => {
                 return (
                   <div
                     key={index}
-                    className={`absolute top-[9rem] w-9/12 h-80 bg-white shadow-2xl rounded-lg transition-transform duration-700 ease-in-out 
-                ${
-                  isActive
-                    ? "z-30 translate-x-0 scale-100 opacity-100 blur-0"
-                    : ""
-                }
-                ${isNext ? "z-20 translate-x-[8%] scale-95 opacity-80 " : ""}
-                ${isPrev ? "z-10 -translate-x-[8%] scale-95 opacity-80 " : ""}
-                ${!isActive && !isPrev && !isNext ? "opacity-0" : ""}`}
+                    className={`absolute top-8 left-0 right-0 w-11/12 sm:w-9/12 mx-auto h-80 bg-white shadow-2xl rounded-lg transition-all duration-700 ease-in-out 
+                    ${
+                      isActive
+                        ? "z-30 translate-x-0 scale-100 opacity-100"
+                        : isNext
+                        ? "z-20 translate-x-[5%] scale-95 opacity-90"
+                        : isPrev
+                        ? "z-10 -translate-x-[5%] scale-95 opacity-90"
+                        : "opacity-0"
+                    }`}
                   >
-                    <div className="relative flex items-center justify-center h-full">
-                      <div className="text-center">
-                        <div className=" flex items-center justify-center mb-4">
-                          <img
-                            src={testimonial.imageUrl}
-                            alt={testimonial.name}
-                            className={` ${
-                              isActive && `absolute top-[-2rem]`
-                            }  w-16 h-16 rounded-full mr-4`}
-                          />
-                          <div>
-                            <h3 className="text-lg font-semibold">
-                              {testimonial.name}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              {testimonial.title}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="mt-4 text-gray-600 px-8">
-                          {testimonial.feedback}
+                    <div className="flex flex-col items-center justify-center h-full w-full p-6 sm:px-10 text-center">
+                      <div className="mb-6 w-full">
+                        <Image
+                          src={testimonial.imageUrl}
+                          alt={testimonial.name}
+                          width={90}
+                          height={90}
+                          className={`rounded-full mx-auto  aspect-square object-cover bg-cover ${
+                            isActive
+                              ? "absolute top-0 left-0 right-0 sm:right-3 transform -translate-x-1/6 -translate-y-1/2"
+                              : " "
+                          }`}
+                        />
+                        <h3 className="text-lg font-semibold mt-2">
+                          {testimonial.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {testimonial.title}
                         </p>
                       </div>
+                      <p className="text-gray-600 italic">
+                        &quot;{testimonial.feedback}&quot;
+                      </p>
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Previous and Next buttons */}
-            <button
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full z-40"
+            <Button
+              size="icon"
+              variant="outline"
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white shadow-md rounded-full z-40"
               onClick={handlePrev}
             >
-              ‹
-            </button>
-            <button
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded-full z-40"
+              <ChevronLeft className="h-6 w-6" />
+              <span className="sr-only">Previous testimonial</span>
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white shadow-md rounded-full z-40"
               onClick={handleNext}
             >
-              ›
-            </button>
+              <ChevronRight className="h-6 w-6" />
+              <span className="sr-only">Next testimonial</span>
+            </Button>
+
+            {/* <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 mb-4">
+              {testimonials.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === activeIndex ? "bg-[#FF7F00]" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div> */}
           </div>
         </div>
       </div>
