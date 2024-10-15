@@ -26,15 +26,15 @@ const Footer = () => {
                     Stay updated with our latest news and offers
                   </p>
                 </div>
-                <div className="flex w-full md:w-auto border rounded-xl p-3">
+                <div className="flex items-center w-full md:w-auto border rounded-xl sm:p-3 p-2">
                   <input
                     type="email"
                     placeholder="Enter your email..."
-                    className="rounded-r-none outline-none border-none p-2"
+                    className="rounded-r-none outline-none w-full border-none p-2"
                   />
                   <Button
                     type="submit"
-                    className="px-4 py-2 text-white rounded-xl"
+                    className="px-4 py-2 text-xs text-white rounded-xl"
                   >
                     Subscribe Now
                   </Button>
