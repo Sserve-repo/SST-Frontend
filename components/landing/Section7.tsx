@@ -14,16 +14,16 @@ const Section7 = () => {
         </section>
 
         {/* Small & Medium Screen Text */}
-        <section className="lg:hidden text-[1.6rem] sm:text-[2rem] font-bold whitespace-nowrap leading-snug">
+        <section className="lg:hidden text-[1.4rem] sm:text-[2rem] font-bold whitespace-nowrap leading-snug">
           <p>Ready to get started with</p>
           <p>your next project?</p>
         </section>
 
-        <p className="text-[1rem] md:text-[1.25rem]">
+        <p className="sm:text-[1rem] text-sm md:text-[1.25rem]">
           Find the perfect Artisans & Vendors near you!
         </p>
 
-        <Button className="text-[1rem] md:text-[1.4rem] px-4 py-3 my-6 md:my-8 text-white bg-[#502266] rounded-2xl">
+        <Button className="sm:text-[1rem] md:text-[1.4rem] px-4 py-3 sm:my-6 md:my-8 text-white bg-[#502266] rounded-2xl">
           Join SphereServe
         </Button>
       </div>
