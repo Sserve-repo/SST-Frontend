@@ -1,12 +1,17 @@
 import React from "react";
 import Image from "next/image";
-import HeroBg from "../../assets/images/contact-us.png";
 
 const ContactUs = () => {
   return (
     <div className="relative grid grid-cols-1 bg-white min-h-screen w-full">
       {/* Background Image */}
-      <Image className="" src={HeroBg} alt="property" />
+      <Image
+        className=""
+        src="/assets/images/contactus.png?height=1080&width=1920"
+        alt="background"
+        width={1920}
+        height={1080}
+      />
 
       {/* Main Content Section */}
       <div className="absolute flex flex-col py-2 mt-40 text-start text-[55px] w-full">
