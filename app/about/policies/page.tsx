@@ -135,7 +135,7 @@ const Policies = () => {
 
             <p className="text-justify">
               We prioritize your privacy and are dedicated to securing your
-              personal data. &quotPersonal Information&quot refers to any data
+              personal data. &quot;Personal Information&quot; refers to any data
               directly or indirectly identifying you. This excludes publicly
               available information. We gather this data voluntarily when you
               engage with our website, service providers, or business partners.
@@ -145,7 +145,7 @@ const Policies = () => {
             <div className="flex flex-col items-start justify-start gap-y-3">
               {collections &&
                 collections.length > 0 &&
-                collections.map((item: any, index: number) => {
+                collections.map((item, index: number) => {
                   return (
                     <div key={index} className="w-full mb-4 text-start">
                       <p className="font-bold mb-2">
@@ -153,7 +153,7 @@ const Policies = () => {
                       </p>
                       {item.data && (
                         <ul className="list-disc list-inside">
-                          {item.data.map((subItem: any, itemIndex: number) => (
+                          {item.data.map((subItem, itemIndex: number) => (
                             <li key={itemIndex}>{subItem}</li>
                           ))}
                         </ul>
@@ -179,10 +179,10 @@ const Policies = () => {
             <h1 className="text-start text-xl ">ii. How We Use Your Data:</h1>
 
             <div className="flex flex-col items-start justify-start ">
-              {howWeUseYourData.map((item: any, index: number) => {
+              {howWeUseYourData.map((item, index: number) => {
                 return (
-                  <ul className="list-disc list-inside">
-                    <li key={index}>{item}</li>
+                  <ul key={index} className="list-disc list-inside">
+                    <li>{item}</li>
                   </ul>
                 );
               })}
@@ -199,7 +199,7 @@ const Policies = () => {
             </p>
 
             <div className="flex flex-col items-start justify-start gap-y-3">
-              {trackingTechnologies.map((item: any, index: number) => {
+              {trackingTechnologies.map((item, index: number) => {
                 return (
                   <div key={index} className="w-full text-start">
                     <div>
@@ -219,7 +219,7 @@ const Policies = () => {
             </h1>
 
             <div className="flex flex-col items-start justify-start gap-y-3">
-              {informationAboutOthers.map((item: any, index: number) => {
+              {informationAboutOthers.map((item, index: number) => {
                 return (
                   <div key={index} className="w-full text-start">
                     <div>
@@ -237,7 +237,7 @@ const Policies = () => {
             <h1 className="text-start text-2xl ">4. Communications</h1>
 
             <div className="flex flex-col items-start justify-start gap-y-3">
-              {communications.map((item: any, index: number) => {
+              {communications.map((item, index: number) => {
                 return (
                   <div key={index} className="w-full text-start">
                     <div>
@@ -260,10 +260,10 @@ const Policies = () => {
             </p>
 
             <div className="flex flex-col items-start justify-start ">
-              {dataRetention.map((item: any, index: number) => {
+              {dataRetention.map((item, index: number) => {
                 return (
-                  <ul className="list-disc list-inside">
-                    <li key={index}>{item}</li>
+                  <ul key={index} className="list-disc list-inside">
+                    <li>{item}</li>
                   </ul>
                 );
               })}
@@ -296,7 +296,7 @@ const Policies = () => {
               You have the right to access, correct, update, or delete your
               personal information. You may also object to certain processing
               activities or opt out of marketing emails by clicking the
-              "unsubscribe" link in our communications.
+              &quot;unsubscribe&quot; link in our communications.
             </p>
           </div>
           {/* 10. Contact Us */}
