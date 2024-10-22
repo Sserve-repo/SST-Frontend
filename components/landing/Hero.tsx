@@ -6,21 +6,6 @@ import { Search } from "lucide-react";
 import Marquee from "react-fast-marquee";
 
 export default function Hero() {
-  // const metrics = [
-  //   {
-  //     counts: "137,673",
-  //     desc: "Freelance Artisans",
-  //   },
-  //   {
-  //     counts: "5 - 60+",
-  //     desc: "Crafts per project",
-  //   },
-  //   {
-  //     counts: "47,321",
-  //     desc: "Completed Crafts",
-  //   },
-  // ];
-
   const products = [
     "Cuisines",
     "Fashion and textiles",
@@ -74,16 +59,6 @@ export default function Hero() {
                 <span className="hidden sm:inline">Search</span>
               </button>
             </div>
-
-            {/* Metrics Section */}
-            {/* <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white text-center sm:text-left">
-              {metrics.map((metric, index) => (
-                <div key={index}>
-                  <p className="text-2xl font-bold">{metric.counts}</p>
-                  <p className="text-[#E97400]">{metric.desc}</p>
-                </div>
-              ))}
-            </div> */}
           </div>
         </div>
 

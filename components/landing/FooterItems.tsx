@@ -1,40 +1,68 @@
 import React from "react";
 
 const FooterItems = () => {
+
   const footerSections = [
     {
       title: "Join",
-      items: ["Artisans", "Vendors", "Shoppers"],
+      items: [
+        { title: "Artisans", url: "/join/artisans" },
+        { title: "Vendors", url: "/join/vendors" },
+        { title: "Shoppers", url: "/join/shoppers" },
+      ],
     },
     {
       title: "Services",
       items: [
-        "Beauty & Fashion",
-        "Event Services",
-        "Mechanical & Technical Services",
-        "Custom Crafting",
-        "Cultural & Educational Services",
-        "Home Services/Improvement",
+        { title: "Beauty & Fashion", url: "/services/beauty-fashion" },
+        { title: "Event Services", url: "/services/event" },
+        {
+          title: "Mechanical & Technical Services",
+          url: "/services/mechanical-technical",
+        },
+        { title: "Custom Crafting", url: "/services/custom-crafting" },
+        {
+          title: "Cultural & Educational Services",
+          url: "/services/cultural-educational",
+        },
+        {
+          title: "Home Services/Improvement",
+          url: "/services/home-improvement",
+        },
       ],
     },
     {
       title: "Products",
       items: [
-        "Cuisines",
-        "Fashion and textiles",
-        "Home Decor",
-        "Art and craft",
-        "Jewelry and accessories",
-        "Herbal & wellness products",
+        { title: "Cuisines", url: "/products/cuisines" },
+        { title: "Fashion and textiles", url: "/products/fashion-textiles" },
+        { title: "Home Decor", url: "/products/home-decor" },
+        { title: "Art and craft", url: "/products/art-craft" },
+        {
+          title: "Jewelry and accessories",
+          url: "/products/jewelry-accessories",
+        },
+        {
+          title: "Herbal & wellness products",
+          url: "/products/herbal-wellness",
+        },
       ],
     },
     {
       title: "About Us",
-      items: ["SphereServes Inc", "Policies", "ShereServes blog"],
+      items: [
+        { title: "SphereServes Inc", url: "/about/sphere-serves-inc" },
+        { title: "Policies", url: "/about/policies" },
+        { title: "ShereServes blog", url: "/about/blog" },
+      ],
     },
     {
       title: "Help",
-      items: ["Help Center", "Privacy Policy", "Contact Us"],
+      items: [
+        { title: "Help Center", url: "/help/center" },
+        { title: "Privacy Policy", url: "/help/privacy-policy" },
+        { title: "Contact Us", url: "/help/contact-us" },
+      ],
     },
   ];
 
@@ -49,10 +77,10 @@ const FooterItems = () => {
             {section.items.map((item, itemIndex) => (
               <li key={itemIndex}>
                 <a
-                  href="#"
+                  href={item.url}
                   className="text-gray-600 hover:text-[#502266] transition-colors duration-200"
                 >
-                  {item}
+                  {item.title}
                 </a>
               </li>
             ))}
