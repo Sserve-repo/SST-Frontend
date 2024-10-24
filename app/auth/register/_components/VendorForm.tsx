@@ -22,6 +22,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
 
 type FormData = {
   // Step 1: Create Account
@@ -37,6 +40,7 @@ type FormData = {
   city: string;
   postalCode: string;
   // Step 3: Set Up Your Shop Profile
+  businessName: string;
   businessPhone: string;
   businessEmail: string;
   aboutShop: string;
@@ -74,6 +78,8 @@ export function VendorForm({ onBack }: VendorFormProps) {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [idFrontPreview, setIdFrontPreview] = useState<string | null>(null);
+  const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -87,6 +93,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
       province: "",
       city: "",
       postalCode: "",
+      businessName: "",
       businessPhone: "",
       businessEmail: "",
       aboutShop: "",
@@ -188,6 +195,10 @@ export function VendorForm({ onBack }: VendorFormProps) {
         isValid = false;
       } else if (data.businessPhone.length < 10) {
         errors.businessPhone = "Phone number must be at least 10 digits";
+        isValid = false;
+      }
+      if (!data.businessName) {
+        errors.businessName = "Business name is required";
         isValid = false;
       }
       if (!data.businessEmail) {
@@ -566,14 +577,27 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
                           <SelectValue placeholder="Select a province" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="ontario">Ontario</SelectItem>
-                        <SelectItem value="quebec">Quebec</SelectItem>
-                        <SelectItem value="british-columbia">
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="ontario"
+                        >
+                          Ontario
+                        </SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="quebec"
+                        >
+                          Quebec
+                        </SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="british-columbia"
+                        >
                           British Columbia
                         </SelectItem>
                         {/* Add more provinces as needed */}
@@ -627,23 +651,70 @@ export function VendorForm({ onBack }: VendorFormProps) {
               </h2>
               <FormField
                 control={form.control}
-                name="businessPhone"
+                name="businessName"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel className="text-gray-400">
-                      Business Phone Number
+                      Business Name
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         className="rounded-xl shadow-sm h-12 px-3"
-                        placeholder="+1 (555) 123-4567"
+                        type="text"
+                        placeholder="My Awesome Business"
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="businessPhone"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel className="text-gray-400">
+                      Business Phone Number
+                    </FormLabel>
+                    <FormControl className="w-full">
+                      <PhoneInput
+                        {...field}
+                        country={"us"}
+                        enableSearch={true}
+                        inputStyle={{
+                          width: "100%",
+                          borderRadius: "12px",
+                          border: "1px solid #e5e7eb",
+                          boxShadow: "0px 1px 4px rgba(0, 0, 0, 0.1)",
+                          height: "48px",
+                          padding: "0 64px",
+                        }}
+                        containerStyle={{
+                          width: "100%",
+                        }}
+                        buttonStyle={{
+                          padding: "8px",
+                          backgroundColor: "#f9fafb",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "12px 0px 0px 12px",
+                        }}
+                        dropdownStyle={{
+                          zIndex: 50,
+                        }}
+                        placeholder="+1 (555) 123-4567"
+                        inputProps={{
+                          name: "businessPhone",
+                          required: true,
+                          autoFocus: true,
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="businessEmail"
@@ -675,8 +746,8 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     <FormControl>
                       <Textarea
                         {...field}
+                        className="min-h-[100px] rounded-xl shadow-sm px-3"
                         placeholder="Tell us about your shop and what you offer..."
-                        className="min-h-[100px]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -702,16 +773,29 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
                           <SelectValue placeholder="Select ID type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="passport">Passport</SelectItem>
-                        <SelectItem value="drivers-license">
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="passport"
+                        >
+                          Passport
+                        </SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="drivers-license"
+                        >
                           Driver&apos;s License
                         </SelectItem>
-                        <SelectItem value="national-id">National ID</SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="national-id"
+                        >
+                          National ID
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -723,47 +807,119 @@ export function VendorForm({ onBack }: VendorFormProps) {
                 name="idFront"
                 render={({ field: { value, onChange, ...field } }) => (
                   <FormItem className="w-full">
-                    <FormLabel className="text-gray-400">
+                    <FormLabel className="text-gray-400 mb-2">
                       Upload ID (FRONT)
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => onChange(e.target.files?.[0] || null)}
-                        {...field}
-                      />
+                      <div className="border-2 border-dashed relative border-gray-300 p-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
+                        {/* Display preview and file name */}
+                        {idFrontPreview ? (
+                          <div className="mt-4 flex flex-col items-center">
+                            <img
+                              src={idFrontPreview}
+                              alt="Uploaded Preview"
+                              className="w-fit h-24 object-cover rounded-lg"
+                            />
+                            <p className="mt-2 text-sm text-gray-600">
+                              {value?.name}
+                            </p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
+                              <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                            </div>
+                            <p className="text-xs font-medium text-gray-600 mb-2">
+                              <span className="text-primary ">
+                                Click to Upload,{" "}
+                              </span>{" "}
+                              or drag and drop.
+                            </p>
+                            <p className="text-sm font-medium italic text-gray-600 mb-2">
+                              (Max. File size: 25 MB)
+                            </p>
+                          </>
+                        )}
+                        {/* Hidden Input for File */}
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            onChange(file); // Pass the file to form state
+                            if (file) {
+                              setIdFrontPreview(URL.createObjectURL(file)); // Set IdFrontPreview image
+                            } else {
+                              setIdFrontPreview(null);
+                            }
+                          }}
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
-                    {value && value.name && (
-                      <p className="mt-2 text-sm text-gray-600">
-                        Uploaded File: {value.name}
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              {/* Upload Back ID */}
               <FormField
                 control={form.control}
                 name="idBack"
                 render={({ field: { value, onChange, ...field } }) => (
-                  <FormItem className="w-full">
-                    <FormLabel className="text-gray-400">
+                  <FormItem className="w-full mt-6">
+                    <FormLabel className="text-gray-400 mb-2">
                       Upload ID (BACK)
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => onChange(e.target.files?.[0] || null)}
-                        {...field}
-                      />
+                      <div className="border-2 border-dashed relative border-gray-300 p-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
+                        {/* Display preview and file name */}
+                        {idBackPreview ? (
+                          <div className="mt-4 flex flex-col items-center">
+                            <img
+                              src={idBackPreview}
+                              alt="Uploaded Preview"
+                              className="w-fit h-24 object-cover rounded-lg"
+                            />
+                            <p className="mt-2 text-sm text-gray-600">
+                              {value?.name}
+                            </p>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
+                              <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                            </div>
+                            <p className="text-xs font-medium text-gray-600 mb-2">
+                              <span className="text-primary ">
+                                Click to Upload,{" "}
+                              </span>{" "}
+                              or drag and drop.
+                            </p>
+                            <p className="text-sm font-medium italic text-gray-600 mb-2">
+                              (Max. File size: 25 MB)
+                            </p>
+                          </>
+                        )}
+                        {/* Hidden Input for File */}
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            onChange(file); // Pass the file to form state
+                            if (file) {
+                              setIdBackPreview(URL.createObjectURL(file)); // Set IdBackPreview image
+                            } else {
+                              setIdBackPreview(null);
+                            }
+                          }}
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
-                    {value && value.name && (
-                      <p className="mt-2 text-sm text-gray-600">
-                        Uploaded File: {value.name}
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -789,25 +945,36 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
                           <SelectValue placeholder="Select shipping option" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="standard">
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="standard"
+                        >
                           Standard Shipping
                         </SelectItem>
-                        <SelectItem value="express">
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="express"
+                        >
                           Express Shipping
                         </SelectItem>
-                        <SelectItem value="free">Free Shipping</SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="free"
+                        >
+                          Free Shipping
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4 w-full">
                 <FormField
                   control={form.control}
                   name="deliveryFrom"
@@ -819,8 +986,17 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       <FormControl>
                         <Input
                           {...field}
-                          className="rounded-xl shadow-sm h-12 px-3"
+                          className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
                           type="date"
+                          placeholder="DD/MM"
+                          onFocus={(e) => {
+                            e.target.type = "date"; // Show date picker on focus
+                          }}
+                          onBlur={(e) => {
+                            if (!e.target.value) {
+                              e.target.type = "text"; // Revert to text if no date is selected
+                            }
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -838,8 +1014,17 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       <FormControl>
                         <Input
                           {...field}
-                          className="rounded-xl shadow-sm h-12 px-3"
+                          className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
                           type="date"
+                          placeholder="DD/MM"
+                          onFocus={(e) => {
+                            e.target.type = "date"; // Show date picker on focus
+                          }}
+                          onBlur={(e) => {
+                            if (!e.target.value) {
+                              e.target.type = "text"; // Revert to text if no date is selected
+                            }
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -847,6 +1032,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                   )}
                 />
               </div>
+
               <FormField
                 control={form.control}
                 name="returnPolicy"
@@ -858,8 +1044,8 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     <FormControl>
                       <Textarea
                         {...field}
+                        className="min-h-[100px] rounded-xl shadow-sm px-3"
                         placeholder="Describe your return and exchange policy..."
-                        className="min-h-[100px]"
                       />
                     </FormControl>
                     <FormMessage />
@@ -1039,14 +1225,29 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="electronics">Electronics</SelectItem>
-                        <SelectItem value="clothing">Clothing</SelectItem>
-                        <SelectItem value="home">Home & Garden</SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="electronics"
+                        >
+                          Electronics
+                        </SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="clothing"
+                        >
+                          Clothing
+                        </SelectItem>
+                        <SelectItem
+                          className="h-11 rounded-lg px-3"
+                          value="home"
+                        >
+                          Home & Garden
+                        </SelectItem>
                         {/* Add more categories as needed */}
                       </SelectContent>
                     </Select>
@@ -1146,8 +1347,8 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     <FormControl>
                       <Textarea
                         {...field}
+                        className="min-h-[100px] rounded-xl shadow-sm px-3"
                         placeholder="Describe your product..."
-                        className="min-h-[100px]"
                       />
                     </FormControl>
                     <FormMessage />
