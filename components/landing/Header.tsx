@@ -13,7 +13,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import Role from "@/app/auth/register/_components/Role";
+import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -236,7 +236,7 @@ export default function Header() {
               Close
             </button>
             <div className="bg-white p-6 rounded-2xl ">
-              <Role />
+              <RoleWithRedirect />
             </div>
           </div>
         </div>
