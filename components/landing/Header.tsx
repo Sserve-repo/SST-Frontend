@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, ShoppingCart, Heart } from "lucide-react";
+import { Menu, ShoppingCart, Heart, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -158,7 +159,6 @@ export default function Header() {
                 href="/refer-earn"
                 className="hidden sm:flex text-sm items-center space-x-2"
               >
-                {/* <AiFillGift className="h-4 w-4" /> */}
                 <span>Refer & Earn</span>
               </Link>
               <Link
@@ -174,73 +174,78 @@ export default function Header() {
           </nav>
         </div>
 
-        {/* Mobile */}
-        {!isModalOpen && (
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2">
-              <Button variant="outline" className="border-[#FFB46A]" asChild>
-                <Link href="/auth/login">Login</Link>
-              </Button>
-              <Button onClick={handleOpenRole}>Join SphereServer</Button>
-            </div>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="md:hidden">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <nav className="flex flex-col space-y-12">
-                  <Link href="/" className="mr-4">
-                    <Image
-                      src="/assets/images/logo.svg"
-                      alt="Logo"
-                      width={220}
-                      height={60}
-                    />
-                  </Link>
-                  <div className="flex flex-col space-y-6 mt-6">
-                    <Link href="/services">Services</Link>
-                    <Link href="/products">Products</Link>
-                    <Link href="/refer-earn">Refer & Earn</Link>
-                  </div>
-
-                  <div className="flex flex-col space-y-3">
-                    <Button
-                      variant="outline"
-                      className="border-[#FFB46A]"
-                      asChild
-                    >
-                      <Link href="/auth/login">Login</Link>
-                    </Button>
-                    <Button onClick={handleOpenRole}>Join SphereServer</Button>
-                  </div>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
-        )}
-      </div>
-
-      {/* Modal Component */}
-      {isModalOpen && (
-        <div
-          // onClick={handleOpenRole}
-          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-        >
-          <div className="bg-white p-6 rounded-lg shadow-lg relative">
-            <button
-              onClick={handleOpenRole}
-              className="absolute top-4 right-6 text-gray-500 hover:text-gray-700"
-            >
-              Close
-            </button>
-            <div className="bg-white p-6 rounded-2xl ">
-              <Role />
-            </div>
+        <div className="flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2">
+            <Button variant="outline" className="border-[#FFB46A]" asChild>
+              <Link href="/auth/login">Login</Link>
+            </Button>
+            <Button onClick={handleOpenRole}>Join SphereServer</Button>
           </div>
         </div>
-      )}
+
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="md:hidden">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <nav className="flex flex-col space-y-12">
+              <Link href="/" className="mr-4">
+                <Image
+                  src="/assets/images/logo.svg"
+                  alt="Logo"
+                  width={220}
+                  height={60}
+                />
+              </Link>
+              <div className="flex flex-col space-y-6 mt-6">
+                <Link href="/services">Services</Link>
+                <Link href="/products">Products</Link>
+                <Link href="/refer-earn">Refer & Earn</Link>
+              </div>
+
+              <div className="flex flex-col space-y-3">
+                <Button variant="outline" className="border-[#FFB46A]" asChild>
+                  <Link href="/auth/login">Login</Link>
+                </Button>
+                <Button onClick={handleOpenRole}>Join SphereServer</Button>
+              </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Framer Motion Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+            onClick={handleOpenRole}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="bg-white w-[90%] max-w-lg rounded-lg p-2 relative"
+            >
+              <button
+                onClick={handleOpenRole}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="p-3 bg-white">
+                <Role />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
