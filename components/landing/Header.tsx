@@ -14,7 +14,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import Role from "@/app/auth/register/_components/Role";
+import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -220,18 +220,20 @@ export default function Header() {
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
             onClick={handleOpenRole}
           >
             <motion.div
               onClick={(e) => e.stopPropagation()}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-white w-[90%] max-w-lg rounded-lg p-2 relative"
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="bg-white w-[90%] max-w-lg rounded-lg p-2 relative shadow-lg"
             >
               <button
                 onClick={handleOpenRole}
@@ -240,7 +242,7 @@ export default function Header() {
                 <X className="h-5 w-5" />
               </button>
               <div className="p-3 bg-white">
-                <Role />
+                <RoleWithRedirect />
               </div>
             </motion.div>
           </motion.div>

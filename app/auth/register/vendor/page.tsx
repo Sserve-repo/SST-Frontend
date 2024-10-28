@@ -26,8 +26,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
 import Link from "next/link";
-import { Success } from "./Success";
-
+import { Success } from "../_components/Success";
 
 type FormData = {
   // Step 1: Create Account
@@ -75,11 +74,7 @@ type FormData = {
   productImage: File | null;
 };
 
-type VendorFormProps = {
-  onBack: () => void;
-};
-
-export function VendorForm({ onBack }: VendorFormProps) {
+export default function VendorForm() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -88,7 +83,6 @@ export function VendorForm({ onBack }: VendorFormProps) {
   const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
-
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -350,9 +344,6 @@ export function VendorForm({ onBack }: VendorFormProps) {
     }
   };
 
-
-
-
   const stepTitles: string[] = [
     "Create Account",
     "Shop Preferences",
@@ -370,7 +361,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
           <div className="flex items-start mb-6 text-primary">
             <div
               className="flex items-center gap-1 cursor-pointer mb-14 mt-3 text-[#C28FDA]"
-              onClick={step === 1 ? onBack : handlePreviousStep}
+              onClick={handlePreviousStep}
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -551,7 +542,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
 
               {step === 2 && (
                 <div className=" w-full flex flex-col gap-y-2">
-                  <h2 className=" text-4xl text-start font-semibold">
+                  <h2 className="text-[#502266] text-4xl text-start font-semibold">
                     <p>Set Your Shop Profile </p>& Preferences
                   </h2>
                   <div className="text-gray-400 text-start ">
