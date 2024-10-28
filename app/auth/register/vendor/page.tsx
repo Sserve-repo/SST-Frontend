@@ -74,11 +74,7 @@ type FormData = {
   productImage: File | null;
 };
 
-type VendorFormProps = {
-  onBack: () => void;
-};
-
-export default function VendorForm({ onBack }: VendorFormProps) {
+export default function VendorForm() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

@@ -37,11 +37,8 @@ type FormData = {
   agreeToTerms: boolean;
 };
 
-type ArtisanFormProps = {
-  onBack: () => void;
-};
 
-export default function ArtisanForm({ onBack }: ArtisanFormProps) {
+export default function ArtisanForm() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

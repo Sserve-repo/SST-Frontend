@@ -25,11 +25,8 @@ type FormData = {
   agreeToTerms: boolean;
 };
 
-type BuyerFormProps = {
-  onBack: () => void;
-};
 
-export default function BuyerForm({ onBack }: BuyerFormProps) {
+export default function BuyerForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
