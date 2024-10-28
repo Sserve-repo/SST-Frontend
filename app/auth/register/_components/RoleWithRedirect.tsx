@@ -9,6 +9,7 @@ import {
 import { FiBriefcase, FiUser } from "react-icons/fi";
 import { IconType } from "react-icons";
 import Link from "next/link";
+import React from "react";
 
 type Role = "artisan" | "vendor" | "buyer";
 
