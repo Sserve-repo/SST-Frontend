@@ -101,7 +101,6 @@ export default function BuyerForm() {
           <div className="flex items-start mb-14 mt-3 text-[#C28FDA]">
             <div
               className="flex items-center gap-1 cursor-pointer"
-              onClick={onBack}
             >
               <ArrowLeft className="h-4 w-4" />
               Back

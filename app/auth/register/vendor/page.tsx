@@ -361,7 +361,7 @@ export default function VendorForm() {
           <div className="flex items-start mb-6 text-primary">
             <div
               className="flex items-center gap-1 cursor-pointer mb-14 mt-3 text-[#C28FDA]"
-              onClick={step === 1 ? onBack : handlePreviousStep}
+              onClick={handlePreviousStep}
             >
               <ArrowLeft className="h-4 w-4" />
               Back

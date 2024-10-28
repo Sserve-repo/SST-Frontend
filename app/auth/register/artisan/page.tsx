@@ -37,7 +37,6 @@ type FormData = {
   agreeToTerms: boolean;
 };
 
-
 export default function ArtisanForm() {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -162,7 +161,7 @@ export default function ArtisanForm() {
       <div className="flex items-start mb-14 mt-3 text-[#C28FDA]">
         <div
           className="flex items-center gap-1 cursor-pointer"
-          onClick={step === 1 ? onBack : handlePreviousStep}
+          onClick={handlePreviousStep}
         >
           <ArrowLeft className="h-4 w-4" />
           Back
