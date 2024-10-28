@@ -7,9 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { VendorForm } from "./VendorForm";
-import { BuyerForm } from "./BuyerForm";
-import { ArtisanForm } from "./ArtisanForm";
 import { FiBriefcase, FiUser } from "react-icons/fi";
 import { IconType } from "react-icons";
 import Link from "next/link";
@@ -17,8 +14,6 @@ import Link from "next/link";
 type Role = "artisan" | "vendor" | "buyer";
 
 export default function Role() {
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-
   const roleIcons: Record<Role, IconType> = {
     artisan: FiUser,
     vendor: FiBriefcase,
@@ -39,12 +34,8 @@ export default function Role() {
         </div>
         <div className="grid grid-cols-1 gap-3 w-full my-8">
           {(["artisan", "vendor", "buyer"] as const).map((role) => (
-            <Link href={`/auth/register/${role}`}>
-              <Card
-                key={role}
-                className="cursor-pointer hover:shadow-lg transition-all bg-white hover:bg-primary group"
-                onClick={() => setSelectedRole(role)}
-              >
+            <Link href={`/auth/register/${role}`} key={role}>
+              <Card className="cursor-pointer hover:shadow-lg transition-all bg-white hover:bg-primary group">
                 <CardHeader className="flex p-5 items-center flex-row gap-4">
                   <div className="p-3 rounded-full border border-primary group-hover:border-white transition-colors">
                     {React.createElement(roleIcons[role], {
