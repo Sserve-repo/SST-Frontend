@@ -78,7 +78,7 @@ export default function ContactUs() {
                 />
                 {errors.fullName?.message && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.fullName.message}
+                    {String(errors.fullName.message)}
                   </p>
                 )}
               </div>
@@ -94,7 +94,7 @@ export default function ContactUs() {
                 />
                 {errors.email?.message && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.email.message}
+                    {String(errors.email.message)}
                   </p>
                 )}
               </div>
@@ -109,7 +109,7 @@ export default function ContactUs() {
                 />
                 {errors.subject?.message && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.subject.message}
+                    {String(errors.subject.message)}
                   </p>
                 )}
               </div>
@@ -125,7 +125,7 @@ export default function ContactUs() {
                 />
                 {errors.message?.message && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.message.message}
+                    {String(errors.message.message)}
                   </p>
                 )}
               </div>
