@@ -222,7 +222,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
         isValid = false;
       }
       if (!data.aboutProduct) {
-        errors.aboutShop = "About your shop is required";
+        errors.aboutProduct = "About your shop is required";
         isValid = false;
       }
     }
