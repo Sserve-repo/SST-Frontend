@@ -283,7 +283,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
 
   return (
     <div className="max-w-lg mx-auto w-full relative">
-      {success ? (
+      {!success ? (
         <>
           <div className="flex items-start mb-14 mt-3 text-[#C28FDA]">
             <div
