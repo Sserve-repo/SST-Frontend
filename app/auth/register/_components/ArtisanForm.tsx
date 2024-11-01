@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import "react-multi-date-picker/styles/colors/purple.css";
+import InputIcon from "react-multi-date-picker/components/input_icon";
+
 import {
   Form,
   FormControl,
@@ -26,6 +29,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
 import { Success } from "./Success";
 import Link from "next/link";
+import DatePicker from "react-multi-date-picker";
+import type { Value } from "react-multi-date-picker";
 
 type FormData = {
   firstName: string;
@@ -52,6 +57,11 @@ type FormData = {
   serviceImage: File | null;
   bookingDetails: string;
   cancellationAndRebookingPolicies: string;
+  shopAddress: string;
+  startTime: string;
+  endTime: string;
+  homeService: boolean;
+  availableDays: string;
 
   // Step 7: Set Up Billing
   cardNumber: string;
@@ -86,6 +96,14 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
   >(null);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
+  const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
+    undefined
+  );
+
+  const handleDateChange = (dates) => {
+    setSelectedDates(dates);
+    console.log("***** dates:", selectedDates);
+  };
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -111,6 +129,11 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
       servicePrice: "",
       serviceName: "",
       cancellationAndRebookingPolicies: "",
+      shopAddress: "",
+      availableDays: "",
+      startTime: "",
+      endTime: "",
+      homeService: false,
       serviceDescription: "",
       bookingDetails: "",
       paymentOptions: [],
@@ -731,35 +754,126 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
               )}
 
               {step === 3 && (
-                <div className="w-full">
+                <div className="w-full flex flex-col  gap-y-3">
                   <h2 className="text-2xl font-semibold">
-                    Business Service Policies
+                    Set Service Areas & Availability
                   </h2>
                   <p className="text-gray-400 text-start">
-                    Outline your service booking, cancellation, and rebooking
-                    policies.
+                    Specify the areas and times you&apos;re available to provide
+                    services.
                   </p>
+
                   <FormField
                     control={form.control}
-                    name="yearsOfExperience"
+                    name="availableDays"
+                    render={({}) => (
+                      <FormItem className="w-full flex  flex-col">
+                        <FormLabel className="text-gray-400">
+                          Select Days*
+                        </FormLabel>
+                        <DatePicker
+                          render={
+                            <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-slate-400 py-3 inline-flex justify-center items-center shadow-sm " />
+                          }
+                          multiple
+                          value={selectedDates}
+                          onChange={(dates) => {
+                            handleDateChange(dates);
+                          }}
+                          className="purple"
+                        />
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="startTime"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Select Start Time*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="MM/YY"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="endTime"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Select End Time*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="date"
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="MM/YY"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="shopAddress"
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-gray-400">
-                          Years of Experience
+                          Enter Shop Address*
                         </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type="number"
-                            min="0"
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value, 10))
-                            }
                             className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="business@name.com"
+                            placeholder="123 Rue Sainte-Catherine Ouest, Montréal, QC H3G 1P, Canada"
                           />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="homeService"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col  items-start space-3 px-6 py-5 rounded-2xl">
+                        <FormLabel className="text-gray-400">
+                          Are you available for home service?*
+                        </FormLabel>
+
+                        <div>
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value === true}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked);
+                              }}
+                            />
+                          </FormControl>
+
+                          <FormLabel className="font-normal ml-3">
+                            Yes, I offer home services{" "}
+                          </FormLabel>
+                        </div>
                       </FormItem>
                     )}
                   />
