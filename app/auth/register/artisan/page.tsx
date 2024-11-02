@@ -124,7 +124,7 @@ export default function ArtisanForm() {
   };
 
   const handlePreviousStep = () => {
-    setStep((prevStep) => prevStep - 1);
+    step > 1 ? setStep((prevStep) => prevStep - 1) : setStep(1);
   };
 
   const validateForm = (data: FormData): boolean => {
@@ -774,50 +774,6 @@ export default function ArtisanForm() {
                       Only required fields are marked with an asterisk (*).
                     </span>
                   </p>
-
-                  <FormField
-                    control={form.control}
-                    name="serviceCategory"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Select you Service Category*
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                              <SelectValue placeholder="Please select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="electronics"
-                            >
-                              Electronics
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="clothing"
-                            >
-                              Clothing
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="home"
-                            >
-                              Home & Garden
-                            </SelectItem>
-                            {/* Add more categories as needed */}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
                   <p className="text-[#B9B9B9] ">
                     Basic Business Certifications

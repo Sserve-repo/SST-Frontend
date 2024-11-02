@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import "react-multi-date-picker/styles/colors/purple.css";
@@ -33,6 +33,7 @@ import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
 
 type FormData = {
+  watch: any;
   firstName: string;
   lastName: string;
   email: string;
@@ -47,6 +48,7 @@ type FormData = {
   yearsOfExperience: number;
   paymentOptions: string[];
   serviceCategory: string;
+  serviceSubcategory: string;
   businessLocation: string;
   agreeToTerms: boolean;
   aboutProduct: string;
@@ -79,6 +81,250 @@ type FormData = {
 type ArtisanFormProps = {
   onBack: () => void;
 };
+
+const categories = [
+  {
+    category: "Home Services/Improvement",
+    subCategory: [
+      {
+        name: "Home Care",
+        data: [
+          {
+            description:
+              "Childcare certfication/First Aid Certification (Optional)",
+            uploadText:
+              "click to uplolad Childcare certfication/First Aid Certification",
+          },
+        ],
+      },
+      {
+        name: "Landscaping",
+        data: [
+          {
+            description: "Horticulture certification (Optional)",
+            uploadText: "click to upload Horticulture certification",
+          },
+        ],
+      },
+      {
+        name: "House Decoration",
+        data: [
+          {
+            description: "Interior design certification (Optional)",
+            uploadText: "click to upload Interior design certification",
+          },
+        ],
+      },
+      {
+        name: "Construction",
+        data: [
+          {
+            description: "Building permit",
+            uploadText: "click to upload Building permit",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Beauty & Fashion",
+    subCategory: [
+      {
+        name: "Salon Services",
+        data: [
+          {
+            description: "Health and safety certifications",
+            uploadText: "Click to upload Health and safety certifications",
+          },
+          {
+            description: "Hairstylist license",
+            uploadText: "Click to upload Hairstylist license",
+          },
+        ],
+      },
+      {
+        name: "Fashion Design",
+        data: [
+          {
+            description: "Fashion Design certifications (Optional)",
+            uploadText: "Click to upload Fashion Design certifications",
+          },
+        ],
+      },
+      {
+        name: "Makeup & Massage",
+        data: [
+          {
+            description: "Health and safety certifications (Optional)",
+            uploadText: "Click to upload Health and safety certifications",
+          },
+          {
+            description: "Esthetician license (Optional)",
+            uploadText: "Click to upload Esthetician license",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Event Service",
+    subCategory: [
+      {
+        name: "Event Planning",
+        data: [
+          {
+            description: "Special Event Permits",
+            uploadText: "Click to upload Special Event Permits",
+          },
+          {
+            description: "Event planning Certification",
+            uploadText: "Click to upload Event planning Certification",
+          },
+        ],
+      },
+      {
+        name: "Catering Service",
+        data: [
+          {
+            description: "Health and safety certifications (Optional)",
+            uploadText: "Click to Health and safety certifications",
+          },
+          {
+            description: "Food handling permit",
+            uploadText: "Click to Food handling permit",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Event Service",
+    subCategory: [
+      {
+        name: "Event Planning",
+        data: [
+          {
+            description: "Special Event Permits",
+            uploadText: "Click to upload Special Event Permits",
+          },
+          {
+            description: "Event planning Certification",
+            uploadText: "Click to upload Event planning Certification",
+          },
+        ],
+      },
+      {
+        name: "Catering Services",
+        data: [
+          {
+            description: "Health and safety certifications (Optional)",
+            uploadText: "Click to Health and safety certifications",
+          },
+          {
+            description: "Food Handling Permit",
+            uploadText: "Click to upload Food Handling Permit",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Custom Crafting",
+    subCategory: [
+      {
+        name: "Custom Handmate Crafting",
+        data: [
+          {
+            description: "Artisan certification",
+            uploadText: "Click to upload Artisan certification",
+          },
+        ],
+      },
+      {
+        name: "Catering Services",
+        data: [
+          {
+            description: "Instructor certification (Optional)",
+            uploadText: "Click to upload Instructor certification",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Mechanical & Technical Services",
+    subCategory: [
+      {
+        name: "Auto Mechanics",
+        data: [
+          {
+            description: "Mechanic certification",
+            uploadText: "Click to upload Mechanic certification",
+          },
+        ],
+      },
+      {
+        name: "Detailing",
+        data: [
+          {
+            description: "Detailing certification (Optional)",
+            uploadText: "Click to upload Detailing certification",
+          },
+        ],
+      },
+      {
+        name: "Technical",
+        data: [
+          {
+            description: "Plumber's license ",
+            uploadText: "Click to upload Plumber's license",
+          },
+        ],
+      },
+      {
+        name: "Electrical",
+        data: [
+          {
+            description: "Electrician's license",
+            uploadText: "Click to upload Electrician's license",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Cultural & Educational Services",
+    subCategory: [
+      {
+        name: "Tour Guide Services",
+        data: [
+          {
+            description: "Tour guide certification",
+            uploadText: "Click to upload Tour guide certification",
+          },
+        ],
+      },
+      {
+        name: "Photography & Videography",
+        data: [
+          {
+            description: "Photography certification (Optional)",
+            uploadText: "Click to upload Photography certification",
+          },
+        ],
+      },
+      {
+        name: "Language Translation Service",
+        data: [
+          {
+            description: "Translation certification (Optional)",
+            uploadText: "Click to upload Translation certification",
+          },
+        ],
+      },
+    ],
+  },
+];
 
 export function ArtisanForm({ onBack }: ArtisanFormProps) {
   const [step, setStep] = useState(1);
@@ -119,6 +365,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
       cvcCode: "",
       billingAddress: "",
       serviceCategory: "",
+      serviceSubcategory: "",
       confirmPassword: "",
       businessName: "",
       businessPhone: "",
@@ -145,6 +392,11 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
       idType: "",
     },
   });
+
+  const selectedCategory = form.watch("serviceCategory");
+  useEffect(() => {
+    form.setValue("serviceSubcategory", "");
+  }, [selectedCategory, form]);
 
   const handleNextStep = () => {
     setStep((prevStep) => prevStep + 1);
@@ -189,6 +441,10 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
         isValid = false;
       }
       if (!data.serviceCategory) {
+        errors.province = "Product Category is required";
+        isValid = false;
+      }
+      if (!data.serviceSubcategory) {
         errors.province = "Product Category is required";
         isValid = false;
       }
@@ -579,25 +835,17 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="electronics"
-                            >
-                              Electronics
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="clothing"
-                            >
-                              Clothing
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="home"
-                            >
-                              Home & Garden
-                            </SelectItem>
-                            {/* Add more categories as needed */}
+                            {categories.map((cat, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={cat.category}
+                                >
+                                  {cat.category}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -606,7 +854,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="productSubcategory"
+                    name="serviceSubcategory"
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-gray-400">
@@ -621,26 +869,19 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                               <SelectValue placeholder="Please Select" />
                             </SelectTrigger>
                           </FormControl>
+
                           <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="ontario"
-                            >
-                              Ontario
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="quebec"
-                            >
-                              Quebec
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="british-columbia"
-                            >
-                              British Columbia
-                            </SelectItem>
-                            {/* Add more provinces as needed */}
+                            {categories
+                              .find((cat) => cat.category === selectedCategory)
+                              ?.subCategory.map((subCat, index) => (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={subCat.name}
+                                >
+                                  {subCat.name}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
