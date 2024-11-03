@@ -35,7 +35,6 @@ import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
 
 type FormData = {
-  watch: any;
   firstName: string;
   lastName: string;
   email: string;

@@ -15,6 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Success } from "./Success";
+import { baseUrl } from "@/config/constant";
+import { toast } from "sonner";
+import { formatErrors } from "@/config/utils";
 
 type FormData = {
   firstName: string;
@@ -62,8 +65,8 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
       errors.email = "Invalid email address";
       isValid = false;
     }
-    if (!data.password || data.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+    if (!data.password || data.password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
       isValid = false;
     }
     if (data.password !== data.confirmPassword) {
@@ -85,15 +88,36 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
     return isValid;
   };
 
-  const handleSubmit: SubmitHandler<FormData> = (data) => {
-    const isValid = validateForm(data);
+  const handleSubmit: SubmitHandler<FormData> = async (data) => {
+    try {
+      validateForm(data);
+      const requestPayload = new FormData();
+      requestPayload.append("firstname", data.firstName);
+      requestPayload.append("lastname", data.lastName);
+      requestPayload.append("email", data.email);
+      requestPayload.append("password", data.password);
+      requestPayload.append("password_confirmation", data.confirmPassword);
 
-    if (isValid) {
-      console.log("Form submitted", data);
-      setSuccess(true);
-      setEmail(data.email);
-    } else {
-      console.log("Form validation failed");
+      const response = await fetch(
+        `${baseUrl}/shopper/auth/registerWithEmail`,
+        {
+          method: "POST",
+          body: requestPayload,
+        }
+      );
+      const res = await response.json();
+      if (response.ok && response.status === 201) {
+        toast.success(res.message);
+        setSuccess(true);
+        setEmail(data.email);
+      } else {
+        if (res?.status_code == 422) {
+          const { errors } = res.data;
+          formatErrors(errors, res);
+        }
+      }
+    } catch (error: any) {
+      console.log("Form validation failed", error);
     }
   };
 
