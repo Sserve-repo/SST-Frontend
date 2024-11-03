@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import "react-multi-date-picker/styles/colors/purple.css";
 import InputIcon from "react-multi-date-picker/components/input_icon";
 import ServiceCertifications from "./ServiceCertifications";
-import MultiDatePicker from "./MultiDatePicker";
 
 import {
   Form,
@@ -340,9 +339,6 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
     string | null
   >(null);
   const [proofOfInsurancePreview, setproofOfInsurancePreview] = useState<
-    string | null
-  >(null);
-  const [serviceCertificatePreview, setServiceCertificatePreview] = useState<
     string | null
   >(null);
   const [success, setSuccess] = useState(false);

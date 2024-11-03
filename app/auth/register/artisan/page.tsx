@@ -124,7 +124,11 @@ export default function ArtisanForm() {
   };
 
   const handlePreviousStep = () => {
-    step > 1 ? setStep((prevStep) => prevStep - 1) : setStep(1);
+    if (step > 1) {
+      setStep((prevStep) => prevStep - 1);
+    } else {
+      setStep(1);
+    }
   };
 
   const validateForm = (data: FormData): boolean => {

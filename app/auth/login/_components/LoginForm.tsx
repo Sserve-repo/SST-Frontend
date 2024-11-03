@@ -25,7 +25,7 @@ type FormData = {
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const form = useForm<FormData>({
@@ -60,6 +60,7 @@ export default function LoginForm() {
 
   const handleSubmit: SubmitHandler<FormData> = async (data) => {
     try {
+      setLoading(true);
       validateForm(data);
       const requestPayload = new FormData();
       requestPayload.append("email", data.email);
@@ -73,11 +74,11 @@ export default function LoginForm() {
       if (response.ok && response.status === 200) {
         if (res.message == "User not Found") {
           toast.error(res.message);
-          setSuccess(true);
-        }else{
+          setLoading(false);
+        } else {
           toast.success(res.message);
-          setSuccess(true);
-          localStorage.setItem("accessToken", res.token)
+          localStorage.setItem("accessToken", res.token);
+          setLoading(false);
           router.push("/");
         }
       } else {
@@ -134,7 +135,7 @@ export default function LoginForm() {
                       {...field}
                       type={showPassword ? "text" : "password"}
                       className="rounded-xl shadow-sm h-12 px-3"
-                      placeholder="*******************"
+                      placeholder="******"
                     />
                     <Button
                       type="button"
@@ -161,7 +162,7 @@ export default function LoginForm() {
             </Button>
           </div>
           <Button type="submit" className="w-full max-w-sm rounded-xl h-12">
-            Log In
+            {loading ? "loading" : "Log In"}
           </Button>
         </form>
       </Form>

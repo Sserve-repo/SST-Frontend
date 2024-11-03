@@ -25,14 +25,13 @@ type Category = {
   subCategory: SubCategory[];
 };
 
-// Update the preview state type to allow null values
 type CertificatePreviews = {
   [key: string]: string | null;
 };
 
 // Component props type
 type ServiceCertificationsProps = {
-  form: any; // Replace 'any' with your actual form type
+  form: any; 
   selectedCategory: string;
   selectedSubCategory: string;
 };
