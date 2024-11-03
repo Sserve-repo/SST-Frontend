@@ -5,6 +5,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import "react-multi-date-picker/styles/colors/purple.css";
 import InputIcon from "react-multi-date-picker/components/input_icon";
+import ServiceCertifications from "./ServiceCertifications";
+import MultiDatePicker from "./MultiDatePicker";
 
 import {
   Form,
@@ -122,6 +124,10 @@ const categories = [
             description: "Building permit",
             uploadText: "click to upload Building permit",
           },
+          {
+            description: "Contractor's license (Optional)",
+            uploadText: "Click to Upload Contractor's license",
+          },
         ],
       },
     ],
@@ -197,37 +203,37 @@ const categories = [
       },
     ],
   },
-  {
-    category: "Event Service",
-    subCategory: [
-      {
-        name: "Event Planning",
-        data: [
-          {
-            description: "Special Event Permits",
-            uploadText: "Click to upload Special Event Permits",
-          },
-          {
-            description: "Event planning Certification",
-            uploadText: "Click to upload Event planning Certification",
-          },
-        ],
-      },
-      {
-        name: "Catering Services",
-        data: [
-          {
-            description: "Health and safety certifications (Optional)",
-            uploadText: "Click to Health and safety certifications",
-          },
-          {
-            description: "Food Handling Permit",
-            uploadText: "Click to upload Food Handling Permit",
-          },
-        ],
-      },
-    ],
-  },
+  // {
+  //   category: "Event Service",
+  //   subCategory: [
+  //     {
+  //       name: "Event Planning",
+  //       data: [
+  //         {
+  //           description: "Special Event Permits",
+  //           uploadText: "Click to upload Special Event Permits",
+  //         },
+  //         {
+  //           description: "Event planning Certification",
+  //           uploadText: "Click to upload Event planning Certification",
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       name: "Catering Services",
+  //       data: [
+  //         {
+  //           description: "Health and safety certifications (Optional)",
+  //           uploadText: "Click to Health and safety certifications",
+  //         },
+  //         {
+  //           description: "Food Handling Permit",
+  //           uploadText: "Click to upload Food Handling Permit",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
   {
     category: "Custom Crafting",
     subCategory: [
@@ -350,6 +356,13 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
     setSelectedDates(dates);
     console.log("***** dates:", selectedDates);
   };
+
+  // // Date Picker States
+  // const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+
+  // const handleSelect: SelectMultipleEventHandler = (days) => {
+  //   setSelectedDates(days || []);
+  // };
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -1012,6 +1025,11 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Select Days*
                         </FormLabel>
+                        {/* <MultiDatePicker
+                          selectedDates={selectedDates}
+                          onSelect={handleSelect}
+                        /> */}
+
                         <DatePicker
                           render={
                             <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-slate-400 py-3 inline-flex justify-center items-center shadow-sm " />
@@ -1023,7 +1041,6 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                           }}
                           className="purple"
                         />
-
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1134,51 +1151,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     </span>
                   </p>
 
-                  <FormField
-                    control={form.control}
-                    name="serviceCategory"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Select you Service Category*
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                              <SelectValue placeholder="Please select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="electronics"
-                            >
-                              Electronics
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="clothing"
-                            >
-                              Clothing
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="home"
-                            >
-                              Home & Garden
-                            </SelectItem>
-                            {/* Add more categories as needed */}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <p className="text-[#B9B9B9] ">
+                  <p className="text-[#B9B9B9] font-medium text-xl mt-5">
                     Basic Business Certifications
                   </p>
 
@@ -1301,71 +1274,14 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     )}
                   />
 
-                  <p className="text-gray-400 text-start ">
-                    Childcare certification, First Aid Certification
-                    <span className="text-[#502266]">
-                      (Optional for licenses like Childcare, Horticulture,
-                      Building Permit, etc).
-                    </span>
+                  <p className="text-gray-400 font-medium text-xl mt-10 text-start ">
+                    Service-Specific Certifications *
                   </p>
 
-                  <FormField
-                    control={form.control}
-                    name="serviceCertificate"
-                    render={({ field: { value, onChange, ...field } }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400 mb-2">
-                          Business License *
-                        </FormLabel>
-                        <FormControl>
-                          <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
-                            {/* Display preview and file name */}
-                            {serviceCertificatePreview ? (
-                              <div className="mt-4 flex flex-col items-center">
-                                <img
-                                  src={serviceCertificatePreview}
-                                  alt="Uploaded Preview"
-                                  className="w-fit h-24 object-cover rounded-lg"
-                                />
-                                <p className="mt-2 text-sm text-gray-600">
-                                  {value?.name}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="p-2 rounded-full flex items-center justify-centeraspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
-                                </div>
-                                <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                                  <span className="text-primary ">
-                                    Click to Upload Certification{" "}
-                                  </span>
-                                </p>
-                              </>
-                            )}
-                            {/* Hidden Input for File */}
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                onChange(file); // Pass the file to form state
-                                if (file) {
-                                  setServiceCertificatePreview(
-                                    URL.createObjectURL(file)
-                                  ); // Set IdFrontPreview image
-                                } else {
-                                  setServiceCertificatePreview(null);
-                                }
-                              }}
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                  <ServiceCertifications
+                    form={form}
+                    selectedCategory={form.watch("serviceCategory")}
+                    selectedSubCategory={form.watch("serviceSubcategory")}
                   />
                 </div>
               )}
