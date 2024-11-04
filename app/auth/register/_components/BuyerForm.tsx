@@ -110,11 +110,11 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
               Back
             </div>
           </div>
-          <div className="flex justify-center flex-col max-w-md mb-10 w-full">
-            <h1 className="text-3xl font-semibold text-primary">
+          <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
+            <h1 className="text-[40px] font-semibold text-[#502266]">
               Buyer Account
             </h1>
-            <p className="text-md max-w-xs text-gray-400 font-medium">
+            <p className="text-lg font-normal text-[#b9b9b9] md:pr-[100px]">
               For the purpose of industry regulation, your details are required.
             </p>
           </div>
@@ -129,8 +129,8 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                   name="firstName"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel className="text-gray-400">
-                        First Name
+                      <FormLabel className="text-[#502266] text-base font-normal">
+                        First Name*
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -148,7 +148,9 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel className="text-gray-400">Last Name</FormLabel>
+                      <FormLabel className="text-[#502266] text-base font-normal">
+                        Last Name*
+                      </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -166,7 +168,9 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                 name="email"
                 render={({ field }) => (
                   <FormItem className="w-full">
-                    <FormLabel className="text-gray-400">Email</FormLabel>
+                    <FormLabel className="text-[#502266] text-base font-normal">
+                      Email*
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -185,7 +189,9 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                   name="password"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel className="text-gray-400">Password</FormLabel>
+                      <FormLabel className="text-[#502266] text-base font-normal">
+                        Password*
+                      </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
@@ -218,8 +224,8 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel className="text-gray-400">
-                        Confirm Password
+                      <FormLabel className="text-[#502266] text-base font-normal">
+                        Confirm Password*
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
@@ -262,9 +268,21 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>I agree to terms & conditions</FormLabel>
+                    <div className="flex items-center self-start gap-[14px] mt-4">
+                      <FormLabel>
+                        <p className="font-normal text-base text-[#502266]">
+                          I agree to the &nbsp;
+                          <span className="text-[#240F2E] hover:underline">
+                            <a href="#">Terms and Conditions</a>
+                          </span>
+                          &nbsp; and &nbsp;
+                          <span className="text-[#240F2E] hover:underline">
+                            <a href="#">Privacy Policy</a>
+                          </span>
+                        </p>
+                      </FormLabel>
                     </div>
+
                     <FormMessage />
                   </FormItem>
                 )}

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import "react-multi-date-picker/styles/colors/purple.css";
 import InputIcon from "react-multi-date-picker/components/input_icon";
 import ServiceCertifications from "./ServiceCertifications";
-import MultiDatePicker from "./MultiDatePicker";
 
 import {
   Form,
@@ -348,20 +347,13 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
   >(null);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
-  // const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
-  //   undefined
-  // );
+  const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
+    undefined
+  );
 
-  // const handleDateChange = (dates) => {
-  //   setSelectedDates(dates);
-  //   console.log("***** dates:", selectedDates);
-  // };
-
-  // Date Picker States
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-
-  const handleSelect = (days: Date[] | undefined) => {
-    setSelectedDates(days || []);
+  const handleDateChange = (dates) => {
+    setSelectedDates(dates);
+    console.log("***** dates:", selectedDates);
   };
 
   const form = useForm<FormData>({
@@ -563,21 +555,21 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
   };
 
   const stepTitles: string[] = [
-    "Create Account",
-    "Customize Business Profile",
+    "Basic Details",
+    "Customize Shop Profile",
     "Set Service Areas & Availability",
-    "Verify Your Identity",
-    "Business Service Policies",
+    "Submit Documentation",
+    "Set Business Service Policies",
     "Set Up Payment Preferences",
     "Set Up Billing",
-    "Tell Us About Your Listing",
+    "Categories & Listing",
   ];
 
   return (
-    <div className="max-w-lg mx-auto w-full relative">
+    <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
       {!success ? (
         <>
-          <div className="flex items-start mb-14 mt-3 text-[#C28FDA]">
+          <div className="flex items-start mb-[40px] text-[#C28FDA]">
             <div
               className="flex items-center gap-1 cursor-pointer"
               onClick={step === 1 ? onBack : handlePreviousStep}
@@ -589,7 +581,9 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
               <span className="text-[#FFB46A] text-sm">
                 Step {step} of {stepTitles.length}
               </span>{" "}
-              <span className="text-[#C28FDA]">{stepTitles[step - 1]} </span>
+              <span className="text-[#C28FDA] md:pl-[250px]">
+                {stepTitles[step - 1]}{" "}
+              </span>
             </div>
           </div>
 
@@ -600,14 +594,24 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
             >
               {step === 1 && (
                 <>
+                  {/* Headings */}
+                  <div>
+                    <h1 className="text-[40px] font-semibold text-[#502266]">
+                      Create Account
+                    </h1>
+                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
+                      For the purpose of industry regulation, your details are
+                      required.
+                    </p>
+                  </div>
                   <div className="flex items-center sm:flex-row flex-col w-full gap-3">
                     <FormField
                       control={form.control}
                       name="firstName"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            First Name
+                          <FormLabel className="text-[#502266]">
+                            First Name*
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -625,8 +629,8 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            Last Name
+                          <FormLabel className="text-[#502266]">
+                            Last Name*
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -645,7 +649,9 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">Email</FormLabel>
+                        <FormLabel className="text-[#502266]">
+                          Email address*
+                        </FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -664,8 +670,8 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                       name="password"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            Password
+                          <FormLabel className="text-[#502266]">
+                            Create Password*
                           </FormLabel>
                           <FormControl>
                             <div className="relative">
@@ -699,8 +705,8 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            Confirm Password
+                          <FormLabel className="text-[#502266]">
+                            Confirm Password*
                           </FormLabel>
                           <FormControl>
                             <div className="relative">
@@ -732,15 +738,28 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                       )}
                     />
                   </div>
+                  <div className="flex items-center self-start gap-[14px] mt-4">
+                    <Checkbox />
+                    <p className="font-normal text-base text-[#9E4FC4]">
+                      I agree to the &nbsp;
+                      <span className="text-[#240F2E] hover:underline">
+                        <a href="#">Terms of Use</a>
+                      </span>
+                      &nbsp; and &nbsp;
+                      <span className="text-[#240F2E] hover:underline">
+                        <a href="#">Privacy Policy</a>
+                      </span>
+                    </p>
+                  </div>
                 </>
               )}
 
               {step === 2 && (
-                <div className=" w-full flex flex-col gap-y-2">
-                  <h2 className="text-3xl font-semibold text-[#502266]">
-                    Customize Business Profile{" "}
+                <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
+                  <h2 className="text-[40px] font-semibold text-[#502266]">
+                    Customize Business Profile
                   </h2>
-                  <p className="text-gray-400 text-start">
+                  <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[20px]">
                     Tell us about the services you offer: What makes your
                     business stand out?
                   </p>
@@ -749,7 +768,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="businessName"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266]">
                           Business Name
                         </FormLabel>
                         <FormControl>
@@ -1008,11 +1027,11 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
               )}
 
               {step === 3 && (
-                <div className="w-full flex flex-col  gap-y-3">
-                  <h2 className="text-2xl font-semibold">
+                <div className="w-full flex flex-col ">
+                  <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
                     Set Service Areas & Availability
                   </h2>
-                  <p className="text-gray-400 text-start">
+                  <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[200px]">
                     Specify the areas and times you&apos;re available to provide
                     services.
                   </p>
@@ -1021,19 +1040,14 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     control={form.control}
                     name="availableDays"
                     render={({}) => (
-                      <FormItem className="w-full flex  flex-col">
-                        <FormLabel className="text-gray-400">
+                      <FormItem className="w-full flex flex-col mb-[22px]">
+                        <FormLabel className="text-gray-400 text-base mt-[30px] mb-3">
                           Select Days*
                         </FormLabel>
 
-                        <MultiDatePicker
-                          selectedDates={selectedDates}
-                          onSelect={handleSelect}
-                        />
-
-                        {/* <DatePicker
+                        <DatePicker
                           render={
-                            <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-slate-400 py-3 inline-flex justify-center items-center shadow-sm " />
+                            <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-[#b9b9b9] py-3 inline-flex justify-center items-center shadow-sm " />
                           }
                           multiple
                           value={selectedDates}
@@ -1041,7 +1055,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                             handleDateChange(dates);
                           }}
                           className="purple"
-                        /> */}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1052,15 +1066,15 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                       control={form.control}
                       name="startTime"
                       render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                        <FormItem className="w-full mb-[22px]">
+                          <FormLabel className="text-[#b9b9b9] text-base mb-3">
                             Select Start Time*
                           </FormLabel>
                           <FormControl>
                             <Input
                               type="date"
                               {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
+                              className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
                               placeholder="MM/YY"
                             />
                           </FormControl>
@@ -1072,15 +1086,15 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                       control={form.control}
                       name="endTime"
                       render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                        <FormItem className="w-full mb-[22px]">
+                          <FormLabel className="text-[#b9b9b9] text-base mb-3">
                             Select End Time*
                           </FormLabel>
                           <FormControl>
                             <Input
                               type="date"
                               {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
+                              className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
                               placeholder="MM/YY"
                             />
                           </FormControl>
@@ -1095,7 +1109,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="shopAddress"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base mb-3">
                           Enter Shop Address*
                         </FormLabel>
                         <FormControl>
@@ -1114,8 +1128,8 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     control={form.control}
                     name="homeService"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col  items-start space-3 px-6 py-5 rounded-2xl">
-                        <FormLabel className="text-gray-400">
+                      <FormItem className="flex flex-col justify-center items-start space-3 py-5 rounded-2xl">
+                        <FormLabel className="text-[#b9b9b9] text-base mb-3">
                           Are you available for home service?*
                         </FormLabel>
 
@@ -1129,8 +1143,8 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                             />
                           </FormControl>
 
-                          <FormLabel className="font-normal ml-3">
-                            Yes, I offer home services{" "}
+                          <FormLabel className="items-center font-normal ml-3">
+                            Yes, I offer home services
                           </FormLabel>
                         </div>
                       </FormItem>
@@ -1141,18 +1155,19 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
 
               {step === 4 && (
                 <div className="flex flex-col gap-y-3  w-full">
-                  <h2 className="text-2xl font-semibold">
+                  <h2 className="text-[40px] font-semibold text-[#502266]">
                     Verify Your Identity
                   </h2>
-                  <p className="text-gray-400 text-start ">
+                  <p className="text-lg font-normal text-[#b9b9b9]">
                     Please upload 3-4 relevant certifications based on your
                     service type.
                     <span className="text-[#502266]">
-                      Only required fields are marked with an asterisk (*).
+                      &nbsp;Only required fields are marked with an asterisk
+                      (*).
                     </span>
                   </p>
 
-                  <p className="text-[#B9B9B9] font-medium text-xl mt-5">
+                  <p className="text-[#B9B9B9] font-medium text-xl my-5">
                     Basic Business Certifications
                   </p>
 
@@ -1161,7 +1176,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="businessLicense"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400 mb-2">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base mb-2">
                           Business License *
                         </FormLabel>
                         <FormControl>
@@ -1221,8 +1236,9 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="proofOfInsurance"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full mt-6">
-                        <FormLabel className="text-gray-400 mb-2">
-                          Proof of Insurance (Optional)
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base mb-2">
+                          Proof of Insurance{" "}
+                          <span className="text-[#502266]">(Optional)</span>
                         </FormLabel>
                         <FormControl>
                           <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
@@ -1288,12 +1304,12 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
               )}
 
               {step === 5 && (
-                <div className="w-full flex flex-col gap-y-3">
+                <div className="w-full flex flex-col gap-y-7">
                   <div>
-                    <h2 className="text-2xl font-semibold">
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
                       Business Service Policies
                     </h2>
-                    <p className="text-gray-400 text-start">
+                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[150px]">
                       Outline your service booking, cancellation, and rebooking
                       policies.
                     </p>
@@ -1303,7 +1319,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="bookingDetails"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
                           Booking Details *
                         </FormLabel>
                         <FormControl>
@@ -1323,7 +1339,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="cancellationAndRebookingPolicies"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
                           Define Cancellation and Rebooking Policies *
                         </FormLabel>
                         <FormControl>
@@ -1346,11 +1362,10 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
               {step === 6 && (
                 <div className=" flex flex-col w-full gap-y-3">
                   <div>
-                    <div className="text-[#502266] text-3xl font-semibold">
-                      <p> Set Up Payment </p>
-                      <p>Preferences</p>
+                    <div className="text-[40px] font-semibold text-[#502266] leading-[52px]">
+                      <p> Set Up Payment Preferences</p>
                     </div>
-                    <p className="text-gray-400 text-start">
+                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[200px]">
                       Your payment details will be securely stored and verified.
                     </p>
                   </div>
@@ -1358,7 +1373,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     control={form.control}
                     name="paymentOptions"
                     render={() => (
-                      <FormItem className="w-full ">
+                      <FormItem className="w-full mt-[40px]">
                         <FormLabel className="text-gray-400"></FormLabel>
                         <div className="space-y-2">
                           <FormField
@@ -1436,10 +1451,10 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
 
               {step === 7 && (
                 <div className="flex flex-col w-full gap-y-4">
-                  <h2 className="text-[#502266] text-2xl font-semibold">
+                  <h2 className="text-[40px] font-semibold text-[#502266]">
                     Set Up Billing
                   </h2>
-                  <div className="text-gray-400 text-start">
+                  <div className="text-lg font-normal text-[#b9b9b9] -mt-4 md:pr-[200px]">
                     <p>We will securely store your billing fees.</p>
                     <p> details for future platform</p>
                   </div>
@@ -1525,20 +1540,22 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
               )}
 
               {step === 8 && (
-                <div className="w-full">
-                  <h2 className="text-2xl font-semibold">
-                    Tell Us About Your Listing
-                  </h2>
-                  <p className="text-gray-400 text-start">
-                    You can add up to 5 categories and customize each listing to
-                    match.
-                  </p>
+                <div className="w-full space-y-[22px]">
+                  <div>
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Tell Us About Your Listing
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[50px]">
+                      You can add up to 5 categories and customize each listing
+                      to match.
+                    </p>
+                  </div>
                   <FormField
                     control={form.control}
                     name="serviceName"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
                           Service Title/Name
                         </FormLabel>
                         <FormControl>
@@ -1558,7 +1575,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="servicePrice"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
                           Service Price *
                         </FormLabel>
                         <FormControl>
@@ -1579,13 +1596,13 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="serviceDescription"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
                           Service Description
                         </FormLabel>
                         <FormControl>
                           <Textarea
                             {...field}
-                            className="min-h-[100px] rounded-xl shadow-sm px-3"
+                            className="min-h-[100px] rounded-xl shadow-sm px-3 text-[#b9b9b9]"
                             placeholder="Describe your service..."
                           />
                         </FormControl>
@@ -1599,7 +1616,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                     name="serviceImage"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
                           Upload Service Image
                         </FormLabel>
                         <FormControl>
@@ -1662,8 +1679,10 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                 </div>
               )}
 
-              <div className="py-2"></div>
-              <Button type="submit" className="w-full max-w-sm rounded-xl h-12">
+              <Button
+                type="submit"
+                className="w-full max-w-sm rounded-xl h-12 mt-4"
+              >
                 {step === 1
                   ? "Register"
                   : step === 4

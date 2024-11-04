@@ -28,7 +28,6 @@ import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
 import Link from "next/link";
 import { Success } from "./Success";
 
-
 type FormData = {
   // Step 1: Create Account
   firstName: string;
@@ -88,7 +87,6 @@ export function VendorForm({ onBack }: VendorFormProps) {
   const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
-
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -350,9 +348,6 @@ export function VendorForm({ onBack }: VendorFormProps) {
     }
   };
 
-
-
-
   const stepTitles: string[] = [
     "Create Account",
     "Shop Preferences",
@@ -391,16 +386,22 @@ export function VendorForm({ onBack }: VendorFormProps) {
             >
               {step === 1 && (
                 <>
-                  <h2 className="text-2xl font-semibold w-full">
-                    Create Your Account
-                  </h2>
+                  <div>
+                    <h2 className="text-[40px] font-semibold text-[#502266] w-full">
+                      Create Account
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[290px]">
+                      For the purpose of industry regulation, your details are
+                      required.
+                    </p>
+                  </div>
                   <div className="grid sm:grid-cols-2 gap-4 w-full">
                     <FormField
                       control={form.control}
                       name="firstName"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#502266] text-base font-normal">
                             First Name
                           </FormLabel>
                           <FormControl>
@@ -419,7 +420,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#502266] text-base font-normal">
                             Last Name
                           </FormLabel>
                           <FormControl>
@@ -439,7 +440,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] text-base font-normal">
                           Email Address
                         </FormLabel>
                         <FormControl>
@@ -460,8 +461,8 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="password"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            Password
+                          <FormLabel className="text-[#502266] text-base font-normal">
+                            Create Password
                           </FormLabel>
                           <FormControl>
                             <div className="relative">
@@ -495,7 +496,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#502266] text-base font-normal">
                             Confirm Password
                           </FormLabel>
                           <FormControl>
@@ -539,8 +540,19 @@ export function VendorForm({ onBack }: VendorFormProps) {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>I agree to terms & conditions</FormLabel>
+                        <div className="flex items-center self-start gap-[14px] mt-4">
+                          <FormLabel>
+                            <p className="font-normal text-base text-[#9E4FC4]">
+                              I agree to the &nbsp;
+                              <span className="text-[#240F2E] hover:underline">
+                                <a href="#">Terms of Use</a>
+                              </span>
+                              &nbsp; and &nbsp;
+                              <span className="text-[#240F2E] hover:underline">
+                                <a href="#">Privacy Policy</a>
+                              </span>
+                            </p>
+                          </FormLabel>
                         </div>
                         <FormMessage />
                       </FormItem>
@@ -550,20 +562,22 @@ export function VendorForm({ onBack }: VendorFormProps) {
               )}
 
               {step === 2 && (
-                <div className=" w-full flex flex-col gap-y-2">
-                  <h2 className=" text-4xl text-start font-semibold">
-                    <p>Set Your Shop Profile </p>& Preferences
-                  </h2>
-                  <div className="text-gray-400 text-start ">
-                    <p> For the purpose of industry regulation,</p>
-                    <p> your details are required.</p>
+                <div className=" w-full flex flex-col gap-y-[30px]">
+                  <div>
+                    <h2 className="text-[40px] font-semibold text-[#502266] leading-[50px]">
+                      <p>Set Your Shop Profile </p>& Preferences
+                    </h2>
+                    <div className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                      <p> For the purpose of industry regulation,</p>
+                      <p> your details are required.</p>
+                    </div>
                   </div>
                   <FormField
                     control={form.control}
                     name="businessName"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Business Name
                         </FormLabel>
                         <FormControl>
@@ -583,7 +597,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="businessPhone"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Business Phone Number
                         </FormLabel>
                         <FormControl className="w-full">
@@ -629,7 +643,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="businessEmail"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Business Email
                         </FormLabel>
                         <FormControl>
@@ -649,7 +663,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="productCategory"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Product Category
                         </FormLabel>
                         <Select
@@ -692,7 +706,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="productSubcategory"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Product Sub Category *
                         </FormLabel>
                         <Select
@@ -735,7 +749,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="aboutProduct"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Tell us more about your products*
                         </FormLabel>
                         <FormControl>
@@ -754,7 +768,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="city"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           City/Town*
                         </FormLabel>
                         <FormControl>
@@ -775,7 +789,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="postalCode"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Postal Code
                         </FormLabel>
                         <FormControl>
@@ -795,7 +809,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="province"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#502266] font-normal text-base">
                           Province
                         </FormLabel>
                         <Select
@@ -837,23 +851,25 @@ export function VendorForm({ onBack }: VendorFormProps) {
               )}
 
               {step === 3 && (
-                <div className="w-full">
-                  <h2 className="text-2xl font-semibold">
-                    Verify Your Identity
-                  </h2>
-                  <p className="text-gray-400 text-start ">
-                    To verify your business, please upload 3-4 relevant
-                    certifications. Some certifications are required, while
-                    others are optional. This helps build trust and credibility
-                    with your clients.
-                  </p>
+                <div className="w-full space-y-7">
+                  <div>
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Verify Your Identity
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[70px]">
+                      To verify your business, please upload 3-4 relevant
+                      certifications. Some certifications are required, while
+                      others are optional. This helps build trust and
+                      credibility with your clients.
+                    </p>
+                  </div>
                   <FormField
                     control={form.control}
                     name="idType"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Identification Document
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                          Upload Identification Document
                         </FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -894,7 +910,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="idFront"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400 mb-2">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Upload ID (FRONT)
                         </FormLabel>
                         <FormControl>
@@ -956,7 +972,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="idBack"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full mt-6">
-                        <FormLabel className="text-gray-400 mb-2">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Upload ID (BACK)
                         </FormLabel>
                         <FormControl>
@@ -1015,21 +1031,22 @@ export function VendorForm({ onBack }: VendorFormProps) {
               )}
 
               {step === 4 && (
-                <div className="w-full flex flex-col gap-y-3 ">
-                  <div className="text-[#502266] text-2xl font-semibold">
-                    <p>Set Shipping & Return </p>
-                    <p>Policies</p>
+                <div className="w-full flex flex-col gap-y-7">
+                  <div>
+                    <div className="text-[40px] font-semibold text-[#502266] md:pr-[200px] leading-[50px]">
+                      <p>Set Shipping & Return Policies</p>
+                    </div>
+                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                      Provide clear details about your shipping methods and
+                      return policies.
+                    </p>
                   </div>
-                  <p className="text-gray-400 text-start ">
-                    Provide clear details about your shipping methods and return
-                    policies.
-                  </p>
                   <FormField
                     control={form.control}
                     name="shippingOption"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Shipping Options
                         </FormLabel>
                         <Select
@@ -1072,7 +1089,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="deliveryFrom"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
                             Estimated Delivery From
                           </FormLabel>
                           <FormControl>
@@ -1100,7 +1117,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="deliveryTo"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
                             Estimated Delivery To
                           </FormLabel>
                           <FormControl>
@@ -1130,7 +1147,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="returnPolicy"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Return & Exchange Policy
                         </FormLabel>
                         <FormControl>
@@ -1154,13 +1171,12 @@ export function VendorForm({ onBack }: VendorFormProps) {
               )}
 
               {step === 5 && (
-                <div className=" flex flex-col w-full gap-y-3">
+                <div className=" flex flex-col w-full gap-y-7">
                   <div>
-                    <div className="text-[#502266] text-3xl font-semibold">
-                      <p> Set Up Payment </p>
-                      <p>Preferences</p>
+                    <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
+                      <p> Set Up Payment Preferences</p>
                     </div>
-                    <p className="text-gray-400 text-start">
+                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
                       Your payment details will be securely stored and verified.
                     </p>
                   </div>
@@ -1245,20 +1261,22 @@ export function VendorForm({ onBack }: VendorFormProps) {
               )}
 
               {step === 6 && (
-                <div className="flex flex-col w-full gap-y-4">
-                  <h2 className="text-[#502266] text-2xl font-semibold">
-                    Set Up Billing
-                  </h2>
-                  <div className="text-gray-400 text-start">
-                    <p>We will securely store your billing fees.</p>
-                    <p> details for future platform</p>
+                <div className="flex flex-col w-full gap-y-7">
+                  <div>
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Set Up Billing
+                    </h2>
+                    <div className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                      <p>We will securely store your billing fees.</p>
+                      <p> details for future platform</p>
+                    </div>
                   </div>
                   <FormField
                     control={form.control}
                     name="cardNumber"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Credit Card Number
                         </FormLabel>
                         <FormControl>
@@ -1278,7 +1296,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="expiryDate"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
                             Expiry Date
                           </FormLabel>
                           <FormControl>
@@ -1297,7 +1315,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="cvcCode"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
                             CVC Code
                           </FormLabel>
                           <FormControl>
@@ -1317,7 +1335,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="billingAddress"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Billing Address
                         </FormLabel>
                         <FormControl>
@@ -1335,20 +1353,22 @@ export function VendorForm({ onBack }: VendorFormProps) {
               )}
 
               {step === 7 && (
-                <div className="w-full">
-                  <h2 className="text-2xl font-semibold">
-                    Tell Us About Your Listing
-                  </h2>
-                  <p className="text-gray-400 text-start">
-                    You can add up to 5 categories and customize each listing to
-                    match.
-                  </p>
+                <div className="w-full space-y-7">
+                  <div>
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Tell Us About Your Listing
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
+                      You can add up to 5 categories and customize each listing
+                      to match.
+                    </p>
+                  </div>
                   <FormField
                     control={form.control}
                     name="productName"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Product Title/Name
                         </FormLabel>
                         <FormControl>
@@ -1368,7 +1388,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="productPrice"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
                             Product Price *
                           </FormLabel>
                           <FormControl>
@@ -1388,7 +1408,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                       name="stockLevels"
                       render={({ field }) => (
                         <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
                             Stock Levels
                           </FormLabel>
                           <FormControl>
@@ -1409,7 +1429,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="shippingCosts"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Shipping Costs
                         </FormLabel>
                         <FormControl>
@@ -1429,7 +1449,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="productDescription"
                     render={({ field }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Product Description
                         </FormLabel>
                         <FormControl>
@@ -1448,7 +1468,7 @@ export function VendorForm({ onBack }: VendorFormProps) {
                     name="productImage"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
                           Upload Product Image
                         </FormLabel>
                         <FormControl>
