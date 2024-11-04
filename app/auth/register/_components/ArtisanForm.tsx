@@ -348,21 +348,21 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
   >(null);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
-  const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
-    undefined
-  );
+  // const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
+  //   undefined
+  // );
 
-  const handleDateChange = (dates) => {
-    setSelectedDates(dates);
-    console.log("***** dates:", selectedDates);
-  };
-
-  // // Date Picker States
-  // const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-
-  // const handleSelect: SelectMultipleEventHandler = (days) => {
-  //   setSelectedDates(days || []);
+  // const handleDateChange = (dates) => {
+  //   setSelectedDates(dates);
+  //   console.log("***** dates:", selectedDates);
   // };
+
+  // Date Picker States
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+
+  const handleSelect = (days: Date[] | undefined) => {
+    setSelectedDates(days || []);
+  };
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -1025,12 +1025,13 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Select Days*
                         </FormLabel>
-                        {/* <MultiDatePicker
+
+                        <MultiDatePicker
                           selectedDates={selectedDates}
                           onSelect={handleSelect}
-                        /> */}
+                        />
 
-                        <DatePicker
+                        {/* <DatePicker
                           render={
                             <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-slate-400 py-3 inline-flex justify-center items-center shadow-sm " />
                           }
@@ -1040,7 +1041,7 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
                             handleDateChange(dates);
                           }}
                           className="purple"
-                        />
+                        /> */}
                         <FormMessage />
                       </FormItem>
                     )}
