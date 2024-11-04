@@ -62,7 +62,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning={true}>
         <NextTopLoader color="hsl(281, 50%, 27%)" />
-        <Toaster />
+        <Toaster position="top-right" richColors  closeButton  />
         <ThemeProvider attribute="class" enableSystem={false}>
           <ClientLayout>{children}</ClientLayout>
         </ThemeProvider>

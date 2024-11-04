@@ -34,7 +34,6 @@ import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
 
 type FormData = {
-  watch: any;
   firstName: string;
   lastName: string;
   email: string;
@@ -340,9 +339,6 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
     string | null
   >(null);
   const [proofOfInsurancePreview, setproofOfInsurancePreview] = useState<
-    string | null
-  >(null);
-  const [serviceCertificatePreview, setServiceCertificatePreview] = useState<
     string | null
   >(null);
   const [success, setSuccess] = useState(false);

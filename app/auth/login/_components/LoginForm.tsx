@@ -13,6 +13,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import { baseUrl } from "@/config/constant";
+import { formatErrors } from "@/config/utils";
+import { useRouter } from "next/navigation";
 
 type FormData = {
   email: string;
@@ -21,6 +25,8 @@ type FormData = {
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -52,14 +58,37 @@ export default function LoginForm() {
     return isValid;
   };
 
-  const handleSubmit: SubmitHandler<FormData> = (data) => {
-    const isValid = validateForm(data);
+  const handleSubmit: SubmitHandler<FormData> = async (data) => {
+    try {
+      setLoading(true);
+      validateForm(data);
+      const requestPayload = new FormData();
+      requestPayload.append("email", data.email);
+      requestPayload.append("password", data.password);
 
-    if (isValid) {
-      console.log("Form submitted", data);
-      // Handle login logic here
-    } else {
-      console.log("Form validation failed");
+      const response = await fetch(`${baseUrl}/auth/login`, {
+        method: "POST",
+        body: requestPayload,
+      });
+      const res = await response.json();
+      if (response.ok && response.status === 200) {
+        if (res.message == "User not Found") {
+          toast.error(res.message);
+          setLoading(false);
+        } else {
+          toast.success(res.message);
+          localStorage.setItem("accessToken", res.token);
+          setLoading(false);
+          router.push("/");
+        }
+      } else {
+        if (res?.status_code == 422) {
+          const { errors } = res.data;
+          formatErrors(errors, res);
+        }
+      }
+    } catch (error: any) {
+      console.log("Form validation failed", error);
     }
   };
 
@@ -106,7 +135,7 @@ export default function LoginForm() {
                       {...field}
                       type={showPassword ? "text" : "password"}
                       className="rounded-xl shadow-sm h-12 px-3"
-                      placeholder="*******************"
+                      placeholder="******"
                     />
                     <Button
                       type="button"
@@ -133,7 +162,7 @@ export default function LoginForm() {
             </Button>
           </div>
           <Button type="submit" className="w-full max-w-sm rounded-xl h-12">
-            Log In
+            {loading ? "loading" : "Log In"}
           </Button>
         </form>
       </Form>
