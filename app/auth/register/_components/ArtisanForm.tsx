@@ -80,6 +80,7 @@ type FormData = {
 
 type ArtisanFormProps = {
   onBack: () => void;
+  registrationStep: number;
 };
 
 const categories = [
@@ -201,37 +202,6 @@ const categories = [
       },
     ],
   },
-  // {
-  //   category: "Event Service",
-  //   subCategory: [
-  //     {
-  //       name: "Event Planning",
-  //       data: [
-  //         {
-  //           description: "Special Event Permits",
-  //           uploadText: "Click to upload Special Event Permits",
-  //         },
-  //         {
-  //           description: "Event planning Certification",
-  //           uploadText: "Click to upload Event planning Certification",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       name: "Catering Services",
-  //       data: [
-  //         {
-  //           description: "Health and safety certifications (Optional)",
-  //           uploadText: "Click to Health and safety certifications",
-  //         },
-  //         {
-  //           description: "Food Handling Permit",
-  //           uploadText: "Click to upload Food Handling Permit",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // },
   {
     category: "Custom Crafting",
     subCategory: [
@@ -330,7 +300,7 @@ const categories = [
   },
 ];
 
-export function ArtisanForm({ onBack }: ArtisanFormProps) {
+export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -392,6 +362,12 @@ export function ArtisanForm({ onBack }: ArtisanFormProps) {
       serviceCertificate: null,
       idType: "",
     },
+  });
+
+  useEffect(() => {
+    if (registrationStep) {
+      setStep(registrationStep);
+    }
   });
 
   const selectedCategory = form.watch("serviceCategory");

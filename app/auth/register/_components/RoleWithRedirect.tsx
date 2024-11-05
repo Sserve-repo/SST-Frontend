@@ -34,7 +34,7 @@ export default function Role() {
         </div>
         <div className="grid grid-cols-1 gap-3 w-full my-8">
           {(["artisan", "vendor", "buyer"] as const).map((role) => (
-            <Link href={`/auth/register/${role}`} key={role}>
+            <Link href={`/auth/register?role=${role}`} key={role}>
               <Card className="cursor-pointer hover:shadow-lg transition-all bg-white hover:bg-primary group">
                 <CardHeader className="flex p-5 items-center flex-row gap-4">
                   <div className="p-3 rounded-full border-2 border-primary group-hover:border-white transition-colors">

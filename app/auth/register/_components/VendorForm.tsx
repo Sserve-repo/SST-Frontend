@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,26 @@ import "react-phone-input-2/lib/style.css";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
 import Link from "next/link";
 import { Success } from "./Success";
+import {
+  billingPayload,
+  businessProfilePayload,
+  paymentPreferencePayload,
+  productListingPayload,
+  shippingPolicyPayload,
+  userRegistrationPayload,
+  vendorIdentityPayload,
+} from "@/forms/vendors";
+import { registerUser } from "@/fetchers/users";
+import { toast } from "sonner";
+import { formatErrors } from "@/config/utils";
+import {
+  createBilling,
+  createBusinessProfile,
+  createPaymentPreference,
+  createProductListing,
+  createShippingPolicy,
+  createVendorIdentity,
+} from "@/fetchers/vendors";
 
 type FormData = {
   // Step 1: Create Account
@@ -76,9 +96,10 @@ type FormData = {
 
 type VendorFormProps = {
   onBack: () => void;
+  registrationStep: number;
 };
 
-export function VendorForm({ onBack }: VendorFormProps) {
+export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -332,16 +353,116 @@ export function VendorForm({ onBack }: VendorFormProps) {
     return isValid;
   };
 
-  const handleSubmit: SubmitHandler<FormData> = (data) => {
+  const handleSubmit: SubmitHandler<FormData> = async (data) => {
     const isValid = validateForm(data, step); // Pass the current step
 
     if (isValid) {
-      if (step < 7) {
-        handleNextStep();
-      } else {
-        console.log("Form submitted", data); // Final submission
-        setSuccess(true);
-        setEmail(data.email);
+      if (step === 1) {
+        const payload = userRegistrationPayload(data);
+        const response = await registerUser("vendor", payload);
+        if (response) {
+          const res = await response.json();
+          console.log("Form submitted", res);
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 2) {
+        const payload = businessProfilePayload(data);
+        const response = await createBusinessProfile(payload);
+        if (response) {
+          const res = await response.json();
+          console.log("Form submitted", res);
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 3) {
+        const payload = vendorIdentityPayload(data);
+        const response = await createVendorIdentity(payload);
+        if (response) {
+          const res = await response.json();
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 4) {
+        const payload = shippingPolicyPayload(data);
+        const response = await createShippingPolicy(payload);
+        if (response) {
+          const res = await response.json();
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 5) {
+        const payload = paymentPreferencePayload(data);
+        const response = await createPaymentPreference(payload);
+        if (response) {
+          const res = await response.json();
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 6) {
+        const payload = billingPayload(data);
+        const response = await createBilling(payload);
+        if (response) {
+          const res = await response.json();
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 7) {
+        const payload = productListingPayload(data);
+        const response = await createProductListing(payload);
+        if (response) {
+          const res = await response.json();
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            setEmail(data.email);
+            setSuccess(true);
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
       }
     } else {
       console.log("Form validation failed");
@@ -357,6 +478,12 @@ export function VendorForm({ onBack }: VendorFormProps) {
     "Billing Setup",
     "Product Listing",
   ];
+
+  useEffect(() => {
+    if (registrationStep) {
+      setStep(registrationStep);
+    }
+  });
 
   return (
     <div className="max-w-2xl mx-auto w-full relative p-6">

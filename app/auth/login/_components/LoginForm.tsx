@@ -14,9 +14,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { baseUrl } from "@/config/constant";
 import { formatErrors } from "@/config/utils";
 import { useRouter } from "next/navigation";
+import { getUserDetails, loginUser } from "@/fetchers/users";
 
 type FormData = {
   email: string;
@@ -66,25 +66,42 @@ export default function LoginForm() {
       requestPayload.append("email", data.email);
       requestPayload.append("password", data.password);
 
-      const response = await fetch(`${baseUrl}/auth/login`, {
-        method: "POST",
-        body: requestPayload,
-      });
-      const res = await response.json();
-      if (response.ok && response.status === 200) {
-        if (res.message == "User not Found") {
-          toast.error(res.message);
-          setLoading(false);
+      const response = await loginUser(requestPayload);
+      if (response) {
+        const res = await response.json();
+        if (response.ok && response.status === 200) {
+          const userRes = await getUserDetails(data.email);
+          let { registration_status, user_type, verified_status } =
+            userRes.data["User Details"];
+          if (!verified_status) {
+            user_type =
+              user_type === "3"
+                ? "vendor"
+                : user_type === "2"
+                ? "buyer"
+                : user_type === "1"
+                ? "artisan"
+                : null;
+
+            const currentStep =
+              parseInt(registration_status.replace("step", "")) <= 1
+                ? 2
+                : parseInt(registration_status.replace("step", ""));
+
+            router.push(
+              `/auth/register?role=${user_type}&&step=${currentStep}`
+            );
+          } else {
+            toast.success(res.message);
+            localStorage.setItem("accessToken", res.token);
+            setLoading(false);
+            router.push("/");
+          }
         } else {
-          toast.success(res.message);
-          localStorage.setItem("accessToken", res.token);
-          setLoading(false);
-          router.push("/");
-        }
-      } else {
-        if (res?.status_code == 422) {
-          const { errors } = res.data;
-          formatErrors(errors, res);
+          if (res?.status_code == 422) {
+            const { errors } = res.data;
+            formatErrors(errors, res);
+          }
         }
       }
     } catch (error: any) {

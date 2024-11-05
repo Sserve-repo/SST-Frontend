@@ -28,3 +28,15 @@ export const registerUser = async (userType: string, requestPayload: any) => {
     console.log("Registration failed", error);
   }
 };
+
+export const loginUser = async (requestPayload: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      body: requestPayload,
+    });
+    return response;
+  } catch (error: any) {
+    console.log("Login failed", error);
+  }
+};
