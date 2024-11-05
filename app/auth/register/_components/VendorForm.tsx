@@ -440,7 +440,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         if (response) {
           const res = await response.json();
 
-          if (response.ok && response.status === 201) {
+          if (response.ok && response.status === 200) {
             toast.success(res.message);
             handleNextStep();
           } else {

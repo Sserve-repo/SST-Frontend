@@ -71,10 +71,10 @@ export default function LoginForm() {
         const res = await response.json();
         if (response.ok && response.status === 200) {
           const userRes = await getUserDetails(data.email);
-          let { registration_status, user_type, verified_status } =
+          const { registration_status, user_type, verified_status } =
             userRes.data["User Details"];
           if (!verified_status) {
-            user_type =
+            const type =
               user_type === "3"
                 ? "vendor"
                 : user_type === "2"
@@ -88,9 +88,7 @@ export default function LoginForm() {
                 ? 2
                 : parseInt(registration_status.replace("step", ""));
 
-            router.push(
-              `/auth/register?role=${user_type}&&step=${currentStep}`
-            );
+            router.push(`/auth/register?role=${type}&&step=${currentStep}`);
           } else {
             toast.success(res.message);
             localStorage.setItem("accessToken", res.token);
