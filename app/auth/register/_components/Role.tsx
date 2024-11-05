@@ -43,33 +43,33 @@ export default function Role() {
         renderForm()
       ) : (
         <div className="w-full max-w-md">
-          <div className="flex justify-center items-center w-full">
+          <div className="flex justify-center items-center w-full mt-[50px]">
             <div className="text-left">
-              <h1 className="text-5xl font-bold text-primary mb-2">Join Us!</h1>
-              <p className="text-lg font-medium text-gray-400">
+              <h1 className="text-[55px] font-bold text-primary">Join Us!</h1>
+              <p className="text-[25px] font-normal text-[#502266]">
                 To begin this journey, tell us what type of account you&apos;d
                 be opening.
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-3 w-full my-8">
+          <div className="grid grid-cols-1 gap-[30px] w-full my-5">
             {(["artisan", "vendor", "buyer"] as const).map((role) => (
               <Card
                 key={role}
-                className="cursor-pointer hover:shadow-lg transition-all bg-white hover:bg-primary group"
+                className="cursor-pointer hover:shadow-lg shadow-md transition-all bg-white hover:bg-primary group"
                 onClick={() => setSelectedRole(role)}
               >
-                <CardHeader className="flex p-5 items-center flex-row gap-4">
-                  <div className="p-3 rounded-full border border-primary group-hover:border-white transition-colors">
+                <CardHeader className="flex items-center flex-row gap-7">
+                  <div className="p-3 rounded-full border-2 border-primary group-hover:border-white transition-colors">
                     {React.createElement(roleIcons[role], {
                       className: "text-2xl text-primary group-hover:text-white",
                     })}
                   </div>
                   <div>
-                    <CardTitle className="capitalize text-lg text-gray-800 group-hover:text-white">
+                    <CardTitle className="capitalize text-lg font-bold text-[#240F2E] group-hover:text-white">
                       {role}
                     </CardTitle>
-                    <CardDescription className="text-gray-700 text-sm group-hover:text-white">
+                    <CardDescription className="text-[#502266] text-sm font-normal group-hover:text-white">
                       Lorem ipsum dolor sit amet consectetur. Nisl ut duis
                       mollis. {role}
                     </CardDescription>
@@ -78,7 +78,7 @@ export default function Role() {
               </Card>
             ))}
           </div>
-          <div className="flex items-center w-full text-gray-400 mt-4">
+          <div className="flex items-center w-full text-[#b9b9b9] font-normal text-lg mt-4">
             Already have an account?{" "}
             <a
               href="/auth/login"
