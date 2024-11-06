@@ -84,6 +84,5 @@ export const productListingPayload = (data: any) => {
   requestPayload.append("image", data.productImage);
   requestPayload.append("product_category_id", data.productCategory);
   requestPayload.append("product_category_items_id", data.productSubcategory);
-
   return requestPayload;
 };

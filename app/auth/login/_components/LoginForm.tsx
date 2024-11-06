@@ -26,6 +26,7 @@ type FormData = {
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
   const form = useForm<FormData>({
@@ -69,6 +70,10 @@ export default function LoginForm() {
       const response = await loginUser(requestPayload);
       if (response) {
         const res = await response.json();
+        localStorage.setItem("accessToken", res.token);
+        localStorage.setItem("userId", JSON.stringify(res.data.user.id));
+        localStorage.setItem("user", JSON.stringify(res.data));
+
         if (response.ok && response.status === 200) {
           const userRes = await getUserDetails(data.email);
           const { registration_status, user_type, verified_status } =
@@ -83,12 +88,11 @@ export default function LoginForm() {
                 ? "artisan"
                 : null;
 
-            const currentStep =
-              parseInt(registration_status.replace("step", "")) <= 1
-                ? 2
-                : parseInt(registration_status.replace("step", ""));
-
-            router.push(`/auth/register?role=${type}&&step=${currentStep}`);
+            router.push(
+              `/auth/register?role=${type}&&step=${
+                parseInt(registration_status.replace("step", "")) + 1
+              }`
+            );
           } else {
             toast.success(res.message);
             localStorage.setItem("accessToken", res.token);

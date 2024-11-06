@@ -46,6 +46,9 @@ import {
   createProductListing,
   createShippingPolicy,
   createVendorIdentity,
+  getProductCategories,
+  getProductCategorItemsById,
+  getProductRegions,
 } from "@/fetchers/vendors";
 
 type FormData = {
@@ -61,6 +64,7 @@ type FormData = {
   province: string;
   aboutProduct: string;
   productSubcategory: string;
+  productRegion: string;
   city: string;
   postalCode: string;
   // Step 3: Set Up Your Shop Profile
@@ -70,13 +74,18 @@ type FormData = {
   aboutShop: string;
   // Step 4: Verify Your Identity
   idType: string;
-  idFront: File | null;
-  idBack: File | null;
+  document: File | null;
   // Step 5: Set Shipping & Return Policies
   shippingOption: string;
   deliveryFrom: string;
   deliveryTo: string;
   returnPolicy: string;
+
+  bankName: string;
+  accountNumber: string;
+  institutionNumber: string;
+  transitNumber: string;
+
   // Step 6: Set Up Payment Preferences
   paymentOptions: string[];
   // Step 7: Set Up Billing
@@ -94,18 +103,50 @@ type FormData = {
   productImage: File | null;
 };
 
+type ProductCategory = {
+  id: string;
+  name: string;
+};
+
+type ProductRegion = {
+  id: string;
+  name: string;
+};
+
 type VendorFormProps = {
   onBack: () => void;
   registrationStep: number;
 };
 
+const CanadianProvinces = [
+  "Alberta",
+  "British Columbia",
+  "Manitoba",
+  "New Brunswick",
+  "Newfoundland and Labrador",
+  "Nova Scotia",
+  "Ontario",
+  "Prince Edward Island",
+  "Quebec",
+  "Saskatchewan",
+  "Northwest Territories",
+  "Nunavut",
+  "Yukon",
+];
+
 export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [idFrontPreview, setIdFrontPreview] = useState<string | null>(null);
+  const [document, setDocument] = useState<string | null>(null);
   const [productImages, setProductImages] = useState<string | null>(null);
-  const [idBackPreview, setIdBackPreview] = useState<string | null>(null);
+  const [productRegion, setProductRegion] = useState<ProductRegion[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>(
+    []
+  );
+  const [productCategoryItems, setProductCategoryItems] = useState<
+    ProductCategory[]
+  >([]);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -125,9 +166,9 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       businessPhone: "",
       businessEmail: "",
       aboutShop: "",
+      productRegion: "",
       idType: "",
-      idFront: null,
-      idBack: null,
+      document: null,
       shippingOption: "",
       deliveryFrom: "",
       deliveryTo: "",
@@ -144,6 +185,10 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       shippingCosts: "",
       productDescription: "",
       productImage: null,
+      bankName: "",
+      accountNumber: "",
+      institutionNumber: "",
+      transitNumber: "",
     },
   });
 
@@ -198,10 +243,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
     // Step 2: Set Your Shop Preferences validation
     if (step === 2) {
-      // if (!data.shopName) {
-      //   errors.shopName = "Shop name is required";
-      //   isValid = false;
-      // }
       if (!data.province) {
         errors.province = "Province is required";
         isValid = false;
@@ -210,8 +251,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         errors.province = "Product Category is required";
         isValid = false;
       }
-      if (!data.productSubcategory) {
-        errors.province = "Product Sub Category is required";
+      if (!data.productRegion) {
+        errors.province = "Product Region is required";
         isValid = false;
       }
       if (!data.city) {
@@ -252,12 +293,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         errors.idType = "ID type is required";
         isValid = false;
       }
-      if (!data.idFront) {
-        errors.idFront = "Upload ID (FRONT) is required";
-        isValid = false;
-      }
-      if (!data.idBack) {
-        errors.idBack = "Upload ID (BACK) is required";
+      if (!data.document) {
+        errors.document = "Upload ID is required";
         isValid = false;
       }
     }
@@ -284,14 +321,26 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
     // Step 6: Set Up Payment Preferences validation
     if (step === 5) {
-      if (!data.paymentOptions.length) {
-        errors.paymentOptions = "At least one payment option must be selected";
+      if (!data.bankName) {
+        errors.bankName = "Bank Name is required";
+        isValid = false;
+      }
+      if (!data.accountNumber) {
+        errors.accountNumber = "Account Nnumber start date is required";
+        isValid = false;
+      }
+      if (!data.institutionNumber) {
+        errors.institutionNumber = "Institution Number is required";
+        isValid = false;
+      }
+      if (!data.transitNumber) {
+        errors.transitNumber = "Transit Number is required";
         isValid = false;
       }
     }
 
     // Step 7: Set Up Billing validation
-    if (step === 7) {
+    if (step === 6) {
       if (!data.cardNumber) {
         errors.cardNumber = "Credit card number is required";
         isValid = false;
@@ -311,7 +360,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     }
 
     // Step 8: Tell Us About Your Listing validation
-    if (step === 8) {
+    if (step === 7) {
       if (!data.productCategory) {
         errors.productCategory = "Product category is required";
         isValid = false;
@@ -354,7 +403,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   };
 
   const handleSubmit: SubmitHandler<FormData> = async (data) => {
-    const isValid = validateForm(data, step); // Pass the current step
+    const isValid = validateForm(data, step);
 
     if (isValid) {
       if (step === 1) {
@@ -378,7 +427,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         const response = await createBusinessProfile(payload);
         if (response) {
           const res = await response.json();
-          console.log("Form submitted", res);
 
           if (response.ok && response.status === 201) {
             toast.success(res.message);
@@ -441,7 +489,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
           const res = await response.json();
 
           if (response.ok && response.status === 200) {
-            toast.success(res.message);
+            toast.success("Billing Created Successfully");
             handleNextStep();
           } else {
             formatErrors(res.data.errors, res);
@@ -479,11 +527,29 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     "Product Listing",
   ];
 
+  const getProductCat = async () => {
+    const data = await getProductCategories();
+    setProductCategories(data.data["Products Category"]);
+  };
+
+  const getProductRegion = async () => {
+    const data = await getProductRegions();
+    setProductRegion(data.data["Products Region"]);
+  };
+
+  const handlefetchProductCatItems = async (catId) => {
+    const data = await getProductCategorItemsById(catId);
+    setProductCategoryItems(data.data["Products Category Item By ID"]);
+  };
+
   useEffect(() => {
+    getProductCat();
+    getProductRegion();
+
     if (registrationStep) {
       setStep(registrationStep);
     }
-  });
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto w-full relative p-6">
@@ -791,7 +857,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-[#502266] font-normal text-base">
-                          Product Category
+                          Product Category*
                         </FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -803,25 +869,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="electronics"
-                            >
-                              Electronics
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="clothing"
-                            >
-                              Clothing
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="home"
-                            >
-                              Home & Garden
-                            </SelectItem>
-                            {/* Add more categories as needed */}
+                            {productCategories.map((item, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={item.id}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -830,11 +888,11 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="productSubcategory"
+                    name="productRegion"
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-[#502266] font-normal text-base">
-                          Product Sub Category *
+                          Product Region*
                         </FormLabel>
                         <Select
                           onValueChange={field.onChange}
@@ -846,25 +904,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="ontario"
-                            >
-                              Ontario
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="quebec"
-                            >
-                              Quebec
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="british-columbia"
-                            >
-                              British Columbia
-                            </SelectItem>
-                            {/* Add more provinces as needed */}
+                            {productRegion.map((item, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={item.id}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -949,25 +999,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="ontario"
-                            >
-                              Ontario
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="quebec"
-                            >
-                              Quebec
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="british-columbia"
-                            >
-                              British Columbia
-                            </SelectItem>
-                            {/* Add more provinces as needed */}
+                            {CanadianProvinces.map((item, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={item}
+                                >
+                                  {item}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -1034,19 +1076,19 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="idFront"
+                    name="document"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                          Upload ID (FRONT)
+                          Upload ID
                         </FormLabel>
                         <FormControl>
                           <div className="border-2 border-dashed relative border-gray-300 p-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
                             {/* Display preview and file name */}
-                            {idFrontPreview ? (
+                            {document ? (
                               <div className="mt-4 flex flex-col items-center">
                                 <img
-                                  src={idFrontPreview}
+                                  src={document}
                                   alt="Uploaded Preview"
                                   className="w-fit h-24 object-cover rounded-lg"
                                 />
@@ -1073,77 +1115,15 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                             {/* Hidden Input for File */}
                             <Input
                               type="file"
-                              accept="image/*"
+                              accept="pdf/*"
                               className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
                                 onChange(file); // Pass the file to form state
                                 if (file) {
-                                  setIdFrontPreview(URL.createObjectURL(file)); // Set IdFrontPreview image
+                                  setDocument(URL.createObjectURL(file));
                                 } else {
-                                  setIdFrontPreview(null);
-                                }
-                              }}
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Upload Back ID */}
-                  <FormField
-                    control={form.control}
-                    name="idBack"
-                    render={({ field: { value, onChange, ...field } }) => (
-                      <FormItem className="w-full mt-6">
-                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                          Upload ID (BACK)
-                        </FormLabel>
-                        <FormControl>
-                          <div className="border-2 border-dashed relative border-gray-300 p-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
-                            {/* Display preview and file name */}
-                            {idBackPreview ? (
-                              <div className="mt-4 flex flex-col items-center">
-                                <img
-                                  src={idBackPreview}
-                                  alt="Uploaded Preview"
-                                  className="w-fit h-24 object-cover rounded-lg"
-                                />
-                                <p className="mt-2 text-sm text-gray-600">
-                                  {value?.name}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
-                                </div>
-                                <p className="text-xs font-medium text-gray-600 mb-2">
-                                  <span className="text-primary ">
-                                    Click to Upload,{" "}
-                                  </span>{" "}
-                                  or drag and drop.
-                                </p>
-                                <p className="text-sm font-medium italic text-gray-600 mb-2">
-                                  (Max. File size: 25 MB)
-                                </p>
-                              </>
-                            )}
-                            {/* Hidden Input for File */}
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                onChange(file); // Pass the file to form state
-                                if (file) {
-                                  setIdBackPreview(URL.createObjectURL(file)); // Set IdBackPreview image
-                                } else {
-                                  setIdBackPreview(null);
+                                  setDocument(null);
                                 }
                               }}
                               {...field}
@@ -1210,6 +1190,9 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                       </FormItem>
                     )}
                   />
+                  <p className="text-[#b9b9b9] font-normal text-base">
+                    Estimated Delivery Times:
+                  </p>
                   <div className="grid sm:grid-cols-2 gap-4 w-full">
                     <FormField
                       control={form.control}
@@ -1217,7 +1200,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                            Estimated Delivery From
+                            From:
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1245,7 +1228,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                            Estimated Delivery To
+                            To:
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -1307,7 +1290,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                       Your payment details will be securely stored and verified.
                     </p>
                   </div>
-                  <FormField
+                  {/* <FormField
                     control={form.control}
                     name="paymentOptions"
                     render={() => (
@@ -1383,7 +1366,90 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                         <FormMessage />
                       </FormItem>
                     )}
+                  /> */}
+
+                  <FormField
+                    control={form.control}
+                    name="bankName"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                          Bank Name*
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="rounded-xl shadow-sm h-12 px-3"
+                            placeholder="First Bank Nig Ltd."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="accountNumber"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                          Account Number*
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="rounded-xl shadow-sm h-12 px-3"
+                            placeholder="0123456789"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid sm:grid-cols-2 gap-4 w-full">
+                    <FormField
+                      control={form.control}
+                      name="institutionNumber"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Institution Number*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
+                              type="text"
+                              placeholder="123"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="transitNumber"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Transit Number*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
+                              type="text"
+                              placeholder="12345"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -1505,6 +1571,79 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                             placeholder="Enter name of Product"
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="productCategory"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#502266] font-normal text-base">
+                          Product Category*
+                        </FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            handlefetchProductCatItems(value);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {productCategories.map((item, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={item.id}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="productSubcategory"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#502266] font-normal text-base">
+                          Product Sub Category*
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
+                              <SelectValue placeholder="Please Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {productCategoryItems.map((item, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={item.id}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1637,7 +1776,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                                 const file = e.target.files?.[0] || null;
                                 onChange(file); // Pass the file to form state
                                 if (file) {
-                                  setProductImages(URL.createObjectURL(file)); // Set IdFrontPreview image
+                                  setProductImages(URL.createObjectURL(file)); // Set Document image
                                 } else {
                                   setProductImages(null);
                                 }
