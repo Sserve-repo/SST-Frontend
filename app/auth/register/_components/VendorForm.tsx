@@ -36,7 +36,7 @@ import {
   userRegistrationPayload,
   vendorIdentityPayload,
 } from "@/forms/vendors";
-import { registerUser } from "@/fetchers/users";
+import { registerUser } from "@/fetchers/auth";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import {
@@ -47,9 +47,10 @@ import {
   createShippingPolicy,
   createVendorIdentity,
   getProductCategories,
-  getProductCategorItemsById,
+  getProductCategoryItemsById,
   getProductRegions,
 } from "@/fetchers/vendors";
+import { CanadianProvinces } from "./Collections";
 
 type FormData = {
   // Step 1: Create Account
@@ -117,22 +118,6 @@ type VendorFormProps = {
   onBack: () => void;
   registrationStep: number;
 };
-
-const CanadianProvinces = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Newfoundland and Labrador",
-  "Nova Scotia",
-  "Ontario",
-  "Prince Edward Island",
-  "Quebec",
-  "Saskatchewan",
-  "Northwest Territories",
-  "Nunavut",
-  "Yukon",
-];
 
 export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [step, setStep] = useState(1);
@@ -299,7 +284,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 5: Set Shipping & Return Policies validation
+    // Step 4: Set Shipping & Return Policies validation
     if (step === 4) {
       if (!data.shippingOption) {
         errors.shippingOption = "Shipping option is required";
@@ -319,14 +304,14 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 6: Set Up Payment Preferences validation
+    // Step 5: Set Up Payment Preferences validation
     if (step === 5) {
       if (!data.bankName) {
         errors.bankName = "Bank Name is required";
         isValid = false;
       }
       if (!data.accountNumber) {
-        errors.accountNumber = "Account Nnumber start date is required";
+        errors.accountNumber = "Account Number is required";
         isValid = false;
       }
       if (!data.institutionNumber) {
@@ -339,7 +324,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 7: Set Up Billing validation
+    // Step 6: Set Up Billing validation
     if (step === 6) {
       if (!data.cardNumber) {
         errors.cardNumber = "Credit card number is required";
@@ -359,7 +344,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 8: Tell Us About Your Listing validation
+    // Step 7: Tell Us About Your Listing validation
     if (step === 7) {
       if (!data.productCategory) {
         errors.productCategory = "Product category is required";
@@ -538,7 +523,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   };
 
   const handlefetchProductCatItems = async (catId) => {
-    const data = await getProductCategorItemsById(catId);
+    const data = await getProductCategoryItemsById(catId);
     setProductCategoryItems(data.data["Products Category Item By ID"]);
   };
 

@@ -16,7 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { useRouter } from "next/navigation";
-import { getUserDetails, loginUser } from "@/fetchers/users";
+import { getUserDetails, loginUser } from "@/fetchers/auth";
 
 type FormData = {
   email: string;
@@ -84,7 +84,7 @@ export default function LoginForm() {
                 ? "vendor"
                 : user_type === "2"
                 ? "buyer"
-                : user_type === "1"
+                : user_type === "4"
                 ? "artisan"
                 : null;
 

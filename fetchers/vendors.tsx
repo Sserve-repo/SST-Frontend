@@ -12,7 +12,7 @@ export const getProductCategories = async () => {
   }
 };
 
-export const getProductCategoryItems = async (catId) => {
+export const getProductCategoryItemsById = async (catId) => {
   try {
     const response = await fetch(
       `${baseUrl}/general/products/getCategoryItemsByProductCategoryId/${catId}`
@@ -30,20 +30,6 @@ export const getProductRegions = async () => {
   try {
     const response = await fetch(
       `${baseUrl}/general/products/getProductRegion`
-    );
-    const res = await response.json();
-    if (response.ok && response.status === 200) {
-      return res;
-    }
-  } catch (error: any) {
-    console.log("Form validation failed", error);
-  }
-};
-
-export const getProductCategorItemsById = async (Id: any) => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/general/products/getCategoryItemsByProductCategoryId/${Id}`
     );
     const res = await response.json();
     if (response.ok && response.status === 200) {

@@ -32,6 +32,32 @@ import { Success } from "./Success";
 import Link from "next/link";
 import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
+import { categories, CanadianProvinces } from "./Collections";
+import {
+  billingPayload,
+  businessProfilePayload,
+  serviceAvailabilityPayload,
+  paymentPreferencePayload,
+  serviceListingPayload,
+  shippingPolicyPayload,
+  userRegistrationPayload,
+  artisanIdentityPayload,
+} from "@/forms/artisans";
+import { registerUser } from "@/fetchers/auth";
+import { toast } from "sonner";
+import { formatErrors } from "@/config/utils";
+import {
+  createBilling,
+  createBusinessProfile,
+  createServiceAvailability,
+  createPaymentPreference,
+  createServiceListing,
+  createShippingPolicy,
+  createArtisanIdentity,
+  createbusinessPolicy,
+  getServiceCategories,
+  getServiceCategoryItemsById,
+} from "@/fetchers/artisans";
 
 type FormData = {
   firstName: string;
@@ -51,17 +77,17 @@ type FormData = {
   serviceSubcategory: string;
   businessLocation: string;
   agreeToTerms: boolean;
-  aboutProduct: string;
+  aboutService: string;
   productSubcategory: string;
   servicePrice: string;
   serviceName: string;
   serviceDescription: string;
   serviceImage: File | null;
   bookingDetails: string;
-  cancellationAndRebookingPolicies: string;
+  cancellationPolicy: string;
   shopAddress: string;
-  startTime: string;
-  endTime: string;
+  availableFrom: string;
+  availableTo: string;
   homeService: boolean;
   availableDays: string;
 
@@ -71,6 +97,11 @@ type FormData = {
   cvcCode: string;
   billingAddress: string;
 
+  bankName: string;
+  accountNumber: string;
+  institutionNumber: string;
+  transitNumber: string;
+
   // Step 4: Verify Your Identity
   idType: string;
   businessLicense: File | null;
@@ -78,227 +109,15 @@ type FormData = {
   serviceCertificate: File | null;
 };
 
+type ProductCategory = {
+  id: string;
+  name: string;
+};
+
 type ArtisanFormProps = {
   onBack: () => void;
   registrationStep: number;
 };
-
-const categories = [
-  {
-    category: "Home Services/Improvement",
-    subCategory: [
-      {
-        name: "Home Care",
-        data: [
-          {
-            description:
-              "Childcare certfication/First Aid Certification (Optional)",
-            uploadText:
-              "click to uplolad Childcare certfication/First Aid Certification",
-          },
-        ],
-      },
-      {
-        name: "Landscaping",
-        data: [
-          {
-            description: "Horticulture certification (Optional)",
-            uploadText: "click to upload Horticulture certification",
-          },
-        ],
-      },
-      {
-        name: "House Decoration",
-        data: [
-          {
-            description: "Interior design certification (Optional)",
-            uploadText: "click to upload Interior design certification",
-          },
-        ],
-      },
-      {
-        name: "Construction",
-        data: [
-          {
-            description: "Building permit",
-            uploadText: "click to upload Building permit",
-          },
-          {
-            description: "Contractor's license (Optional)",
-            uploadText: "Click to Upload Contractor's license",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Beauty & Fashion",
-    subCategory: [
-      {
-        name: "Salon Services",
-        data: [
-          {
-            description: "Health and safety certifications",
-            uploadText: "Click to upload Health and safety certifications",
-          },
-          {
-            description: "Hairstylist license",
-            uploadText: "Click to upload Hairstylist license",
-          },
-        ],
-      },
-      {
-        name: "Fashion Design",
-        data: [
-          {
-            description: "Fashion Design certifications (Optional)",
-            uploadText: "Click to upload Fashion Design certifications",
-          },
-        ],
-      },
-      {
-        name: "Makeup & Massage",
-        data: [
-          {
-            description: "Health and safety certifications (Optional)",
-            uploadText: "Click to upload Health and safety certifications",
-          },
-          {
-            description: "Esthetician license (Optional)",
-            uploadText: "Click to upload Esthetician license",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Event Service",
-    subCategory: [
-      {
-        name: "Event Planning",
-        data: [
-          {
-            description: "Special Event Permits",
-            uploadText: "Click to upload Special Event Permits",
-          },
-          {
-            description: "Event planning Certification",
-            uploadText: "Click to upload Event planning Certification",
-          },
-        ],
-      },
-      {
-        name: "Catering Service",
-        data: [
-          {
-            description: "Health and safety certifications (Optional)",
-            uploadText: "Click to Health and safety certifications",
-          },
-          {
-            description: "Food handling permit",
-            uploadText: "Click to Food handling permit",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Custom Crafting",
-    subCategory: [
-      {
-        name: "Custom Handmate Crafting",
-        data: [
-          {
-            description: "Artisan certification",
-            uploadText: "Click to upload Artisan certification",
-          },
-        ],
-      },
-      {
-        name: "Catering Services",
-        data: [
-          {
-            description: "Instructor certification (Optional)",
-            uploadText: "Click to upload Instructor certification",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Mechanical & Technical Services",
-    subCategory: [
-      {
-        name: "Auto Mechanics",
-        data: [
-          {
-            description: "Mechanic certification",
-            uploadText: "Click to upload Mechanic certification",
-          },
-        ],
-      },
-      {
-        name: "Detailing",
-        data: [
-          {
-            description: "Detailing certification (Optional)",
-            uploadText: "Click to upload Detailing certification",
-          },
-        ],
-      },
-      {
-        name: "Technical",
-        data: [
-          {
-            description: "Plumber's license ",
-            uploadText: "Click to upload Plumber's license",
-          },
-        ],
-      },
-      {
-        name: "Electrical",
-        data: [
-          {
-            description: "Electrician's license",
-            uploadText: "Click to upload Electrician's license",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    category: "Cultural & Educational Services",
-    subCategory: [
-      {
-        name: "Tour Guide Services",
-        data: [
-          {
-            description: "Tour guide certification",
-            uploadText: "Click to upload Tour guide certification",
-          },
-        ],
-      },
-      {
-        name: "Photography & Videography",
-        data: [
-          {
-            description: "Photography certification (Optional)",
-            uploadText: "Click to upload Photography certification",
-          },
-        ],
-      },
-      {
-        name: "Language Translation Service",
-        data: [
-          {
-            description: "Translation certification (Optional)",
-            uploadText: "Click to upload Translation certification",
-          },
-        ],
-      },
-    ],
-  },
-];
 
 export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [step, setStep] = useState(1);
@@ -316,6 +135,14 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
     undefined
   );
+  const [serviceCategories, setServiceCategories] = useState<ProductCategory[]>(
+    []
+  );
+  const [serviceCategoryItems, setServiceCategoryItems] = useState<
+    ProductCategory[]
+  >([]);
+  const [categoryName, setCategoryName] = useState("");
+  const [subCategoryName, setSubcategoryName] = useState("");
 
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
@@ -343,14 +170,14 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       businessEmail: "",
       yearsOfExperience: 0,
       businessLocation: "",
-      aboutProduct: "",
+      aboutService: "",
       servicePrice: "",
       serviceName: "",
-      cancellationAndRebookingPolicies: "",
+      cancellationPolicy: "",
       shopAddress: "",
       availableDays: "",
-      startTime: "",
-      endTime: "",
+      availableFrom: "",
+      availableTo: "",
       homeService: false,
       serviceDescription: "",
       bookingDetails: "",
@@ -361,13 +188,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       proofOfInsurance: null,
       serviceCertificate: null,
       idType: "",
+      bankName: "",
+      accountNumber: "",
+      institutionNumber: "",
+      transitNumber: "",
     },
-  });
-
-  useEffect(() => {
-    if (registrationStep) {
-      setStep(registrationStep);
-    }
   });
 
   const selectedCategory = form.watch("serviceCategory");
@@ -401,14 +226,18 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         errors.email = "Invalid email address";
         isValid = false;
       }
-      if (!data.password || data.password.length < 6) {
-        errors.password = "Password must be at least 6 characters";
+      if (!data.password || data.password.length < 8) {
+        errors.password = "Password must be at least 8 characters";
         isValid = false;
       }
       if (data.password !== data.confirmPassword) {
         errors.confirmPassword = "Passwords do not match";
         isValid = false;
       }
+      // if (!data.agreeToTerms) {
+      //   errors.agreeToTerms = "You must agree to the terms and conditions";
+      //   isValid = false;
+      // }
     }
 
     // Step 2 validation
@@ -418,11 +247,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         isValid = false;
       }
       if (!data.serviceCategory) {
-        errors.province = "Product Category is required";
+        errors.serviceCategory = "Service Category is required";
         isValid = false;
       }
       if (!data.serviceSubcategory) {
-        errors.province = "Product Category is required";
+        errors.serviceSubcategory = "Service Sub Category is required";
         isValid = false;
       }
 
@@ -452,52 +281,124 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         errors.businessEmail = "Invalid business email";
         isValid = false;
       }
-      if (!data.aboutProduct) {
-        errors.aboutProduct = "About your shop is required";
+      if (!data.aboutService) {
+        errors.aboutService = "About service is required";
         isValid = false;
       }
     }
 
     // Step 3 validation
     if (step === 3) {
-      // if (data.yearsOfExperience < 0) {
-      //   errors.yearsOfExperience = "Years of experience must be at least 0";
-      //   isValid = false;
-      // }
-      // if (!data.serviceCategory) {
-      //   errors.serviceCategory = "Service category is required";
-      //   isValid = false;
-      // }
-      // if (!data.businessLocation) {
-      //   errors.businessLocation = "Business location is required";
-      //   isValid = false;
-      // }
-      // if (!data.agreeToTerms) {
-      //   errors.agreeToTerms = "You must agree to the terms and conditions";
-      //   isValid = false;
-      // }
+      if (!data.availableDays) {
+        errors.availableDays = "Days of availability is required";
+        isValid = false;
+      }
+      if (!data.availableFrom) {
+        errors.availableFrom = "start time of availability is required";
+        isValid = false;
+      }
+      if (!data.availableTo) {
+        errors.availableTo = "end time of availability is required";
+        isValid = false;
+      }
+      if (!data.shopAddress) {
+        errors.shopAddress = "Shop address is required";
+        isValid = false;
+      }
     }
+
+    // Step 4 validation
+    if (step === 4) {
+      if (!data.availableDays) {
+        errors.availableDays = "Days of availability is required";
+        isValid = false;
+      }
+      if (!data.availableFrom) {
+        errors.availableFrom = "start time of availability is required";
+        isValid = false;
+      }
+      if (!data.availableTo) {
+        errors.availableTo = "end time of availability is required";
+        isValid = false;
+      }
+      if (!data.shopAddress) {
+        errors.shopAddress = "Shop address is required";
+        isValid = false;
+      }
+    }
+
+    // // Step 5 validation -  Business policy
+    // if (step === 5) {
+    //   if (!data.bookingDetails) {
+    //     errors.bookingDetails = "Booking details is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.cancellationPolicy) {
+    //     errors.cancellationPolicy = "Cancellation policy is required";
+    //     isValid = false;
+    //   }
+    // }
+
+    // Step 6: Set Up Payment Preferences validation
+    //  if (step === 6) {
+    //   if (!data.bankName) {
+    //     errors.bankName = "Bank Name is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.accountNumber) {
+    //     errors.accountNumber = "Account Number is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.institutionNumber) {
+    //     errors.institutionNumber = "Institution Number is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.transitNumber) {
+    //     errors.transitNumber = "Transit Number is required";
+    //     isValid = false;
+    //   }
+    // }
+
+    // Step 7: Set Up Billing validation
+    // if (step === 7) {
+    //   if (!data.cardNumber) {
+    //     errors.cardNumber = "Credit card number is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.expiryDate) {
+    //     errors.expiryDate = "Expiry date is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.cvcCode) {
+    //     errors.cvcCode = "CVC code is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.billingAddress) {
+    //     errors.billingAddress = "Billing address is required";
+    //     isValid = false;
+    //   }
+    // }
 
     // Step 8: Tell Us About Your Listing validation
-    if (step === 8) {
-      if (!data.serviceName) {
-        errors.serviceName = "Service name is required";
-        isValid = false;
-      }
-      if (!data.servicePrice) {
-        errors.servicePrice = "Service price is required";
-        isValid = false;
-      }
+    // if (step === 8) {
+    //   if (!data.serviceName) {
+    //     errors.serviceName = "Service name is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.servicePrice) {
+    //     errors.servicePrice = "Service price is required";
+    //     isValid = false;
+    //   }
 
-      if (!data.serviceDescription) {
-        errors.serviceDescription = "Service description is required";
-        isValid = false;
-      }
-      if (!data.serviceImage) {
-        errors.serviceImage = "Service image upload is required";
-        isValid = false;
-      }
-    }
+    //   if (!data.serviceDescription) {
+    //     errors.serviceDescription = "Service description is required";
+    //     isValid = false;
+    //   }
+    //   if (!data.serviceImage) {
+    //     errors.serviceImage = "Service image upload is required";
+    //     isValid = false;
+    //   }
+    // }
 
     // Set errors
     Object.keys(errors).forEach((key) => {
@@ -510,17 +411,135 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     return isValid;
   };
 
-  const handleSubmit: SubmitHandler<FormData> = (data) => {
+  const handleSubmit: SubmitHandler<FormData> = async (data) => {
+    console.log("Form submitted", data);
     const isValid = validateForm(data);
 
     if (isValid) {
-      if (step < 8) {
-        handleNextStep(); // Move to the next step
-      } else {
-        console.log("Form submitted", data); // Final submission
-        setSuccess(true);
-        setEmail(data.email);
+      console.log("Form submitted1111", isValid);
+
+      if (step === 1) {
+        const payload = userRegistrationPayload(data);
+        const response = await registerUser("artisan", payload);
+        if (response) {
+          const res = await response.json();
+          console.log("Form submitted", res);
+
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
       }
+
+      // if (step === 2) {
+      //   const payload = businessProfilePayload(data);
+      //   const response = await createBusinessProfile(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 201) {
+      //       toast.success(res.message);
+      //       handleNextStep();
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+
+      // if (step === 3) {
+      //   const payload = serviceAvailabilityPayload(data);
+      //   const response = await createServiceAvailability(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 201) {
+      //       toast.success(res.message);
+      //       handleNextStep();
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+
+      // if (step === 4) {
+      //   const payload = artisanIdentityPayload(data);
+      //   const response = await createArtisanIdentity(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 201) {
+      //       toast.success(res.message);
+      //       handleNextStep();
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+
+      // if (step === 5) {
+      //   const payload = businessPolicyPayload(data);
+      //   const response = await createbusinessPolicy(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 201) {
+      //       toast.success(res.message);
+      //       handleNextStep();
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+
+      // if (step === 6) {
+      //   const payload = paymentPreferencePayload(data);
+      //   const response = await createPaymentPreference(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 201) {
+      //       toast.success(res.message);
+      //       handleNextStep();
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+
+      // if (step === 7) {
+      //   const payload = billingPayload(data);
+      //   const response = await createBilling(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 200) {
+      //       toast.success("Billing Created Successfully");
+      //       handleNextStep();
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+
+      // if (step === 8) {
+      //   const payload = serviceListingPayload(data);
+      //   const response = await createServiceListing(payload);
+      //   if (response) {
+      //     const res = await response.json();
+
+      //     if (response.ok && response.status === 201) {
+      //       toast.success(res.message);
+      //       setEmail(data.email);
+      //       setSuccess(true);
+      //     } else {
+      //       formatErrors(res.data.errors, res);
+      //     }
+      //   }
+      // }
+      // handleNextStep();
     } else {
       console.log("Form validation failed");
     }
@@ -536,6 +555,34 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     "Set Up Billing",
     "Categories & Listing",
   ];
+
+  const handleSetSubcategory = (name) => {
+    console.log("Setting subcategory name:", name);
+    setSubcategoryName(name);
+  };
+
+  const handleSetCategory = (name) => {
+    console.log("Setting Category name:", name);
+    setCategoryName(name);
+  };
+
+  const getProductCat = async () => {
+    const data = await getServiceCategories();
+    setServiceCategories(data.data["Service Category"]);
+  };
+
+  const handlefetchProductCatItems = async (catId) => {
+    const data = await getServiceCategoryItemsById(catId);
+    setServiceCategoryItems(data.data["Service Category Item By ID"]);
+  };
+
+  useEffect(() => {
+    getProductCat();
+
+    if (registrationStep) {
+      setStep(registrationStep);
+    }
+  }, []);
 
   return (
     <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
@@ -829,9 +876,23 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Service Category
                         </FormLabel>
+
                         <Select
-                          onValueChange={field.onChange}
+                          value={field.value}
                           defaultValue={field.value}
+                          onValueChange={(selectedValue) => {
+                            console.log("Selected Value:", selectedValue);
+
+                            const [selectedId, selectedName] =
+                              selectedValue.split("| ");
+                            field.onChange(selectedId);
+
+                            console.log("Extracted ID:", selectedId);
+                            console.log("Category Name:", selectedName);
+
+                            handlefetchProductCatItems(selectedId);
+                            handleSetCategory(selectedName);
+                          }}
                         >
                           <FormControl>
                             <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
@@ -839,14 +900,14 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {categories.map((cat, index) => {
+                            {serviceCategories.map((cat, index) => {
                               return (
                                 <SelectItem
                                   key={index}
                                   className="h-11 rounded-lg px-3"
-                                  value={cat.category}
+                                  value={`${cat.id}| ${cat.name}`}
                                 >
-                                  {cat.category}
+                                  {cat.name}
                                 </SelectItem>
                               );
                             })}
@@ -865,36 +926,52 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           Service Sub Category *
                         </FormLabel>
                         <Select
-                          onValueChange={field.onChange}
+                          // onValueChange={field.onChange}
+                          // defaultValue={field.value}
+                          // onValueChange={(value) => {
+                          //   field.onChange(value);
+                          //   handleSetSubcategory(value);
+
+                          value={field.value}
                           defaultValue={field.value}
+                          onValueChange={(selectedValue) => {
+                            console.log("Selected Value:", selectedValue);
+
+                            const [selectedId, selectedName] =
+                              selectedValue.split("| ");
+
+                            field.onChange(selectedId);
+                            console.log("Extracted ID:", selectedId);
+                            console.log("Category Name:", selectedName);
+
+                            handleSetSubcategory(selectedName);
+                          }}
                         >
                           <FormControl>
                             <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
                               <SelectValue placeholder="Please Select" />
                             </SelectTrigger>
                           </FormControl>
-
                           <SelectContent>
-                            {categories
-                              .find((cat) => cat.category === selectedCategory)
-                              ?.subCategory.map((subCat, index) => (
-                                <SelectItem
-                                  key={index}
-                                  className="h-11 rounded-lg px-3"
-                                  value={subCat.name}
-                                >
-                                  {subCat.name}
-                                </SelectItem>
-                              ))}
+                            {serviceCategoryItems.map((item, index) => (
+                              <SelectItem
+                                key={index}
+                                className="h-11 rounded-lg px-3"
+                                value={`${item.id}| ${item.name}`}
+                              >
+                                {item.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
-                    name="aboutProduct"
+                    name="aboutService"
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-gray-400">
@@ -970,25 +1047,17 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="ontario"
-                            >
-                              Ontario
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="quebec"
-                            >
-                              Quebec
-                            </SelectItem>
-                            <SelectItem
-                              className="h-11 rounded-lg px-3"
-                              value="british-columbia"
-                            >
-                              British Columbia
-                            </SelectItem>
-                            {/* Add more provinces as needed */}
+                            {CanadianProvinces.map((item, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={item}
+                                >
+                                  {item}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -1036,7 +1105,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="startTime"
+                      name="availableFrom"
                       render={({ field }) => (
                         <FormItem className="w-full mb-[22px]">
                           <FormLabel className="text-[#b9b9b9] text-base mb-3">
@@ -1044,7 +1113,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              type="date"
+                              type="time"
                               {...field}
                               className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
                               placeholder="MM/YY"
@@ -1056,7 +1125,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     />
                     <FormField
                       control={form.control}
-                      name="endTime"
+                      name="availableTo"
                       render={({ field }) => (
                         <FormItem className="w-full mb-[22px]">
                           <FormLabel className="text-[#b9b9b9] text-base mb-3">
@@ -1064,7 +1133,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              type="date"
+                              type="time"
                               {...field}
                               className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
                               placeholder="MM/YY"
@@ -1249,7 +1318,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                                 if (file) {
                                   setproofOfInsurancePreview(
                                     URL.createObjectURL(file)
-                                  ); // Set IdBackPreview image
+                                  );
                                 } else {
                                   setproofOfInsurancePreview(null);
                                 }
@@ -1269,8 +1338,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
                   <ServiceCertifications
                     form={form}
-                    selectedCategory={form.watch("serviceCategory")}
-                    selectedSubCategory={form.watch("serviceSubcategory")}
+                    selectedCategory={categoryName}
+                    selectedSubCategory={subCategoryName}
                   />
                 </div>
               )}
@@ -1308,7 +1377,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
                   <FormField
                     control={form.control}
-                    name="cancellationAndRebookingPolicies"
+                    name="cancellationPolicy"
                     render={({ field }) => (
                       <FormItem className="w-full">
                         <FormLabel className="text-[#b9b9b9] text-base font-normal">
@@ -1332,92 +1401,175 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
               )}
 
               {step === 6 && (
-                <div className=" flex flex-col w-full gap-y-3">
+                <div className=" flex flex-col w-full gap-y-7">
                   <div>
-                    <div className="text-[40px] font-semibold text-[#502266] leading-[52px]">
+                    <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
                       <p> Set Up Payment Preferences</p>
                     </div>
-                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[200px]">
+                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
                       Your payment details will be securely stored and verified.
                     </p>
                   </div>
+                  {/* <FormField
+                 control={form.control}
+                 name="paymentOptions"
+                 render={() => (
+                   <FormItem className="w-full ">
+                     <FormLabel className="text-gray-400"></FormLabel>
+                     <div className="space-y-2">
+                       <FormField
+                         control={form.control}
+                         name="paymentOptions"
+                         render={({ field }) => (
+                           <FormItem className=" border h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
+                             <FormControl>
+                               <Checkbox
+                                 checked={field.value?.includes("paypal")}
+                                 onCheckedChange={(checked) => {
+                                   const updatedValue = checked
+                                     ? [...(field.value || []), "paypal"]
+                                     : field.value?.filter(
+                                         (value) => value !== "paypal"
+                                       ) || [];
+                                   field.onChange(updatedValue);
+                                 }}
+                               />
+                             </FormControl>
+                             <FormLabel className="font-normal">
+                               <p className="font-semibold">
+                                 {" "}
+                                 Pay with Pay{" "}
+                                 <span className="text-[#179BD7]">Pal</span>
+                               </p>
+                               <p className="text-[#B9B9B9]">
+                                 Use your PayPal account for secure payments.
+                               </p>
+                             </FormLabel>
+                           </FormItem>
+                         )}
+                       />
+                       <FormField
+                         control={form.control}
+                         name="paymentOptions"
+                         render={({ field }) => (
+                           <FormItem className="border  h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
+                             <FormControl>
+                               <Checkbox
+                                 checked={field.value?.includes("stripe")}
+                                 onCheckedChange={(checked) => {
+                                   const updatedValue = checked
+                                     ? [...(field.value || []), "stripe"]
+                                     : field.value?.filter(
+                                         (value) => value !== "stripe"
+                                       ) || [];
+                                   field.onChange(updatedValue);
+                                 }}
+                               />
+                             </FormControl>
+                             <FormLabel className="font-normal">
+                               <p className="font-semibold">
+                                 Pay with{" "}
+                                 <span className="text-[#179BD7]">
+                                   Stripe
+                                 </span>
+                                 /Bank Account
+                               </p>
+                               <p className="text-[#B9B9B9]">
+                                 Use your bank account or credit card via
+                                 Stripe.{" "}
+                               </p>
+                             </FormLabel>
+                           </FormItem>
+                         )}
+                       />
+                     </div>
+                     <FormMessage />
+                   </FormItem>
+                 )}
+               /> */}
+
                   <FormField
                     control={form.control}
-                    name="paymentOptions"
-                    render={() => (
-                      <FormItem className="w-full mt-[40px]">
-                        <FormLabel className="text-gray-400"></FormLabel>
-                        <div className="space-y-2">
-                          <FormField
-                            control={form.control}
-                            name="paymentOptions"
-                            render={({ field }) => (
-                              <FormItem className=" border h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes("paypal")}
-                                    onCheckedChange={(checked) => {
-                                      const updatedValue = checked
-                                        ? [...(field.value || []), "paypal"]
-                                        : field.value?.filter(
-                                            (value) => value !== "paypal"
-                                          ) || [];
-                                      field.onChange(updatedValue);
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  <p className="font-semibold">
-                                    {" "}
-                                    Pay with Pay{" "}
-                                    <span className="text-[#179BD7]">Pal</span>
-                                  </p>
-                                  <p className="text-[#B9B9B9]">
-                                    Use your PayPal account for secure payments.
-                                  </p>
-                                </FormLabel>
-                              </FormItem>
-                            )}
+                    name="bankName"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                          Bank Name*
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="rounded-xl shadow-sm h-12 px-3"
+                            placeholder="First Bank Nig Ltd."
                           />
-                          <FormField
-                            control={form.control}
-                            name="paymentOptions"
-                            render={({ field }) => (
-                              <FormItem className="border  h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes("stripe")}
-                                    onCheckedChange={(checked) => {
-                                      const updatedValue = checked
-                                        ? [...(field.value || []), "stripe"]
-                                        : field.value?.filter(
-                                            (value) => value !== "stripe"
-                                          ) || [];
-                                      field.onChange(updatedValue);
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  <p className="font-semibold">
-                                    Pay with{" "}
-                                    <span className="text-[#179BD7]">
-                                      Stripe
-                                    </span>
-                                    /Bank Account
-                                  </p>
-                                  <p className="text-[#B9B9B9]">
-                                    Use your bank account or credit card via
-                                    Stripe.{" "}
-                                  </p>
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="accountNumber"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                          Account Number*
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="rounded-xl shadow-sm h-12 px-3"
+                            placeholder="0123456789"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid sm:grid-cols-2 gap-4 w-full">
+                    <FormField
+                      control={form.control}
+                      name="institutionNumber"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Institution Number*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
+                              type="text"
+                              placeholder="123"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="transitNumber"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Transit Number*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
+                              type="text"
+                              placeholder="12345"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               )}
 

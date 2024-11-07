@@ -31,7 +31,7 @@ type CertificatePreviews = {
 
 // Component props type
 type ServiceCertificationsProps = {
-  form: any; 
+  form: any;
   selectedCategory: string;
   selectedSubCategory: string;
 };
@@ -126,7 +126,7 @@ const categories: Category[] = [
     ],
   },
   {
-    category: "Event Service",
+    category: "Event Services",
     subCategory: [
       {
         name: "Event Planning",
@@ -142,7 +142,7 @@ const categories: Category[] = [
         ],
       },
       {
-        name: "Catering Service",
+        name: "Catering Services",
         data: [
           {
             description: "Health and safety certifications (Optional)",
@@ -160,27 +160,28 @@ const categories: Category[] = [
     category: "Custom Crafting",
     subCategory: [
       {
-        name: "Custom Handmate Crafting",
+        name: "Custom Handmade Crafting",
         data: [
           {
-            description: "Artisan certification",
+            description: "Artisan/Instructor  certification",
             uploadText: "Click to upload Artisan certification",
           },
         ],
       },
+
       {
-        name: "Catering Services",
+        name: "Craft Workshops",
         data: [
           {
-            description: "Instructor certification (Optional)",
-            uploadText: "Click to upload Instructor certification",
+            description: "Artisan/Instructor  certification (Optional)",
+            uploadText: "Click to upload Artisan certification",
           },
         ],
       },
     ],
   },
   {
-    category: "Mechanical & Technical Services",
+    category: "Mechanical & Technical",
     subCategory: [
       {
         name: "Auto Mechanics",
@@ -201,7 +202,7 @@ const categories: Category[] = [
         ],
       },
       {
-        name: "Technical",
+        name: "Technical (Handyman, Carpentry, Plumbing)",
         data: [
           {
             description: "Plumber's license",
@@ -221,7 +222,7 @@ const categories: Category[] = [
     ],
   },
   {
-    category: "Cultural & Educational Services",
+    category: "Cultural & Educational",
     subCategory: [
       {
         name: "Tour Guide Services",
@@ -242,7 +243,7 @@ const categories: Category[] = [
         ],
       },
       {
-        name: "Language Translation Service",
+        name: "Language Translation Services",
         data: [
           {
             description: "Translation certification (Optional)",
@@ -259,6 +260,7 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
   selectedCategory,
   selectedSubCategory,
 }) => {
+  console.log("cat stuff,", selectedCategory, selectedSubCategory);
   // Update state type to match CertificatePreviews
   const [certificatePreviews, setCertificatePreviews] =
     useState<CertificatePreviews>({});
@@ -266,10 +268,10 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
   // Find the relevant certifications based on category and subcategory
   const getCertificationFields = () => {
     const category = categories.find(
-      (cat) => cat.category === selectedCategory
+      (cat) => cat.category.toLowerCase() === selectedCategory.toLowerCase()
     );
     const subCategory = category?.subCategory.find(
-      (sub) => sub.name === selectedSubCategory
+      (sub) => sub.name.toLowerCase() === selectedSubCategory.toLowerCase()
     );
     return subCategory?.data || [];
   };
@@ -290,7 +292,7 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
           <FormField
             key={`certification-${index}`}
             control={form.control}
-            name={`serviceCertificate${index}`}
+            name={`document${index}`}
             render={({ field: { value, onChange, ...fieldProps } }) => (
               <FormItem className="w-full">
                 <FormLabel className="text-gray-400 mb-2">
