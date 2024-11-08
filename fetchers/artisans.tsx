@@ -26,7 +26,7 @@ export const getProductRegions = async () => {
   }
 };
 
-export const getServiceCategoryItems = async (Id: any) => {
+export const getServiceCategoryItems = async () => {
   try {
     const response = await fetch(
       `${baseUrl}/general/services/getCategoryItems`
@@ -40,10 +40,10 @@ export const getServiceCategoryItems = async (Id: any) => {
   }
 };
 
-export const getServiceCategoryItemsById = async (Id: any) => {
+export const getServiceCategoryItemsById = async (catId: any) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/getCategoryItemsByServiceCategoryId/${Id}`
+      `${baseUrl}/general/services/getCategoryItemsByServiceCategoryId/${catId}`
     );
     const res = await response.json();
     if (response.ok && response.status === 200) {
@@ -155,9 +155,6 @@ export const createProductListing = async (requestPayload: any) => {
     console.log("Vendor listing detail creation failed", error);
   }
 };
-
-
-
 
 export const createServiceListing = async (requestPayload: any) => {
   try {
