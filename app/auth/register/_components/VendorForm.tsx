@@ -859,7 +859,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                                 <SelectItem
                                   key={index}
                                   className="h-11 rounded-lg px-3"
-                                  value={item.id}
+                                  value={item}
                                 >
                                   {item.name}
                                 </SelectItem>
