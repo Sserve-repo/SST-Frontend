@@ -143,6 +143,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   >([]);
   const [categoryName, setCategoryName] = useState("");
   const [subCategoryName, setSubcategoryName] = useState("");
+  const [isSubcategoryEnabled, setIsSubcategoryEnabled] = useState(false); // Disable subcategory selection until a category is selected
 
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
@@ -560,10 +561,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     console.log("Setting subcategory name:", name);
     setSubcategoryName(name);
   };
-
   const handleSetCategory = (name) => {
     console.log("Setting Category name:", name);
     setCategoryName(name);
+    setIsSubcategoryEnabled(true); // Enable subcategory selection once a category is selected
   };
 
   const getProductCat = async () => {
@@ -572,8 +573,25 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   };
 
   const handlefetchProductCatItems = async (catId) => {
-    const data = await getServiceCategoryItemsById(catId);
-    setServiceCategoryItems(data.data["Service Category Item By ID"]);
+    console.log(catId);
+    try {
+      if (catId) {
+        const data = await getServiceCategoryItemsById(catId);
+        console.log(data);
+        if (data && data.data && data.data["Service Category Item By ID"]) {
+          setServiceCategoryItems(data.data["Service Category Item By ID"]);
+        } else {
+          console.error(
+            "Service Category Item data is missing in the response:",
+            data
+          );
+          setServiceCategoryItems([]); // Set to empty if data is missing
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch category items:", error);
+      setServiceCategoryItems([]); // Set to empty in case of error
+    }
   };
 
   useEffect(() => {
@@ -876,47 +894,41 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Service Category
                         </FormLabel>
+                        <FormControl>
+                          <select
+                            value={field.value}
+                            onChange={(e) => {
+                              const selectedValue = e.target.value;
+                              console.log("Selected Value:", selectedValue);
 
-                        <Select
-                          value={field.value}
-                          defaultValue={field.value}
-                          onValueChange={(selectedValue) => {
-                            console.log("Selected Value:", selectedValue);
+                              const [selectedId, selectedName] =
+                                selectedValue.split("| ");
+                              field.onChange(selectedId);
 
-                            const [selectedId, selectedName] =
-                              selectedValue.split("| ");
-                            field.onChange(selectedId);
+                              console.log("Extracted ID:", selectedId);
+                              console.log("Category Name:", selectedName);
 
-                            console.log("Extracted ID:", selectedId);
-                            console.log("Category Name:", selectedName);
-
-                            handlefetchProductCatItems(selectedId);
-                            handleSetCategory(selectedName);
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {serviceCategories.map((cat, index) => {
-                              return (
-                                <SelectItem
-                                  key={index}
-                                  className="h-11 rounded-lg px-3"
-                                  value={`${cat.id}| ${cat.name}`}
-                                >
-                                  {cat.name}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                              handlefetchProductCatItems(selectedId);
+                              handleSetCategory(selectedName);
+                            }}
+                            className="rounded-xl shadow-sm h-12 px-3 w-full"
+                          >
+                            <option value="">Select a category</option>
+                            {serviceCategories.map((cat, index) => (
+                              <option
+                                key={index}
+                                value={`${cat.id}| ${cat.name}`}
+                              >
+                                {cat.name}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="serviceSubcategory"
@@ -925,45 +937,36 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Service Sub Category *
                         </FormLabel>
-                        <Select
-                          // onValueChange={field.onChange}
-                          // defaultValue={field.value}
-                          // onValueChange={(value) => {
-                          //   field.onChange(value);
-                          //   handleSetSubcategory(value);
+                        <FormControl>
+                          <select
+                            value={field.value}
+                            onChange={(e) => {
+                              const selectedValue = e.target.value;
+                              console.log("Selected Value:", selectedValue);
 
-                          value={field.value}
-                          defaultValue={field.value}
-                          onValueChange={(selectedValue) => {
-                            console.log("Selected Value:", selectedValue);
+                              const [selectedId, selectedName] =
+                                selectedValue.split("| ");
+                              field.onChange(selectedId);
 
-                            const [selectedId, selectedName] =
-                              selectedValue.split("| ");
+                              console.log("Extracted ID:", selectedId);
+                              console.log("Subcategory Name:", selectedName);
 
-                            field.onChange(selectedId);
-                            console.log("Extracted ID:", selectedId);
-                            console.log("Category Name:", selectedName);
-
-                            handleSetSubcategory(selectedName);
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                              <SelectValue placeholder="Please Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                              handleSetSubcategory(selectedName);
+                            }}
+                            disabled={!isSubcategoryEnabled}
+                            className="rounded-xl shadow-sm h-12 px-3 w-full"
+                          >
+                            <option value="">Please Select</option>
                             {serviceCategoryItems.map((item, index) => (
-                              <SelectItem
+                              <option
                                 key={index}
-                                className="h-11 rounded-lg px-3"
                                 value={`${item.id}| ${item.name}`}
                               >
                                 {item.name}
-                              </SelectItem>
+                              </option>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
