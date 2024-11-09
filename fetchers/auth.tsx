@@ -40,3 +40,17 @@ export const loginUser = async (requestPayload: any) => {
     console.log("Login failed", error);
   }
 };
+
+export const resendOtp = async (email: any) => {
+  const form = new FormData();
+  form.append("email", email);
+  try {
+    const response = await fetch(`${baseUrl}/auth/resendOTP`, {
+      method: "POST",
+      body: form,
+    });
+    return response;
+  } catch (error: any) {
+    console.log("Resend otp failed", error);
+  }
+};

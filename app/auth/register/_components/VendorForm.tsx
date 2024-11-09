@@ -46,11 +46,14 @@ import {
   createProductListing,
   createShippingPolicy,
   createVendorIdentity,
+  creatOtp,
   getProductCategories,
   getProductCategoryItemsById,
   getProductRegions,
 } from "@/fetchers/vendors";
 import { CanadianProvinces } from "./Collections";
+import { OtpForm } from "./OtpForm";
+import { otpPayload } from "@/forms/artisans";
 
 type FormData = {
   // Step 1: Create Account
@@ -98,6 +101,7 @@ type FormData = {
   productCategory: string;
   productName: string;
   productPrice: string;
+  otp: string;
   stockLevels: string;
   shippingCosts: string;
   productDescription: string;
@@ -134,6 +138,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   >([]);
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -151,6 +156,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       businessPhone: "",
       businessEmail: "",
       aboutShop: "",
+      otp: "",
       productRegion: "",
       idType: "",
       document: null,
@@ -226,8 +232,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 2: Set Your Shop Preferences validation
+    // Step 2 validation
     if (step === 2) {
+      data.otp = otp;
+      if (!data.otp) {
+        errors.otp = "otp is required";
+        isValid = false;
+      }
+    }
+
+    // Step 3: Set Your Shop Preferences validation
+    if (step === 3) {
       if (!data.province) {
         errors.province = "Province is required";
         isValid = false;
@@ -272,8 +287,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 3: Verify Your Identity validation
-    if (step === 3) {
+    // Step 4: Verify Your Identity validation
+    if (step === 4) {
       if (!data.idType) {
         errors.idType = "ID type is required";
         isValid = false;
@@ -284,8 +299,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 4: Set Shipping & Return Policies validation
-    if (step === 4) {
+    // Step 5: Set Shipping & Return Policies validation
+    if (step === 5) {
       if (!data.shippingOption) {
         errors.shippingOption = "Shipping option is required";
         isValid = false;
@@ -304,8 +319,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 5: Set Up Payment Preferences validation
-    if (step === 5) {
+    // Step 6: Set Up Payment Preferences validation
+    if (step === 6) {
       if (!data.bankName) {
         errors.bankName = "Bank Name is required";
         isValid = false;
@@ -324,8 +339,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 6: Set Up Billing validation
-    if (step === 6) {
+    // Step 7: Set Up Billing validation
+    if (step === 7) {
       if (!data.cardNumber) {
         errors.cardNumber = "Credit card number is required";
         isValid = false;
@@ -344,8 +359,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 7: Tell Us About Your Listing validation
-    if (step === 7) {
+    // Step8: Tell Us About Your Listing validation
+    if (step === 8) {
       if (!data.productCategory) {
         errors.productCategory = "Product category is required";
         isValid = false;
@@ -408,6 +423,21 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
 
       if (step === 2) {
+        const payload = otpPayload(data);
+        const response = await creatOtp(payload);
+        if (response) {
+          const res = await response.json();
+
+          if (response.ok && response.status === 200) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
+      }
+
+      if (step === 3) {
         const payload = businessProfilePayload(data);
         const response = await createBusinessProfile(payload);
         if (response) {
@@ -422,7 +452,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 3) {
+      if (step === 4) {
         const payload = vendorIdentityPayload(data);
         const response = await createVendorIdentity(payload);
         if (response) {
@@ -437,7 +467,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 4) {
+      if (step === 5) {
         const payload = shippingPolicyPayload(data);
         const response = await createShippingPolicy(payload);
         if (response) {
@@ -452,7 +482,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 5) {
+      if (step === 6) {
         const payload = paymentPreferencePayload(data);
         const response = await createPaymentPreference(payload);
         if (response) {
@@ -467,7 +497,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 6) {
+      if (step === 7) {
         const payload = billingPayload(data);
         const response = await createBilling(payload);
         if (response) {
@@ -482,7 +512,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 7) {
+      if (step === 8) {
         const payload = productListingPayload(data);
         const response = await createProductListing(payload);
         if (response) {
@@ -504,6 +534,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
   const stepTitles: string[] = [
     "Create Account",
+    "Confirm Otp",
     "Shop Preferences",
     "Identity Verification",
     "Shipping & Returns",
@@ -565,14 +596,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
               {step === 1 && (
                 <>
                   <div>
-                    <h2 className="text-[40px] font-semibold text-[#502266] w-full">
-                      Create Account
-                    </h2>
-                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[290px]">
-                      For the purpose of industry regulation, your details are
-                      required.
-                    </p>
+                    <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
+                      <h2 className="text-[40px] font-semibold text-[#502266] w-full">
+                        Create Account
+                      </h2>
+                      <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[290px]">
+                        For the purpose of industry regulation, your details are
+                        required.
+                      </p>
+                    </div>
                   </div>
+                  
                   <div className="grid sm:grid-cols-2 gap-4 w-full">
                     <FormField
                       control={form.control}
@@ -740,6 +774,16 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
               )}
 
               {step === 2 && (
+                <>
+                  <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
+                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                      <OtpForm form={form} setOtp={setOtp} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {step === 3 && (
                 <div className=" w-full flex flex-col gap-y-[30px]">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266] leading-[50px]">
@@ -1004,7 +1048,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 </div>
               )}
 
-              {step === 3 && (
+              {step === 4 && (
                 <div className="w-full space-y-7">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1122,7 +1166,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 </div>
               )}
 
-              {step === 4 && (
+              {step === 5 && (
                 <div className="w-full flex flex-col gap-y-7">
                   <div>
                     <div className="text-[40px] font-semibold text-[#502266] md:pr-[200px] leading-[50px]">
@@ -1265,7 +1309,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 6 && (
                 <div className=" flex flex-col w-full gap-y-7">
                   <div>
                     <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
@@ -1438,7 +1482,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 </div>
               )}
 
-              {step === 6 && (
+              {step === 7 && (
                 <div className="flex flex-col w-full gap-y-7">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1530,7 +1574,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 </div>
               )}
 
-              {step === 7 && (
+              {step === 8 && (
                 <div className="w-full space-y-7">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">

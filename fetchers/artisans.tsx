@@ -12,10 +12,10 @@ export const getServiceCategories = async () => {
   }
 };
 
-export const getProductRegions = async () => {
+export const getServiceCategoryItems = async (Id: any) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/products/getProductRegion`
+      `${baseUrl}/general/services/getCategoryItems`
     );
     const res = await response.json();
     if (response.ok && response.status === 200) {
@@ -26,10 +26,10 @@ export const getProductRegions = async () => {
   }
 };
 
-export const getServiceCategoryItems = async (Id: any) => {
+export const getServiceCategoryById = async (Id: any) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/getCategoryItems`
+      `${baseUrl}/general/services/getCategory/${Id}`
     );
     const res = await response.json();
     if (response.ok && response.status === 200) {
@@ -98,7 +98,7 @@ export const createServiceAvailability = async (requestPayload: any) => {
 
 export const createArtisanIdentity = async (requestPayload: any) => {
   try {
-    const response = await fetch(`${baseUrl}/artisan/auth/vendorIdentity`, {
+    const response = await fetch(`${baseUrl}/artisan/auth/artisanIdentity`, {
       method: "POST",
       body: requestPayload,
     });
@@ -156,9 +156,6 @@ export const createProductListing = async (requestPayload: any) => {
   }
 };
 
-
-
-
 export const createServiceListing = async (requestPayload: any) => {
   try {
     const response = await fetch(`${baseUrl}/artisan/auth/listingDetail`, {
@@ -168,5 +165,17 @@ export const createServiceListing = async (requestPayload: any) => {
     return response;
   } catch (error: any) {
     console.log("Service listing detail creation failed", error);
+  }
+};
+
+export const creatOtp = async (requestPayload: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/artisan/auth/otpVerification`, {
+      method: "POST",
+      body: requestPayload,
+    });
+    return response;
+  } catch (error: any) {
+    console.log("Otp verification creation failed", error);
   }
 };

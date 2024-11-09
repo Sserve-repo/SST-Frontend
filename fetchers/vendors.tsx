@@ -114,3 +114,16 @@ export const createProductListing = async (requestPayload: any) => {
     console.log("Vendor listing detail creation failed", error);
   }
 };
+
+
+export const creatOtp = async (requestPayload: any) => {
+  try {
+    const response = await fetch(`${baseUrl}/vendor/auth/otpVerification`, {
+      method: "POST",
+      body: requestPayload,
+    });
+    return response;
+  } catch (error: any) {
+    console.log("Otp verification creation failed", error);
+  }
+};

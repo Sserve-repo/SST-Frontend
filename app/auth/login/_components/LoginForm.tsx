@@ -16,7 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { useRouter } from "next/navigation";
-import { getUserDetails, loginUser } from "@/fetchers/auth";
+import { getUserDetails, loginUser, resendOtp } from "@/fetchers/auth";
 
 type FormData = {
   email: string;
@@ -36,6 +36,18 @@ export default function LoginForm() {
     },
   });
 
+  const getUserType = (user_type) => {
+    const type =
+      user_type === "3"
+        ? "vendor"
+        : user_type === "2"
+        ? "buyer"
+        : user_type === "4"
+        ? "artisan"
+        : null;
+
+    return type;
+  };
   const validateForm = (data: FormData): boolean => {
     let isValid = true;
     const errors: Partial<Record<keyof FormData, string>> = {};
@@ -70,24 +82,31 @@ export default function LoginForm() {
       const response = await loginUser(requestPayload);
       if (response) {
         const res = await response.json();
-        localStorage.setItem("accessToken", res.token);
+        if (response.status === 404) {
+          toast.error(res.message);
+          setLoading(false);
+        }
         localStorage.setItem("userId", JSON.stringify(res.data.user.id));
-        localStorage.setItem("user", JSON.stringify(res.data));
 
         if (response.ok && response.status === 200) {
           const userRes = await getUserDetails(data.email);
+          console.log(userRes);
           const { registration_status, user_type, verified_status } =
             userRes.data["User Details"];
-          if (!verified_status) {
-            const type =
-              user_type === "3"
-                ? "vendor"
-                : user_type === "2"
-                ? "buyer"
-                : user_type === "4"
-                ? "artisan"
-                : null;
 
+          const type = getUserType(user_type);
+          if (!verified_status) {
+            await resendOtp(data.email);
+            router.push(`/auth/register?role=${type}&&step=2`);
+          } else if (
+            verified_status &&
+            parseInt(registration_status.replace("step", "")) == 1
+          ) {
+            router.push(`/auth/register?role=${type}&&step=3`);
+          } else if (
+            verified_status &&
+            parseInt(registration_status.replace("step", "")) >= 2
+          ) {
             router.push(
               `/auth/register?role=${type}&&step=${
                 parseInt(registration_status.replace("step", "")) + 1
