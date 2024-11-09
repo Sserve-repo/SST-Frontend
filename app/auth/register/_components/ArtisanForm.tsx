@@ -32,14 +32,13 @@ import { Success } from "./Success";
 import Link from "next/link";
 import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
-import { categories, CanadianProvinces } from "./Collections";
+import { CanadianProvinces } from "./Collections";
 import {
   billingPayload,
   businessProfilePayload,
   serviceAvailabilityPayload,
   paymentPreferencePayload,
   serviceListingPayload,
-  shippingPolicyPayload,
   userRegistrationPayload,
   artisanIdentityPayload,
   businessPolicyPayload,
@@ -54,7 +53,6 @@ import {
   createServiceAvailability,
   createPaymentPreference,
   createServiceListing,
-  createShippingPolicy,
   createArtisanIdentity,
   createbusinessPolicy,
   getServiceCategories,
@@ -452,7 +450,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
           if (response.ok && response.status === 200) {
             toast.success(res.message);
-            setEmail(res.data.email)
+            setEmail(res.data.email);
             handleNextStep();
           } else {
             formatErrors(res.data.errors, res);
@@ -460,7 +458,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         }
       }
 
-      if (step ===3 ) {
+      if (step === 3) {
         const payload = businessProfilePayload(data);
         const response = await createBusinessProfile(payload);
         if (response) {
@@ -601,7 +599,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     if (registrationStep) {
       setStep(registrationStep);
     }
-  }, []);
+  }, [registrationStep]);
 
   return (
     <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
@@ -915,7 +913,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             const selectedCat = serviceCategories.find(
                               (cat) => cat.id === selectedValue
                             );
-                            selectedCat && setCategoryName(selectedCat?.name);
+                            if (selectedCat) setCategoryName(selectedCat?.name);
                           }}
                         >
                           <FormControl>
@@ -958,7 +956,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             const selectedCat = serviceCategoryItems.find(
                               (cat) => cat.id === selectedValue
                             );
-                            selectedCat &&
+                            if (selectedCat)
                               setSubcategoryName(selectedCat?.name);
                           }}
                         >
@@ -1095,7 +1093,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   <FormField
                     control={form.control}
                     name="availableDays"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem className="w-full flex flex-col mb-[22px]">
                         <FormLabel className="text-gray-400 text-base mt-[30px] mb-3">
                           Select Days*
