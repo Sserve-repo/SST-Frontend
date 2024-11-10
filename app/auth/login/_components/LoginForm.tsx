@@ -48,6 +48,19 @@ export default function LoginForm() {
 
     return type;
   };
+
+  const canLogin = (type, registration_status) => {
+    if (type === "vendor" && registration_status == 7) {
+      return true;
+    } else if (type === "artisan" && registration_status == 8) {
+      return true;
+    } else if (type === "shopper" && registration_status == 2) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const validateForm = (data: FormData): boolean => {
     let isValid = true;
     const errors: Partial<Record<keyof FormData, string>> = {};
@@ -95,6 +108,9 @@ export default function LoginForm() {
             userRes.data["User Details"];
 
           const type = getUserType(user_type);
+          if (canLogin(type, registration_status.replace("step", ""))) {
+            router.push(`/`);
+          }
           if (!verified_status) {
             await resendOtp(data.email);
             router.push(`/auth/register?role=${type}&&step=2`);
