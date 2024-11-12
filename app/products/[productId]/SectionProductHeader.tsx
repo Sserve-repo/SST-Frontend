@@ -178,7 +178,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
               ))}
             </div>
           </div>
-          <Tabs defaultValue="description" className="mb-12">
+          {/* <Tabs defaultValue="description" className="mb-12">
             <TabsList>
               <TabsTrigger value="description">Description</TabsTrigger>
               <TabsTrigger value="specifications">Specifications</TabsTrigger>
@@ -307,7 +307,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                 customer unless the return is due to our error.
               </p>
             </TabsContent>
-          </Tabs>
+          </Tabs> */}
         </div>
 
         <div className="basis-[42%] space-y-5">
