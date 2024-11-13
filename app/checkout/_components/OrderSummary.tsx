@@ -1,48 +1,51 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CreditCard } from "lucide-react";
+import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
-const OrderSummary = ({ register, errors }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const OrderSummary = () => {
+  const { cart, totalPrice } = useCart();
 
   return (
-    <div className="bg-gray-100 shadow-md p-4  rounded-lg sticky top-4 gap-y-8">
-      <div className="grid grid-cols-1 ">
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span>Subtotal</span>
-            <span>$99.99</span>
+    <div className="bg-gray-100 shadow-md p-6 rounded-lg sticky top-24">
+      <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+
+      {/* List of items in the cart */}
+      <div className="mb-4 space-y-2">
+        {cart.map((item) => (
+          <div key={item.id} className="flex justify-between">
+            <span>
+              {item.name} (x{item.quantity})
+            </span>
+            <span>${(item.price * item.quantity).toFixed(2)}</span>
           </div>
-          <div className="flex justify-between">
-            <span>Shipping</span>
-            <span>$9.99</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Taxes</span>
-            <span>$10.00</span>
-          </div>
-          <div className="border-t pt-2 flex justify-between font-semibold">
-            <span>Total</span>
-            <span>$119.98</span>
-          </div>
-        </div>
-        <div className="mt-4 flex items-center justify-center text-sm text-gray-500"></div>
-        <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
-          <CreditCard className="w-4 h-4 mr-2" />
-          <span>Secure payment powered by Stripe</span>
-        </div>
-        <Button
-          type="submit"
-          form="checkout-form"
-          className="w-full mt-4 py-6"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Processing..." : "Proceed to Checkout"}
-        </Button>
+        ))}
       </div>
+
+      {/* Total Items and Price */}
+      <div className="flex justify-between mb-2">
+        <span>Sub Total:</span>
+        <span>${totalPrice.toFixed(2)}</span>
+      </div>
+
+      {/* Shipping */}
+      <div className="flex justify-between mb-2">
+        <span>Shipping:</span>
+        <span>Free</span>
+      </div>
+
+      {/* Grand Total */}
+      <div className="border-t pt-4 mt-4">
+        <div className="flex justify-between font-semibold">
+          <span>Total:</span>
+          <span>${totalPrice.toFixed(2)}</span>
+        </div>
+      </div>
+
+      {/* Proceed to Checkout Button */}
+      <Link href="/checkout">
+        <Button className="w-full mt-6">Proceed to Checkout</Button>
+      </Link>
     </div>
   );
 };
