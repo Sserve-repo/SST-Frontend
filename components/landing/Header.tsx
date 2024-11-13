@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
+import CartIcon from "../CartIcon";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -167,9 +168,7 @@ export default function Header() {
               >
                 <Heart className="h-6 w-6" />
               </Link>
-              <Link href="/cart" className="text-gray-600 hover:text-gray-900">
-                <ShoppingCart className="h-6 w-6" />
-              </Link>
+              <CartIcon />
             </div>
           </nav>
         </div>
