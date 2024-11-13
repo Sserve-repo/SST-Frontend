@@ -21,6 +21,7 @@ const OrderSummary = () => {
           </div>
         ))}
       </div>
+      
 
       {/* Total Items and Price */}
       <div className="flex justify-between mb-2">
