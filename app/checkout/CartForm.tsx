@@ -304,7 +304,7 @@ export default function CheckoutForm() {
           </form>
         </div>
         <div>
-          <OrderSummary register={register} errors={errors} />
+          <OrderSummary />
         </div>
       </div>
     </div>
