@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CreditCard } from "lucide-react";
 import countryList from "react-select-country-list";
 import Select from "react-select";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import OrderSummary from "./_components/OrderSummary";
 
+// Define form validation schema using zod
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   phone: z
@@ -51,7 +52,21 @@ const formSchema = z.object({
     .regex(/^[0-9]{3,4}$/, { message: "CVV must be 3 or 4 digits" }),
 });
 
-const CountrySelect = ({ value, onChange, error }) => {
+type FormData = z.infer<typeof formSchema>;
+
+interface CountrySelectProps {
+  value: { value: string; label: string } | null;
+  onChange: (value: { value: string; label: string } | null) => void;
+  error?: string;
+  className?: string;
+}
+// CountrySelect component for handling country selection
+const CountrySelect: React.FC<CountrySelectProps> = ({
+  value,
+  onChange,
+  error,
+  // className,
+}) => {
   const options = useMemo(() => countryList().getData(), []);
 
   return (
@@ -69,20 +84,24 @@ const CountrySelect = ({ value, onChange, error }) => {
   );
 };
 
+// Main CheckoutForm component
 export default function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Using formSchema as the type for useForm ensures compatibility
   const {
     register,
     handleSubmit,
     formState: { errors },
     control,
-  } = useForm({
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+  // Define the onSubmit function with FormData as the type
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     setIsSubmitting(true);
-    // Simulate API call
+    // Simulate an API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
     console.log("Order placed!", data);
@@ -96,10 +115,10 @@ export default function CheckoutForm() {
     <div className="container mx-auto py-32">
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 pr-0 lg:pr-4">
+        <div className="lg:col-span-2 pr-0 lg:pr-4 mx-6">
           <form
             id="checkout-form"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit)} // Use handleSubmit directly with onSubmit
             className="space-y-6 w-full mx-auto"
           >
             <Accordion
@@ -108,19 +127,20 @@ export default function CheckoutForm() {
               className="w-full"
             >
               <AccordionItem value="contact">
-                <AccordionTrigger className=" text-lg">
-                  Contact
+                <AccordionTrigger className=" font-bold text-black">
+                  1. Contact
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4">
+                  <div className="space-y-4 mx-4">
                     <div>
                       <Label className="" htmlFor="email">
                         Email
                       </Label>
                       <Input
                         id="email"
+                        placeholder="name@example.com"
                         {...register("email")}
-                        className="w-full"
+                        className="w-full bg-[#F7F0FA] py-6 "
                       />
                       {errors.email && (
                         <p className="text-red-500 text-sm mt-1">
@@ -134,8 +154,9 @@ export default function CheckoutForm() {
                       </Label>
                       <Input
                         id="phone"
+                        placeholder="+1 (415) 123-4567"
                         {...register("phone")}
-                        className="w-full"
+                        className="w-full bg-[#F7F0FA] py-6"
                       />
                       {errors.phone && (
                         <p className="text-red-500 text-sm mt-1">
@@ -148,15 +169,15 @@ export default function CheckoutForm() {
               </AccordionItem>
 
               <AccordionItem value="shipping">
-                <AccordionTrigger>Shipping Information</AccordionTrigger>
+                <AccordionTrigger>2. Shipping Information</AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4">
+                  <div className="space-y-4 mx-4">
                     <div>
                       <Label htmlFor="fullName">Full Name</Label>
                       <Input
                         id="fullName"
                         {...register("fullName")}
-                        className="w-full"
+                        className="w-full bg-[#F7F0FA] py-6"
                       />
                       {errors.fullName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -169,7 +190,7 @@ export default function CheckoutForm() {
                       <Input
                         id="address"
                         {...register("address")}
-                        className="w-full"
+                        className="w-full bg-[#F7F0FA] py-6"
                       />
                       {errors.address && (
                         <p className="text-red-500 text-sm mt-1">
@@ -183,7 +204,7 @@ export default function CheckoutForm() {
                         <Input
                           id="city"
                           {...register("city")}
-                          className="w-full"
+                          className="w-full bg-[#F7F0FA] py-6"
                         />
                         {errors.city && (
                           <p className="text-red-500 text-sm mt-1">
@@ -196,7 +217,7 @@ export default function CheckoutForm() {
                         <Input
                           id="postalCode"
                           {...register("postalCode")}
-                          className="w-full"
+                          className="w-full bg-[#F7F0FA] py-6"
                         />
                         {errors.postalCode && (
                           <p className="text-red-500 text-sm mt-1">
@@ -212,7 +233,9 @@ export default function CheckoutForm() {
                         control={control}
                         render={({ field }) => (
                           <CountrySelect
-                            className="w-full p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            className={
+                              "w-full bg-[#F7F0FA] py-4 p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            }
                             value={field.value}
                             onChange={field.onChange}
                             error={errors.country?.message}
@@ -274,43 +297,14 @@ export default function CheckoutForm() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+
+            <Button type="submit" disabled={isSubmitting} className="w-full">
+              {isSubmitting ? "Placing Order..." : "Place Order"}
+            </Button>
           </form>
         </div>
-
-        <div className="lg:col-span-1">
-          <div className="bg-gray-100 shadow-md p-4  rounded-lg sticky top-4">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>$99.99</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>$9.99</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Taxes</span>
-                <span>$10.00</span>
-              </div>
-              <div className="border-t pt-2 flex justify-between font-semibold">
-                <span>Total</span>
-                <span>$119.98</span>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
-              <CreditCard className="w-4 h-4 mr-2" />
-              <span>Secure payment powered by Stripe</span>
-            </div>
-            <Button
-              type="submit"
-              form="checkout-form"
-              className="w-full mt-4"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Processing..." : "Checkout"}
-            </Button>
-          </div>
+        <div>
+          <OrderSummary register={register} errors={errors} />
         </div>
       </div>
     </div>
