@@ -7,52 +7,61 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { redirect } from "next/navigation";
 
 const Section6 = () => {
   const featuredProducts = [
     {
+      id: 1,
       name: "Triple Rock - Plaster of Paris(POP)",
       categories: ["Home Decor", "House Decoration"],
       price: 2999.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 2,
       name: "Premium Ceramic Tiles",
       categories: ["Flooring", "Interior Design"],
       price: 1499.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 3,
       name: "Eco-Friendly Paint Set",
       categories: ["Wall Decor", "DIY"],
       price: 799.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 4,
       name: "Luxury Bathroom Fixtures",
       categories: ["Plumbing", "Home Improvement"],
       price: 3499.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 5,
       name: "Smart Home Lighting System",
       categories: ["Electronics", "Home Automation"],
       price: 1999.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 6,
       name: "Hardwood Flooring Kit",
       categories: ["Flooring", "DIY"],
       price: 2499.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 7,
       name: "Designer Wallpaper Collection",
       categories: ["Wall Decor", "Interior Design"],
       price: 599.99,
       image: "/assets/images/tailor.png?height=300&width=400",
     },
     {
+      id: 8,
       name: "Energy-Efficient Windows",
       categories: ["Home Improvement", "Eco-Friendly"],
       price: 4999.99,
@@ -60,6 +69,12 @@ const Section6 = () => {
     },
   ];
 
+  const handleAddToCart = async (id) => {
+    const token = localStorage.get("accessToken");
+    if (!token) {
+      redirect("/auth/login");
+    }
+  };
   return (
     <section className="bg-white py-12 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
@@ -101,6 +116,7 @@ const Section6 = () => {
                     <Button
                       variant="secondary"
                       className="bg-white text-black hover:bg-white/90"
+                      onClick={() => handleAddToCart(product.id)}
                     >
                       <Plus className="mr-2 h-4 w-4" /> Add to Cart
                     </Button>
