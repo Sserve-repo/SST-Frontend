@@ -1,72 +1,57 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { RiDeleteBinLine } from "react-icons/ri";
+import React from "react";
+import { useCart } from "@/context/CartContext";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Minus, Plus, Trash2 } from "lucide-react";
 
-const CartItem = ({ products, setProducts }) => {
-  const handleQuantityChange = (id, change) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === id
-          ? {
-              ...product,
-              quantity: Math.max(1, (product.quantity || 1) + change),
-            }
-          : product
-      )
-    );
-  };
-
-  const setHandleRemoveProduct = (id: number) => {
-    setProducts((prev) => prev.filter((product) => product.id !== id));
-  };
+const CartItem = () => {
+  const { cart, removeFromCart, updateQuantity } = useCart();
 
   return (
-    <div className="lg:col-span-2 pr-0 lg:pr-4 mx-6">
-      {products.map((product, index) => (
-        <div key={index}>
-          <div className="mt-8 flex items-center justify-center py-3">
-            <hr className="w-full border-t border-gray-300" />
+    <div className="md:col-span-2 lg:col-span-2 pr-0 lg:pr-4 mx-6">
+      <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+      {cart.map((item) => (
+        <div key={item.id} className="flex items-center border-b py-4">
+          <Link href={`/products/${item.id}`}>
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-24 h-24 rounded object-cover mr-4"
+            />
+          </Link>
+          <div className="flex-grow">
+            <h2 className="font-semibold">{item.name}</h2>
+            <p className="text-gray-600">${item.price.toFixed(2)}</p>
+            <div className="flex items-center mt-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="mx-2">{item.quantity}</span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="ml-4"
+                onClick={() => removeFromCart(item.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-x-4 items-center">
-            <div className="relative h-28 w-24">
-              <Image
-                src={product.image}
-                alt={product.name}
-                layout="fill"
-                objectFit="cover"
-                className="rounded-md "
-              />
-            </div>
-            <div className="">
-              <p className="font-bold">{product.name}</p>
-              <p className="text-[#D3AFE4]">${product.price}</p>
-
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center border rounded-md">
-                  <button
-                    className="px-3 py-1 text-lg text-gray-600 hover:bg-gray-100"
-                    onClick={() => handleQuantityChange(product.id, -1)}
-                  >
-                    -
-                  </button>
-                  <span className="px-3 py-1 text-lg text-gray-800">
-                    {product.quantity}
-                  </span>
-                  <button
-                    className="px-3 py-1 text-lg text-gray-600 hover:bg-gray-100"
-                    onClick={() => handleQuantityChange(product.id, 1)}
-                  >
-                    +
-                  </button>
-                </div>
-                <div>
-                  <RiDeleteBinLine
-                    className="text-[#502266]"
-                    onClick={() => setHandleRemoveProduct(product.id)}
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="text-right">
+            <p className="font-semibold">
+              ${(item.price * item.quantity).toFixed(2)}
+            </p>
           </div>
         </div>
       ))}

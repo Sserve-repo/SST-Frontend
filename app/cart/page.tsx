@@ -1,14 +1,34 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import OrderSummary from "../checkout/_components/OrderSummary";
+import OrderSummary from "./_components/OrderSummary";
+import CartItem from "./CartItem";
+import { toast } from "sonner";
+// import { toast } from "@/hooks/use-toast";
 
 const CartPage = () => {
-  const { cart, removeFromCart, updateQuantity } = useCart();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { cart } = useCart();
+  const [promoCode, setPromoCode] = useState("");
+
+  const handleApplyCoupon = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsSubmitting(false);
+    console.log("Coupon applied successfully", cart);
+    toast.success("Coupon applied successfully");
+  };
+
+  const handleSubmit = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsSubmitting(false);
+    console.log("Order placed!", cart);
+    toast.success("Order Placed", {
+      description: "Your order has been successfully placed.",
+    });
+  };
 
   if (cart.length === 0) {
     return (
@@ -27,56 +47,15 @@ const CartPage = () => {
   return (
     <div className="container mx-auto min-h-screen px-4 py-24 sm:py-32">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 lg:col-span-2 pr-0 lg:pr-4 mx-6">
-          <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
-          {cart.map((item) => (
-            <div key={item.id} className="flex items-center border-b py-4">
-              <Link href={`/products/${item.id}`}>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-24 h-24 rounded object-cover mr-4"
-                />
-              </Link>
-              <div className="flex-grow">
-                <h2 className="font-semibold">{item.name}</h2>
-                <p className="text-gray-600">${item.price.toFixed(2)}</p>
-                <div className="flex items-center mt-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="mx-2">{item.quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="ml-4"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <CartItem />
         <div>
-          <OrderSummary />
+          <OrderSummary
+            promoCode={promoCode}
+            setPromoCode={setPromoCode}
+            isSubmitting={isSubmitting}
+            handleApplyCoupon={handleApplyCoupon}
+            handleSubmit={handleSubmit}
+          />
         </div>
       </div>
     </div>

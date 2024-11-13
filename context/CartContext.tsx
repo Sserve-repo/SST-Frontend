@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type CartItem = {
-  id: string;
+  id: number;
   name: string;
   price: number;
   quantity: number;
@@ -13,12 +13,87 @@ type CartItem = {
 type CartContextType = {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeFromCart: (id: number) => void;
+  updateQuantity: (id: number, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
 };
+
+const items = [
+  {
+    id: 1,
+    name: "Adjustable Standing Desk",
+    price: 299.99,
+    rating: 4.5,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 2,
+    name: "Ergonomic Keyboard",
+    price: 79.99,
+    rating: 4.3,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 3,
+    name: "Anti-Fatigue Mat",
+    price: 39.99,
+    rating: 4.6,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 4,
+    name: "Monitor Arm",
+    price: 89.99,
+    rating: 4.4,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 5,
+    name: "Monitor Arm",
+    price: 89.99,
+    rating: 4.4,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 6,
+    name: "Monitor Arm",
+    price: 89.99,
+    rating: 4.4,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 7,
+    name: "Monitor Arm",
+    price: 89.99,
+    rating: 4.4,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 8,
+    name: "Monitor Arm",
+    price: 89.99,
+    rating: 4.4,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+  {
+    id: 9,
+    name: "Monitor Arm",
+    price: 89.99,
+    rating: 4.4,
+    image: "/assets/images/cement.png?height=200&width=200",
+    quantity: 20,
+  },
+];
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -37,8 +112,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
+    if (savedCart && JSON.parse(savedCart) > 0) {
       setCart(JSON.parse(savedCart));
+    } else {
+      setCart(items);
     }
   }, []);
 
@@ -60,11 +137,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = (id: number) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
+  const updateQuantity = (id: number, quantity: number) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
         item.id === id ? { ...item, quantity: Math.max(0, quantity) } : item

@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const OrderSummary = ({ register, errors }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+const OrderSummary = ({
+  promoCode,
+  setPromoCode,
+  isSubmitting,
+  handleApplyCoupon,
+  handleSubmit,
+}) => {
   return (
     <div className="bg-gray-100 shadow-md p-4  rounded-lg sticky top-4 gap-y-8">
       <div className="grid grid-cols-1 ">
@@ -34,6 +38,7 @@ const OrderSummary = ({ register, errors }) => {
           form="checkout-form"
           className="w-full mt-4 py-6"
           disabled={isSubmitting}
+          onClick={() => handleSubmit()}
         >
           {isSubmitting ? "Processing..." : "Proceed to Checkout"}
         </Button>
@@ -50,15 +55,9 @@ const OrderSummary = ({ register, errors }) => {
             <Label htmlFor="promo-code">Promo Code</Label>
             <Input
               placeholder="Enter code"
-              id="promo-code"
-              {...register("promoCode")}
-              className="w-full bg-[#E5D0EF] py-6 px-4 rounded-md"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
             />
-            {errors.promoCode && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.promoCode.message}
-              </p>
-            )}
           </div>
 
           {/* Apply Button */}
@@ -67,8 +66,8 @@ const OrderSummary = ({ register, errors }) => {
               Apply
             </Label>
             <Button
-              type="submit"
-              form="checkout-form"
+              type="button"
+              onClick={handleApplyCoupon}
               className="w-full py-6 mt-1 text-white rounded-md"
               disabled={isSubmitting}
             >
