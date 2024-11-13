@@ -93,7 +93,7 @@ export default function CheckoutForm() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-32">
+    <div className="container mx-auto py-32">
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 pr-0 lg:pr-4">
@@ -108,19 +108,19 @@ export default function CheckoutForm() {
               className="w-full"
             >
               <AccordionItem value="contact">
-                <AccordionTrigger className="text-purple-950">
+                <AccordionTrigger className=" text-lg">
                   Contact
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-purple-900" htmlFor="email">
+                      <Label className="" htmlFor="email">
                         Email
                       </Label>
                       <Input
                         id="email"
                         {...register("email")}
-                        className="w-full bg-purple-200"
+                        className="w-full"
                       />
                       {errors.email && (
                         <p className="text-red-500 text-sm mt-1">
@@ -129,13 +129,13 @@ export default function CheckoutForm() {
                       )}
                     </div>
                     <div>
-                      <Label className="text-purple-900" htmlFor="phone">
+                      <Label className="" htmlFor="phone">
                         Phone
                       </Label>
                       <Input
                         id="phone"
                         {...register("phone")}
-                        className="w-full bg-purple-200"
+                        className="w-full"
                       />
                       {errors.phone && (
                         <p className="text-red-500 text-sm mt-1">
@@ -156,7 +156,7 @@ export default function CheckoutForm() {
                       <Input
                         id="fullName"
                         {...register("fullName")}
-                        className="w-full bg-purple-200"
+                        className="w-full"
                       />
                       {errors.fullName && (
                         <p className="text-red-500 text-sm mt-1">
@@ -169,7 +169,7 @@ export default function CheckoutForm() {
                       <Input
                         id="address"
                         {...register("address")}
-                        className="w-full bg-purple-200"
+                        className="w-full"
                       />
                       {errors.address && (
                         <p className="text-red-500 text-sm mt-1">
@@ -183,7 +183,7 @@ export default function CheckoutForm() {
                         <Input
                           id="city"
                           {...register("city")}
-                          className="w-full bg-purple-200"
+                          className="w-full"
                         />
                         {errors.city && (
                           <p className="text-red-500 text-sm mt-1">
@@ -196,7 +196,7 @@ export default function CheckoutForm() {
                         <Input
                           id="postalCode"
                           {...register("postalCode")}
-                          className="w-full bg-purple-200"
+                          className="w-full"
                         />
                         {errors.postalCode && (
                           <p className="text-red-500 text-sm mt-1">
@@ -212,7 +212,7 @@ export default function CheckoutForm() {
                         control={control}
                         render={({ field }) => (
                           <CountrySelect
-                            className="w-full bg-purple-200 p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            className="w-full p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
                             value={field.value}
                             onChange={field.onChange}
                             error={errors.country?.message}
