@@ -1,8 +1,7 @@
 import React from "react";
-import CheckoutForm from "./CartForm";
+import CheckoutForm from "./CheckoutForm";
 
 const Checkout = () => {
-  // const []
   return (
     <>
       <CheckoutForm />
