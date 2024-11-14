@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 interface SectionProductHeaderProps {
   slug: string;
+  id: number;
   productName: string;
   description: string;
   price: number;
@@ -36,7 +37,8 @@ interface SectionProductHeaderProps {
 }
 
 const SectionProductHeader: FC<SectionProductHeaderProps> = ({
-  slug,
+  // slug,
+  id,
   productName,
   description,
   price,
@@ -58,7 +60,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
 
   const handleAddToCart = () => {
     addToCart({
-      id: slug,
+      id: id,
       name: productName,
       price: discountedPrice || price,
       quantity,
