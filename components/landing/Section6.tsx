@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const Section6 = () => {
+  const router = useRouter();
   const featuredProducts = [
     {
       id: 1,
@@ -69,11 +70,12 @@ const Section6 = () => {
     },
   ];
 
-  const handleAddToCart = async (id) => {
-    const token = localStorage.get("accessToken");
+  const handleAddToCart = async (name: string) => {
+    const token = localStorage.getItem("accessToken");
     if (!token) {
-      redirect("/auth/login");
+      router.push("/auth/login");
     }
+    router.push(`/products/${name.replace(" ", "-").toLocaleLowerCase()}`);
   };
   return (
     <section className="bg-white py-12 md:py-24">
@@ -116,7 +118,7 @@ const Section6 = () => {
                     <Button
                       variant="secondary"
                       className="bg-white text-black hover:bg-white/90"
-                      onClick={() => handleAddToCart(product.id)}
+                      onClick={() => handleAddToCart(product.name)}
                     >
                       <Plus className="mr-2 h-4 w-4" /> Add to Cart
                     </Button>

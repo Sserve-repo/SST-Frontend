@@ -49,12 +49,20 @@ export default function LoginForm() {
     return type;
   };
 
-  const canLogin = (type, registration_status) => {
-    if (type === "vendor" && registration_status == 7) {
+  const canLogin = (type, is_completed, registration_status) => {
+    if (type === "vendor" && registration_status == 7 && is_completed == "1") {
       return true;
-    } else if (type === "artisan" && registration_status == 8) {
+    } else if (
+      type === "artisan" &&
+      registration_status == 8 &&
+      is_completed == "1"
+    ) {
       return true;
-    } else if (type === "shopper" && registration_status == 2) {
+    } else if (
+      type === "shopper" &&
+      registration_status == 2 &&
+      is_completed == "1"
+    ) {
       return true;
     } else {
       return false;
@@ -99,16 +107,26 @@ export default function LoginForm() {
           toast.error(res.message);
           setLoading(false);
         }
-        localStorage.setItem("userId", JSON.stringify(res.data.user.id));
 
         if (response.ok && response.status === 200) {
+          localStorage.setItem("userId", JSON.stringify(res.data.user.id));
           const userRes = await getUserDetails(data.email);
           console.log(userRes);
-          const { registration_status, user_type, verified_status } =
-            userRes.data["User Details"];
+          const {
+            registration_status,
+            is_completed,
+            user_type,
+            verified_status,
+          } = userRes.data["User Details"];
 
           const type = getUserType(user_type);
-          if (canLogin(type, registration_status.replace("step", ""))) {
+          if (
+            canLogin(
+              type,
+              is_completed,
+              registration_status.replace("step", "")
+            )
+          ) {
             router.push(`/`);
           }
           if (!verified_status) {
@@ -131,6 +149,7 @@ export default function LoginForm() {
           } else {
             toast.success(res.message);
             localStorage.setItem("accessToken", res.token);
+            localStorage.removeItem("userId");
             setLoading(false);
             router.push("/");
           }

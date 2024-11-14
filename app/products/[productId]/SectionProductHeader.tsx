@@ -153,7 +153,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                   <AvatarImage
                     src={`https://i.pravatar.cc/48?u=${seller.name}`}
                   />
-                  <AvatarFallback>{seller.name.slice(0, 2)}</AvatarFallback>
+                  <AvatarFallback>{seller?.name?.slice(0, 2)}</AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-semibold text-lg hover:underline">
@@ -328,7 +328,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                 <AvatarImage
                   src={`https://i.pravatar.cc/48?u=${seller.name}`}
                 />
-                <AvatarFallback>{seller.name.slice(0, 2)}</AvatarFallback>
+                {/* <AvatarFallback>{seller?.name?.slice(0, 2)}</AvatarFallback> */}
               </Avatar>
               <div>
                 <p className="font-semibold text-lg hover:underline">
