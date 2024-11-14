@@ -1,5 +1,6 @@
 export const products = [
     {
+        id: 1,
         slug: 'brown-coat',
         productName: 'Brown Coat',
         description: 'High-quality brown coat made from durable materials to keep you warm and stylish in any season.',
@@ -40,6 +41,7 @@ export const products = [
         returnPolicy: '14-day return with original receipt',
     },
     {
+        id: 2,
         slug: 'sweat-outfit-1',
         productName: 'Sweat Outfit - Gray',
         description: 'Comfortable gray sweat outfit perfect for lounging and casual wear, made with soft and breathable fabric.',
@@ -77,6 +79,7 @@ export const products = [
         returnPolicy: '30-day return policy',
     },
     {
+        id: 3,
         slug: 'sweat-outfit-2',
         productName: 'Sweat Outfit - Black',
         description: 'Versatile black sweat outfit with a comfortable fit, ideal for both workouts and lounging.',
@@ -114,6 +117,7 @@ export const products = [
         returnPolicy: 'Free returns within 14 days',
     },
     {
+        id: 4,
         slug: 'sweat-outfit-3',
         productName: 'Sweat Outfit - Blue',
         description: 'Stylish blue sweat outfit made from premium materials, ensuring both comfort and durability.',
