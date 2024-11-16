@@ -28,7 +28,7 @@ export default function Hero() {
   useEffect(() => {
     const username = localStorage.getItem("username") || "";
     setUsername(username);
-  });
+  }, []);
 
   return (
     <div className="relative h-full w-full overflow-hidden z-10">
