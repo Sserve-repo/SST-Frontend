@@ -49,26 +49,6 @@ export default function LoginForm() {
     return type;
   };
 
-  const canLogin = (type, is_completed, registration_status) => {
-    if (type === "vendor" && registration_status == 7 && is_completed == "1") {
-      return true;
-    } else if (
-      type === "artisan" &&
-      registration_status == 8 &&
-      is_completed == "1"
-    ) {
-      return true;
-    } else if (
-      type === "shopper" &&
-      registration_status == 2 &&
-      is_completed == "1"
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   const validateForm = (data: FormData): boolean => {
     let isValid = true;
     const errors: Partial<Record<keyof FormData, string>> = {};
@@ -109,9 +89,9 @@ export default function LoginForm() {
         }
 
         if (response.ok && response.status === 200) {
-          localStorage.setItem("userId", JSON.stringify(res.data.user.id));
+          localStorage.setItem("email", JSON.stringify(res.data.user.email));
+          localStorage.setItem("username", `${res.data.user.firstname}`);
           const userRes = await getUserDetails(data.email);
-          console.log(userRes);
           const {
             registration_status,
             is_completed,
@@ -120,13 +100,7 @@ export default function LoginForm() {
           } = userRes.data["User Details"];
 
           const type = getUserType(user_type);
-          if (
-            canLogin(
-              type,
-              is_completed,
-              registration_status.replace("step", "")
-            )
-          ) {
+          if (is_completed) {
             router.push(`/`);
           }
           if (!verified_status) {
@@ -134,11 +108,13 @@ export default function LoginForm() {
             router.push(`/auth/register?role=${type}&&step=2`);
           } else if (
             verified_status &&
+            !parseInt(is_completed) &&
             parseInt(registration_status.replace("step", "")) == 1
           ) {
             router.push(`/auth/register?role=${type}&&step=3`);
           } else if (
             verified_status &&
+            !parseInt(is_completed) &&
             parseInt(registration_status.replace("step", "")) >= 2
           ) {
             router.push(
@@ -149,7 +125,7 @@ export default function LoginForm() {
           } else {
             toast.success(res.message);
             localStorage.setItem("accessToken", res.token);
-            localStorage.removeItem("userId");
+            localStorage.removeItem("email");
             setLoading(false);
             router.push("/");
           }

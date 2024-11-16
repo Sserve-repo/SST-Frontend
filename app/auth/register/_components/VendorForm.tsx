@@ -81,8 +81,8 @@ type FormData = {
   document: File | null;
   // Step 5: Set Shipping & Return Policies
   shippingOption: string;
-  deliveryFrom: string;
-  deliveryTo: string;
+  deliveryFrom: number;
+  deliveryTo: number;
   returnPolicy: string;
 
   bankName: string;
@@ -161,8 +161,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       idType: "",
       document: null,
       shippingOption: "",
-      deliveryFrom: "",
-      deliveryTo: "",
+      deliveryFrom: 0,
+      deliveryTo: 0,
       returnPolicy: "",
       paymentOptions: [],
       cardNumber: "",
@@ -432,7 +432,9 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
             toast.success(res.message);
             handleNextStep();
           } else {
-            formatErrors(res.data.errors, res);
+            // formatErrors(res.data, res);
+            console.log(data, res);
+            toast.error(res.message);
           }
         }
       }
@@ -520,7 +522,9 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
           if (response.ok && response.status === 201) {
             toast.success(res.message);
-            setEmail(data.email);
+            const email = data.email || localStorage.getItem("email") || "";
+            setEmail(email.replaceAll('"', ""));
+            toast.success(res.message);
             setSuccess(true);
           } else {
             formatErrors(res.data.errors, res);
@@ -1238,16 +1242,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               <Input
                                 {...field}
                                 className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
-                                type="date"
-                                placeholder="DD/MM"
-                                onFocus={(e) => {
-                                  e.target.type = "date"; // Show date picker on focus
-                                }}
-                                onBlur={(e) => {
-                                  if (!e.target.value) {
-                                    e.target.type = "text"; // Revert to text if no date is selected
-                                  }
-                                }}
+                                type="number"
+                                placeholder="0"
                               />
                             </FormControl>
                             <FormMessage />
@@ -1266,16 +1262,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               <Input
                                 {...field}
                                 className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
-                                type="date"
-                                placeholder="DD/MM"
-                                onFocus={(e) => {
-                                  e.target.type = "date"; // Show date picker on focus
-                                }}
-                                onBlur={(e) => {
-                                  if (!e.target.value) {
-                                    e.target.type = "text"; // Revert to text if no date is selected
-                                  }
-                                }}
+                                type="number"
+                                placeholder="0"
                               />
                             </FormControl>
                             <FormMessage />

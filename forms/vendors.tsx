@@ -12,8 +12,8 @@ export const userRegistrationPayload = (data: any) => {
 
 export const businessProfilePayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  const email = data.email || localStorage.getItem("email");
+  requestPayload.append("user_email", email.replaceAll('"', ""));
   requestPayload.append("business_name", data.businessName);
   requestPayload.append("business_details", data.aboutProduct);
   requestPayload.append("business_email", data.businessEmail);
@@ -29,28 +29,28 @@ export const businessProfilePayload = (data: any) => {
 
 export const vendorIdentityPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
-  requestPayload.append("document_type", data.document_type);
+  const email = data.email || localStorage.getItem("email");
+  requestPayload.append("user_email", email.replaceAll('"', ""));
+  requestPayload.append("document_type", data.idType);
   requestPayload.append("document", data.document);
   return requestPayload;
 };
 
 export const shippingPolicyPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  const email = data.email || localStorage.getItem("email");
+  requestPayload.append("user_email", email.replaceAll('"', ""));
   requestPayload.append("shipping_option", data.shippingOption);
-  requestPayload.append("from_date", data.deliveryFrom);
-  requestPayload.append("to_date", data.deliveryTo);
+  requestPayload.append("from_day", data.deliveryFrom);
+  requestPayload.append("to_day", data.deliveryTo);
   requestPayload.append("return_policy", data.returnPolicy);
   return requestPayload;
 };
 
 export const paymentPreferencePayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  const email = data.email || localStorage.getItem("email");
+  requestPayload.append("user_email", email.replaceAll('"', ""));
   requestPayload.append("payment_method", data.paymentMethod);
   requestPayload.append("account_number", data.accountNumber);
   requestPayload.append("institutional_number", data.institutionNumber);
@@ -61,8 +61,8 @@ export const paymentPreferencePayload = (data: any) => {
 
 export const billingPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  const email = data.email || localStorage.getItem("email");
+  requestPayload.append("user_email", email.replaceAll('"', ""));
   // requestPayload.append("exp_month", data.returnPolicy);
   // requestPayload.append("exp_year", data.returnPolicy);
   // requestPayload.append("cvc", data.returnPolicy);
@@ -74,8 +74,8 @@ export const billingPayload = (data: any) => {
 
 export const productListingPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  const email = data.email || localStorage.getItem("email") || "";
+  requestPayload.append("user_email", email.replaceAll('"', ""));
   requestPayload.append("title", data.productName);
   requestPayload.append("price", data.productPrice);
   requestPayload.append("stock_level", data.stockLevels);

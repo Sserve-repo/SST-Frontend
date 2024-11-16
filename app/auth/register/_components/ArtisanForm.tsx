@@ -557,6 +557,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           const res = await response.json();
 
           if (response.ok && response.status === 201) {
+            const email = data.email || localStorage.getItem("email") || "";
+            setEmail(email.replaceAll('"', ""));
             toast.success(res.message);
             setSuccess(true);
           } else {
