@@ -201,7 +201,7 @@ export default function Header() {
             >
               {isAuth ? "Logout" : "Login"}
             </Button>
-            <Button onClick={handleOpenRole}>Join SphereServes</Button>
+            <Button onClick={handleOpenRole}>Join SphereServe</Button>
           </div>
         </div>
 
