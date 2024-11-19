@@ -241,110 +241,110 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
     // Step 1 validation
     if (step === 1) {
-      // if (!data.firstName) {
-      //   errors.firstName = "First name is required";
-      //   isValid = false;
-      // }
-      // if (!data.lastName) {
-      //   errors.lastName = "Last name is required";
-      //   isValid = false;
-      // }
-      // if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
-      //   errors.email = "Invalid email address";
-      //   isValid = false;
-      // }
-      // if (!data.password || data.password.length < 8) {
-      //   errors.password = "Password must be at least 8 characters";
-      //   isValid = false;
-      // }
-      // if (data.password !== data.confirmPassword) {
-      //   errors.confirmPassword = "Passwords do not match";
-      //   isValid = false;
-      // }
-      // if (!data.agreeToTerms) {
-      //   errors.agreeToTerms = "You must agree to the terms and conditions";
-      //   isValid = false;
-      // }
+      if (!data.firstName) {
+        errors.firstName = "First name is required";
+        isValid = false;
+      }
+      if (!data.lastName) {
+        errors.lastName = "Last name is required";
+        isValid = false;
+      }
+      if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
+        errors.email = "Invalid email address";
+        isValid = false;
+      }
+      if (!data.password || data.password.length < 8) {
+        errors.password = "Password must be at least 8 characters";
+        isValid = false;
+      }
+      if (data.password !== data.confirmPassword) {
+        errors.confirmPassword = "Passwords do not match";
+        isValid = false;
+      }
+      if (!data.agreeToTerms) {
+        errors.agreeToTerms = "You must agree to the terms and conditions";
+        isValid = false;
+      }
     }
 
     // Step 2 validation
     if (step === 2) {
-      // data.otp = otp;
-      // if (!data.otp) {
-      //   errors.otp = "otp is required";
-      //   isValid = false;
-      // }
+      data.otp = otp;
+      if (!data.otp) {
+        errors.otp = "otp is required";
+        isValid = false;
+      }
     }
 
     // Step 3 validation
     if (step === 3) {
-      // if (!data.province) {
-      //   errors.province = "Province is required";
-      //   isValid = false;
-      // }
-      // if (!data.serviceCategory) {
-      //   errors.serviceCategory = "Service Category is required";
-      //   isValid = false;
-      // }
-      // if (!data.serviceSubcategory) {
-      //   errors.serviceSubcategory = "Service Sub Category is required";
-      //   isValid = false;
-      // }
-      // if (!data.city) {
-      //   errors.city = "City/Town is required";
-      //   isValid = false;
-      // }
-      // if (!data.postalCode) {
-      //   errors.postalCode = "Postal code is required";
-      //   isValid = false;
-      // }
-      // if (!data.businessPhone) {
-      //   errors.businessPhone = "Business phone number is required";
-      //   isValid = false;
-      // } else if (data.businessPhone.length < 10) {
-      //   errors.businessPhone = "Phone number must be at least 10 digits";
-      //   isValid = false;
-      // }
-      // if (!data.businessName) {
-      //   errors.businessName = "Business name is required";
-      //   isValid = false;
-      // }
-      // if (!data.businessEmail) {
-      //   errors.businessEmail = "Business email is required";
-      //   isValid = false;
-      // } else if (!/\S+@\S+\.\S+/.test(data.businessEmail)) {
-      //   errors.businessEmail = "Invalid business email";
-      //   isValid = false;
-      // }
-      // if (!data.aboutService) {
-      //   errors.aboutService = "About service is required";
-      //   isValid = false;
-      // }
+      if (!data.province) {
+        errors.province = "Province is required";
+        isValid = false;
+      }
+      if (!data.serviceCategory) {
+        errors.serviceCategory = "Service Category is required";
+        isValid = false;
+      }
+      if (!data.serviceSubcategory) {
+        errors.serviceSubcategory = "Service Sub Category is required";
+        isValid = false;
+      }
+      if (!data.city) {
+        errors.city = "City/Town is required";
+        isValid = false;
+      }
+      if (!data.postalCode) {
+        errors.postalCode = "Postal code is required";
+        isValid = false;
+      }
+      if (!data.businessPhone) {
+        errors.businessPhone = "Business phone number is required";
+        isValid = false;
+      } else if (data.businessPhone.length < 10) {
+        errors.businessPhone = "Phone number must be at least 10 digits";
+        isValid = false;
+      }
+      if (!data.businessName) {
+        errors.businessName = "Business name is required";
+        isValid = false;
+      }
+      if (!data.businessEmail) {
+        errors.businessEmail = "Business email is required";
+        isValid = false;
+      } else if (!/\S+@\S+\.\S+/.test(data.businessEmail)) {
+        errors.businessEmail = "Invalid business email";
+        isValid = false;
+      }
+      if (!data.aboutService) {
+        errors.aboutService = "About service is required";
+        isValid = false;
+      }
     }
 
     // Step 3 validation
     if (step === 4) {
-      // if (!data.shopAddress) {
-      //   errors.shopAddress = "Shop Address is required";
-      //   isValid = false;
-      // }
-      // data.availableDays = `${selectedDates}`;
-      // if (!data.availableDays) {
-      //   errors.availableDays = "Days of availability is required";
-      //   isValid = false;
-      // }
-      // if (!data.availableFrom) {
-      //   errors.availableFrom = "start time of availability is required";
-      //   isValid = false;
-      // }
-      // if (!data.availableTo) {
-      //   errors.availableTo = "end time of availability is required";
-      //   isValid = false;
-      // }
-      // if (!data.shopAddress) {
-      //   errors.shopAddress = "Shop address is required";
-      //   isValid = false;
-      // }
+      if (!data.shopAddress) {
+        errors.shopAddress = "Shop Address is required";
+        isValid = false;
+      }
+      data.availableDays = `${selectedDates}`;
+      if (!data.availableDays) {
+        errors.availableDays = "Days of availability is required";
+        isValid = false;
+      }
+      if (!data.availableFrom) {
+        errors.availableFrom = "start time of availability is required";
+        isValid = false;
+      }
+      if (!data.availableTo) {
+        errors.availableTo = "end time of availability is required";
+        isValid = false;
+      }
+      if (!data.shopAddress) {
+        errors.shopAddress = "Shop address is required";
+        isValid = false;
+      }
     }
 
     // Step 4 validation
@@ -452,71 +452,64 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
     if (isValid) {
       if (step === 1) {
-        handleNextStep();
+        const payload = userRegistrationPayload(data);
+        const response = await registerUser("artisan", payload);
+        if (response) {
+          const res = await response.json();
 
-        // const payload = userRegistrationPayload(data);
-        // const response = await registerUser("artisan", payload);
-        // if (response) {
-        //   const res = await response.json();
-
-        //   if (response.ok && response.status === 201) {
-        //     toast.success(res.message);
-        //     handleNextStep();
-        //   } else {
-        //     formatErrors(res.data.errors, res);
-        //   }
-        // }
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
       }
 
       if (step === 2) {
-        handleNextStep();
+        const payload = otpPayload(data);
+        const response = await creatOtp(payload);
+        if (response) {
+          const res = await response.json();
 
-        // const payload = otpPayload(data);
-        // const response = await creatOtp(payload);
-        // if (response) {
-        //   const res = await response.json();
-
-        //   if (response.ok && response.status === 200) {
-        //     toast.success(res.message);
-        //     setEmail(res.data.email);
-        //     handleNextStep();
-        //   } else {
-        //     formatErrors(res.data.errors, res);
-        //   }
-        // }
+          if (response.ok && response.status === 200) {
+            toast.success(res.message);
+            setEmail(res.data.email);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
       }
 
       if (step === 3) {
-        handleNextStep();
-        // const payload = businessProfilePayload(data);
-        // const response = await createBusinessProfile(payload);
-        // if (response) {
-        //   const res = await response.json();
+        const payload = businessProfilePayload(data);
+        const response = await createBusinessProfile(payload);
+        if (response) {
+          const res = await response.json();
 
-        //   if (response.ok && response.status === 201) {
-        //     toast.success(res.message);
-        //     handleNextStep();
-        //   } else {
-        //     formatErrors(res.data.errors, res);
-        //   }
-        // }
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
       }
 
       if (step === 4) {
-        handleNextStep();
+        const payload = serviceAvailabilityPayload(data);
+        const response = await createServiceAvailability(payload);
+        if (response) {
+          const res = await response.json();
 
-        // const payload = serviceAvailabilityPayload(data);
-        // const response = await createServiceAvailability(payload);
-        // if (response) {
-        //   const res = await response.json();
-
-        //   if (response.ok && response.status === 201) {
-        //     toast.success(res.message);
-        //     handleNextStep();
-        //   } else {
-        //     formatErrors(res.data.errors, res);
-        //   }
-        // }
+          if (response.ok && response.status === 201) {
+            toast.success(res.message);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
+          }
+        }
       }
 
       if (step === 5) {
