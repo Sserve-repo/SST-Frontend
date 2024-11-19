@@ -261,10 +261,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         errors.confirmPassword = "Passwords do not match";
         isValid = false;
       }
-      if (!data.agreeToTerms) {
-        errors.agreeToTerms = "You must agree to the terms and conditions";
-        isValid = false;
-      }
+      // if (!data.agreeToTerms) {
+      //   errors.agreeToTerms = "You must agree to the terms and conditions";
+      //   isValid = false;
+      // }
     }
 
     // Step 2 validation
@@ -965,7 +965,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                                 <SelectItem
                                   key={index}
                                   className="h-11 rounded-lg px-3"
-                                  value={cat.id}
+                                  value={cat.id.toString()}
                                 >
                                   {cat.name}
                                 </SelectItem>
@@ -1008,7 +1008,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                               <SelectItem
                                 key={index}
                                 className="h-11 rounded-lg px-3"
-                                value={item.id}
+                                value={item.id.toString()}
                               >
                                 {item.name}
                               </SelectItem>
@@ -1103,7 +1103,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                                 <SelectItem
                                   key={index}
                                   className="h-11 rounded-lg px-3"
-                                  value={item}
+                                  value={item.toString()}
                                 >
                                   {item}
                                 </SelectItem>
