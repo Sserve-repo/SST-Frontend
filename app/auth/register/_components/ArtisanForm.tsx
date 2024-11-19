@@ -170,7 +170,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
-    console.log("***** dates:", selectedDates);
+    console.log("***** dates:", selectedDates, map);
   };
 
   const form = useForm<FormData>({
