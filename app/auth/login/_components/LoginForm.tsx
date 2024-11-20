@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { useRouter } from "next/navigation";
@@ -36,17 +36,14 @@ export default function LoginForm() {
     },
   });
 
-  const getUserType = (user_type) => {
-    const type =
-      user_type === "3"
-        ? "vendor"
-        : user_type === "2"
-        ? "buyer"
-        : user_type === "4"
-        ? "artisan"
-        : null;
-
-    return type;
+  const getUserType = (user_type: string) => {
+    return user_type === "3"
+      ? "vendor"
+      : user_type === "2"
+      ? "buyer"
+      : user_type === "4"
+      ? "artisan"
+      : null;
   };
 
   const validateForm = (data: FormData): boolean => {
@@ -73,71 +70,67 @@ export default function LoginForm() {
   };
 
   const handleSubmit: SubmitHandler<FormData> = async (data) => {
+    if (!validateForm(data)) {
+      toast.error("Please correct the highlighted errors.");
+      return;
+    }
+
     try {
       setLoading(true);
-      validateForm(data);
       const requestPayload = new FormData();
       requestPayload.append("email", data.email);
       requestPayload.append("password", data.password);
 
       const response = await loginUser(requestPayload);
-      if (response) {
-        const res = await response.json();
-        if (response.status === 404) {
-          toast.error(res.message);
-          setLoading(false);
-        }
 
-        if (response.ok && response.status === 200) {
-          localStorage.setItem("email", JSON.stringify(res.data.user.email));
-          localStorage.setItem("username", `${res.data.user.firstname}`);
-          const userRes = await getUserDetails(data.email);
-          const {
-            registration_status,
-            is_completed,
-            user_type,
-            verified_status,
-          } = userRes.data["User Details"];
+      if (!response) {
+        throw new Error("Failed to connect to the server.");
+      }
 
-          const type = getUserType(user_type);
-          if (is_completed) {
-            router.push(`/`);
-          }
-          if (!verified_status) {
-            await resendOtp(data.email);
-            router.push(`/auth/register?role=${type}&&step=2`);
-          } else if (
-            verified_status &&
-            !parseInt(is_completed) &&
-            parseInt(registration_status.replace("step", "")) == 1
-          ) {
-            router.push(`/auth/register?role=${type}&&step=3`);
-          } else if (
-            verified_status &&
-            !parseInt(is_completed) &&
-            parseInt(registration_status.replace("step", "")) >= 2
-          ) {
-            router.push(
-              `/auth/register?role=${type}&&step=${
-                parseInt(registration_status.replace("step", "")) + 1
-              }`
-            );
-          } else {
-            toast.success(res.message);
-            localStorage.setItem("accessToken", res.token);
-            localStorage.removeItem("email");
-            setLoading(false);
-            router.push("/");
-          }
+      const res = await response.json();
+
+      if (response.status === 404) {
+        toast.error(res.message || "Invalid email or password.");
+      } else if (response.ok) {
+        localStorage.setItem("email", JSON.stringify(res.data.user.email));
+        localStorage.setItem("username", `${res.data.user.firstname}`);
+        const userRes = await getUserDetails(data.email);
+
+        const {
+          registration_status,
+          is_completed,
+          user_type,
+          verified_status,
+        } = userRes.data["User Details"];
+        const type = getUserType(user_type);
+
+        if (is_completed) {
+          toast.success("Login successful! Redirecting...");
+          router.push("/");
+        } else if (!verified_status) {
+          toast.info("Account not verified. Redirecting to verification...");
+          await resendOtp(data.email);
+          router.push(`/auth/register?role=${type}&&step=2`);
         } else {
-          if (res?.status_code == 422) {
-            const { errors } = res.data;
-            formatErrors(errors, res);
-          }
+          const step = parseInt(registration_status.replace("step", ""));
+          router.push(
+            `/auth/register?role=${type}&&step=${step >= 2 ? step + 1 : 3}`
+          );
+        }
+      } else {
+        if (res?.status_code === 422) {
+          const { errors } = res.data;
+          formatErrors(errors, form);
+          toast.error("Please fix the form errors and try again.");
+        } else {
+          toast.error(res.message || "An unexpected error occurred.");
         }
       }
     } catch (error: any) {
-      console.log("Form validation failed", error);
+      console.error("Login failed", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -210,8 +203,12 @@ export default function LoginForm() {
               Forgot password?
             </Button>
           </div>
-          <Button type="submit" className="w-full max-w-sm rounded-xl h-12">
-            {loading ? "loading" : "Log In"}
+          <Button
+            type="submit"
+            className="w-full max-w-sm rounded-xl h-12 flex items-center justify-center"
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Log In"}
           </Button>
         </form>
       </Form>
