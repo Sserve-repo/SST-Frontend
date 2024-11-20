@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
@@ -137,6 +137,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     ProductCategory[]
   >([]);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
 
@@ -406,133 +407,141 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     const isValid = validateForm(data, step);
 
     if (isValid) {
-      if (step === 1) {
-        const payload = userRegistrationPayload(data);
-        const response = await registerUser("vendor", payload);
-        if (response) {
-          const res = await response.json();
-          console.log("Form submitted", res);
+      try {
+        setLoading(true);
+        if (step === 1) {
+          const payload = userRegistrationPayload(data);
+          const response = await registerUser("vendor", payload);
+          if (response) {
+            const res = await response.json();
+            console.log("Form submitted", res);
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 2) {
-        const payload = otpPayload(data);
-        const response = await creatOtp(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 2) {
+          const payload = otpPayload(data);
+          const response = await creatOtp(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 200) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            // formatErrors(res.data, res);
-            console.log(data, res);
-            toast.error(res.message);
+            if (response.ok && response.status === 200) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              // formatErrors(res.data, res);
+              console.log(data, res);
+              toast.error(res.message);
+            }
           }
         }
-      }
 
-      if (step === 3) {
-        const payload = businessProfilePayload(data);
-        const response = await createBusinessProfile(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 3) {
+          const payload = businessProfilePayload(data);
+          const response = await createBusinessProfile(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 4) {
-        const payload = vendorIdentityPayload(data);
-        const response = await createVendorIdentity(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 4) {
+          const payload = vendorIdentityPayload(data);
+          const response = await createVendorIdentity(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 5) {
-        const payload = shippingPolicyPayload(data);
-        const response = await createShippingPolicy(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 5) {
+          const payload = shippingPolicyPayload(data);
+          const response = await createShippingPolicy(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 6) {
-        const payload = paymentPreferencePayload(data);
-        const response = await createPaymentPreference(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 6) {
+          const payload = paymentPreferencePayload(data);
+          const response = await createPaymentPreference(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 7) {
-        const payload = billingPayload(data);
-        const response = await createBilling(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 7) {
+          const payload = billingPayload(data);
+          const response = await createBilling(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 200) {
-            toast.success("Billing Created Successfully");
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 200) {
+              toast.success("Billing Created Successfully");
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 8) {
-        const payload = productListingPayload(data);
-        const response = await createProductListing(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 8) {
+          const payload = productListingPayload(data);
+          const response = await createProductListing(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            const email = data.email || localStorage.getItem("email") || "";
-            setEmail(email.replaceAll('"', ""));
-            toast.success(res.message);
-            setSuccess(true);
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              const email = data.email || localStorage.getItem("email") || "";
+              setEmail(email.replaceAll('"', ""));
+              toast.success(res.message);
+              setSuccess(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
       }
     } else {
-      console.log("Form validation failed");
+      toast.error("Please fix the form errors before submitting.");
     }
   };
 
@@ -1135,10 +1144,10 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               ) : (
                                 <>
                                   <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                    <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                                    <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary-foreground" />
                                   </div>
                                   <p className="text-xs font-medium text-gray-600 mb-2">
-                                    <span className="text-primary ">
+                                    <span className="text-primary-foreground ">
                                       Click to Upload,{" "}
                                     </span>{" "}
                                     or drag and drop.
@@ -1775,10 +1784,10 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               ) : (
                                 <>
                                   <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                    <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                                    <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary-foreground" />
                                   </div>
                                   <p className="text-xs font-medium text-gray-600 mb-2">
-                                    <span className="text-primary ">
+                                    <span className="text-primary-foreground ">
                                       Click to Upload,{" "}
                                     </span>{" "}
                                     or drag and drop.
@@ -1821,15 +1830,20 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 <div className="py-2"></div>
                 <Button
                   type="submit"
-                  className="w-full max-w-sm rounded-xl h-12"
+                  className="w-full max-w-sm rounded-xl h-12 mt-4"
+                  disabled={loading}
                 >
-                  {step === 1
-                    ? "Register"
-                    : step === 3
-                    ? "Submit Documents & Continue"
-                    : step === 7
-                    ? "Submit"
-                    : "Save & Continue"}
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : step === 1 ? (
+                    "Register"
+                  ) : step === 3 ? (
+                    "Submit Documents & Continue"
+                  ) : step === 8 ? (
+                    "Submit"
+                  ) : (
+                    "Save & Continue"
+                  )}
                 </Button>
               </form>
             </Form>
