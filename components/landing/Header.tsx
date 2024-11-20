@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, ShoppingCart, Heart, X } from "lucide-react";
+import { Menu, Heart, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +15,13 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
+import CartIcon from "../CartIcon";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+  const router = useRouter();
 
   const handleOpenRole = () => {
     setModalOpen(!isModalOpen);
@@ -93,6 +97,21 @@ export default function Header() {
     ],
   };
 
+  const handleAuth = () => {
+    if (isAuth) {
+      localStorage.removeItem("accessToken");
+      setIsAuth(false);
+    } else {
+      router.push("/auth/login");
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setIsAuth(true);
+    }
+  });
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
       <div className="relative container mx-auto px-4 h-20 md:h-24 flex items-center justify-between">
@@ -167,19 +186,22 @@ export default function Header() {
               >
                 <Heart className="h-6 w-6" />
               </Link>
-              <Link href="/cart" className="text-gray-600 hover:text-gray-900">
-                <ShoppingCart className="h-6 w-6" />
-              </Link>
+              <CartIcon />
             </div>
           </nav>
         </div>
 
         <div className="flex items-center space-x-4">
           <div className="hidden md:flex items-center space-x-2">
-            <Button variant="outline" className="border-[#FFB46A]" asChild>
-              <Link href="/auth/login">Login</Link>
+            <Button
+              className="border border-[#FFB46A] bg-white text-black hover:text-white"
+              onClick={() => handleAuth()}
+              // variant="outline"
+              // asChild
+            >
+              {isAuth ? "Logout" : "Login"}
             </Button>
-            <Button onClick={handleOpenRole}>Join SphereServer</Button>
+            <Button onClick={handleOpenRole}>Join SphereServe</Button>
           </div>
         </div>
 
@@ -206,8 +228,13 @@ export default function Header() {
               </div>
 
               <div className="flex flex-col space-y-3">
-                <Button variant="outline" className="border-[#FFB46A]" asChild>
-                  <Link href="/auth/login">Login</Link>
+                <Button
+                  onClick={() => handleAuth()}
+                  variant="outline"
+                  className="border-[#FFB46A]"
+                  asChild
+                >
+                  {isAuth ? "Logout" : "Login"}
                 </Button>
                 <Button onClick={handleOpenRole}>Join SphereServer</Button>
               </div>

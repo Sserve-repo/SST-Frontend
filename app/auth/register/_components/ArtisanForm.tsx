@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import "react-multi-date-picker/styles/colors/purple.css";
 import InputIcon from "react-multi-date-picker/components/input_icon";
 import ServiceCertifications from "./ServiceCertifications";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 
 import {
   Form,
@@ -24,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
@@ -32,16 +33,17 @@ import { Success } from "./Success";
 import Link from "next/link";
 import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
-import { categories, CanadianProvinces } from "./Collections";
+import { CanadianProvinces } from "./Collections";
 import {
   billingPayload,
   businessProfilePayload,
   serviceAvailabilityPayload,
   paymentPreferencePayload,
   serviceListingPayload,
-  shippingPolicyPayload,
   userRegistrationPayload,
   artisanIdentityPayload,
+  businessPolicyPayload,
+  otpPayload,
 } from "@/forms/artisans";
 import { registerUser } from "@/fetchers/auth";
 import { toast } from "sonner";
@@ -52,12 +54,23 @@ import {
   createServiceAvailability,
   createPaymentPreference,
   createServiceListing,
-  createShippingPolicy,
   createArtisanIdentity,
   createbusinessPolicy,
   getServiceCategories,
   getServiceCategoryItemsById,
+  creatOtp,
 } from "@/fetchers/artisans";
+import { OtpForm } from "./OtpForm";
+
+const containerStyle = {
+  width: "400px",
+  height: "400px",
+};
+
+const center = {
+  lat: 9.058831,
+  lng: 7.516468,
+};
 
 type FormData = {
   firstName: string;
@@ -78,9 +91,12 @@ type FormData = {
   businessLocation: string;
   agreeToTerms: boolean;
   aboutService: string;
+  document1: File | null;
+  document2: File | null;
   productSubcategory: string;
   servicePrice: string;
   serviceName: string;
+  otp: string;
   serviceDescription: string;
   serviceImage: File | null;
   bookingDetails: string;
@@ -131,6 +147,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     string | null
   >(null);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
     undefined
@@ -142,12 +159,21 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     ProductCategory[]
   >([]);
   const [categoryName, setCategoryName] = useState("");
-  const [subCategoryName, setSubcategoryName] = useState("");
+  const [subCategoryName, setSubcategoryName] = useState("");  
   const [isSubcategoryEnabled, setIsSubcategoryEnabled] = useState(false); // Disable subcategory selection until a category is selected
+
+  const [documentList, setDocumentList] = useState<File[] | null>([]);
+  const [otp, setOtp] = useState("");
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: "AIzaSyAGVJfZMAKYfZ71nzL_v5i3LjTTWnCYwTY",
+  });
+
+  const [map, setMap] = React.useState(null);
 
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
-    console.log("***** dates:", selectedDates);
+    console.log("***** dates:", selectedDates, map);
   };
 
   const form = useForm<FormData>({
@@ -162,6 +188,9 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       cardNumber: "",
       expiryDate: "",
       cvcCode: "",
+      otp: "",
+      document1: null,
+      document2: null,
       billingAddress: "",
       serviceCategory: "",
       serviceSubcategory: "",
@@ -243,6 +272,15 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
     // Step 2 validation
     if (step === 2) {
+      data.otp = otp;
+      if (!data.otp) {
+        errors.otp = "otp is required";
+        isValid = false;
+      }
+    }
+
+    // Step 3 validation
+    if (step === 3) {
       if (!data.province) {
         errors.province = "Province is required";
         isValid = false;
@@ -255,7 +293,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         errors.serviceSubcategory = "Service Sub Category is required";
         isValid = false;
       }
-
       if (!data.city) {
         errors.city = "City/Town is required";
         isValid = false;
@@ -289,7 +326,12 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 3 validation
-    if (step === 3) {
+    if (step === 4) {
+      if (!data.shopAddress) {
+        errors.shopAddress = "Shop Address is required";
+        isValid = false;
+      }
+      data.availableDays = `${selectedDates}`;
       if (!data.availableDays) {
         errors.availableDays = "Days of availability is required";
         isValid = false;
@@ -309,97 +351,93 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 4 validation
-    if (step === 4) {
-      if (!data.availableDays) {
-        errors.availableDays = "Days of availability is required";
+    if (step === 5) {
+      if (!data.businessLicense) {
+        errors.businessLicense = "business license is required";
         isValid = false;
       }
-      if (!data.availableFrom) {
-        errors.availableFrom = "start time of availability is required";
+      // if (!data.proofOfInsurance) {
+      //   errors.proofOfInsurance = "proof of insurance is required";
+      //   isValid = false;
+      // }
+    }
+
+    // Step 5 validation -  Business policy
+    if (step === 6) {
+      if (!data.bookingDetails) {
+        errors.bookingDetails = "Booking details is required";
         isValid = false;
       }
-      if (!data.availableTo) {
-        errors.availableTo = "end time of availability is required";
-        isValid = false;
-      }
-      if (!data.shopAddress) {
-        errors.shopAddress = "Shop address is required";
+      if (!data.cancellationPolicy) {
+        errors.cancellationPolicy = "Cancellation policy is required";
         isValid = false;
       }
     }
 
-    // // Step 5 validation -  Business policy
-    // if (step === 5) {
-    //   if (!data.bookingDetails) {
-    //     errors.bookingDetails = "Booking details is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.cancellationPolicy) {
-    //     errors.cancellationPolicy = "Cancellation policy is required";
-    //     isValid = false;
-    //   }
-    // }
-
     // Step 6: Set Up Payment Preferences validation
-    //  if (step === 6) {
-    //   if (!data.bankName) {
-    //     errors.bankName = "Bank Name is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.accountNumber) {
-    //     errors.accountNumber = "Account Number is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.institutionNumber) {
-    //     errors.institutionNumber = "Institution Number is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.transitNumber) {
-    //     errors.transitNumber = "Transit Number is required";
-    //     isValid = false;
-    //   }
-    // }
+    if (step === 7) {
+      if (!data.bankName) {
+        errors.bankName = "Bank Name is required";
+        isValid = false;
+      }
+      if (!data.accountNumber) {
+        errors.accountNumber = "Account Number is required";
+        isValid = false;
+        if (!/^\d+$/.test(data.accountNumber)) {
+          isValid = false;
+          errors.accountNumber = "Account number should contain only digits";
+        }
+      }
+      if (!data.institutionNumber) {
+        errors.institutionNumber = "Institution Number is required";
+        isValid = false;
+      }
+      if (!data.transitNumber) {
+        errors.transitNumber = "Transit Number is required";
+        isValid = false;
+      }
+    }
 
     // Step 7: Set Up Billing validation
-    // if (step === 7) {
-    //   if (!data.cardNumber) {
-    //     errors.cardNumber = "Credit card number is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.expiryDate) {
-    //     errors.expiryDate = "Expiry date is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.cvcCode) {
-    //     errors.cvcCode = "CVC code is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.billingAddress) {
-    //     errors.billingAddress = "Billing address is required";
-    //     isValid = false;
-    //   }
-    // }
+    if (step === 8) {
+      if (!data.cardNumber) {
+        errors.cardNumber = "Credit card number is required";
+        isValid = false;
+      }
+      if (!data.expiryDate) {
+        errors.expiryDate = "Expiry date is required";
+        isValid = false;
+      }
+      if (!data.cvcCode) {
+        errors.cvcCode = "CVC code is required";
+        isValid = false;
+      }
+      if (!data.billingAddress) {
+        errors.billingAddress = "Billing address is required";
+        isValid = false;
+      }
+    }
 
     // Step 8: Tell Us About Your Listing validation
-    // if (step === 8) {
-    //   if (!data.serviceName) {
-    //     errors.serviceName = "Service name is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.servicePrice) {
-    //     errors.servicePrice = "Service price is required";
-    //     isValid = false;
-    //   }
+    if (step === 9) {
+      if (!data.serviceName) {
+        errors.serviceName = "Service name is required";
+        isValid = false;
+      }
+      if (!data.servicePrice) {
+        errors.servicePrice = "Service price is required";
+        isValid = false;
+      }
 
-    //   if (!data.serviceDescription) {
-    //     errors.serviceDescription = "Service description is required";
-    //     isValid = false;
-    //   }
-    //   if (!data.serviceImage) {
-    //     errors.serviceImage = "Service image upload is required";
-    //     isValid = false;
-    //   }
-    // }
+      if (!data.serviceDescription) {
+        errors.serviceDescription = "Service description is required";
+        isValid = false;
+      }
+      if (!data.serviceImage) {
+        errors.serviceImage = "Service image upload is required";
+        isValid = false;
+      }
+    }
 
     // Set errors
     Object.keys(errors).forEach((key) => {
@@ -413,141 +451,164 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   };
 
   const handleSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log("Form submitted", data);
     const isValid = validateForm(data);
 
     if (isValid) {
-      console.log("Form submitted1111", isValid);
+      try {
+        setLoading(true);
+        if (step === 1) {
+          const payload = userRegistrationPayload(data);
+          const response = await registerUser("artisan", payload);
+          if (response) {
+            const res = await response.json();
 
-      if (step === 1) {
-        const payload = userRegistrationPayload(data);
-        const response = await registerUser("artisan", payload);
-        if (response) {
-          const res = await response.json();
-          console.log("Form submitted", res);
-
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
+
+        if (step === 2) {
+          const payload = otpPayload(data);
+          const response = await creatOtp(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 200) {
+              toast.success(res.message);
+              setEmail(res.data.email);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 3) {
+          const payload = businessProfilePayload(data);
+          const response = await createBusinessProfile(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 4) {
+          const payload = serviceAvailabilityPayload(data);
+          const response = await createServiceAvailability(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 5) {
+          const payload = artisanIdentityPayload(data, documentList);
+          const response = await createArtisanIdentity(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              localStorage.removeItem("category");
+              localStorage.removeItem("subcategoy");
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 6) {
+          const payload = businessPolicyPayload(data);
+          const response = await createbusinessPolicy(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 7) {
+          const payload = paymentPreferencePayload(data);
+          const response = await createPaymentPreference(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 8) {
+          const payload = billingPayload(data);
+          const response = await createBilling(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 200) {
+              toast.success("Billing Created Successfully");
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+
+        if (step === 9) {
+          const payload = serviceListingPayload(data);
+          const response = await createServiceListing(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              const email = data.email || localStorage.getItem("email") || "";
+              setEmail(email.replaceAll('"', ""));
+              toast.success(res.message);
+              setSuccess(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      // if (step === 2) {
-      //   const payload = businessProfilePayload(data);
-      //   const response = await createBusinessProfile(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 201) {
-      //       toast.success(res.message);
-      //       handleNextStep();
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-
-      // if (step === 3) {
-      //   const payload = serviceAvailabilityPayload(data);
-      //   const response = await createServiceAvailability(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 201) {
-      //       toast.success(res.message);
-      //       handleNextStep();
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-
-      // if (step === 4) {
-      //   const payload = artisanIdentityPayload(data);
-      //   const response = await createArtisanIdentity(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 201) {
-      //       toast.success(res.message);
-      //       handleNextStep();
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-
-      // if (step === 5) {
-      //   const payload = businessPolicyPayload(data);
-      //   const response = await createbusinessPolicy(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 201) {
-      //       toast.success(res.message);
-      //       handleNextStep();
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-
-      // if (step === 6) {
-      //   const payload = paymentPreferencePayload(data);
-      //   const response = await createPaymentPreference(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 201) {
-      //       toast.success(res.message);
-      //       handleNextStep();
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-
-      // if (step === 7) {
-      //   const payload = billingPayload(data);
-      //   const response = await createBilling(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 200) {
-      //       toast.success("Billing Created Successfully");
-      //       handleNextStep();
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-
-      // if (step === 8) {
-      //   const payload = serviceListingPayload(data);
-      //   const response = await createServiceListing(payload);
-      //   if (response) {
-      //     const res = await response.json();
-
-      //     if (response.ok && response.status === 201) {
-      //       toast.success(res.message);
-      //       setEmail(data.email);
-      //       setSuccess(true);
-      //     } else {
-      //       formatErrors(res.data.errors, res);
-      //     }
-      //   }
-      // }
-      // handleNextStep();
     } else {
-      console.log("Form validation failed");
+      toast.error("Please fix the form errors before submitting.");
     }
   };
 
   const stepTitles: string[] = [
     "Basic Details",
+    "Confirm Otp",
     "Customize Shop Profile",
     "Set Service Areas & Availability",
     "Submit Documentation",
@@ -557,10 +618,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     "Categories & Listing",
   ];
 
-  const handleSetSubcategory = (name) => {
-    console.log("Setting subcategory name:", name);
-    setSubcategoryName(name);
-  };
+
   const handleSetCategory = (name) => {
     console.log("Setting Category name:", name);
     setCategoryName(name);
@@ -590,9 +648,24 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       }
     } catch (error) {
       console.error("Failed to fetch category items:", error);
-      setServiceCategoryItems([]); // Set to empty in case of error
+      setServiceCategoryItems([]);
     }
   };
+
+  const onLoad = React.useCallback(function callback(map) {
+    // This is just an example of getting and using the map instance!!! don't just blindly copy!
+    const bounds = new window.google.maps.LatLngBounds(center);
+    map.fitBounds(bounds);
+
+    setMap(map);
+  }, []);
+
+  const onUnmount = React.useCallback(
+    function callback(/* map */) {
+      setMap(null);
+    },
+    []
+  );
 
   useEffect(() => {
     getProductCat();
@@ -600,7 +673,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     if (registrationStep) {
       setStep(registrationStep);
     }
-  }, []);
+  }, [registrationStep]);
 
   return (
     <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
@@ -792,6 +865,16 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
               )}
 
               {step === 2 && (
+                <>
+                  <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
+                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                      <OtpForm form={form} setOtp={setOtp} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {step === 3 && (
                 <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
                     Customize Business Profile
@@ -895,34 +978,37 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           Service Category
                         </FormLabel>
                         <FormControl>
-                          <select
-                            value={field.value}
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-                              console.log("Selected Value:", selectedValue);
-
-                              const [selectedId, selectedName] =
-                                selectedValue.split("| ");
-                              field.onChange(selectedId);
-
-                              console.log("Extracted ID:", selectedId);
-                              console.log("Category Name:", selectedName);
-
-                              handlefetchProductCatItems(selectedId);
-                              handleSetCategory(selectedName);
-                            }}
-                            className="rounded-xl shadow-sm h-12 px-3 w-full"
-                          >
-                            <option value="">Select a category</option>
-                            {serviceCategories.map((cat, index) => (
-                              <option
-                                key={index}
-                                value={`${cat.id}| ${cat.name}`}
-                              >
-                                {cat.name}
-                              </option>
-                            ))}
-                          </select>
+                                <Select
+                          defaultValue={field.value}
+                          value={field.value}
+                          onValueChange={(selectedValue) => {
+                            field.onChange(selectedValue);
+                            handlefetchProductCatItems(selectedValue);
+                            const selectedCat = serviceCategories.find(
+                              (cat) => cat.id === selectedValue
+                            );
+                            if (selectedCat) setCategoryName(selectedCat?.name);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {serviceCategories.map((cat, index) => {
+                              return (
+                                <SelectItem
+                                  key={index}
+                                  className="h-11 rounded-lg px-3"
+                                  value={cat.id.toString()}
+                                >
+                                  {cat.name}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -938,34 +1024,35 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           Service Sub Category *
                         </FormLabel>
                         <FormControl>
-                          <select
-                            value={field.value}
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-                              console.log("Selected Value:", selectedValue);
-
-                              const [selectedId, selectedName] =
-                                selectedValue.split("| ");
-                              field.onChange(selectedId);
-
-                              console.log("Extracted ID:", selectedId);
-                              console.log("Subcategory Name:", selectedName);
-
-                              handleSetSubcategory(selectedName);
-                            }}
-                            disabled={!isSubcategoryEnabled}
-                            className="rounded-xl shadow-sm h-12 px-3 w-full"
-                          >
-                            <option value="">Please Select</option>
+                        <Select
+                          disabled={serviceCategoryItems.length < 1}
+                          defaultValue={field.value}
+                          // onValueChange={field.onChange}
+                          onValueChange={(selectedValue) => {
+                            field.onChange(selectedValue);
+                            const selectedCat = serviceCategoryItems.find(
+                              (cat) => cat.id === selectedValue
+                            );
+                            if (selectedCat)
+                              setSubcategoryName(selectedCat?.name);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
+                              <SelectValue placeholder="Please Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
                             {serviceCategoryItems.map((item, index) => (
                               <option
                                 key={index}
-                                value={`${item.id}| ${item.name}`}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
                               >
                                 {item.name}
                               </option>
                             ))}
-                          </select>
+                          </SelectContent>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1055,7 +1142,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                                 <SelectItem
                                   key={index}
                                   className="h-11 rounded-lg px-3"
-                                  value={item}
+                                  value={item.toString()}
                                 >
                                   {item}
                                 </SelectItem>
@@ -1070,7 +1157,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 3 && (
+              {step === 4 && (
                 <div className="w-full flex flex-col ">
                   <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
                     Set Service Areas & Availability
@@ -1083,7 +1170,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   <FormField
                     control={form.control}
                     name="availableDays"
-                    render={({}) => (
+                    render={() => (
                       <FormItem className="w-full flex flex-col mb-[22px]">
                         <FormLabel className="text-gray-400 text-base mt-[30px] mb-3">
                           Select Days*
@@ -1176,7 +1263,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                         <FormLabel className="text-[#b9b9b9] text-base mb-3">
                           Are you available for home service?*
                         </FormLabel>
-
                         <div>
                           <FormControl>
                             <Checkbox
@@ -1191,13 +1277,28 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             Yes, I offer home services
                           </FormLabel>
                         </div>
+
+                        {isLoaded ? (
+                          <GoogleMap
+                            mapContainerStyle={containerStyle}
+                            center={center}
+                            zoom={13}
+                            onLoad={onLoad}
+                            onUnmount={onUnmount}
+                          >
+                            {/* Child components, such as markers, info windows, etc. */}
+                            <></>
+                          </GoogleMap>
+                        ) : (
+                          <></>
+                        )}
                       </FormItem>
                     )}
                   />
                 </div>
               )}
 
-              {step === 4 && (
+              {step === 5 && (
                 <div className="flex flex-col gap-y-3  w-full">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
                     Verify Your Identity
@@ -1239,11 +1340,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                               </div>
                             ) : (
                               <>
-                                <div className="p-2 rounded-full flex items-center justify-centeraspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                                  <span className="text-primary ">
+                                  <span className="text-primary-foreground ">
                                     Click to Upload Business License
                                   </span>
                                 </p>
@@ -1252,7 +1353,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             {/* Hidden Input for File */}
                             <Input
                               type="file"
-                              accept="image/*"
+                              accept="application/pdf"
                               className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
@@ -1300,8 +1401,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                               </div>
                             ) : (
                               <>
-                                <div className="p-2 rounded-full flex items-center justify-centeraspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
                                   <span className="text-primary ">
@@ -1313,11 +1414,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             {/* Hidden Input for File */}
                             <Input
                               type="file"
-                              accept="image/*"
+                              accept="application/pdf"
                               className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
-                                onChange(file); // Pass the file to form state
+                                onChange(file);
                                 if (file) {
                                   setproofOfInsurancePreview(
                                     URL.createObjectURL(file)
@@ -1343,11 +1444,12 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     form={form}
                     selectedCategory={categoryName}
                     selectedSubCategory={subCategoryName}
+                    setDocumentList={setDocumentList}
                   />
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 6 && (
                 <div className="w-full flex flex-col gap-y-7">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1403,7 +1505,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 6 && (
+              {step === 7 && (
                 <div className=" flex flex-col w-full gap-y-7">
                   <div>
                     <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
@@ -1576,7 +1678,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 7 && (
+              {step === 8 && (
                 <div className="flex flex-col w-full gap-y-4">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
                     Set Up Billing
@@ -1666,7 +1768,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 8 && (
+              {step === 9 && (
                 <div className="w-full space-y-[22px]">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1689,7 +1791,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           <Input
                             {...field}
                             className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="Enter name of Product"
+                            placeholder="Enter name of Service"
                           />
                         </FormControl>
                         <FormMessage />
@@ -1763,10 +1865,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             ) : (
                               <>
                                 <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary-foreground" />
                                 </div>
                                 <p className="text-xs font-medium text-gray-600 mb-2">
-                                  <span className="text-primary ">
+                                  <span className="text-primary-foreground ">
                                     Click to Upload,{" "}
                                   </span>{" "}
                                   or drag and drop.
@@ -1809,14 +1911,21 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
               <Button
                 type="submit"
                 className="w-full max-w-sm rounded-xl h-12 mt-4"
+                disabled={loading}
               >
-                {step === 1
-                  ? "Register"
-                  : step === 4
-                  ? "Submit Documents & Continue"
-                  : step === 8
-                  ? "Submit"
-                  : "Save & Continue"}
+                {loading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : step === 1 ? (
+                  "Register"
+                ) : step === 2 ? (
+                  "Verify OTP"
+                ) : step === 4 ? (
+                  "Submit Documents & Continue"
+                ) : step === 8 ? (
+                  "Submit"
+                ) : (
+                  "Save & Continue"
+                )}
               </Button>
             </form>
           </Form>

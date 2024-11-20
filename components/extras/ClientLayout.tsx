@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "../landing/Header";
 import Footer from "../landing/Footer";
+import { CartProvider } from "@/context/CartContext";
 
 export default function ClientLayout({
   children,
@@ -14,9 +15,11 @@ export default function ClientLayout({
 
   return (
     <>
-      {!isAuthPage && <Header />}
-      <main className="w-full">{children}</main>
-      {!isAuthPage && <Footer />}
+      <CartProvider>
+        {!isAuthPage && <Header />}
+        <main className="w-full">{children}</main>
+        {!isAuthPage && <Footer />}
+      </CartProvider>
     </>
   );
 }

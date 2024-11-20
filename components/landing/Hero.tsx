@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import Marquee from "react-fast-marquee";
 
 export default function Hero() {
+  const [username, setUsername] = useState("");
   const products = [
     "Cuisines",
     "Fashion and textiles",
@@ -24,6 +25,11 @@ export default function Hero() {
     "Home Services/Improvement",
   ];
 
+  useEffect(() => {
+    const username = localStorage.getItem("username") || "";
+    setUsername(username);
+  }, []);
+
   return (
     <div className="relative h-full w-full overflow-hidden z-10">
       {/* Background Image */}
@@ -39,17 +45,19 @@ export default function Hero() {
       <div className="relative z-10 flex flex-col w-full min-h-[70vh]">
         <div className="flex-grow container flex min-h-[70vh] item-center w-full mx-auto px-4 py-8 lg:pt-44 pt-36">
           {/* Text Content */}
-          <div className="text-white max-w-3xl">
-            <p className="text-xl md:text-2xl mb-4">Welcome, AgboCity</p>
+          <div className="text-white max-w-5xl">
+            <p className="text-xl md:text-2xl mb-4">
+              Welcome, {username ? username : ""}
+            </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              Find trusted Vendors & Artisans for your needs.
+              Find trusted Vendors & <br className="hidden md:block" /> Artisans for your needs.
             </h1>
             <p className="text-xl md:text-2xl text-[#FFDFC0] mb-8">
               Get quality products & services—all in one place.
             </p>
 
             {/* Search Input and Button */}
-            <div className="relative max-w-2xl mb-12">
+            <div className="relative max-w-5xl mb-12">
               <input
                 placeholder="I am looking for..."
                 className="w-full h-12 md:h-16 text-md md:text-lg rounded-lg pl-4 pr-24 text-black"

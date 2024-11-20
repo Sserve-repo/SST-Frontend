@@ -12,37 +12,34 @@ export const userRegistrationPayload = (data: any) => {
 
 export const businessProfilePayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   requestPayload.append("business_name", data.businessName);
-  requestPayload.append("business_details", data.aboutProduct);
+  requestPayload.append("business_details", data.aboutService);
   requestPayload.append("business_email", data.businessEmail);
   requestPayload.append("business_phone", data.businessPhone);
   requestPayload.append("postal_code", data.postalCode);
   requestPayload.append("city", data.city);
   requestPayload.append("province", data.province);
-  requestPayload.append("email", data.email);
   requestPayload.append("service_category_id", data.serviceCategory);
   requestPayload.append("service_category_item_id", data.serviceSubcategory);
   return requestPayload;
 };
 
-export const artisanIdentityPayload = (data: any) => {
+export const artisanIdentityPayload = (data: any, documentList: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   requestPayload.append("document1", data.businessLicense);
   requestPayload.append("document2", data.proofOfInsurance);
-  requestPayload.append("document3", data.document1);
-  requestPayload.append("document4", data.document2);
-
+  documentList.length > 0 &&
+    documentList.map((item, index) => {
+      requestPayload.append(`document${index + 1}`, item);
+    });
   return requestPayload;
 };
 
 export const serviceAvailabilityPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   requestPayload.append("available_dates", data.availableDays);
   requestPayload.append("start_time", data.availableFrom);
   requestPayload.append("end_time", data.availableTo);
@@ -54,16 +51,14 @@ export const serviceAvailabilityPayload = (data: any) => {
 
 export const businessPolicyPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   requestPayload.append("booking_details", data.bookingDetails);
   requestPayload.append("cancelling_policy", data.cancellationPolicy);
   return requestPayload;
 };
 export const shippingPolicyPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   requestPayload.append("shipping_option", data.shippingOption);
   requestPayload.append("from_date", data.deliveryFrom);
   requestPayload.append("to_date", data.deliveryTo);
@@ -73,8 +68,7 @@ export const shippingPolicyPayload = (data: any) => {
 
 export const paymentPreferencePayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   requestPayload.append("payment_method", data.paymentMethod);
   requestPayload.append("account_number", data.accountNumber);
   requestPayload.append("institutional_number", data.institutionNumber);
@@ -85,8 +79,7 @@ export const paymentPreferencePayload = (data: any) => {
 
 export const billingPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
+  requestPayload.append("user_email", data.email);
   // requestPayload.append("exp_month", data.returnPolicy);
   // requestPayload.append("exp_year", data.returnPolicy);
   // requestPayload.append("cvc", data.returnPolicy);
@@ -98,15 +91,17 @@ export const billingPayload = (data: any) => {
 
 export const serviceListingPayload = (data: any) => {
   const requestPayload = new FormData();
-  const userId = localStorage.getItem("userId") || "";
-  requestPayload.append("user_id", userId);
-  requestPayload.append("title", data.productName);
-  requestPayload.append("price", data.productPrice);
-  requestPayload.append("stock_level", data.stockLevels);
-  requestPayload.append("shipping_cost", data.shippingCosts);
-  requestPayload.append("description", data.productDescription);
-  requestPayload.append("image", data.productImage);
-  requestPayload.append("service_category_id", data.serviceCategory);
-  requestPayload.append("service_category_items_id", data.serviceSubcategory);
+  requestPayload.append("user_email", data.email);
+  requestPayload.append("title", data.serviceName);
+  requestPayload.append("price", data.servicePrice);
+  requestPayload.append("description", data.serviceDescription);
+  requestPayload.append("image", data.serviceImage);
+  return requestPayload;
+};
+
+export const otpPayload = (data: any) => {
+  const requestPayload = new FormData();
+  requestPayload.append("user_email", data.email);
+  requestPayload.append("otp", data.otp);
   return requestPayload;
 };
