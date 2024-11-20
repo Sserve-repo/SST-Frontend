@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
@@ -147,6 +147,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     string | null
   >(null);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
     undefined
@@ -353,10 +354,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         errors.businessLicense = "business license is required";
         isValid = false;
       }
-      if (!data.proofOfInsurance) {
-        errors.proofOfInsurance = "proof of insurance is required";
-        isValid = false;
-      }
+      // if (!data.proofOfInsurance) {
+      //   errors.proofOfInsurance = "proof of insurance is required";
+      //   isValid = false;
+      // }
     }
 
     // Step 5 validation -  Business policy
@@ -451,147 +452,155 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     const isValid = validateForm(data);
 
     if (isValid) {
-      if (step === 1) {
-        const payload = userRegistrationPayload(data);
-        const response = await registerUser("artisan", payload);
-        if (response) {
-          const res = await response.json();
+      try {
+        setLoading(true);
+        if (step === 1) {
+          const payload = userRegistrationPayload(data);
+          const response = await registerUser("artisan", payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 2) {
-        const payload = otpPayload(data);
-        const response = await creatOtp(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 2) {
+          const payload = otpPayload(data);
+          const response = await creatOtp(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 200) {
-            toast.success(res.message);
-            setEmail(res.data.email);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 200) {
+              toast.success(res.message);
+              setEmail(res.data.email);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 3) {
-        const payload = businessProfilePayload(data);
-        const response = await createBusinessProfile(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 3) {
+          const payload = businessProfilePayload(data);
+          const response = await createBusinessProfile(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 4) {
-        const payload = serviceAvailabilityPayload(data);
-        const response = await createServiceAvailability(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 4) {
+          const payload = serviceAvailabilityPayload(data);
+          const response = await createServiceAvailability(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 5) {
-        const payload = artisanIdentityPayload(data, documentList);
-        const response = await createArtisanIdentity(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 5) {
+          const payload = artisanIdentityPayload(data, documentList);
+          const response = await createArtisanIdentity(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            localStorage.removeItem("category");
-            localStorage.removeItem("subcategoy");
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              localStorage.removeItem("category");
+              localStorage.removeItem("subcategoy");
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 6) {
-        const payload = businessPolicyPayload(data);
-        const response = await createbusinessPolicy(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 6) {
+          const payload = businessPolicyPayload(data);
+          const response = await createbusinessPolicy(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 7) {
-        const payload = paymentPreferencePayload(data);
-        const response = await createPaymentPreference(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 7) {
+          const payload = paymentPreferencePayload(data);
+          const response = await createPaymentPreference(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 8) {
-        const payload = billingPayload(data);
-        const response = await createBilling(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 8) {
+          const payload = billingPayload(data);
+          const response = await createBilling(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 200) {
-            toast.success("Billing Created Successfully");
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 200) {
+              toast.success("Billing Created Successfully");
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 9) {
-        const payload = serviceListingPayload(data);
-        const response = await createServiceListing(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 9) {
+          const payload = serviceListingPayload(data);
+          const response = await createServiceListing(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            const email = data.email || localStorage.getItem("email") || "";
-            setEmail(email.replaceAll('"', ""));
-            toast.success(res.message);
-            setSuccess(true);
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              const email = data.email || localStorage.getItem("email") || "";
+              setEmail(email.replaceAll('"', ""));
+              toast.success(res.message);
+              setSuccess(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
       }
     } else {
-      console.log("Form validation failed");
+      toast.error("Please fix the form errors before submitting.");
     }
   };
 
@@ -627,9 +636,12 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     setMap(map);
   }, []);
 
-  const onUnmount = React.useCallback(function callback(map) {
-    setMap(null);
-  }, []);
+  const onUnmount = React.useCallback(
+    function callback(/* map */) {
+      setMap(null);
+    },
+    []
+  );
 
   useEffect(() => {
     getProductCat();
@@ -1301,11 +1313,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                               </div>
                             ) : (
                               <>
-                                <div className="p-2 rounded-full flex items-center justify-centeraspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                                  <span className="text-primary ">
+                                  <span className="text-primary-foreground ">
                                     Click to Upload Business License
                                   </span>
                                 </p>
@@ -1362,8 +1374,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                               </div>
                             ) : (
                               <>
-                                <div className="p-2 rounded-full flex items-center justify-centeraspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
                                   <span className="text-primary ">
@@ -1826,10 +1838,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             ) : (
                               <>
                                 <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary-foreground" />
                                 </div>
                                 <p className="text-xs font-medium text-gray-600 mb-2">
-                                  <span className="text-primary ">
+                                  <span className="text-primary-foreground ">
                                     Click to Upload,{" "}
                                   </span>{" "}
                                   or drag and drop.
@@ -1872,16 +1884,21 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
               <Button
                 type="submit"
                 className="w-full max-w-sm rounded-xl h-12 mt-4"
+                disabled={loading}
               >
-                {step === 1
-                  ? "Register"
-                  : step === 2
-                  ? "Verify OTP"
-                  : step === 4
-                  ? "Submit Documents & Continue"
-                  : step === 8
-                  ? "Submit"
-                  : "Save & Continue"}
+                {loading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : step === 1 ? (
+                  "Register"
+                ) : step === 2 ? (
+                  "Verify OTP"
+                ) : step === 4 ? (
+                  "Submit Documents & Continue"
+                ) : step === 8 ? (
+                  "Submit"
+                ) : (
+                  "Save & Continue"
+                )}
               </Button>
             </form>
           </Form>
