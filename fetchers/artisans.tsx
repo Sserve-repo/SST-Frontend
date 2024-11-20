@@ -26,6 +26,7 @@ export const getServiceCategoryItems = async (Id: any) => {
   }
 };
 
+
 export const getServiceCategoryById = async (Id: any) => {
   try {
     const response = await fetch(
@@ -40,10 +41,10 @@ export const getServiceCategoryById = async (Id: any) => {
   }
 };
 
-export const getServiceCategoryItemsById = async (Id: any) => {
+export const getServiceCategoryItemsById = async (catId: any) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/getCategoryItemsByServiceCategoryId/${Id}`
+      `${baseUrl}/general/services/getCategoryItemsByServiceCategoryId/${catId}`
     );
     const res = await response.json();
     if (response.ok && response.status === 200) {

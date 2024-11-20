@@ -159,7 +159,9 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     ProductCategory[]
   >([]);
   const [categoryName, setCategoryName] = useState("");
-  const [subCategoryName, setSubcategoryName] = useState("");
+  const [subCategoryName, setSubcategoryName] = useState("");  
+  const [isSubcategoryEnabled, setIsSubcategoryEnabled] = useState(false); // Disable subcategory selection until a category is selected
+
   const [documentList, setDocumentList] = useState<File[] | null>([]);
   const [otp, setOtp] = useState("");
   const { isLoaded } = useJsApiLoader({
@@ -616,15 +618,37 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     "Categories & Listing",
   ];
 
+
+  const handleSetCategory = (name) => {
+    console.log("Setting Category name:", name);
+    setCategoryName(name);
+    setIsSubcategoryEnabled(true); // Enable subcategory selection once a category is selected
+  };
+
   const getProductCat = async () => {
     const data = await getServiceCategories();
     setServiceCategories(data.data["Service Category"]);
   };
 
   const handlefetchProductCatItems = async (catId) => {
-    if (catId) {
-      const data = await getServiceCategoryItemsById(catId);
-      setServiceCategoryItems(data.data["Service Category Item By ID"]);
+    console.log(catId);
+    try {
+      if (catId) {
+        const data = await getServiceCategoryItemsById(catId);
+        console.log(data);
+        if (data && data.data && data.data["Service Category Item By ID"]) {
+          setServiceCategoryItems(data.data["Service Category Item By ID"]);
+        } else {
+          console.error(
+            "Service Category Item data is missing in the response:",
+            data
+          );
+          setServiceCategoryItems([]); // Set to empty if data is missing
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch category items:", error);
+      setServiceCategoryItems([]);
     }
   };
 
@@ -953,8 +977,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Service Category
                         </FormLabel>
-
-                        <Select
+                        <FormControl>
+                                <Select
                           defaultValue={field.value}
                           value={field.value}
                           onValueChange={(selectedValue) => {
@@ -985,10 +1009,12 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             })}
                           </SelectContent>
                         </Select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="serviceSubcategory"
@@ -997,6 +1023,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                         <FormLabel className="text-gray-400">
                           Service Sub Category *
                         </FormLabel>
+                        <FormControl>
                         <Select
                           disabled={serviceCategoryItems.length < 1}
                           defaultValue={field.value}
@@ -1017,16 +1044,16 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           </FormControl>
                           <SelectContent>
                             {serviceCategoryItems.map((item, index) => (
-                              <SelectItem
+                              <option
                                 key={index}
                                 className="h-11 rounded-lg px-3"
                                 value={item.id.toString()}
                               >
                                 {item.name}
-                              </SelectItem>
+                              </option>
                             ))}
                           </SelectContent>
-                        </Select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
