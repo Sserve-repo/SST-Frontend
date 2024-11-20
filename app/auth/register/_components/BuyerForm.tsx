@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader } from "lucide-react";
 import { Success } from "./Success";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
@@ -44,6 +44,7 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNextStep = () => {
     setStep((prevStep) => prevStep + 1);
@@ -101,7 +102,7 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
     if (step === 2) {
       data.otp = otp;
       if (!data.otp) {
-        errors.otp = "otp is required";
+        errors.otp = "OTP is required";
         isValid = false;
       }
     }
@@ -120,40 +121,51 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
     const isValid = validateForm(data, step);
 
     if (isValid) {
-      if (step === 1) {
-        const payload = userRegistrationPayload(data);
-        const response = await registerUser("shopper", payload);
-        if (response) {
-          const res = await response.json();
+      setIsLoading(true);
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+      try {
+        if (step === 1) {
+          const payload = userRegistrationPayload(data);
+          const response = await registerUser("shopper", payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message || "Account created successfully!");
+              handleNextStep();
+            } else {
+              toast.error(res.message || "Error creating account.");
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 2) {
-        const payload = otpPayload(data);
-        const response = await creatOtp(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 2) {
+          const payload = otpPayload(data);
+          const response = await creatOtp(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 200) {
-            toast.success(res.message);
-            setEmail(res.data.email);
-            setSuccess(true);
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 200) {
+              toast.success(res.message || "OTP verified successfully!");
+              setEmail(res.data.email);
+              setSuccess(true);
+            } else {
+              toast.error(res.message || "Error verifying OTP.");
+              formatErrors(res.data.errors, res);
+            }
           }
         }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("Something went wrong. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
-  const stepTitles: string[] = ["Create Account", "Confirm Otp"];
+  const stepTitles: string[] = ["Create Account", "Confirm OTP"];
 
   return (
     <div className="max-w-lg mx-auto w-full relative">
@@ -171,8 +183,8 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
             <div className="ml-auto flex-col flex text-end">
               <span className="text-[#FFB46A] text-sm">
                 Step {step} of {stepTitles.length}
-              </span>{" "}
-              <span className="text-[#C28FDA]">{stepTitles[step - 1]} </span>
+              </span>
+              <span className="text-[#C28FDA]">{stepTitles[step - 1]}</span>
             </div>
           </div>
 
@@ -364,25 +376,26 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
 
               {step === 2 && (
                 <>
-                  <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
-                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
-                      <OtpForm form={form} setOtp={setOtp} />
-                    </div>
-                  </div>
+                  <OtpForm form={form} setOtp={setOtp} />
                 </>
               )}
 
-              <div className="py-2"></div>
-              <Button type="submit" className="w-full max-w-sm rounded-xl h-12">
-                Submit
+              <Button
+                type="submit"
+                className="w-full max-w-sm rounded-xl h-12"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader className="animate-spin h-5 w-5 mx-auto" />
+                ) : (
+                  "Submit"
+                )}
               </Button>
             </form>
           </Form>
         </div>
       ) : (
-        <div>
-          <Success email={email} />
-        </div>
+        <Success email={email} />
       )}
     </div>
   );
