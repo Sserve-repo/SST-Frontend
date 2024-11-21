@@ -9,7 +9,7 @@ const CartItem = () => {
 
   return (
     <div className="md:col-span-2 lg:col-span-2 pr-0 lg:pr-4 mx-6">
-      <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+      {/* <h1 className="text-2xl font-bold mb-4 text-black">Your Cart</h1> */}
       {cart.map((item) => (
         <div key={item.id} className="flex items-center border-b py-4">
           <Link href={`/products/${item.id}`}>
@@ -19,7 +19,7 @@ const CartItem = () => {
               className="w-24 h-24 rounded object-cover mr-4"
             />
           </Link>
-          <div className="flex-grow">
+          <div className="flex-grow text-black">
             <h2 className="font-semibold">{item.name}</h2>
             <p className="text-gray-600">${item.price.toFixed(2)}</p>
             <div className="flex items-center mt-2">

@@ -8,7 +8,7 @@ const OrderSummary = () => {
 
   return (
     <div className="bg-gray-100 shadow-md p-6 rounded-lg sticky top-24">
-      <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+      <h2 className="text-xl font-semibold mb-4 text-black">Order Summary</h2>
 
       {/* List of items in the cart */}
       <div className="mb-4 space-y-2">
@@ -21,7 +21,6 @@ const OrderSummary = () => {
           </div>
         ))}
       </div>
-      
 
       {/* Total Items and Price */}
       <div className="flex justify-between mb-2">
