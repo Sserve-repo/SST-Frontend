@@ -1,0 +1,29 @@
+import { baseUrl } from "../config/constant";
+
+export const getRegions = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/products/getProductRegion`);
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch regions", error);
+  }
+};
+
+export const getProductByRegions = async (id: number) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/products/getCategoryItemsByRegion/${id}`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product items regions", error);
+  }
+};
+export const getProductMenu = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/products/getCategoryMenu`);
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+};

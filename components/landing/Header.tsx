@@ -17,58 +17,60 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
 import CartIcon from "../CartIcon";
 import { useRouter } from "next/navigation";
+import { getProductMenu } from "@/fetchers/product";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
+  const [productsMenu, setProductsMenu] = useState<any[]>([]);
   const router = useRouter();
 
   const handleOpenRole = () => {
     setModalOpen(!isModalOpen);
   };
 
-  const products = {
-    African: [
-      "African Foodstuffs",
-      "Fashion & Textiles",
-      "Home Décor & Furniture",
-      "Art & Craft",
-      "Jewelry & Accessories",
-      "Herbal Products",
-    ],
-    Asian: [
-      "Cuisines (foodstuffs)",
-      "Fashion & Textiles",
-      "Home Décor",
-      "Art & Craft",
-      "Jewelry & Accessories",
-      "Herbal Products",
-    ],
-    Indian: [
-      "Cuisines (foodstuffs)",
-      "Fashion & Textiles",
-      "Home Décor",
-      "Art & Craft",
-      "Jewelry & Accessories",
-      "Herbal Products",
-    ],
-    Caribbean: [
-      "Cuisines (foodstuffs)",
-      "Fashion & Textiles",
-      "Home Décor",
-      "Art & Craft",
-      "Jewelry & Accessories",
-      "Herbal Products",
-    ],
-    European: [
-      "Cuisines (foodstuffs)",
-      "Fashion & Textiles",
-      "Home Décor",
-      "Art & Craft",
-      "Jewelry & Accessories",
-      "Herbal Products",
-    ],
-  };
+  // const products = {
+  //   African: [
+  //     "African Foodstuffs",
+  //     "Fashion & Textiles",
+  //     "Home Décor & Furniture",
+  //     "Art & Craft",
+  //     "Jewelry & Accessories",
+  //     "Herbal Products",
+  //   ],
+  //   Asian: [
+  //     "Cuisines (foodstuffs)",
+  //     "Fashion & Textiles",
+  //     "Home Décor",
+  //     "Art & Craft",
+  //     "Jewelry & Accessories",
+  //     "Herbal Products",
+  //   ],
+  //   Indian: [
+  //     "Cuisines (foodstuffs)",
+  //     "Fashion & Textiles",
+  //     "Home Décor",
+  //     "Art & Craft",
+  //     "Jewelry & Accessories",
+  //     "Herbal Products",
+  //   ],
+  //   Caribbean: [
+  //     "Cuisines (foodstuffs)",
+  //     "Fashion & Textiles",
+  //     "Home Décor",
+  //     "Art & Craft",
+  //     "Jewelry & Accessories",
+  //     "Herbal Products",
+  //   ],
+  //   European: [
+  //     "Cuisines (foodstuffs)",
+  //     "Fashion & Textiles",
+  //     "Home Décor",
+  //     "Art & Craft",
+  //     "Jewelry & Accessories",
+  //     "Herbal Products",
+  //   ],
+  // };
 
   const services = {
     "Home Services/Improvement": [
@@ -106,12 +108,23 @@ export default function Header() {
     }
   };
 
+  const handleFetchProductMenu = async () => {
+    const response = await getProductMenu();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductsMenu(data.data["Products Category Menu"]);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       setIsAuth(true);
     }
-  });
+
+    handleFetchProductMenu();
+  }, []);
+
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
       <div className="relative container mx-auto px-4 h-20 md:h-24 flex items-center justify-between">
@@ -154,16 +167,19 @@ export default function Header() {
                   <NavigationMenuTrigger>Products</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[35rem] max-h-[80vh] overflow-y-auto grid grid-cols-2 p-4">
-                      {Object.entries(products).map(([category, items]) => (
-                        <div key={category} className="flex flex-col mb-4">
-                          <p className="font-bold mb-2">{category}</p>
-                          {items.map((item, index) => (
+                      {productsMenu.map((category, index) => (
+                        <div
+                          key={`${category.name}${category.id}`}
+                          className="flex flex-col mb-4"
+                        >
+                          <p className="font-bold mb-2">{category.name}</p>
+                          {category["product_categories"].map((item, index) => (
                             <Link
                               key={index}
                               href="/"
                               className="hover:underline mb-1"
                             >
-                              {item}
+                              {item.name}
                             </Link>
                           ))}
                         </div>
