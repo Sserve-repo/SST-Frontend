@@ -36,12 +36,12 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
     useState<CertificatePreviews>({});
 
   const catg = localStorage.getItem("category");
-  const subCat = localStorage.getItem("subcategory");
+  const subCat = localStorage.getItem("subCategory");
 
-  if (!catg && !subCat) {
-    localStorage.setItem("category", selectedCategory);
-    localStorage.setItem("subcategoy", selectedSubCategory);
-  }
+  // if (!catg && !subCat) {
+  //   localStorage.setItem("category", selectedCategory);
+  //   localStorage.setItem("subcategoy", selectedSubCategory);
+  // }
 
   const getCertificationFields = () => {
     const category = categories.find(
@@ -58,6 +58,7 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
   };
 
   const certificationFields = getCertificationFields();
+  console.log("*********", catg, subCat)
 
   useEffect(() => {
     setCertificatePreviews({});

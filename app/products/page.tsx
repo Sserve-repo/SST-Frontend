@@ -15,19 +15,21 @@ type ProductsItem = {
   image: string;
   title: string;
   price: number;
-  categories?: string[];
+  category: any;
+  subcategory: any;
 };
 
 const page = () => {
   const [products, setProducts] = useState<ProductsItem[]>([]);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const categoryId = searchParams.get("categoryId");
 
   const handleFetchProduct = async (catId: number) => {
     const response = await getProductByCategory(catId);
     if (response && response.ok) {
       const data = await response.json();
-      setProducts(data["Products Items"]);
+      setProducts(data.data["product_listing"]);
     } else {
       setProducts([]);
     }
@@ -37,65 +39,6 @@ const page = () => {
       handleFetchProduct(parseInt(categoryId));
     }
   }, []);
-  const router = useRouter();
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Triple Rock - Plaster of Paris(POP)",
-      categories: ["Home Decor", "House Decoration"],
-      price: 2999.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 2,
-      name: "Premium Ceramic Tiles",
-      categories: ["Flooring", "Interior Design"],
-      price: 1499.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 3,
-      name: "Eco-Friendly Paint Set",
-      categories: ["Wall Decor", "DIY"],
-      price: 799.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 4,
-      name: "Luxury Bathroom Fixtures",
-      categories: ["Plumbing", "Home Improvement"],
-      price: 3499.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 5,
-      name: "Smart Home Lighting System",
-      categories: ["Electronics", "Home Automation"],
-      price: 1999.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 6,
-      name: "Hardwood Flooring Kit",
-      categories: ["Flooring", "DIY"],
-      price: 2499.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 7,
-      name: "Designer Wallpaper Collection",
-      categories: ["Wall Decor", "Interior Design"],
-      price: 599.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-    {
-      id: 8,
-      name: "Energy-Efficient Windows",
-      categories: ["Home Improvement", "Eco-Friendly"],
-      price: 4999.99,
-      image: "/assets/images/tailor.png?height=300&width=400",
-    },
-  ];
 
   const handleAddToCart = async (name: string) => {
     const token = localStorage.getItem("accessToken");
@@ -112,7 +55,7 @@ const page = () => {
           {/* Featured Products */}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.length > 0 ? (
+          {products && products.length > 0 ? (
             products.map((product, index) => (
               <Card key={index} className="overflow-hidden">
                 <div className="relative h-48">
@@ -129,21 +72,22 @@ const page = () => {
                     {product.title}
                   </h3>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {product &&
-                      product.categories &&
-                      product?.categories.map((category, idx) => (
-                        <Badge
-                          key={idx}
-                          variant="secondary"
-                          className="bg-[#f4c391] text-black"
-                        >
-                          {category}
-                        </Badge>
-                      ))}
+                    <Badge
+                      variant="secondary"
+                      className="bg-[#f4c391] text-black"
+                    >
+                      {`${product.category.name}`}
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="bg-[#f4c391] text-black"
+                    >
+                      {`${product.subcategory.name}`}
+                    </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-white border border-white rounded-full px-3 py-1">
-                      ${product.price.toFixed(2)}
+                      ${product.price}
                     </span>
                     <Button
                       variant="secondary"
