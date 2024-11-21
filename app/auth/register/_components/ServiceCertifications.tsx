@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
 import { categories } from "./Collections";
-import { useFormContext } from "react-hook-form"; 
+import { useFormContext } from "react-hook-form";
 
 type CertificatePreviews = {
   [key: string]: string | null;
@@ -36,7 +36,7 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
     useState<CertificatePreviews>({});
 
   const catg = localStorage.getItem("category");
-  const subCat = localStorage.getItem("subcategoy");
+  const subCat = localStorage.getItem("subcategory");
 
   if (!catg && !subCat) {
     localStorage.setItem("category", selectedCategory);

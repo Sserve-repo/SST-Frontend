@@ -21,7 +21,18 @@ export const getProductByRegions = async (id: number) => {
 };
 export const getProductMenu = async () => {
   try {
-    const response = await fetch(`${baseUrl}/products/getCategoryMenu`);
+    const response = await fetch(`${baseUrl}/general/products/getCategoryMenu`);
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+};
+
+export const getProductByCategory = async (catId: number) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/products/getProductByCategorySub?limit=20&page=1&product_category=${catId}`
+    );
     return response;
   } catch (error: any) {
     console.log("failed to fetch product menu", error);

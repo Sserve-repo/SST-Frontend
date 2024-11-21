@@ -104,9 +104,8 @@ export default function LoginForm() {
         } = userRes.data["User Details"];
         const type = getUserType(user_type);
 
-        if (is_completed) {
+        if (parseInt(is_completed) == 1) {
           toast.success("Login successful! Redirecting...");
-          router.push("/");
         } else if (!verified_status) {
           toast.info("Account not verified. Redirecting to verification...");
           await resendOtp(data.email);
@@ -114,7 +113,9 @@ export default function LoginForm() {
         } else {
           const step = parseInt(registration_status.replace("step", ""));
           router.push(
-            `/auth/register?role=${type}&&step=${step >= 2 ? step + 1 : 3}`
+            `/auth/register?role=${type}&&step=${
+              step === 1 ? step + 1 : step + 1
+            }`
           );
         }
       } else {
