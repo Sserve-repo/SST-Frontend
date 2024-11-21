@@ -167,7 +167,7 @@ export default function Header() {
                   <NavigationMenuTrigger>Products</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[35rem] max-h-[80vh] overflow-y-auto grid grid-cols-2 p-4">
-                      {productsMenu.map((category, index) => (
+                      {productsMenu.map((category) => (
                         <div
                           key={`${category.name}${category.id}`}
                           className="flex flex-col mb-4"
@@ -176,7 +176,8 @@ export default function Header() {
                           {category["product_categories"].map((item, index) => (
                             <Link
                               key={index}
-                              href="/"
+                              href={`/products/?categoryId=${item.id}`}
+                              // href={`/products/?categoryId=${item["product_category_id"]}`}
                               className="hover:underline mb-1"
                             >
                               {item.name}

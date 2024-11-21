@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 
 const page = () => {
+  // const [products, setProducts] = useState<ProductsItem[]>([]);
+  // const searchParams = useSearchParams();
   const router = useRouter();
   const [sortOption, setSortOption] = useState("Most Relevant");
   const featuredProducts = [
@@ -85,10 +87,10 @@ const page = () => {
     }
     router.push(`/products/${name.replace(" ", "-").toLocaleLowerCase()}`);
   };
+
   return (
     <section className="bg-white py-16 md:py-32">
       <div className="container mx-auto px-4 md:px-6">
-        {/* Filters and Sorting */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 space-y-4 sm:space-y-0">
           <Button className="border-bg-[#502266] flex items-center border px-4 bg-transparent text-black  hover:text-white hover:bg-[#502266]/90">
             <FilterIcon className="px-1" />
