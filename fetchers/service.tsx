@@ -9,7 +9,7 @@ export const getRegions = async () => {
   }
 };
 
-export const getProductByRegions = async (id: number) => {
+export const getServiceByRegions = async (id: number) => {
   try {
     const response = await fetch(
       `${baseUrl}/products/getCategoryItemsByRegion/${id}`
@@ -19,26 +19,16 @@ export const getProductByRegions = async (id: number) => {
     console.log("failed to fetch product items regions", error);
   }
 };
-
-export const getSingleProduct = async (id: number) => {
+export const getServicesMenu = async () => {
   try {
-    const response = await fetch(`${baseUrl}/general/products/getSingleProduct/${id}`);
+    const response = await fetch(`${baseUrl}/general/services/getCategoryMenu`,  { next: { revalidate: 86400 }});
     return response;
   } catch (error: any) {
-    console.log("failed to fetch product detail", error);
+    console.log("failed to fetch service menu", error);
   }
 };
 
-export const getProductMenu = async () => {
-  try {
-    const response = await fetch(`${baseUrl}/general/products/getCategoryMenu`, { next: { revalidate: 86400 }});
-    return response;
-  } catch (error: any) {
-    console.log("failed to fetch product menu", error);
-  }
-};
-
-export const getProductByCategory = async (catId: number) => {
+export const getServiceByCategory = async (catId: number) => {
   try {
     const response = await fetch(
       `${baseUrl}/general/products/getProductByCategorySub?limit=20&page=1&product_category=${catId}`

@@ -4,10 +4,9 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import OrderSummary from "./_components/OrderSummary";
+import OrderSummary from "../checkout/_components/OrderSummary";
 import CartItem from "./CartItem";
 import { toast } from "sonner";
-// import { toast } from "@/hooks/use-toast";
 
 const CartPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +16,6 @@ const CartPage = () => {
   const handleApplyCoupon = async () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
-    console.log("Coupon applied successfully", cart);
     toast.success("Coupon applied successfully");
   };
 

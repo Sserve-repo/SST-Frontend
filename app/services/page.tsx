@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getProductByCategory } from "@/fetchers/product";
 
-type ProductsItem = {
+type ServicesItem = {
   id: number;
   image: string;
   title: string;
@@ -20,35 +20,32 @@ type ProductsItem = {
 };
 
 const page = () => {
-  const [products, setProducts] = useState<ProductsItem[]>([]);
+  const [services, setServices] = useState<ServicesItem[]>([]);
   const searchParams = useSearchParams();
   const router = useRouter();
   const categoryId = searchParams.get("categoryId");
 
-  const handleFetchProduct = async (catId: number) => {
+  const handleFetchService = async (catId: number) => {
     const response = await getProductByCategory(catId);
     if (response && response.ok) {
       const data = await response.json();
-      setProducts(data.data["product_listing"]);
+      setServices(data.data["service_listing"]);
     } else {
-      setProducts([]);
+      setServices([]);
     }
   };
   useEffect(() => {
     if (categoryId) {
-      handleFetchProduct(parseInt(categoryId));
+      handleFetchService(parseInt(categoryId));
     }
   }, []);
 
-  const handleAddToCart = async (data: any) => {
-    const { id, title } = data;
+  const handleAddToCart = async (name: string) => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       router.push("/auth/login");
     }
-    router.push(
-      `/products/${id}/?title=${title.replace(" ", "-").toLocaleLowerCase()}`
-    );
+    router.push(`/services/${name.replace(" ", "-").toLocaleLowerCase()}`);
   };
 
   return (
@@ -58,13 +55,13 @@ const page = () => {
           {/* Featured Products */}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products && products.length > 0 ? (
-            products.map((product, index) => (
+          {services && services.length > 0 ? (
+            services.map((service, index) => (
               <Card key={index} className="overflow-hidden">
                 <div className="relative h-48">
                   <Image
-                    src={product.image}
-                    alt={product.title}
+                    src={service.image}
+                    alt={service.title}
                     layout="fill"
                     objectFit="cover"
                     className="rounded-t-lg"
@@ -72,35 +69,30 @@ const page = () => {
                 </div>
                 <CardContent className="bg-[#FF9F3F] p-4  h-full">
                   <h3 className="text-lg font-semibold text-black mb-2">
-                    {product.title}
+                    {service.title}
                   </h3>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge
                       variant="secondary"
                       className="bg-[#f4c391] text-black"
                     >
-                      {`${product.category.name}`}
+                      {`${service.category.name}`}
                     </Badge>
                     <Badge
                       variant="secondary"
                       className="bg-[#f4c391] text-black"
                     >
-                      {`${product.subcategory.name}`}
+                      {`${service.subcategory.name}`}
                     </Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-white border border-white rounded-full px-3 py-1">
-                      ${product.price}
+                      ${service.price}
                     </span>
                     <Button
                       variant="secondary"
                       className="bg-white text-black hover:bg-white/90"
-                      onClick={() =>
-                        handleAddToCart({
-                          id: product.id,
-                          title: product.title,
-                        })
-                      }
+                      onClick={() => handleAddToCart(service.title)}
                     >
                       <Plus className="mr-2 h-4 w-4" /> Add to Cart
                     </Button>

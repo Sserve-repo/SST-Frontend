@@ -15,7 +15,7 @@ interface SectionProductHeaderProps {
   id: number;
   productName: string;
   description: string;
-  price: number;
+  price: string;
   discountedPrice?: number;
   discount?: number;
   rating: number;
@@ -62,7 +62,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     addToCart({
       id: id,
       name: productName,
-      price: discountedPrice?.toString() || price.toString(),
+      price: discountedPrice?.toString() || price,
       quantity,
       image: images[0],
     });

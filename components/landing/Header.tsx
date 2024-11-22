@@ -18,85 +18,17 @@ import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
 import CartIcon from "../CartIcon";
 import { useRouter } from "next/navigation";
 import { getProductMenu } from "@/fetchers/product";
+import { getServicesMenu } from "@/fetchers/service";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
   const [productsMenu, setProductsMenu] = useState<any[]>([]);
+  const [servicesMenu, setServicesMenu] = useState<any[]>([]);
   const router = useRouter();
 
   const handleOpenRole = () => {
     setModalOpen(!isModalOpen);
-  };
-
-  // const products = {
-  //   African: [
-  //     "African Foodstuffs",
-  //     "Fashion & Textiles",
-  //     "Home Décor & Furniture",
-  //     "Art & Craft",
-  //     "Jewelry & Accessories",
-  //     "Herbal Products",
-  //   ],
-  //   Asian: [
-  //     "Cuisines (foodstuffs)",
-  //     "Fashion & Textiles",
-  //     "Home Décor",
-  //     "Art & Craft",
-  //     "Jewelry & Accessories",
-  //     "Herbal Products",
-  //   ],
-  //   Indian: [
-  //     "Cuisines (foodstuffs)",
-  //     "Fashion & Textiles",
-  //     "Home Décor",
-  //     "Art & Craft",
-  //     "Jewelry & Accessories",
-  //     "Herbal Products",
-  //   ],
-  //   Caribbean: [
-  //     "Cuisines (foodstuffs)",
-  //     "Fashion & Textiles",
-  //     "Home Décor",
-  //     "Art & Craft",
-  //     "Jewelry & Accessories",
-  //     "Herbal Products",
-  //   ],
-  //   European: [
-  //     "Cuisines (foodstuffs)",
-  //     "Fashion & Textiles",
-  //     "Home Décor",
-  //     "Art & Craft",
-  //     "Jewelry & Accessories",
-  //     "Herbal Products",
-  //   ],
-  // };
-
-  const services = {
-    "Home Services/Improvement": [
-      "Home Care",
-      "Landscaping",
-      "House Decoration",
-      "Construction",
-    ],
-    "Custom Crafting": ["Custom Handmade Crafting", "Craft Workshops"],
-    "Beauty & Fashion": [
-      "Salon Services",
-      "Fashion Design",
-      "Makeup & Massage",
-    ],
-    "Mechanical & Technical": [
-      "Auto Mechanics",
-      "Detailing",
-      "Technical (Handyman, Carpentry, Plumbing)",
-      "Electrical",
-    ],
-    "Event Services": ["Event Planning", "Catering Services"],
-    "Cultural & Educational": [
-      "Tour Guide Services",
-      "Photography & Videography",
-      "Language Translation Services",
-    ],
   };
 
   const handleAuth = () => {
@@ -116,6 +48,14 @@ export default function Header() {
     }
   };
 
+  const handleFetchServicesMenu = async () => {
+    const response = await getServicesMenu();
+    if (response && response.ok) {
+      const data = await response.json();
+      setServicesMenu(data.data["Service Category Menu"]);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
@@ -123,6 +63,7 @@ export default function Header() {
     }
 
     handleFetchProductMenu();
+    handleFetchServicesMenu();
   }, []);
 
   return (
@@ -146,18 +87,23 @@ export default function Header() {
                   <NavigationMenuTrigger>Services</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[35rem] max-h-[80vh] overflow-y-auto grid grid-cols-2 p-4">
-                      {Object.entries(services).map(([category, items]) => (
-                        <div key={category} className="flex flex-col mb-4">
-                          <p className="font-bold mb-2">{category}</p>
-                          {items.map((item, index) => (
-                            <Link
-                              key={index}
-                              href="/"
-                              className="hover:underline mb-1"
-                            >
-                              {item}
-                            </Link>
-                          ))}
+                      {servicesMenu.map((service) => (
+                        <div
+                          key={`${service.name}${service.id}`}
+                          className="flex flex-col mb-4"
+                        >
+                          <p className="font-bold mb-2">{service.name}</p>
+                          {service["service_category_items"].map(
+                            (item, index) => (
+                              <Link
+                                key={index}
+                                href={`/service/?categoryId=${item.id}`}
+                                className="hover:underline mb-1"
+                              >
+                                {item.name}
+                              </Link>
+                            )
+                          )}
                         </div>
                       ))}
                     </div>

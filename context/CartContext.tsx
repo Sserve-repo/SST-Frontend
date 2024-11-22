@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 type CartItem = {
   id: number;
   name: string;
-  price: number;
+  price: string;
   quantity: number;
   image: string;
 };
@@ -19,81 +19,6 @@ type CartContextType = {
   totalItems: number;
   totalPrice: number;
 };
-
-const items = [
-  {
-    id: 1,
-    name: "Adjustable Standing Desk",
-    price: 299.99,
-    rating: 4.5,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 2,
-    name: "Ergonomic Keyboard",
-    price: 79.99,
-    rating: 4.3,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 3,
-    name: "Anti-Fatigue Mat",
-    price: 39.99,
-    rating: 4.6,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 4,
-    name: "Monitor Arm",
-    price: 89.99,
-    rating: 4.4,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 5,
-    name: "Monitor Arm",
-    price: 89.99,
-    rating: 4.4,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 6,
-    name: "Monitor Arm",
-    price: 89.99,
-    rating: 4.4,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 7,
-    name: "Monitor Arm",
-    price: 89.99,
-    rating: 4.4,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 8,
-    name: "Monitor Arm",
-    price: 89.99,
-    rating: 4.4,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-  {
-    id: 9,
-    name: "Monitor Arm",
-    price: 89.99,
-    rating: 4.4,
-    image: "/assets/images/cement.png?height=200&width=200",
-    quantity: 20,
-  },
-];
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -112,16 +37,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
-    if (savedCart && JSON.parse(savedCart) > 0) {
+    if (savedCart && JSON.parse(savedCart).length > 0) {
       setCart(JSON.parse(savedCart));
-    } else {
-      setCart(items);
+      console.log("carts........", cart);
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+  // useEffect(() => {
+  //   localStorage.setItem("cart", JSON.stringify(cart));
+  // }, [cart]);
 
   const addToCart = (item: CartItem) => {
     setCart((prevCart) => {
@@ -133,6 +57,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             : cartItem
         );
       }
+      localStorage.setItem("cart", JSON.stringify([...prevCart, item]));
       return [...prevCart, item];
     });
   };
@@ -155,7 +80,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + parseInt(item.price) * item.quantity,
     0
   );
 

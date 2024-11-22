@@ -1,22 +1,36 @@
+"use client";
+
 import Link from "next/link";
 import { pathOr } from "ramda";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import SectionProductHeader from "./SectionProductHeader";
 import { products } from "@/lib/content";
 import { Button } from "@/components/ui/button";
+import { getSingleProduct } from "@/fetchers/product";
 
 type Props = {
-  params: { productId: string };
+  params: { productId: number };
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-const getProductData = async (id: string) => {
-  return products.find((item) => item.slug === id);
-};
+const SingleProductPage = (props: Props) => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-const SingleProductPage = async (props: Props) => {
-  const selectedProduct = await getProductData(props.params.productId);
+  const getProductData = async (id: number) => {
+    const response = await getSingleProduct(id);
+    if (response?.ok) {
+      const data = await response.json();
+      const res = data.data["Products Items"];
+      setSelectedProduct({ ...res, images: [res.image] });
+    } else {
+      console.error("Failed to fetch product data:", response?.statusText);
+    }
+  };
+
+  useEffect(() => {
+    getProductData(props.params.productId);
+  }, []);
 
   return (
     <div className="container relative md:my-32 sm:my-28 my-24 mx-auto px-4">
@@ -27,19 +41,19 @@ const SingleProductPage = async (props: Props) => {
 
       <div className="mb-24">
         <SectionProductHeader
+          id={pathOr("", ["id"], selectedProduct)}
           images={pathOr([], ["images"], selectedProduct)}
-          productName={pathOr("", ["productName"], selectedProduct)}
+          productName={pathOr("", ["title"], selectedProduct)}
           price={pathOr(0, ["price"], selectedProduct)}
           reviews={pathOr(0, ["reviews"], selectedProduct)}
           description={pathOr("", ["description"], selectedProduct)}
           slug={pathOr("", ["slug"], selectedProduct)}
-          id={pathOr("", ["id"], selectedProduct)}
-          rating={pathOr(0, ["rating"], selectedProduct)}
-          discountedPrice={pathOr(0, ["discountedPrice"], selectedProduct)}
           discount={pathOr(0, ["discount"], selectedProduct)}
-          features={pathOr([], ["features"], selectedProduct)}
-          specifications={pathOr([], ["specifications"], selectedProduct)}
+          discountedPrice={pathOr(0, ["discountedPrice"], selectedProduct)}
           seller={pathOr("", ["seller"], selectedProduct)}
+          specifications={pathOr([], ["specifications"], selectedProduct)}
+          features={pathOr([], ["features"], selectedProduct)}
+          rating={pathOr(0, ["rating"], selectedProduct)}
           estimatedDelivery={pathOr("", ["estimatedDelivery"], selectedProduct)}
           returnPolicy={pathOr("", ["returnPolicy"], selectedProduct)}
         />
@@ -49,7 +63,12 @@ const SingleProductPage = async (props: Props) => {
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold mb-6">Related Products</h2>
           <Link href="/products">
-            <Button variant={"outline"} className="text-sm rounded-full text-primary">View all</Button>
+            <Button
+              variant={"outline"}
+              className="text-sm rounded-full text-primary"
+            >
+              View all
+            </Button>
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
