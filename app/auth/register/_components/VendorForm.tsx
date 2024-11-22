@@ -51,9 +51,9 @@ import {
   getProductCategoryItemsById,
   getProductRegions,
 } from "@/fetchers/vendors";
-import { CanadianProvinces } from "./Collections";
 import { OtpForm } from "./OtpForm";
 import { otpPayload } from "@/forms/artisans";
+import { getProvinces } from "@/fetchers/provinces";
 
 type FormData = {
   // Step 1: Create Account
@@ -139,6 +139,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [provinces, setProvinces] = useState([]);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -548,23 +549,41 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   ];
 
   const getProductCat = async () => {
-    const data = await getProductCategories();
-    setProductCategories(data.data["Products Category"]);
+    const response = await getProductCategories();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductCategories(data.data["Products Category"]);
+    }
+  };
+
+  const handleGetProvinces = async () => {
+    const response = await getProvinces();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProvinces(data.data["Provinces"]);
+    }
   };
 
   const getProductRegion = async () => {
-    const data = await getProductRegions();
-    setProductRegion(data.data["Products Region"]);
+    const response = await getProductRegions();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductRegion(data.data["Products Region"]);
+    }
   };
 
   const handlefetchProductCatItems = async (catId) => {
-    const data = await getProductCategoryItemsById(catId);
-    setProductCategoryItems(data.data["Products Category Item By ID"]);
+    const response = await getProductCategoryItemsById(catId);
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductCategoryItems(data.data["Products Category Item By ID"]);
+    }
   };
 
   useEffect(() => {
     getProductCat();
     getProductRegion();
+    handleGetProvinces();
 
     if (registrationStep) {
       setStep(registrationStep);
@@ -1035,14 +1054,14 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {CanadianProvinces.map((item, index) => {
+                              {provinces.map((item: any, index) => {
                                 return (
                                   <SelectItem
                                     key={index}
                                     className="h-11 rounded-lg px-3"
-                                    value={item.toString()}
+                                    value={item.id.toString()}
                                   >
-                                    {item}
+                                    {item.name}
                                   </SelectItem>
                                 );
                               })}
@@ -1271,6 +1290,26 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                         )}
                       />
                     </div>
+                    <FormField
+                      control={form.control}
+                      name="shippingCosts"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Shipping Costs
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              type="number"
+                              placeholder="10.00"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <FormField
                       control={form.control}

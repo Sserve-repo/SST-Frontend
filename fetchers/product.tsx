@@ -22,7 +22,9 @@ export const getProductByRegions = async (id: number) => {
 
 export const getSingleProduct = async (id: number) => {
   try {
-    const response = await fetch(`${baseUrl}/general/products/getSingleProduct/${id}`);
+    const response = await fetch(
+      `${baseUrl}/general/products/getSingleProduct/${id}`
+    );
     return response;
   } catch (error: any) {
     console.log("failed to fetch product detail", error);
@@ -31,7 +33,10 @@ export const getSingleProduct = async (id: number) => {
 
 export const getProductMenu = async () => {
   try {
-    const response = await fetch(`${baseUrl}/general/products/getCategoryMenu`, { next: { revalidate: 86400 }});
+    const response = await fetch(
+      `${baseUrl}/general/products/getCategoryMenu`,
+      { next: { revalidate: 86400 } }
+    );
     return response;
   } catch (error: any) {
     console.log("failed to fetch product menu", error);

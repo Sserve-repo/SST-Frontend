@@ -20,7 +20,7 @@ export const businessProfilePayload = (data: any) => {
   requestPayload.append("business_phone", data.businessPhone);
   requestPayload.append("postal_code", data.postalCode);
   requestPayload.append("city", data.city);
-  requestPayload.append("province", data.province);
+  requestPayload.append("province_id", data.province);
   requestPayload.append("service_category_id", data.serviceCategory);
   requestPayload.append("service_category_item_id", data.serviceSubcategory);
   return requestPayload;

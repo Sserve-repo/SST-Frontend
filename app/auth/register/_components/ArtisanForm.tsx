@@ -33,7 +33,6 @@ import { Success } from "./Success";
 import Link from "next/link";
 import DatePicker from "react-multi-date-picker";
 import type { Value } from "react-multi-date-picker";
-import { CanadianProvinces } from "./Collections";
 import {
   billingPayload,
   businessProfilePayload,
@@ -61,6 +60,7 @@ import {
   creatOtp,
 } from "@/fetchers/artisans";
 import { OtpForm } from "./OtpForm";
+import { getProvinces } from "@/fetchers/provinces";
 
 const containerStyle = {
   width: "400px",
@@ -161,6 +161,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [categoryName, setCategoryName] = useState("");
   const [subCategoryName, setSubcategoryName] = useState("");
   const [isSubcategoryEnabled, setIsSubcategoryEnabled] = useState(false);
+  const [provinces, setProvinces] = useState([]);
 
   const [documentList, setDocumentList] = useState<File[] | null>([]);
   const [otp, setOtp] = useState("");
@@ -618,15 +619,26 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     "Categories & Listing",
   ];
 
-  const handleSetCategory = (name) => {
-    console.log("Setting Category name:", name);
-    setCategoryName(name);
-    setIsSubcategoryEnabled(true);
+  // const handleSetCategory = (name) => {
+  //   console.log("Setting Category name:", name);
+  //   setCategoryName(name);
+  //   setIsSubcategoryEnabled(true);
+  // };
+
+  const handleGetProvinces = async () => {
+    const response = await getProvinces();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProvinces(data.data["Provinces"]);
+    }
   };
 
   const getProductCat = async () => {
-    const data = await getServiceCategories();
-    setServiceCategories(data.data["Service Category"]);
+    const response = await getServiceCategories();
+    if (response && response.ok) {
+      const data = await response.json();
+      setServiceCategories(data.data["Service Category"]);
+    }
   };
 
   const handlefetchProductCatItems = async (catId) => {
@@ -666,6 +678,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
   useEffect(() => {
     getProductCat();
+    handleGetProvinces();
 
     if (registrationStep) {
       setStep(registrationStep);
@@ -967,7 +980,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     )}
                   />
 
-
                   <FormField
                     control={form.control}
                     name="serviceCategory"
@@ -1014,7 +1026,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                       </FormItem>
                     )}
                   />
-
 
                   <FormField
                     control={form.control}
@@ -1136,14 +1147,14 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {CanadianProvinces.map((item, index) => {
+                            {provinces.map((item: any, index) => {
                               return (
                                 <SelectItem
                                   key={index}
                                   className="h-11 rounded-lg px-3"
-                                  value={item.toString()}
+                                  value={item.id.toString()}
                                 >
-                                  {item}
+                                  {item.name}
                                 </SelectItem>
                               );
                             })}

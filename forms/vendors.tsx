@@ -20,7 +20,7 @@ export const businessProfilePayload = (data: any) => {
   requestPayload.append("business_phone", data.businessPhone);
   requestPayload.append("postal_code", data.postalCode);
   requestPayload.append("city", data.city);
-  requestPayload.append("province", data.province);
+  requestPayload.append("province_id", data.province);
   requestPayload.append("email", data.email);
   requestPayload.append("product_category_id", data.productCategory);
   requestPayload.append("product_region_id", data.productRegion);
@@ -43,7 +43,9 @@ export const shippingPolicyPayload = (data: any) => {
   requestPayload.append("shipping_option", data.shippingOption);
   requestPayload.append("from_day", data.deliveryFrom);
   requestPayload.append("to_day", data.deliveryTo);
+  requestPayload.append("shipping_option", data.shippingOption);
   requestPayload.append("return_policy", data.returnPolicy);
+
   return requestPayload;
 };
 

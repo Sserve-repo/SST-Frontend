@@ -14,22 +14,6 @@ type Category = {
   subCategory: SubCategory[];
 };
 
-export const CanadianProvinces = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Newfoundland and Labrador",
-  "Nova Scotia",
-  "Ontario",
-  "Prince Edward Island",
-  "Quebec",
-  "Saskatchewan",
-  "Northwest Territories",
-  "Nunavut",
-  "Yukon",
-];
-
 // Categories data
 export const categories: Category[] = [
   {
