@@ -9,7 +9,7 @@ import Select from "react-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Accordion,
   AccordionContent,
@@ -87,7 +87,13 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
 // Main CheckoutForm component
 export default function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
 
+  const handleApplyCoupon = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsSubmitting(false);
+    toast.success("Coupon applied successfully");
+  };
   // Using formSchema as the type for useForm ensures compatibility
   const {
     register,
@@ -105,8 +111,7 @@ export default function CheckoutForm() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
     console.log("Order placed!", data);
-    toast({
-      title: "Order Placed",
+    toast.success("Order Placed", {
       description: "Your order has been successfully placed.",
     });
   };
@@ -304,7 +309,13 @@ export default function CheckoutForm() {
           </form>
         </div>
         <div>
-          <OrderSummary />
+          <OrderSummary
+            promoCode={promoCode}
+            setPromoCode={setPromoCode}
+            isSubmitting={isSubmitting}
+            handleApplyCoupon={handleApplyCoupon}
+            handleSubmit={handleSubmit}
+          />
         </div>
       </div>
     </div>

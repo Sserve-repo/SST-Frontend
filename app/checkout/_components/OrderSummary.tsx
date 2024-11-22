@@ -2,8 +2,16 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-const OrderSummary = () => {
+const OrderSummary = ({
+  promoCode,
+  setPromoCode,
+  isSubmitting,
+  handleApplyCoupon,
+  handleSubmit,
+}) => {
   const { cart, totalPrice } = useCart();
 
   return (
@@ -15,9 +23,9 @@ const OrderSummary = () => {
         {cart.map((item) => (
           <div key={item.id} className="flex justify-between">
             <span>
-              {item.name} (x{item.quantity})
+              {item.name} (x{item.quantity} {item.price})
             </span>
-            <span>${(item.price * item.quantity).toFixed(2)}</span>
+            <span>${(parseInt(item.price) * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
@@ -46,6 +54,39 @@ const OrderSummary = () => {
       <Link href="/checkout">
         <Button className="w-full mt-6">Proceed to Checkout</Button>
       </Link>
+
+      <div className="mt-6">
+        <div className="mt-8 flex items-center justify-center">
+          <hr className="w-full border-t border-gray-300" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+          {/* Promo Code Input */}
+          <div className="sm:col-span-2">
+            <Label htmlFor="promo-code">Promo Code</Label>
+            <Input
+              placeholder="Enter code"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+            />
+          </div>
+
+          {/* Apply Button */}
+          <div className="sm:col-span-1">
+            <Label htmlFor="apply-button" className="sr-only">
+              Apply
+            </Label>
+            <Button
+              type="button"
+              onClick={handleApplyCoupon}
+              className="w-full py-6 mt-1 text-white rounded-md"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Processing..." : "Apply"}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

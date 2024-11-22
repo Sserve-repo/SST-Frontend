@@ -21,7 +21,7 @@ const CartItem = () => {
           </Link>
           <div className="flex-grow text-black">
             <h2 className="font-semibold">{item.name}</h2>
-            <p className="text-gray-600">${item.price.toFixed(2)}</p>
+            <p className="text-gray-600">${parseInt(item.price).toFixed(2)}</p>
             <div className="flex items-center mt-2">
               <Button
                 variant="outline"
@@ -50,7 +50,7 @@ const CartItem = () => {
           </div>
           <div className="text-right">
             <p className="font-semibold">
-              ${(item.price * item.quantity).toFixed(2)}
+              ${(parseInt(item.price) * item.quantity).toFixed(2)}
             </p>
           </div>
         </div>

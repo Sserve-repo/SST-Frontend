@@ -80,12 +80,15 @@ const page = () => {
     },
   ];
 
-  const handleAddToCart = async (name: string) => {
+  const handleAddToCart = async (data: any) => {
+    const { id, title } = data;
     const token = localStorage.getItem("accessToken");
     if (!token) {
       router.push("/auth/login");
     }
-    router.push(`/products/${name.replace(" ", "-").toLocaleLowerCase()}`);
+    router.push(
+      `/products/${id}/?title=${title.replace(" ", "-").toLocaleLowerCase()}`
+    );
   };
 
   return (
@@ -148,23 +151,33 @@ const page = () => {
                     >
                       {category}
                     </Badge>
-                  ))}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-white border border-white rounded-full px-3 py-1">
-                    ${product.price.toFixed(2)}
-                  </span>
-                  <Button
-                    variant="secondary"
-                    className="bg-white text-black hover:bg-white/90"
-                    onClick={() => handleAddToCart(product.name)}
-                  >
-                    <Plus className="mr-2 h-4 w-4" /> Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white border border-white rounded-full px-3 py-1">
+                      ${product.price}
+                    </span>
+                    <Button
+                      variant="secondary"
+                      className="bg-white text-black hover:bg-white/90"
+                      onClick={() =>
+                        handleAddToCart({
+                          id: product.id,
+                          title: product.title,
+                        })
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" /> Add to Cart
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="h-screen flex flex-col items-center text-center justify-center w-full">
+              <h1>No data found</h1>
+            </div>
+          )}
+
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-8">
