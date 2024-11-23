@@ -16,7 +16,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { useRouter } from "next/navigation";
-import { getUserDetails, loginUser, resendOtp } from "@/fetchers/auth";
+import { getUserDetails, loginUser, resendOtp } from "@/actions/auth";
 
 type FormData = {
   email: string;
