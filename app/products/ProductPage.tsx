@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getProductByCategory } from "@/fetchers/product";
+import { getProductByCategory } from "@/actions/product";
 import {
   Select,
   SelectContent,
@@ -43,11 +43,27 @@ const ProductPage = () => {
       setProducts([]);
     }
   };
+
   useEffect(() => {
     if (categoryId) {
       handleFetchProduct(parseInt(categoryId));
     }
-  }, []);
+  }, [categoryId]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const sortedProducts = [...products];
+      if (sortOption === "Price: low to high") {
+        sortedProducts.sort((a, b) => a.price - b.price);
+      } else if (sortOption === "Price: high to low") {
+        sortedProducts.sort((a, b) => b.price - a.price);
+      } else if (sortOption === "Newest") {
+        sortedProducts.sort((a, b) => b.id - a.id);
+      } else if (sortOption === "Top Reviews") {
+      }
+      setProducts(sortedProducts);
+    }
+  }, [sortOption, products]);
 
   const handleAddToCart = async (data: any) => {
     const { id, title } = data;
