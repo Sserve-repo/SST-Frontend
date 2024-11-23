@@ -36,7 +36,7 @@ import {
   userRegistrationPayload,
   vendorIdentityPayload,
 } from "@/forms/vendors";
-import { registerUser } from "@/fetchers/auth";
+import { registerUser } from "@/actions/auth";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import {
@@ -50,10 +50,10 @@ import {
   getProductCategories,
   getProductCategoryItemsById,
   getProductRegions,
-} from "@/fetchers/vendors";
+} from "@/actions/vendors";
 import { OtpForm } from "./OtpForm";
 import { otpPayload } from "@/forms/artisans";
-import { getProvinces } from "@/fetchers/provinces";
+import { getProvinces } from "@/actions/provinces";
 
 type FormData = {
   // Step 1: Create Account
