@@ -633,7 +633,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
   };
 
-  const getProductCat = async () => {
+  const getServiceCat = async () => {
     const response = await getServiceCategories();
     if (response && response.ok) {
       const data = await response.json();
@@ -642,23 +642,14 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   };
 
   const handlefetchProductCatItems = async (catId) => {
-    try {
-      if (catId) {
-        const data = await getServiceCategoryItemsById(catId);
-        console.log(data);
-        if (data && data.data && data.data["Service Category Item By ID"]) {
+    if (catId) {
+      const response = await getServiceCategoryItemsById(catId);
+      if (response && response.ok) {
+        const data = await response.json();
+        if (data.data["Service Category Item By ID"]) {
           setServiceCategoryItems(data.data["Service Category Item By ID"]);
-        } else {
-          console.error(
-            "Service Category Item data is missing in the response:",
-            data
-          );
-          setServiceCategoryItems([]); // Set to empty if data is missing
         }
       }
-    } catch (error) {
-      console.error("Failed to fetch category items:", error);
-      setServiceCategoryItems([]);
     }
   };
 
@@ -677,7 +668,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   );
 
   useEffect(() => {
-    getProductCat();
+    getServiceCat();
     handleGetProvinces();
 
     if (registrationStep) {
@@ -1331,7 +1322,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     name="businessLicense"
                     render={({ field: { value, onChange, ...field } }) => (
                       <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] font-normal text-base mb-2">
+                        <FormLabel className="text-[#502266] font-normal text-base mb-2">
                           Business License *
                         </FormLabel>
                         <FormControl>
@@ -1412,7 +1403,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             ) : (
                               <>
                                 <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground " />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
                                   <span className="text-primary ">

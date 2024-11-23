@@ -3,10 +3,7 @@ import { baseUrl } from "../config/constant";
 export const getServiceCategories = async () => {
   try {
     const response = await fetch(`${baseUrl}/general/services/getCategory`);
-    const res = await response.json();
-    if (response.ok && response.status === 200) {
-      return res;
-    }
+    return response;
   } catch (error: any) {
     console.log("Form validation failed", error);
   }
@@ -45,10 +42,7 @@ export const getServiceCategoryItemsById = async (catId: any) => {
     const response = await fetch(
       `${baseUrl}/general/services/getCategoryItemsByServiceCategoryId/${catId}`
     );
-    const res = await response.json();
-    if (response.ok && response.status === 200) {
-      return res;
-    }
+    return response;
   } catch (error: any) {
     console.log("Form validation failed", error);
   }
