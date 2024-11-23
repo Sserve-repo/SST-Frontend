@@ -161,6 +161,9 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [categoryName, setCategoryName] = useState("");
   const [subCategoryName, setSubcategoryName] = useState("");
   const [provinces, setProvinces] = useState([]);
+  const [userVerified, setUserVerified] = useState(false);
+  const [completedUserRegistration, setCompletedUserRegistration] =
+    useState(false);
 
   const [documentList, setDocumentList] = useState<File[] | null>([]);
   const [otp, setOtp] = useState("");
@@ -244,43 +247,42 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
     // Step 1 validation
     if (step === 1) {
-      if (!data.firstName) {
-        errors.firstName = "First name is required";
-        isValid = false;
+      if (!userVerified && !completedUserRegistration) {
+        if (!data.firstName) {
+          errors.firstName = "First name is required";
+          isValid = false;
+        }
+        if (!data.lastName) {
+          errors.lastName = "Last name is required";
+          isValid = false;
+        }
+        if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
+          errors.email = "Invalid email address";
+          isValid = false;
+        }
+        if (!data.password || data.password.length < 8) {
+          errors.password = "Password must be at least 8 characters";
+          isValid = false;
+        }
+        if (data.password !== data.confirmPassword) {
+          errors.confirmPassword = "Passwords do not match";
+          isValid = false;
+        }
+        // if (!data.agreeToTerms) {
+        //   errors.agreeToTerms = "You must agree to the terms and conditions";
+        //   isValid = false;
+        // }
+      } else {
+        data.otp = otp;
+        if (!data.otp) {
+          errors.otp = "otp is required";
+          isValid = false;
+        }
       }
-      if (!data.lastName) {
-        errors.lastName = "Last name is required";
-        isValid = false;
-      }
-      if (!data.email || !/\S+@\S+\.\S+/.test(data.email)) {
-        errors.email = "Invalid email address";
-        isValid = false;
-      }
-      if (!data.password || data.password.length < 8) {
-        errors.password = "Password must be at least 8 characters";
-        isValid = false;
-      }
-      if (data.password !== data.confirmPassword) {
-        errors.confirmPassword = "Passwords do not match";
-        isValid = false;
-      }
-      // if (!data.agreeToTerms) {
-      //   errors.agreeToTerms = "You must agree to the terms and conditions";
-      //   isValid = false;
-      // }
     }
 
     // Step 2 validation
     if (step === 2) {
-      data.otp = otp;
-      if (!data.otp) {
-        errors.otp = "otp is required";
-        isValid = false;
-      }
-    }
-
-    // Step 3 validation
-    if (step === 3) {
       if (!data.province) {
         errors.province = "Province is required";
         isValid = false;
@@ -326,7 +328,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 3 validation
-    if (step === 4) {
+    if (step === 3) {
       if (!data.shopAddress) {
         errors.shopAddress = "Shop Address is required";
         isValid = false;
@@ -351,7 +353,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 4 validation
-    if (step === 5) {
+    if (step === 4) {
       if (!data.businessLicense) {
         errors.businessLicense = "business license is required";
         isValid = false;
@@ -363,7 +365,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 5 validation -  Business policy
-    if (step === 6) {
+    if (step === 5) {
       if (!data.bookingDetails) {
         errors.bookingDetails = "Booking details is required";
         isValid = false;
@@ -375,7 +377,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 6: Set Up Payment Preferences validation
-    if (step === 7) {
+    if (step === 6) {
       if (!data.bankName) {
         errors.bankName = "Bank Name is required";
         isValid = false;
@@ -399,7 +401,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 7: Set Up Billing validation
-    if (step === 8) {
+    if (step === 7) {
       if (!data.cardNumber) {
         errors.cardNumber = "Credit card number is required";
         isValid = false;
@@ -419,7 +421,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
 
     // Step 8: Tell Us About Your Listing validation
-    if (step === 9) {
+    if (step === 8) {
       if (!data.serviceName) {
         errors.serviceName = "Service name is required";
         isValid = false;
@@ -457,13 +459,25 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       try {
         setLoading(true);
         if (step === 1) {
-          const payload = userRegistrationPayload(data);
-          const response = await registerUser("artisan", payload);
-          if (response) {
-            const res = await response.json();
-
-            if (response.ok && response.status === 201) {
+          if (!userVerified && !completedUserRegistration) {
+            const payload = userRegistrationPayload(data);
+            const response = await registerUser("artisan", payload);
+            const res = await response?.json();
+            if (response && response.ok && response.status === 201) {
               toast.success(res.message);
+              setCompletedUserRegistration(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          } else {
+            console.log(!userVerified, !completedUserRegistration);
+            const payload = otpPayload(data);
+            const response = await creatOtp(payload);
+            const res = await response?.json();
+            if (response && response.ok && response.status === 200) {
+              toast.success(res.message);
+              setEmail(res.data.email);
+              setUserVerified(true);
               handleNextStep();
             } else {
               formatErrors(res.data.errors, res);
@@ -472,22 +486,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         }
 
         if (step === 2) {
-          const payload = otpPayload(data);
-          const response = await creatOtp(payload);
-          if (response) {
-            const res = await response.json();
-
-            if (response.ok && response.status === 200) {
-              toast.success(res.message);
-              setEmail(res.data.email);
-              handleNextStep();
-            } else {
-              formatErrors(res.data.errors, res);
-            }
-          }
-        }
-
-        if (step === 3) {
           const payload = businessProfilePayload(data);
           const response = await createBusinessProfile(payload);
           if (response) {
@@ -502,7 +500,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           }
         }
 
-        if (step === 4) {
+        if (step === 3) {
           const payload = serviceAvailabilityPayload(data);
           const response = await createServiceAvailability(payload);
           if (response) {
@@ -517,7 +515,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           }
         }
 
-        if (step === 5) {
+        if (step === 4) {
           const payload = artisanIdentityPayload(data, documentList);
           const response = await createArtisanIdentity(payload);
           if (response) {
@@ -534,7 +532,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           }
         }
 
-        if (step === 6) {
+        if (step === 5) {
           const payload = businessPolicyPayload(data);
           const response = await createbusinessPolicy(payload);
           if (response) {
@@ -549,7 +547,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           }
         }
 
-        if (step === 7) {
+        if (step === 6) {
           const payload = paymentPreferencePayload(data);
           const response = await createPaymentPreference(payload);
           if (response) {
@@ -564,7 +562,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           }
         }
 
-        if (step === 8) {
+        if (step === 7) {
           const payload = billingPayload(data);
           const response = await createBilling(payload);
           if (response) {
@@ -579,7 +577,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
           }
         }
 
-        if (step === 9) {
+        if (step === 8) {
           const payload = serviceListingPayload(data);
           const response = await createServiceListing(payload);
           if (response) {
@@ -608,7 +606,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
   const stepTitles: string[] = [
     "Basic Details",
-    "Confirm Otp",
     "Customize Shop Profile",
     "Set Service Areas & Availability",
     "Submit Documentation",
@@ -617,12 +614,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     "Set Up Billing",
     "Categories & Listing",
   ];
-
-  // const handleSetCategory = (name) => {
-  //   console.log("Setting Category name:", name);
-  //   setCategoryName(name);
-  //   setIsSubcategoryEnabled(true);
-  // };
 
   const handleGetProvinces = async () => {
     const response = await getProvinces();
@@ -702,179 +693,178 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-4 flex flex-col items-center justify-center"
             >
-              {step === 1 && (
-                <>
-                  {/* Headings */}
-                  <div>
-                    <h1 className="text-[40px] font-semibold text-[#502266]">
-                      Create Account
-                    </h1>
-                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
-                      For the purpose of industry regulation, your details are
-                      required.
-                    </p>
-                  </div>
-                  <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+              {step === 1 &&
+                (!userVerified && !completedUserRegistration ? (
+                  <>
+                    {/* Headings */}
+                    <div>
+                      <h1 className="text-[40px] font-semibold text-[#502266]">
+                        Create Account
+                      </h1>
+                      <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
+                        For the purpose of industry regulation, your details are
+                        required.
+                      </p>
+                    </div>
+                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                      <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266]">
+                              First Name*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3"
+                                placeholder="John"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266]">
+                              Last Name*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3"
+                                placeholder="Doe"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                     <FormField
                       control={form.control}
-                      name="firstName"
+                      name="email"
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <FormLabel className="text-[#502266]">
-                            First Name*
+                            Email address*
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
+                              type="email"
                               className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="John"
+                              placeholder="johndoe@email.com"
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266]">
-                            Last Name*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="Doe"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#502266]">
-                          Email address*
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="email"
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="johndoe@email.com"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex items-center sm:flex-row flex-col w-full gap-3">
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266]">
-                            Create Password*
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                type={showPassword ? "text" : "password"}
-                                className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="******"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266]">
-                            Confirm Password*
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                type={showConfirmPassword ? "text" : "password"}
-                                className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="******"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                              >
-                                {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="flex items-center self-start gap-[14px] mt-4">
-                    <Checkbox />
-                    <p className="font-normal text-base text-[#9E4FC4]">
-                      I agree to the &nbsp;
-                      <span className="text-[#240F2E] hover:underline">
-                        <a href="#">Terms of Use</a>
-                      </span>
-                      &nbsp; and &nbsp;
-                      <span className="text-[#240F2E] hover:underline">
-                        <a href="#">Privacy Policy</a>
-                      </span>
-                    </p>
-                  </div>
-                </>
-              )}
-
-              {step === 2 && (
-                <>
+                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266]">
+                              Create Password*
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  {...field}
+                                  type={showPassword ? "text" : "password"}
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="******"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                  ) : (
+                                    <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266]">
+                              Confirm Password*
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  {...field}
+                                  type={
+                                    showConfirmPassword ? "text" : "password"
+                                  }
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="******"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                  onClick={() =>
+                                    setShowConfirmPassword(!showConfirmPassword)
+                                  }
+                                >
+                                  {showConfirmPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                  ) : (
+                                    <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="flex items-center self-start gap-[14px] mt-4">
+                      <Checkbox />
+                      <p className="font-normal text-base text-[#9E4FC4]">
+                        I agree to the &nbsp;
+                        <span className="text-[#240F2E] hover:underline">
+                          <a href="#">Terms of Use</a>
+                        </span>
+                        &nbsp; and &nbsp;
+                        <span className="text-[#240F2E] hover:underline">
+                          <a href="#">Privacy Policy</a>
+                        </span>
+                      </p>
+                    </div>
+                  </>
+                ) : (
                   <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
                     <div className="flex items-center sm:flex-row flex-col w-full gap-3">
                       <OtpForm form={form} setOtp={setOtp} />
                     </div>
                   </div>
-                </>
-              )}
+                ))}
 
-              {step === 3 && (
+              {step === 2 && (
                 <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
                     Customize Business Profile
@@ -1157,7 +1147,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 4 && (
+              {step === 3 && (
                 <div className="w-full flex flex-col ">
                   <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
                     Set Service Areas & Availability
@@ -1298,7 +1288,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 4 && (
                 <div className="flex flex-col gap-y-3  w-full">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
                     Verify Your Identity
@@ -1449,7 +1439,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 6 && (
+              {step === 5 && (
                 <div className="w-full flex flex-col gap-y-7">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1505,7 +1495,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 7 && (
+              {step === 6 && (
                 <div className=" flex flex-col w-full gap-y-7">
                   <div>
                     <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
@@ -1678,7 +1668,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 8 && (
+              {step === 7 && (
                 <div className="flex flex-col w-full gap-y-4">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
                     Set Up Billing
@@ -1768,7 +1758,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                 </div>
               )}
 
-              {step === 9 && (
+              {step === 8 && (
                 <div className="w-full space-y-[22px]">
                   <div>
                     <h2 className="text-[40px] font-semibold text-[#502266]">

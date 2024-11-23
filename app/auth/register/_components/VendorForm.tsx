@@ -140,6 +140,9 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [provinces, setProvinces] = useState([]);
+  const [userVerified, setUserVerified] = useState(false);
+  const [completedUserRegistration, setCompletedUserRegistration] =
+    useState(false);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -198,52 +201,51 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
     // Step 1: Create Account validation
     if (step === 1) {
-      if (!data.firstName) {
-        errors.firstName = "First name is required";
-        isValid = false;
-      }
-      if (!data.lastName) {
-        errors.lastName = "Last name is required";
-        isValid = false;
-      }
-      if (!data.email) {
-        errors.email = "Email address is required";
-        isValid = false;
-      } else if (!/\S+@\S+\.\S+/.test(data.email)) {
-        errors.email = "Invalid email address";
-        isValid = false;
-      }
-      if (!data.password) {
-        errors.password = "Password is required";
-        isValid = false;
-      } else if (data.password.length < 6) {
-        errors.password = "Password must be at least 6 characters";
-        isValid = false;
-      }
-      if (!data.confirmPassword) {
-        errors.confirmPassword = "Confirm password is required";
-        isValid = false;
-      } else if (data.password !== data.confirmPassword) {
-        errors.confirmPassword = "Passwords do not match";
-        isValid = false;
-      }
-      if (!data.agreeToTerms) {
-        errors.agreeToTerms = "You must agree to the terms and conditions";
-        isValid = false;
+      if (!userVerified && !completedUserRegistration) {
+        if (!data.firstName) {
+          errors.firstName = "First name is required";
+          isValid = false;
+        }
+        if (!data.lastName) {
+          errors.lastName = "Last name is required";
+          isValid = false;
+        }
+        if (!data.email) {
+          errors.email = "Email address is required";
+          isValid = false;
+        } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+          errors.email = "Invalid email address";
+          isValid = false;
+        }
+        if (!data.password) {
+          errors.password = "Password is required";
+          isValid = false;
+        } else if (data.password.length < 6) {
+          errors.password = "Password must be at least 6 characters";
+          isValid = false;
+        }
+        if (!data.confirmPassword) {
+          errors.confirmPassword = "Confirm password is required";
+          isValid = false;
+        } else if (data.password !== data.confirmPassword) {
+          errors.confirmPassword = "Passwords do not match";
+          isValid = false;
+        }
+        if (!data.agreeToTerms) {
+          errors.agreeToTerms = "You must agree to the terms and conditions";
+          isValid = false;
+        }
+      } else {
+        data.otp = otp;
+        if (!data.otp) {
+          errors.otp = "otp is required";
+          isValid = false;
+        }
       }
     }
 
-    // Step 2 validation
+    // Step 2: Set Your Shop Preferences validation
     if (step === 2) {
-      data.otp = otp;
-      if (!data.otp) {
-        errors.otp = "otp is required";
-        isValid = false;
-      }
-    }
-
-    // Step 3: Set Your Shop Preferences validation
-    if (step === 3) {
       if (!data.province) {
         errors.province = "Province is required";
         isValid = false;
@@ -288,8 +290,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 4: Verify Your Identity validation
-    if (step === 4) {
+    // Step 3: Verify Your Identity validation
+    if (step === 3) {
       if (!data.idType) {
         errors.idType = "ID type is required";
         isValid = false;
@@ -300,8 +302,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 5: Set Shipping & Return Policies validation
-    if (step === 5) {
+    // Step 4: Set Shipping & Return Policies validation
+    if (step === 4) {
       if (!data.shippingOption) {
         errors.shippingOption = "Shipping option is required";
         isValid = false;
@@ -320,8 +322,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 6: Set Up Payment Preferences validation
-    if (step === 6) {
+    // Step 5: Set Up Payment Preferences validation
+    if (step === 5) {
       if (!data.bankName) {
         errors.bankName = "Bank Name is required";
         isValid = false;
@@ -340,8 +342,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step 7: Set Up Billing validation
-    if (step === 7) {
+    // Step 6: Set Up Billing validation
+    if (step === 6) {
       if (!data.cardNumber) {
         errors.cardNumber = "Credit card number is required";
         isValid = false;
@@ -360,8 +362,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
       }
     }
 
-    // Step8: Tell Us About Your Listing validation
-    if (step === 8) {
+    // Step 7: Tell Us About Your Listing validation
+    if (step === 7) {
       if (!data.productCategory) {
         errors.productCategory = "Product category is required";
         isValid = false;
@@ -408,17 +410,32 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
     if (isValid) {
       if (step === 1) {
-        const payload = userRegistrationPayload(data);
-        const response = await registerUser("vendor", payload);
-        if (response) {
-          const res = await response.json();
-          console.log("Form submitted", res);
+        if (!userVerified && !completedUserRegistration) {
+          const payload = userRegistrationPayload(data);
+          const response = await registerUser("vendor", payload);
+          if (response) {
+            const res = await response.json();
+            console.log("Form submitted", res);
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              setCompletedUserRegistration(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           } else {
-            formatErrors(res.data.errors, res);
+            console.log(!userVerified, !completedUserRegistration);
+            const payload = otpPayload(data);
+            const response = await creatOtp(payload);
+            const res = await response?.json();
+            if (response && response.ok && response.status === 200) {
+              toast.success(res.message);
+              setEmail(res.data.email);
+              setUserVerified(true);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
       }
@@ -539,7 +556,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
   const stepTitles: string[] = [
     "Create Account",
-    "Confirm Otp",
     "Shop Preferences",
     "Identity Verification",
     "Shipping & Returns",
@@ -617,33 +633,74 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 onSubmit={form.handleSubmit(handleSubmit)}
                 className="space-y-6  flex flex-col items-center justify-center"
               >
-                {step === 1 && (
-                  <>
-                    <div>
-                      <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
-                        <h2 className="text-[40px] font-semibold text-[#502266] w-full">
-                          Create Account
-                        </h2>
-                        <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[290px]">
-                          For the purpose of industry regulation, your details
-                          are required.
-                        </p>
+                {step === 1 &&
+                  (!userVerified && !completedUserRegistration ? (
+                    <>
+                      <div>
+                        <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
+                          <h2 className="text-[40px] font-semibold text-[#502266] w-full">
+                            Create Account
+                          </h2>
+                          <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[290px]">
+                            For the purpose of industry regulation, your details
+                            are required.
+                          </p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="grid sm:grid-cols-2 gap-4 w-full">
+                      <div className="grid sm:grid-cols-2 gap-4 w-full">
+                        <FormField
+                          control={form.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266] text-base font-normal">
+                                First Name
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="John"
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266] text-base font-normal">
+                                Last Name
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="Doe"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <FormField
                         control={form.control}
-                        name="firstName"
+                        name="email"
                         render={({ field }) => (
                           <FormItem className="w-full">
                             <FormLabel className="text-[#502266] text-base font-normal">
-                              First Name
+                              Email Address
                             </FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="John"
+                                type="email"
+                                placeholder="john@example.com"
                                 className="rounded-xl shadow-sm h-12 px-3"
                               />
                             </FormControl>
@@ -651,165 +708,125 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                           </FormItem>
                         )}
                       />
+                      <div className="grid sm:grid-cols-2 gap-4 w-full">
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266] text-base font-normal">
+                                Create Password
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="********"
+                                    className="rounded-xl shadow-sm h-12 px-3"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() =>
+                                      setShowPassword(!showPassword)
+                                    }
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266] text-base font-normal">
+                                Confirm Password
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    type={
+                                      showConfirmPassword ? "text" : "password"
+                                    }
+                                    placeholder="********"
+                                    className="rounded-xl shadow-sm h-12 px-3"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() =>
+                                      setShowConfirmPassword(
+                                        !showConfirmPassword
+                                      )
+                                    }
+                                  >
+                                    {showConfirmPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <FormField
                         control={form.control}
-                        name="lastName"
+                        name="agreeToTerms"
                         render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="text-[#502266] text-base font-normal">
-                              Last Name
-                            </FormLabel>
+                          <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0">
                             <FormControl>
-                              <Input
-                                {...field}
-                                className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="Doe"
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
                               />
                             </FormControl>
+                            <div className="flex items-center self-start gap-[14px] mt-4">
+                              <FormLabel>
+                                <p className="font-normal text-base text-[#9E4FC4]">
+                                  I agree to the &nbsp;
+                                  <span className="text-[#240F2E] hover:underline">
+                                    <a href="#">Terms of Use</a>
+                                  </span>
+                                  &nbsp; and &nbsp;
+                                  <span className="text-[#240F2E] hover:underline">
+                                    <a href="#">Privacy Policy</a>
+                                  </span>
+                                </p>
+                              </FormLabel>
+                            </div>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266] text-base font-normal">
-                            Email Address
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="email"
-                              placeholder="john@example.com"
-                              className="rounded-xl shadow-sm h-12 px-3"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="grid sm:grid-cols-2 gap-4 w-full">
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="text-[#502266] text-base font-normal">
-                              Create Password
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  {...field}
-                                  type={showPassword ? "text" : "password"}
-                                  placeholder="********"
-                                  className="rounded-xl shadow-sm h-12 px-3"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                >
-                                  {showPassword ? (
-                                    <EyeOff className="h-4 w-4" />
-                                  ) : (
-                                    <Eye className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="text-[#502266] text-base font-normal">
-                              Confirm Password
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  {...field}
-                                  type={
-                                    showConfirmPassword ? "text" : "password"
-                                  }
-                                  placeholder="********"
-                                  className="rounded-xl shadow-sm h-12 px-3"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                  onClick={() =>
-                                    setShowConfirmPassword(!showConfirmPassword)
-                                  }
-                                >
-                                  {showConfirmPassword ? (
-                                    <EyeOff className="h-4 w-4" />
-                                  ) : (
-                                    <Eye className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name="agreeToTerms"
-                      render={({ field }) => (
-                        <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="flex items-center self-start gap-[14px] mt-4">
-                            <FormLabel>
-                              <p className="font-normal text-base text-[#9E4FC4]">
-                                I agree to the &nbsp;
-                                <span className="text-[#240F2E] hover:underline">
-                                  <a href="#">Terms of Use</a>
-                                </span>
-                                &nbsp; and &nbsp;
-                                <span className="text-[#240F2E] hover:underline">
-                                  <a href="#">Privacy Policy</a>
-                                </span>
-                              </p>
-                            </FormLabel>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </>
-                )}
-
-                {step === 2 && (
-                  <>
+                    </>
+                  ) : (
                     <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
                       <div className="flex items-center sm:flex-row flex-col w-full gap-3">
                         <OtpForm form={form} setOtp={setOtp} />
                       </div>
                     </div>
-                  </>
-                )}
+                  ))}
 
-                {step === 3 && (
+                {step === 2 && (
                   <div className=" w-full flex flex-col gap-y-[30px]">
                     <div>
                       <h2 className="text-[40px] font-semibold text-[#502266] leading-[50px]">
@@ -1074,7 +1091,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   </div>
                 )}
 
-                {step === 4 && (
+                {step === 3 && (
                   <div className="w-full space-y-7">
                     <div>
                       <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1192,7 +1209,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   </div>
                 )}
 
-                {step === 5 && (
+                {step === 4 && (
                   <div className="w-full flex flex-col gap-y-7">
                     <div>
                       <div className="text-[40px] font-semibold text-[#502266] md:pr-[200px] leading-[50px]">
@@ -1339,7 +1356,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   </div>
                 )}
 
-                {step === 6 && (
+                {step === 5 && (
                   <div className=" flex flex-col w-full gap-y-7">
                     <div>
                       <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
@@ -1350,83 +1367,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                         verified.
                       </p>
                     </div>
-                    {/* <FormField
-                    control={form.control}
-                    name="paymentOptions"
-                    render={() => (
-                      <FormItem className="w-full ">
-                        <FormLabel className="text-gray-400"></FormLabel>
-                        <div className="space-y-2">
-                          <FormField
-                            control={form.control}
-                            name="paymentOptions"
-                            render={({ field }) => (
-                              <FormItem className=" border h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes("paypal")}
-                                    onCheckedChange={(checked) => {
-                                      const updatedValue = checked
-                                        ? [...(field.value || []), "paypal"]
-                                        : field.value?.filter(
-                                            (value) => value !== "paypal"
-                                          ) || [];
-                                      field.onChange(updatedValue);
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  <p className="font-semibold">
-                                    {" "}
-                                    Pay with Pay{" "}
-                                    <span className="text-[#179BD7]">Pal</span>
-                                  </p>
-                                  <p className="text-[#B9B9B9]">
-                                    Use your PayPal account for secure payments.
-                                  </p>
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="paymentOptions"
-                            render={({ field }) => (
-                              <FormItem className="border  h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes("stripe")}
-                                    onCheckedChange={(checked) => {
-                                      const updatedValue = checked
-                                        ? [...(field.value || []), "stripe"]
-                                        : field.value?.filter(
-                                            (value) => value !== "stripe"
-                                          ) || [];
-                                      field.onChange(updatedValue);
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  <p className="font-semibold">
-                                    Pay with{" "}
-                                    <span className="text-[#179BD7]">
-                                      Stripe
-                                    </span>
-                                    /Bank Account
-                                  </p>
-                                  <p className="text-[#B9B9B9]">
-                                    Use your bank account or credit card via
-                                    Stripe.{" "}
-                                  </p>
-                                </FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
 
                     <FormField
                       control={form.control}
@@ -1513,7 +1453,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   </div>
                 )}
 
-                {step === 7 && (
+                {step === 6 && (
                   <div className="flex flex-col w-full gap-y-7">
                     <div>
                       <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1605,7 +1545,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   </div>
                 )}
 
-                {step === 8 && (
+                {step === 7 && (
                   <div className="w-full space-y-7">
                     <div>
                       <h2 className="text-[40px] font-semibold text-[#502266]">

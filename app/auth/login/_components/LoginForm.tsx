@@ -94,6 +94,7 @@ export default function LoginForm() {
       } else if (response.ok) {
         localStorage.setItem("email", JSON.stringify(res.data.user.email));
         localStorage.setItem("username", `${res.data.user.firstname}`);
+        localStorage.setItem("accessToken", JSON.stringify(res.token));
         const userRes = await getUserDetails(data.email);
 
         const {
@@ -105,8 +106,12 @@ export default function LoginForm() {
         const type = getUserType(user_type);
 
         if (parseInt(is_completed) == 1) {
+          localStorage.setItem("email", JSON.stringify(res.data.user.email));
+          localStorage.setItem("username", `${res.data.user.firstname}`);
           toast.success("Login successful! Redirecting...");
-        } else if (!verified_status) {
+          router.push("/");
+        }
+        if (!verified_status || parseInt(verified_status) !== 1) {
           toast.info("Account not verified. Redirecting to verification...");
           await resendOtp(data.email);
           router.push(`/auth/register?role=${type}&&step=2`);
@@ -114,7 +119,7 @@ export default function LoginForm() {
           const step = parseInt(registration_status.replace("step", ""));
           router.push(
             `/auth/register?role=${type}&&step=${
-              step === 1 ? step + 1 : step + 1
+              step === 1 ? step + 2 : step + 1
             }`
           );
         }
