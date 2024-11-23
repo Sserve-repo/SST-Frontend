@@ -5,7 +5,6 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import countryList from "react-select-country-list";
-import Select from "react-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +16,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import OrderSummary from "./_components/OrderSummary";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 // Define form validation schema using zod
 const formSchema = z.object({
@@ -68,17 +75,48 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   // className,
 }) => {
   const options = useMemo(() => countryList().getData(), []);
+  const [search, setSearch] = useState("");
+
+  // Filter options based on the search input
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleChange = (selectedValue: string) => {
+    const selectedOption =
+      options.find((option) => option.value === selectedValue) || null;
+    onChange(selectedOption);
+  };
 
   return (
-    <div>
-      <Select
-        options={options}
-        value={value}
-        onChange={onChange}
-        className="react-select-container"
-        classNamePrefix="react-select"
-        placeholder="Select a country"
-      />
+    <div className="space-y-2">
+      {/* <Label>Select Country</Label> */}
+      <Select onValueChange={handleChange} value={value?.value || ""}>
+        <SelectTrigger
+          className={cn("w-full py-6 bg-[#F7F0FA]", error && "border-red-500")}
+        >
+          <SelectValue placeholder="Select a country" />
+        </SelectTrigger>
+        <SelectContent className="space-y-2">
+          <div className="px-2">
+            <Input
+              placeholder="Search country..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="mb-2"
+            />
+          </div>
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))
+          ) : (
+            <p className="px-2 py-1 text-sm text-gray-500">No results found</p>
+          )}
+        </SelectContent>
+      </Select>
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
@@ -236,14 +274,11 @@ export default function CheckoutForm() {
                       <Controller
                         name="country"
                         control={control}
-                        render={({ field }) => (
+                        render={({ field, fieldState }) => (
                           <CountrySelect
-                            className={
-                              "w-full bg-[#F7F0FA] py-4 p-2 border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                            }
                             value={field.value}
                             onChange={field.onChange}
-                            error={errors.country?.message}
+                            error={fieldState.error?.message}
                           />
                         )}
                       />
@@ -253,15 +288,15 @@ export default function CheckoutForm() {
               </AccordionItem>
 
               <AccordionItem value="payment">
-                <AccordionTrigger>Payment Information</AccordionTrigger>
+                <AccordionTrigger>3. Payment Information</AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4">
+                  <div className="space-y-4 mx-4">
                     <div>
                       <Label htmlFor="cardNumber">Card Number</Label>
                       <Input
                         id="cardNumber"
                         {...register("cardNumber")}
-                        className="w-full"
+                        className="w-full bg-[#F7F0FA] py-6"
                       />
                       {errors.cardNumber && (
                         <p className="text-red-500 text-sm mt-1">
@@ -276,7 +311,7 @@ export default function CheckoutForm() {
                           id="expirationDate"
                           placeholder="MM/YY"
                           {...register("expirationDate")}
-                          className="w-full"
+                          className="w-full bg-[#F7F0FA] py-6"
                         />
                         {errors.expirationDate && (
                           <p className="text-red-500 text-sm mt-1">
@@ -289,7 +324,7 @@ export default function CheckoutForm() {
                         <Input
                           id="cvv"
                           {...register("cvv")}
-                          className="w-full"
+                          className="w-full bg-[#F7F0FA] py-6"
                         />
                         {errors.cvv && (
                           <p className="text-red-500 text-sm mt-1">
@@ -303,7 +338,11 @@ export default function CheckoutForm() {
               </AccordionItem>
             </Accordion>
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-6"
+            >
               {isSubmitting ? "Placing Order..." : "Place Order"}
             </Button>
           </form>
@@ -314,7 +353,7 @@ export default function CheckoutForm() {
             setPromoCode={setPromoCode}
             isSubmitting={isSubmitting}
             handleApplyCoupon={handleApplyCoupon}
-            handleSubmit={handleSubmit}
+            handleSubmit={handleSubmit(onSubmit)}
           />
         </div>
       </div>

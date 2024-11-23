@@ -12,7 +12,7 @@ export const getServiceCategories = async () => {
   }
 };
 
-export const getServiceCategoryItems = async (Id: any) => {
+export const getServiceCategoryItems = async () => {
   try {
     const response = await fetch(
       `${baseUrl}/general/services/getCategoryItems`
@@ -25,7 +25,6 @@ export const getServiceCategoryItems = async (Id: any) => {
     console.log("Form validation failed", error);
   }
 };
-
 
 export const getServiceCategoryById = async (Id: any) => {
   try {
