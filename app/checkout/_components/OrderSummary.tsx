@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 const OrderSummary = ({
   promoCode,
@@ -13,6 +13,11 @@ const OrderSummary = ({
   handleSubmit,
 }) => {
   const { cart, totalPrice } = useCart();
+  const [isCheckoutPage, setIsCheckoutPage] = useState(false);
+
+  useEffect(() => {
+    setIsCheckoutPage(window.location.pathname === "/checkout");
+  }, []);
 
   return (
     <div className="bg-gray-100 shadow-md p-6 rounded-lg sticky top-24">
@@ -23,9 +28,9 @@ const OrderSummary = ({
         {cart.map((item) => (
           <div key={item.id} className="flex justify-between">
             <span>
-              {item.name} (x{item.quantity} {item.price})
+              {item.name} (x{item.quantity} @ ${item.price})
             </span>
-            <span>${(parseInt(item.price) * item.quantity).toFixed(2)}</span>
+            <span>${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
@@ -50,11 +55,22 @@ const OrderSummary = ({
         </div>
       </div>
 
-      {/* Proceed to Checkout Button */}
-      <Link href="/checkout">
-        <Button className="w-full mt-6">Proceed to Checkout</Button>
-      </Link>
+      {/* Dynamic Button */}
+      {isCheckoutPage ? (
+        <Button
+          onClick={handleSubmit}
+          className="w-full mt-6"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Placing Order..." : "Place Order"}
+        </Button>
+      ) : (
+        <Link href="/checkout">
+          <Button className="w-full mt-6">Proceed to Checkout</Button>
+        </Link>
+      )}
 
+      {/* Promo Code Section */}
       <div className="mt-6">
         <div className="mt-8 flex items-center justify-center">
           <hr className="w-full border-t border-gray-300" />
