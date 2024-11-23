@@ -44,7 +44,7 @@ import {
   businessPolicyPayload,
   otpPayload,
 } from "@/forms/artisans";
-import { registerUser } from "@/fetchers/auth";
+import { registerUser } from "@/actions/auth";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import {
@@ -58,9 +58,9 @@ import {
   getServiceCategories,
   getServiceCategoryItemsById,
   creatOtp,
-} from "@/fetchers/artisans";
+} from "@/actions/artisans";
 import { OtpForm } from "./OtpForm";
-import { getProvinces } from "@/fetchers/provinces";
+import { getProvinces } from "@/actions/provinces";
 
 const containerStyle = {
   width: "400px",
@@ -160,7 +160,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   >([]);
   const [categoryName, setCategoryName] = useState("");
   const [subCategoryName, setSubcategoryName] = useState("");
-  const [isSubcategoryEnabled, setIsSubcategoryEnabled] = useState(false);
   const [provinces, setProvinces] = useState([]);
 
   const [documentList, setDocumentList] = useState<File[] | null>([]);
@@ -1342,10 +1341,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             ) : (
                               <>
                                 <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                                  <span className="text-primary-foreground ">
+                                  <span className="text-primary ">
                                     Click to Upload Business License
                                   </span>
                                 </p>
@@ -1403,7 +1402,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             ) : (
                               <>
                                 <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground " />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary " />
                                 </div>
                                 <p className="text-xs font-medium text-[#D3AFE4] mb-2">
                                   <span className="text-primary ">
@@ -1866,10 +1865,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             ) : (
                               <>
                                 <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary-foreground" />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
                                 </div>
                                 <p className="text-xs font-medium text-gray-600 mb-2">
-                                  <span className="text-primary-foreground ">
+                                  <span className="text-primary ">
                                     Click to Upload,{" "}
                                   </span>{" "}
                                   or drag and drop.
