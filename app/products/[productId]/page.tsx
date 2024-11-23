@@ -7,36 +7,63 @@ import { MdArrowBack } from "react-icons/md";
 import SectionProductHeader from "./SectionProductHeader";
 import { products } from "@/lib/content";
 import { Button } from "@/components/ui/button";
-import { getSingleProduct } from "@/fetchers/product";
+import { getSingleProduct } from "@/actions/product";
+import { useRouter } from "next/navigation";
 
 type Props = {
   params: { productId: number };
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-const SingleProductPage = (props: Props) => {
+const SingleProductPage = ({ params }: Props) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  const getProductData = async (id: number) => {
-    const response = await getSingleProduct(id);
-    if (response?.ok) {
-      const data = await response.json();
-      const res = data.data["Products Items"];
-      setSelectedProduct({ ...res, images: [res.image] });
-    } else {
-      console.error("Failed to fetch product data:", response?.statusText);
+  const fetchProductData = async (id: number) => {
+    try {
+      const response = await getSingleProduct(id);
+      if (response?.ok) {
+        const data = await response.json();
+        const productData = data.data["Products Items"];
+        setSelectedProduct({ ...productData, images: [productData.image] });
+      } else {
+        router.push("/404"); // Navigate to 404 page if product is not found
+      }
+    } catch (error) {
+      console.error("Error fetching product data:", error);
+      router.push("/404");
+    } finally {
+      setIsLoading(false); // Ensure loading state ends regardless of outcome
     }
   };
 
   useEffect(() => {
-    getProductData(props.params.productId);
-  }, []);
+    fetchProductData(params.productId);
+  }, [params.productId]);
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!selectedProduct) {
+    // Fallback if product data is unavailable
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        Product not found.
+      </div>
+    );
+  }
 
   return (
-    <div className="container relative md:my-32 sm:my-28 my-24 mx-auto px-4">
+    <div className="container mx-auto px-4 relative my-24">
       <Link href="/products" className="flex gap-1 text-sm mb-1 w-fit">
         <MdArrowBack className="text-xl" />
-        <p>Back to search results</p>
+        <span>Back to search results</span>
       </Link>
 
       <div className="mb-24">
@@ -59,12 +86,13 @@ const SingleProductPage = (props: Props) => {
         />
       </div>
 
+      {/* Related Products Section */}
       <div className="mb-16">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold mb-6">Related Products</h2>
+          <h2 className="text-2xl font-semibold">Related Products</h2>
           <Link href="/products">
             <Button
-              variant={"outline"}
+              variant="outline"
               className="text-sm rounded-full text-primary"
             >
               View all
@@ -73,14 +101,16 @@ const SingleProductPage = (props: Props) => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.slice(0, 4).map((item) => (
-            <div key={item.slug} className="bg-white rounded-xl ">
+            <div key={item.slug} className="bg-white rounded-xl shadow-sm">
               <Link href={`/products/${item.slug}`}>
                 <img
                   src={item.images[0]}
                   alt={item.productName}
-                  className="w-full h-52 bg-center object-cover rounded-xl"
+                  className="w-full h-52 object-cover rounded-xl"
                 />
-                <h3 className="text-[1rem] mt-2">{item.productName}</h3>
+                <h3 className="text-base mt-2 font-medium">
+                  {item.productName}
+                </h3>
                 <p className="text-xs text-orange-400">Business name</p>
                 <p className="text-primary font-semibold text-2xl mt-1">
                   ${item.price}
