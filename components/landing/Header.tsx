@@ -17,8 +17,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import RoleWithRedirect from "@/app/auth/register/_components/RoleWithRedirect";
 import CartIcon from "../CartIcon";
 import { useRouter } from "next/navigation";
-import { getProductMenu } from "@/fetchers/product";
-import { getServicesMenu } from "@/fetchers/service";
+import { getProductMenu } from "@/actions/product";
+import { getServicesMenu } from "@/actions/service";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
