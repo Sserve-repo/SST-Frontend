@@ -98,10 +98,10 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
                     ) : (
                       <>
                         <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
-                          <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary-foreground" />
+                          <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
                         </div>
                         <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                          <span className="text-primary-foreground">
+                          <span className="text-primary">
                             {field.uploadText}
                           </span>
                         </p>
