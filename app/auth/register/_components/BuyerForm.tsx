@@ -20,8 +20,8 @@ import { formatErrors } from "@/config/utils";
 import { OtpForm } from "./OtpForm";
 import { otpPayload } from "@/forms/artisans";
 import { userRegistrationPayload } from "@/forms/vendors";
-import { registerUser } from "@/fetchers/auth";
-import { creatOtp } from "@/fetchers/buyer";
+import { registerUser } from "@/actions/auth";
+import { creatOtp } from "@/actions/buyer";
 
 type FormData = {
   firstName: string;
