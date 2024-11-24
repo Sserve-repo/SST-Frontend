@@ -50,20 +50,20 @@ const ProductPage = () => {
     }
   }, [categoryId]);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      const sortedProducts = [...products];
-      if (sortOption === "Price: low to high") {
-        sortedProducts.sort((a, b) => a.price - b.price);
-      } else if (sortOption === "Price: high to low") {
-        sortedProducts.sort((a, b) => b.price - a.price);
-      } else if (sortOption === "Newest") {
-        sortedProducts.sort((a, b) => b.id - a.id);
-      } else if (sortOption === "Top Reviews") {
-      }
-      setProducts(sortedProducts);
+  // Derived sorting (avoiding infinite loop)
+  const sortedProducts = React.useMemo(() => {
+    if (!products || products.length === 0) return [];
+
+    const sorted = [...products];
+    if (sortOption === "Price: low to high") {
+      sorted.sort((a, b) => a.price - b.price);
+    } else if (sortOption === "Price: high to low") {
+      sorted.sort((a, b) => b.price - a.price);
+    } else if (sortOption === "Newest") {
+      sorted.sort((a, b) => b.id - a.id);
     }
-  }, [sortOption, products]);
+    return sorted;
+  }, [products, sortOption]);
 
   const handleAddToCart = async (data: any) => {
     const { id, title } = data;
@@ -110,8 +110,8 @@ const ProductPage = () => {
 
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#502266] text-center mb-12"></h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products && products.length > 0 ? (
-            products.map((product, index) => (
+          {sortedProducts && sortedProducts.length > 0 ? (
+            sortedProducts.map((product, index) => (
               <Card key={index} className="overflow-hidden">
                 <div className="relative h-48">
                   <Image
@@ -173,7 +173,7 @@ const ProductPage = () => {
           </Button>
           <div className="flex items-center space-x-4">
             <span className="text-sm">Page</span>
-            <Input type="," className="w-20" defaultValue="1" />
+            <Input type="number" className="w-20" defaultValue="1" />
             <span className="text-sm">of 100</span>
           </div>
         </div>

@@ -1432,8 +1432,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
                   <ServiceCertifications
                     form={form}
-                    selectedCategory={categoryName}
-                    selectedSubCategory={subCategoryName}
                     setDocumentList={setDocumentList}
                   />
                 </div>

@@ -116,12 +116,9 @@ export default function LoginForm() {
           await resendOtp(data.email);
           router.push(`/auth/register?role=${type}&&step=2`);
         } else {
-          const step = parseInt(registration_status.replace("step", ""));
-          router.push(
-            `/auth/register?role=${type}&&step=${
-              step === 1 ? step + 2 : step + 1
-            }`
-          );
+          let step = parseInt(registration_status.replace("step", ""));
+          step = step === 1 ? step + 1 : step + 1;
+          router.push(`/auth/register?role=${type}&&step=${step}`);
         }
       } else {
         if (res?.status_code === 422) {

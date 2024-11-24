@@ -37,7 +37,7 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
 
   const handleFetchUser = async () => {
     const email = localStorage.getItem("email");
-    const userRes = await getUserDetails(email);
+    const userRes = await getUserDetails(email?.replaceAll('"', ""));
 
     const { service_category_id, service_category_item_id } =
       userRes.data["User Details"]["artisan_business_details"];
@@ -66,7 +66,9 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
     const subCategory = category?.subCategory.find(
       (sub) => sub.name.toLowerCase() === selectedSubCategory
     );
-    return subCategory || [];
+    if (subCategory) {
+      return subCategory.data || [];
+    }
   };
 
   const certificationFields = getCertificationFields();

@@ -1,4 +1,3 @@
-
 type CertificateData = {
   description: string;
   uploadText: string;

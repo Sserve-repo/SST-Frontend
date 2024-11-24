@@ -30,7 +30,7 @@ export const fetchCart = async (setCart: (cart: any) => void) => {
 export const addToCart = async (item: any, setCart: (cart: any) => void) => {
   try {
     const token = localStorage.getItem("accessToken");
-    if (!token) return;
+    // if (!token) return;
 
     const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
       method: "POST",

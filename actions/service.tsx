@@ -21,7 +21,10 @@ export const getServiceByRegions = async (id: number) => {
 };
 export const getServicesMenu = async () => {
   try {
-    const response = await fetch(`${baseUrl}/general/services/getCategoryMenu`,  { next: { revalidate: 86400 }});
+    const response = await fetch(
+      `${baseUrl}/general/services/getCategoryMenu`,
+      { next: { revalidate: 86400 } }
+    );
     return response;
   } catch (error: any) {
     console.log("failed to fetch service menu", error);
@@ -31,10 +34,10 @@ export const getServicesMenu = async () => {
 export const getServiceByCategory = async (catId: number) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/products/getProductByCategorySub?limit=20&page=1&product_category=${catId}`
+      `${baseUrl}/general/services/geServiceByCategorySub?limit=20&page=1&service_category=${catId}`
     );
     return response;
   } catch (error: any) {
-    console.log("failed to fetch product menu", error);
+    console.log("failed to fetch service menu", error);
   }
 };

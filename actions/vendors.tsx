@@ -3,10 +3,7 @@ import { baseUrl } from "../config/constant";
 export const getProductCategories = async () => {
   try {
     const response = await fetch(`${baseUrl}/general/products/getCategory`);
-    const res = await response.json();
-    if (response.ok && response.status === 200) {
-      return res;
-    }
+    return response;
   } catch (error: any) {
     console.log("Form validation failed", error);
   }
@@ -17,10 +14,7 @@ export const getProductCategoryItemsById = async (catId) => {
     const response = await fetch(
       `${baseUrl}/general/products/getCategoryItemsByProductCategoryId/${catId}`
     );
-    const res = await response.json();
-    if (response.ok && response.status === 200) {
-      return res;
-    }
+    return response;
   } catch (error: any) {
     console.log("Form validation failed", error);
   }
@@ -31,10 +25,7 @@ export const getProductRegions = async () => {
     const response = await fetch(
       `${baseUrl}/general/products/getProductRegion`
     );
-    const res = await response.json();
-    if (response.ok && response.status === 200) {
-      return res;
-    }
+    return response;
   } catch (error: any) {
     console.log("Form validation failed", error);
   }
@@ -114,7 +105,6 @@ export const createProductListing = async (requestPayload: any) => {
     console.log("Vendor listing detail creation failed", error);
   }
 };
-
 
 export const creatOtp = async (requestPayload: any) => {
   try {

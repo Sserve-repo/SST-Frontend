@@ -43,7 +43,7 @@ export const shippingPolicyPayload = (data: any) => {
   requestPayload.append("shipping_option", data.shippingOption);
   requestPayload.append("from_day", data.deliveryFrom);
   requestPayload.append("to_day", data.deliveryTo);
-  requestPayload.append("shipping_option", data.shippingOption);
+  requestPayload.append("shipping_cost", data.shippingCosts);
   requestPayload.append("return_policy", data.returnPolicy);
 
   return requestPayload;

@@ -54,6 +54,7 @@ import {
 import { OtpForm } from "./OtpForm";
 import { otpPayload } from "@/forms/artisans";
 import { getProvinces } from "@/actions/provinces";
+import { useSearchParams } from "next/navigation";
 
 type FormData = {
   // Step 1: Create Account
@@ -125,6 +126,8 @@ type VendorFormProps = {
 
 export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [step, setStep] = useState(1);
+  const searchParam = useSearchParams();
+  const verified = searchParam.get("searchParam");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [document, setDocument] = useState<string | null>(null);
@@ -143,6 +146,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [userVerified, setUserVerified] = useState(false);
   const [completedUserRegistration, setCompletedUserRegistration] =
     useState(false);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -409,55 +413,35 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     const isValid = validateForm(data, step);
 
     if (isValid) {
+      setLoading(true);
       if (step === 1) {
         if (!userVerified && !completedUserRegistration) {
           const payload = userRegistrationPayload(data);
           const response = await registerUser("vendor", payload);
-          if (response) {
-            const res = await response.json();
-            console.log("Form submitted", res);
-
-            if (response.ok && response.status === 201) {
-              toast.success(res.message);
-              setCompletedUserRegistration(true);
-            } else {
-              formatErrors(res.data.errors, res);
-            }
+          const res = await response?.json();
+          if (response && response.ok && response.status === 201) {
+            toast.success(res.message);
+            setCompletedUserRegistration(true);
           } else {
-            console.log(!userVerified, !completedUserRegistration);
-            const payload = otpPayload(data);
-            const response = await creatOtp(payload);
-            const res = await response?.json();
-            if (response && response.ok && response.status === 200) {
-              toast.success(res.message);
-              setEmail(res.data.email);
-              setUserVerified(true);
-              handleNextStep();
-            } else {
-              formatErrors(res.data.errors, res);
-            }
+            formatErrors(res.data.errors, res);
+          }
+        } else {
+          console.log(!userVerified, !completedUserRegistration);
+          const payload = otpPayload(data);
+          const response = await creatOtp(payload);
+          const res = await response?.json();
+          if (response && response.ok && response.status === 200) {
+            toast.success(res.message);
+            setEmail(res.data.email);
+            setUserVerified(true);
+            handleNextStep();
+          } else {
+            formatErrors(res.data.errors, res);
           }
         }
       }
 
       if (step === 2) {
-        const payload = otpPayload(data);
-        const response = await creatOtp(payload);
-        if (response) {
-          const res = await response.json();
-
-          if (response.ok && response.status === 200) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            // formatErrors(res.data, res);
-            console.log(data, res);
-            toast.error(res.message);
-          }
-        }
-      }
-
-      if (step === 3) {
         const payload = businessProfilePayload(data);
         const response = await createBusinessProfile(payload);
         if (response) {
@@ -472,7 +456,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 4) {
+      if (step === 3) {
         const payload = vendorIdentityPayload(data);
         const response = await createVendorIdentity(payload);
         if (response) {
@@ -487,7 +471,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 5) {
+      if (step === 4) {
         const payload = shippingPolicyPayload(data);
         const response = await createShippingPolicy(payload);
         if (response) {
@@ -502,7 +486,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 6) {
+      if (step === 5) {
         const payload = paymentPreferencePayload(data);
         const response = await createPaymentPreference(payload);
         if (response) {
@@ -517,7 +501,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 7) {
+      if (step === 6) {
         const payload = billingPayload(data);
         const response = await createBilling(payload);
         if (response) {
@@ -532,7 +516,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
         }
       }
 
-      if (step === 8) {
+      if (step === 7) {
         const payload = productListingPayload(data);
         const response = await createProductListing(payload);
         if (response) {
