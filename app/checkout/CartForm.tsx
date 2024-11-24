@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,6 +24,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { createPayment } from "@/actions/checkout";
+import { useCart } from "@/context/CartContext";
+import { baseUrl } from "@/config/constant";
+import { addToCart, fetchCart } from "@/actions/cart";
 
 // Define form validation schema using zod
 const formSchema = z.object({
@@ -67,12 +71,10 @@ interface CountrySelectProps {
   error?: string;
   className?: string;
 }
-// CountrySelect component for handling country selection
 const CountrySelect: React.FC<CountrySelectProps> = ({
   value,
   onChange,
   error,
-  // className,
 }) => {
   const options = useMemo(() => countryList().getData(), []);
   const [search, setSearch] = useState("");
@@ -126,6 +128,28 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
 export default function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [promoCode, setPromoCode] = useState("");
+  const [cartData, setCartData] = useState({});
+  const { cart } = useCart();
+
+  const handleFetchCart = async () => {
+    const response = await fetchCart();
+    if (response && response.ok) {
+      const data = await response.json();
+      setCartData(data.data);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    const response = await addToCart(localStorage.getItem("cart") || cart);
+    console.log("processed", response);
+    if (response) {
+      console.log("processed", response);
+    }
+  };
+  useEffect(() => {
+    handleAddToCart();
+    handleFetchCart();
+  }, []);
 
   const handleApplyCoupon = async () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -144,14 +168,26 @@ export default function CheckoutForm() {
 
   // Define the onSubmit function with FormData as the type
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    setIsSubmitting(true);
-    // Simulate an API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    console.log("Order placed!", data);
-    toast.success("Order Placed", {
-      description: "Your order has been successfully placed.",
-    });
+    try {
+      setIsSubmitting(true);
+
+      const response = await createPayment();
+      if (response && response.ok) {
+        const data = await response?.json();
+        console.log("payment intent.........", data);
+        setIsSubmitting(false);
+        console.log("Order placed!", data);
+        toast.success("Order Placed", {
+          description: "Your order has been successfully placed.",
+        });
+      } else {
+        setIsSubmitting(false);
+        console.log("payment error.........", response);
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.log("server error, payment error.........", error);
+    }
   };
 
   return (
@@ -354,6 +390,7 @@ export default function CheckoutForm() {
             isSubmitting={isSubmitting}
             handleApplyCoupon={handleApplyCoupon}
             handleSubmit={handleSubmit(onSubmit)}
+            cartData={cartData}
           />
         </div>
       </div>

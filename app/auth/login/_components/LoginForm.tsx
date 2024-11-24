@@ -110,6 +110,7 @@ export default function LoginForm() {
           localStorage.setItem("username", `${res.data.user.firstname}`);
           toast.success("Login successful! Redirecting...");
           router.push("/");
+          return
         }
         if (!verified_status || parseInt(verified_status) !== 1) {
           toast.info("Account not verified. Redirecting to verification...");

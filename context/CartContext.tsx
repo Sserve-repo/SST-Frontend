@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  addToCart,
-  clearCart,
-  fetchCart,
-  removeFromCart,
-  updateQuantity,
-} from "@/actions/cart";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type CartItem = {
@@ -43,12 +36,55 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    fetchCart(setCart);
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart && JSON.parse(savedCart).length > 0) {
+      setCart(JSON.parse(savedCart));
+      console.log("carts........", cart);
+    }
   }, []);
+
+  // useEffect(() => {
+  //   localStorage.setItem("cart", JSON.stringify(cart));
+  // }, [cart]);
+
+  const addToCart = (item: CartItem) => {
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
+      if (existingItem) {
+        return prevCart.map((cartItem) =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+            : cartItem
+        );
+      }
+      localStorage.setItem("cart", JSON.stringify([...prevCart, item]));
+      return [...prevCart, item];
+    });
+  };
+
+  const removeFromCart = (id: number) => {
+    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+  };
+
+  const updateQuantity = (id: number, quantity: number) => {
+    console.log("Updated cart before...........", cart);
+
+    const updatedCart = cart.map((item) =>
+      item.id === id ? { ...item, quantity: Math.max(0, quantity) } : item
+    );
+
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    console.log("Updated cart after...........", updatedCart);
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
 
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cart.reduce(
-    (total, item) => total + parseFloat(item.price) * item.quantity,
+    (total, item) => total + parseInt(item.price) * item.quantity,
     0
   );
 
@@ -56,10 +92,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     <CartContext.Provider
       value={{
         cart,
-        addToCart: (item) => addToCart(item, setCart),
-        removeFromCart: (id) => removeFromCart(id, setCart),
-        updateQuantity: (id, quantity) => updateQuantity(id, quantity, setCart),
-        clearCart: () => clearCart(setCart),
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
         totalItems,
         totalPrice,
       }}

@@ -1,6 +1,6 @@
 import { baseUrl } from "../config/constant";
 
-export const fetchCart = async (setCart: (cart: any) => void) => {
+export const fetchCart = async () => {
   try {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -12,46 +12,47 @@ export const fetchCart = async (setCart: (cart: any) => void) => {
       },
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      setCart(data.cart_items || []);
-    } else {
-      console.error("Failed to fetch cart");
-      const savedCart = localStorage.getItem("cart");
-      if (savedCart) {
-        setCart(JSON.parse(savedCart));
-      }
-    }
+    return response;
   } catch (error) {
     console.error("Error fetching cart:", error);
   }
 };
 
-export const addToCart = async (item: any, setCart: (cart: any) => void) => {
+export const addToCart = async (cart) => {
+  const token = localStorage.getItem("accessToken");
+
   try {
-    const token = localStorage.getItem("accessToken");
-    // if (!token) return;
+    const responses = await Promise.all(
+      JSON.parse(cart).map(async (item) => {
+        const form = new FormData();
+        const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            product_id: item.id,
+            quantity: item.quantity,
+          }),
+        });
 
-    const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        product_id: item.id,
-        quantity: item.quantity,
-      }),
-    });
+        // Handle individual response errors
+        if (!response.ok) {
+          console.error(
+            `Failed to add item ${item.id} to cart`,
+            await response.text()
+          );
+        }
 
-    if (response.ok) {
-      const data = await response.json();
-      setCart(data.cart_items || []);
-    } else {
-      console.error("Failed to add to cart");
-    }
+        return response.json();
+      })
+    );
+
+    console.log("All items processed:", responses);
+    return responses;
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    console.error("Failed to add items to cart:", error);
   }
 };
 

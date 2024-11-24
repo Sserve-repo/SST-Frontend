@@ -62,7 +62,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     addToCart({
       id: id,
       name: productName,
-      price: discountedPrice?.toString() || price.toString(),
+      price: price.toString(),
       quantity,
       image: images[0],
     });
@@ -94,7 +94,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
               </span>
             </div>
             <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-bold">${discountedPrice}</span>
+              <span className="text-3xl font-bold">${price}</span>
               <span className="text-lg text-gray-500 line-through">
                 ${price}
               </span>
@@ -268,8 +268,10 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
             </span>
           </div>
           <div className="flex items-baseline space-x-2">
-            <span className="text-3xl font-bold">${discountedPrice}</span>
-            <span className="text-lg text-gray-500 line-through">${price}</span>
+            <span className="text-3xl font-bold">${price}</span>
+            <span className="text-lg text-gray-500 line-through">
+              ${discountedPrice}
+            </span>
             <span className="text-sm font-semibold text-green-600">
               {discount}% OFF
             </span>

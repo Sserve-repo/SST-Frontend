@@ -53,6 +53,7 @@ const CartPage = () => {
             isSubmitting={isSubmitting}
             handleApplyCoupon={handleApplyCoupon}
             handleSubmit={handleSubmit}
+            cartData={""}
           />
         </div>
       </div>

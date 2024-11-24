@@ -11,6 +11,7 @@ const OrderSummary = ({
   isSubmitting,
   handleApplyCoupon,
   handleSubmit,
+  cartData,
 }) => {
   const { cart, totalPrice } = useCart();
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
@@ -38,20 +39,37 @@ const OrderSummary = ({
       {/* Total Items and Price */}
       <div className="flex justify-between mb-2">
         <span>Sub Total:</span>
-        <span>${totalPrice.toFixed(2)}</span>
+        <span>
+          $
+          {cartData
+            ? parseInt(cartData["Cart Total"]).toFixed(2)
+            : totalPrice.toFixed(2)}
+        </span>
       </div>
 
       {/* Shipping */}
       <div className="flex justify-between mb-2">
         <span>Shipping:</span>
-        <span>Free</span>
+        <span>{cartData ? cartData["Shipping Cost"] : "Free"} </span>
+      </div>
+
+      {/* Tax */}
+      <div className="flex justify-between mb-2">
+        <span>Tax:</span>
+        <span>${cartData && parseInt(cartData["Tax Rate"]).toFixed(2)} </span>
       </div>
 
       {/* Grand Total */}
       <div className="border-t pt-4 mt-4">
         <div className="flex justify-between font-semibold">
           <span>Total:</span>
-          <span>${totalPrice.toFixed(2)}</span>
+          {/* <span>${totalPrice.toFixed(2)}</span> */}
+          <span>
+            $
+            {cartData
+              ? parseInt(cartData["Total Amount"])
+              : totalPrice.toFixed(2)}
+          </span>
         </div>
       </div>
 
