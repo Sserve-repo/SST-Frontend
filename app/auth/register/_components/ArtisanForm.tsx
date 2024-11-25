@@ -158,8 +158,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [serviceCategoryItems, setServiceCategoryItems] = useState<
     ProductCategory[]
   >([]);
-  const [categoryName, setCategoryName] = useState("");
-  const [subCategoryName, setSubcategoryName] = useState("");
   const [provinces, setProvinces] = useState([]);
   const [userVerified, setUserVerified] = useState(false);
   const [completedUserRegistration, setCompletedUserRegistration] =
@@ -975,11 +973,9 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             onValueChange={(selectedValue) => {
                               field.onChange(selectedValue);
                               handlefetchProductCatItems(selectedValue);
-                              const selectedCat = serviceCategories.find(
+                              serviceCategories.find(
                                 (cat) => cat.id === selectedValue
                               );
-                              if (selectedCat)
-                                setCategoryName(selectedCat?.name);
                             }}
                           >
                             <FormControl>
@@ -1021,11 +1017,9 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             defaultValue={field.value}
                             onValueChange={(selectedValue) => {
                               field.onChange(selectedValue);
-                              const selectedCat = serviceCategoryItems.find(
+                              serviceCategoryItems.find(
                                 (cat) => cat.id.toString() === selectedValue
                               );
-                              if (selectedCat)
-                                setSubcategoryName(selectedCat.name);
                             }}
                           >
                             <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
