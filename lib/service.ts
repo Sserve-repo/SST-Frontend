@@ -7,6 +7,8 @@ export interface ServiceProvider {
     pricePerHour: number;
     duration: number;
     location: string;
+    description: string;
+    imageUrl: string;
     rating: number;
 }
 
