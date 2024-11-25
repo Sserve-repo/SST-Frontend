@@ -26,7 +26,6 @@ import {
 import { cn } from "@/lib/utils";
 import { createPayment } from "@/actions/checkout";
 import { useCart } from "@/context/CartContext";
-import { baseUrl } from "@/config/constant";
 import { addToCart, fetchCart } from "@/actions/cart";
 
 // Define form validation schema using zod
@@ -168,6 +167,7 @@ export default function CheckoutForm() {
 
   // Define the onSubmit function with FormData as the type
   const onSubmit: SubmitHandler<FormData> = async (data) => {
+    console.log("payment intent.........", data);
     try {
       setIsSubmitting(true);
 

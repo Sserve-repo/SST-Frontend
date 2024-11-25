@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
@@ -127,7 +127,6 @@ type VendorFormProps = {
 export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [step, setStep] = useState(1);
   const searchParam = useSearchParams();
-  const verified = searchParam.get("searchParam");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [document, setDocument] = useState<string | null>(null);
@@ -1786,13 +1785,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   type="submit"
                   className="w-full max-w-sm rounded-xl h-12"
                 >
-                  {step === 1
-                    ? "Register"
-                    : step === 3
-                    ? "Submit Documents & Continue"
-                    : step === 7
-                    ? "Submit"
-                    : "Save & Continue"}
+                  {loading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : step === 1 ? (
+                    "Register"
+                  ) : step === 3 ? (
+                    "Submit Documents & Continue"
+                  ) : step === 7 ? (
+                    "Submit"
+                  ) : (
+                    "Save & Continue"
+                  )}
                 </Button>
               </form>
             </Form>
