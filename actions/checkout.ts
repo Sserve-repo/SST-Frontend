@@ -32,8 +32,9 @@ export const createProductPayment = async () => {
 };
 
 // Initialize Stripe
+console.log("process.env.STRIPE_SECRET_KEY", process.env.STRIPE_SECRET_KEY!)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2023-10-16", // Use the latest API version
+    apiVersion: "2024-11-20.acacia",
 });
 
 // Function to create a payment intent via Stripe
