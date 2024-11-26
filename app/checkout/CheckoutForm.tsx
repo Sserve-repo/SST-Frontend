@@ -5,7 +5,6 @@ import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import countryList from "react-select-country-list";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -24,9 +23,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { createPayment } from "@/actions/checkout";
 import { useCart } from "@/context/CartContext";
 import { addToCart, fetchCart } from "@/actions/cart";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { StripePaymentForm } from "@/components/StripePaymentForm";
+import { createStripePaymentIntent } from "@/actions/checkout";
+
+// Load Stripe
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 // Define form validation schema using zod
 const formSchema = z.object({
@@ -51,15 +58,6 @@ const formSchema = z.object({
     },
     { required_error: "Please select a country" }
   ),
-  cardNumber: z
-    .string()
-    .regex(/^[0-9]{16}$/, { message: "Card number must be 16 digits" }),
-  expirationDate: z.string().regex(/^(0[1-9]|1[0-2])\/[0-9]{2}$/, {
-    message: "Expiration date must be in MM/YY format",
-  }),
-  cvv: z
-    .string()
-    .regex(/^[0-9]{3,4}$/, { message: "CVV must be 3 or 4 digits" }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -70,6 +68,7 @@ interface CountrySelectProps {
   error?: string;
   className?: string;
 }
+
 const CountrySelect: React.FC<CountrySelectProps> = ({
   value,
   onChange,
@@ -78,7 +77,6 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   const options = useMemo(() => countryList().getData(), []);
   const [search, setSearch] = useState("");
 
-  // Filter options based on the search input
   const filteredOptions = options.filter((option) =>
     option.label.toLowerCase().includes(search.toLowerCase())
   );
@@ -91,7 +89,6 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
 
   return (
     <div className="space-y-2">
-      {/* <Label>Select Country</Label> */}
       <Select onValueChange={handleChange} value={value?.value || ""}>
         <SelectTrigger
           className={cn("w-full py-6 bg-[#F7F0FA]", error && "border-red-500")}
@@ -123,12 +120,12 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
   );
 };
 
-// Main CheckoutForm component
 export default function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [cartData, setCartData] = useState({});
   const { cart } = useCart();
+  const [clientSecret, setClientSecret] = useState("");
 
   const handleFetchCart = async () => {
     const response = await fetchCart();
@@ -145,9 +142,19 @@ export default function CheckoutForm() {
       console.log("processed", response);
     }
   };
+
   useEffect(() => {
     handleAddToCart();
     handleFetchCart();
+    createStripePaymentIntent()
+      .then((response) => {
+        if (response && response.ok) {
+          return response.json();
+        }
+      })
+      .then((data) => {
+        setClientSecret(data.clientSecret);
+      });
   }, []);
 
   const handleApplyCoupon = async () => {
@@ -155,7 +162,7 @@ export default function CheckoutForm() {
     setIsSubmitting(false);
     toast.success("Coupon applied successfully");
   };
-  // Using formSchema as the type for useForm ensures compatibility
+
   const {
     register,
     handleSubmit,
@@ -165,29 +172,15 @@ export default function CheckoutForm() {
     resolver: zodResolver(formSchema),
   });
 
-  // Define the onSubmit function with FormData as the type
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log("payment intent.........", data);
-    try {
-      setIsSubmitting(true);
+    console.log("Order data:", data);
+    toast.success("Order Placed", {
+      description: "Your order has been successfully placed.",
+    });
+  };
 
-      const response = await createPayment();
-      if (response && response.ok) {
-        const data = await response?.json();
-        console.log("payment intent.........", data);
-        setIsSubmitting(false);
-        console.log("Order placed!", data);
-        toast.success("Order Placed", {
-          description: "Your order has been successfully placed.",
-        });
-      } else {
-        setIsSubmitting(false);
-        console.log("payment error.........", response);
-      }
-    } catch (error) {
-      setIsSubmitting(false);
-      console.log("server error, payment error.........", error);
-    }
+  const handlePaymentSuccess = () => {
+    handleSubmit(onSubmit)();
   };
 
   return (
@@ -195,18 +188,14 @@ export default function CheckoutForm() {
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 pr-0 lg:pr-4 mx-6">
-          <form
-            id="checkout-form"
-            onSubmit={handleSubmit(onSubmit)} // Use handleSubmit directly with onSubmit
-            className="space-y-6 w-full mx-auto"
-          >
+          <form id="checkout-form" className="space-y-6 w-full mx-auto">
             <Accordion
               type="multiple"
               defaultValue={["contact", "shipping", "payment"]}
               className="w-full"
             >
               <AccordionItem value="contact">
-                <AccordionTrigger className=" font-bold text-black">
+                <AccordionTrigger className="font-bold text-black">
                   1. Contact
                 </AccordionTrigger>
                 <AccordionContent>
@@ -326,61 +315,14 @@ export default function CheckoutForm() {
               <AccordionItem value="payment">
                 <AccordionTrigger>3. Payment Information</AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4 mx-4">
-                    <div>
-                      <Label htmlFor="cardNumber">Card Number</Label>
-                      <Input
-                        id="cardNumber"
-                        {...register("cardNumber")}
-                        className="w-full bg-[#F7F0FA] py-6"
-                      />
-                      {errors.cardNumber && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.cardNumber.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="expirationDate">Expiration Date</Label>
-                        <Input
-                          id="expirationDate"
-                          placeholder="MM/YY"
-                          {...register("expirationDate")}
-                          className="w-full bg-[#F7F0FA] py-6"
-                        />
-                        {errors.expirationDate && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.expirationDate.message}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="cvv">CVV</Label>
-                        <Input
-                          id="cvv"
-                          {...register("cvv")}
-                          className="w-full bg-[#F7F0FA] py-6"
-                        />
-                        {errors.cvv && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.cvv.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  {clientSecret && (
+                    <Elements stripe={stripePromise} options={{ clientSecret }}>
+                      <StripePaymentForm onSuccess={handlePaymentSuccess} />
+                    </Elements>
+                  )}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-6"
-            >
-              {isSubmitting ? "Placing Order..." : "Place Order"}
-            </Button>
           </form>
         </div>
         <div>
