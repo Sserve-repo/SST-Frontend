@@ -19,34 +19,35 @@ export const fetchCart = async () => {
 };
 
 export const addToCart = async (cart) => {
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken")?.replaceAll('"', "");
+  const carts = JSON.parse(cart);
 
   try {
     const responses = await Promise.all(
-      JSON.parse(cart).map(async (item) => {
-        const form = new FormData();
-        const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            product_id: item.id,
-            quantity: item.quantity,
-          }),
-        });
+      carts.length > 0 &&
+        carts.map(async (item) => {
+          const form = new FormData();
+          form.append("product_id", item.id);
+          form.append("quantity", item.quantity);
 
-        // Handle individual response errors
-        if (!response.ok) {
-          console.error(
-            `Failed to add item ${item.id} to cart`,
-            await response.text()
-          );
-        }
+          const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: form,
+          });
 
-        return response.json();
-      })
+          // Handle individual response errors
+          if (!response.ok) {
+            console.error(
+              `Failed to add item ${item.id} to cart`,
+              await response.text()
+            );
+          }
+
+          return response.json();
+        })
     );
 
     console.log("All items processed:", responses);
