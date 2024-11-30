@@ -1,131 +1,35 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import countryList from "react-select-country-list";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import { StripePaymentForm } from "@/components/StripePaymentForm";
 import OrderSummary from "./_components/OrderSummary";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { addToCart, fetchCart } from "@/actions/cart";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import { StripePaymentForm } from "@/components/StripePaymentForm";
-import { createStripePaymentIntent } from "@/actions/checkout";
+import { createPaymentIntent } from "@/actions/checkout";
+import { getProvinces } from "@/actions/provinces";
 
-// Load Stripe
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-// Define form validation schema using zod
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  phone: z
-    .string()
-    .min(10, { message: "Phone number must be at least 10 digits" }),
-  fullName: z
-    .string()
-    .min(2, { message: "Full name must be at least 2 characters" }),
-  address: z
-    .string()
-    .min(5, { message: "Address must be at least 5 characters" }),
-  city: z.string().min(2, { message: "City must be at least 2 characters" }),
-  postalCode: z
-    .string()
-    .min(5, { message: "Postal code must be at least 5 characters" }),
-  country: z.object(
-    {
-      value: z.string(),
-      label: z.string(),
-    },
-    { required_error: "Please select a country" }
-  ),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
-interface CountrySelectProps {
-  value: { value: string; label: string } | null;
-  onChange: (value: { value: string; label: string } | null) => void;
-  error?: string;
-  className?: string;
-}
-
-const CountrySelect: React.FC<CountrySelectProps> = ({
-  value,
-  onChange,
-  error,
-}) => {
-  const options = useMemo(() => countryList().getData(), []);
-  const [search, setSearch] = useState("");
-
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleChange = (selectedValue: string) => {
-    const selectedOption =
-      options.find((option) => option.value === selectedValue) || null;
-    onChange(selectedOption);
-  };
-
-  return (
-    <div className="space-y-2">
-      <Select onValueChange={handleChange} value={value?.value || ""}>
-        <SelectTrigger
-          className={cn("w-full py-6 bg-[#F7F0FA]", error && "border-red-500")}
-        >
-          <SelectValue placeholder="Select a country" />
-        </SelectTrigger>
-        <SelectContent className="space-y-2">
-          <div className="px-2">
-            <Input
-              placeholder="Search country..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="mb-2"
-            />
-          </div>
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))
-          ) : (
-            <p className="px-2 py-1 text-sm text-gray-500">No results found</p>
-          )}
-        </SelectContent>
-      </Select>
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-    </div>
-  );
-};
-
 export default function CheckoutForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
   const [cartData, setCartData] = useState({});
   const { cart } = useCart();
   const [clientSecret, setClientSecret] = useState("");
+  const [checkoutData, setCheckoutData] = useState({});
+  const [provinces, setProvinces] = useState([]);
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    provinceId: "",
+  });
 
   const handleFetchCart = async () => {
     const response = await fetchCart();
@@ -135,52 +39,46 @@ export default function CheckoutForm() {
     }
   };
 
+  const handleGetProvinces = async () => {
+    const response = await getProvinces();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProvinces(data.data["Provinces"]);
+    }
+  };
+
   const handleAddToCart = async () => {
     const response = await addToCart(localStorage.getItem("cart") || cart);
-    console.log("processed", response);
-    if (response) {
-      console.log("processed", response);
+    if (response) console.log("Cart updated", response);
+  };
+
+  const createStripePaymentIntent = async () => {
+    const response = await createPaymentIntent();
+    const data = await response.json();
+    if (response.ok) {
+      setClientSecret(data.data["clientSecret"]);
+      setCheckoutData(data.data);
     }
   };
 
   useEffect(() => {
+    handleGetProvinces();
     handleAddToCart();
     handleFetchCart();
-    createStripePaymentIntent()
-      .then((response) => {
-        if (response && response.ok) {
-          return response.json();
-        }
-      })
-      .then((data) => {
-        setClientSecret(data.clientSecret);
-      });
+    createStripePaymentIntent();
   }, []);
 
-  const handleApplyCoupon = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    toast.success("Coupon applied successfully");
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log("Form data submitted:", formData);
+    localStorage.setItem("formData", JSON.stringify(formData));
   };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-  });
-
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log("Order data:", data);
-    toast.success("Order Placed", {
-      description: "Your order has been successfully placed.",
-    });
-  };
-
-  const handlePaymentSuccess = () => {
-    handleSubmit(onSubmit)();
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    console.log({ ...formData });
+    console.log("Form data submitted:", formData);
   };
 
   return (
@@ -188,152 +86,149 @@ export default function CheckoutForm() {
       <h1 className="text-3xl font-bold mb-6">Checkout</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 pr-0 lg:pr-4 mx-6">
-          <form id="checkout-form" className="space-y-6 w-full mx-auto">
-            <Accordion
-              type="multiple"
-              defaultValue={["contact", "shipping", "payment"]}
-              className="w-full"
-            >
-              <AccordionItem value="contact">
-                <AccordionTrigger className="font-bold text-black">
-                  1. Contact
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4 mx-4">
-                    <div>
-                      <Label className="" htmlFor="email">
-                        Email
-                      </Label>
-                      <Input
-                        id="email"
-                        placeholder="name@example.com"
-                        {...register("email")}
-                        className="w-full bg-[#F7F0FA] py-6 "
-                      />
-                      {errors.email && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.email.message}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label className="" htmlFor="phone">
-                        Phone
-                      </Label>
-                      <Input
-                        id="phone"
-                        placeholder="+1 (415) 123-4567"
-                        {...register("phone")}
-                        className="w-full bg-[#F7F0FA] py-6"
-                      />
-                      {errors.phone && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.phone.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="shipping">
-                <AccordionTrigger>2. Shipping Information</AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-4 mx-4">
-                    <div>
-                      <Label htmlFor="fullName">Full Name</Label>
-                      <Input
-                        id="fullName"
-                        {...register("fullName")}
-                        className="w-full bg-[#F7F0FA] py-6"
-                      />
-                      {errors.fullName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.fullName.message}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label htmlFor="address">Address</Label>
-                      <Input
-                        id="address"
-                        {...register("address")}
-                        className="w-full bg-[#F7F0FA] py-6"
-                      />
-                      {errors.address && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.address.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="city">City</Label>
-                        <Input
-                          id="city"
-                          {...register("city")}
-                          className="w-full bg-[#F7F0FA] py-6"
-                        />
-                        {errors.city && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.city.message}
-                          </p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="postalCode">Postal Code</Label>
-                        <Input
-                          id="postalCode"
-                          {...register("postalCode")}
-                          className="w-full bg-[#F7F0FA] py-6"
-                        />
-                        {errors.postalCode && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.postalCode.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="country">Country</Label>
-                      <Controller
-                        name="country"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                          <CountrySelect
-                            value={field.value}
-                            onChange={field.onChange}
-                            error={fieldState.error?.message}
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="payment">
-                <AccordionTrigger>3. Payment Information</AccordionTrigger>
-                <AccordionContent>
-                  {clientSecret && (
-                    <Elements stripe={stripePromise} options={{ clientSecret }}>
-                      <StripePaymentForm onSuccess={handlePaymentSuccess} />
-                    </Elements>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </form>
+        <div className="lg:col-span-1 lg:hidden">
+          <OrderSummary cartData={cartData} />
         </div>
-        <div>
-          <OrderSummary
-            promoCode={promoCode}
-            setPromoCode={setPromoCode}
-            isSubmitting={isSubmitting}
-            handleApplyCoupon={handleApplyCoupon}
-            handleSubmit={handleSubmit(onSubmit)}
-            cartData={cartData}
-          />
+          <form
+            id="checkout-form"
+            onSubmit={handleFormSubmit}
+            className="space-y-6"
+          >
+            {/* Contact Information */}
+            <div className="border rounded-lg p-4">
+              <h2 className="font-bold text-lg mb-4">1. Contact Information</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Full Name*
+                  </label>
+                  <input
+                    type="text"
+                    name="fullname"
+                    value={formData.fullname}
+                    onChange={handleInputChange}
+                    placeholder="John Pearson"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email*
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="name@example.com"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+1 (555) 123-4567"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Shipping Information */}
+            <div className="border rounded-lg p-4">
+              <h2 className="font-bold text-lg mb-4">
+                2. Shipping Information
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Address*
+                  </label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="1234 Main St"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      City*
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      placeholder="City"
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Postal Code*
+                    </label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      placeholder="12345"
+                      className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Province
+                  </label>
+                  <select
+                    name="provinceId"
+                    value={formData.provinceId}
+                    onChange={handleInputChange}
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                  >
+                    <option value="">Select a province</option>
+                    {provinces.map((province: any) => (
+                      <option key={province.id} value={province.id}>
+                        {province.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+
+          {/* Payment Information */}
+          <div className="lg:col-span-1">
+            <h2 className="font-bold text-lg mb-4">3. Payment Information</h2>
+            {clientSecret ? (
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <StripePaymentForm
+                  onSuccess={handleFormSubmit}
+                  checkoutData={checkoutData}
+                  {...formData}
+                />
+              </Elements>
+            ) : (
+              <p>Loading payment form...</p>
+            )}
+          </div>
+        </div>
+
+        {/* Order Summary */}
+        <div className="lg:col-span-1 hidden lg:block">
+          <OrderSummary cartData={cartData} />
         </div>
       </div>
     </div>

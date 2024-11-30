@@ -1,43 +1,87 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   PaymentElement,
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
+import { confirmPaymentPayload } from "@/forms/checkout";
+import { confirmPayment } from "@/actions/checkout";
+import { useRouter } from "next/navigation";
 
-export function StripePaymentForm({ onSuccess }: { onSuccess: () => void }) {
+type StripePaymentFormProps = {
+  onSuccess: (e: React.FormEvent) => void;
+  checkoutData: any;
+  fullname: string;
+  postalCode: string;
+  email: string;
+  address: string;
+  city: string;
+  provinceId: string;
+};
+export function StripePaymentForm({
+  onSuccess,
+  checkoutData,
+  fullname,
+  address,
+  city,
+  provinceId,
+  postalCode,
+  email,
+}: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const [shippingInfo, setShipppingInfo] = useState({});
+  const router = useRouter();
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  useEffect(() => {
+    const data_ = localStorage.getItem("formData") || "";
+    setShipppingInfo(JSON.parse(data_));
+    console.log("----------------------------***..........", shippingInfo);
+  }, []);
 
-    if (!stripe || !elements) {
-      return;
-    }
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      setIsLoading(true);
 
-    setIsLoading(true);
+      // setIsLoading(true);
+      const data_ = {
+        // fullname,
+        // address,
+        // postalCode,
+        // provinceId,
+        // city,
+        // email,
+        ...checkoutData,
+        ...shippingInfo,
+        orderId: checkoutData.orderId,
+      };
+      console.log("shippingoptin***..........", shippingInfo);
+      console.log("data***..........", data_);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/payment-confirmation`,
-      },
-    });
+      if (!stripe || !elements) {
+        return;
+      }
+      const payload = confirmPaymentPayload(data_);
+      const response = await confirmPayment(payload);
+      const data = await response.json();
 
-    if (error) {
-      setErrorMessage(error.message);
-    } else {
-      onSuccess();
-    }
-
-    setIsLoading(false);
-  };
+      if (response.ok) {
+        onSuccess(event);
+        setIsLoading(false);
+        router.push("/");
+      } else {
+        setErrorMessage(`error occurec......,${data.data}`);
+        setIsLoading(false);
+      }
+    },
+    [stripe, elements]
+  );
 
   return (
     <form onSubmit={handleSubmit}>

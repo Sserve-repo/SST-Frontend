@@ -9,24 +9,7 @@ import CartItem from "./CartItem";
 import { toast } from "sonner";
 
 const CartPage = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { cart } = useCart();
-  const [promoCode, setPromoCode] = useState("");
-
-  const handleApplyCoupon = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    toast.success("Coupon applied successfully");
-  };
-
-  const handleSubmit = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsSubmitting(false);
-    console.log("Order placed!", cart);
-    toast.success("Order Placed", {
-      description: "Your order has been successfully placed.",
-    });
-  };
 
   if (cart.length === 0) {
     return (
@@ -47,14 +30,7 @@ const CartPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <CartItem />
         <div>
-          <OrderSummary
-            promoCode={promoCode}
-            setPromoCode={setPromoCode}
-            isSubmitting={isSubmitting}
-            handleApplyCoupon={handleApplyCoupon}
-            handleSubmit={handleSubmit}
-            cartData={""}
-          />
+          <OrderSummary cartData={""} />
         </div>
       </div>
     </div>

@@ -1,18 +1,11 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
-const OrderSummary = ({
-  promoCode,
-  setPromoCode,
-  isSubmitting,
-  handleApplyCoupon,
-  handleSubmit,
-  cartData,
-}) => {
+const OrderSummary = ({ cartData }) => {
   const { cart, totalPrice } = useCart();
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
 
@@ -75,13 +68,7 @@ const OrderSummary = ({
 
       {/* Dynamic Button */}
       {isCheckoutPage ? (
-        <Button
-          onClick={handleSubmit}
-          className="w-full mt-6"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Placing Order..." : "Place Order"}
-        </Button>
+        <></>
       ) : (
         <Link href="/checkout">
           <Button className="w-full mt-6">Proceed to Checkout</Button>
@@ -90,23 +77,20 @@ const OrderSummary = ({
 
       {/* Promo Code Section */}
       <div className="mt-6">
-        <div className="mt-8 flex items-center justify-center">
-          <hr className="w-full border-t border-gray-300" />
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
           {/* Promo Code Input */}
-          <div className="sm:col-span-2">
+          {/* <div className="sm:col-span-2">
             <Label htmlFor="promo-code">Promo Code</Label>
             <Input
               placeholder="Enter code"
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
             />
-          </div>
+          </div> */}
 
           {/* Apply Button */}
-          <div className="sm:col-span-1">
+          {/* <div className="sm:col-span-1">
+
             <Label htmlFor="apply-button" className="sr-only">
               Apply
             </Label>
@@ -118,7 +102,7 @@ const OrderSummary = ({
             >
               {isSubmitting ? "Processing..." : "Apply"}
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
