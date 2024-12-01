@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
-const OrderSummary = ({ cartData }) => {
-  const { cart, totalPrice } = useCart();
+const OrderSummary = () => {
+  const { cart, shippingCost, taxRate, totalPrice } = useCart();
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
 
   useEffect(() => {
@@ -19,50 +19,42 @@ const OrderSummary = ({ cartData }) => {
 
       {/* List of items in the cart */}
       <div className="mb-4 space-y-2">
-        {cart.map((item) => (
-          <div key={item.id} className="flex justify-between">
-            <span>
-              {item.name} (x{item.quantity} @ ${item.price})
-            </span>
-            <span>${(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
-          </div>
-        ))}
+        {cart &&
+          cart?.map((item) => (
+            <div key={item.id} className="flex justify-between">
+              <span>
+                {item.name} (x{item.quantity} @ ${item.unit_price})
+              </span>
+              <span>
+                ${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}
+              </span>
+            </div>
+          ))}
       </div>
 
       {/* Total Items and Price */}
       <div className="flex justify-between mb-2">
         <span>Sub Total:</span>
-        <span>
-          $
-          {cartData
-            ? parseInt(cartData["Cart Total"]).toFixed(2)
-            : totalPrice.toFixed(2)}
-        </span>
+        <span>${totalPrice?.toFixed(2)}</span>
       </div>
 
       {/* Shipping */}
       <div className="flex justify-between mb-2">
         <span>Shipping:</span>
-        <span>{cartData ? cartData["Shipping Cost"] : "Free"} </span>
+        <span>{shippingCost ? shippingCost : "Free"} </span>
       </div>
 
       {/* Tax */}
       <div className="flex justify-between mb-2">
         <span>Tax:</span>
-        <span>${cartData && parseInt(cartData["Tax Rate"]).toFixed(2)} </span>
+        <span>${taxRate && taxRate.toFixed(2)} </span>
       </div>
 
       {/* Grand Total */}
       <div className="border-t pt-4 mt-4">
         <div className="flex justify-between font-semibold">
           <span>Total:</span>
-          {/* <span>${totalPrice.toFixed(2)}</span> */}
-          <span>
-            $
-            {cartData
-              ? parseInt(cartData["Total Amount"])
-              : totalPrice.toFixed(2)}
-          </span>
+          <span>${totalPrice?.toFixed(2)}</span>
         </div>
       </div>
 

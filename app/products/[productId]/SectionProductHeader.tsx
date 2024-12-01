@@ -62,7 +62,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     addToCart({
       id: id,
       name: productName,
-      price: price.toString(),
+      unit_price: price.toString(),
       quantity,
       image: images[0],
     });

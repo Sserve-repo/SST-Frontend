@@ -1,23 +1,26 @@
 "use client";
 
+import { addOrUpdateCart, fetchCart, removeCartItem } from "@/actions/cart";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type CartItem = {
   id: number;
   name: string;
-  price: string;
+  unit_price: string;
   quantity: number;
   image: string;
 };
 
 type CartContextType = {
   cart: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  clearCart: () => void;
+  addToCart: (item: CartItem) => Promise<void>;
+  removeFromCart: (id: number) => Promise<void>;
+  updateQuantity: (id: number, quantity: number) => Promise<void>;
+  clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
+  shippingCost: number;
+  taxRate: number;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -30,76 +33,105 @@ export const useCart = () => {
   return context;
 };
 
-
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [taxRate, setTaxRate] = useState(0);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
+    const fetchInitialCart = async () => {
       try {
-        const parsedCart = JSON.parse(savedCart);
-        if (Array.isArray(parsedCart)) {
-          setCart(parsedCart);
+        const response = await fetchCart();
+        if (response && response.ok) {
+          const data = await response.json();
+          setCart(data.data["Cart Items"]);
+          setShippingCost(data.data["Shipping Cost"]);
+          setTaxRate(data.data["Tax Rate"]);
         } else {
-          console.error("Invalid cart data in localStorage, resetting to []");
-          setCart([]);
+          console.error("Failed to fetch cart from server");
         }
       } catch (error) {
-        console.error("Error parsing cart from localStorage:", error);
-        setCart([]);
+        console.error("Error fetching cart:", error);
       }
-    }
+    };
+
+    fetchInitialCart();
   }, []);
 
-  const addToCart = (item: CartItem) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((cartItem) => cartItem.id === item.id);
-      const updatedCart = existingItem
-        ? prevCart.map((cartItem) =>
-            cartItem.id === item.id
-              ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-              : cartItem
-          )
-        : [...prevCart, item];
-
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      return updatedCart;
-    });
+  // Add item to cart
+  const addToCart = async (item: CartItem) => {
+    try {
+      const response = await addOrUpdateCart({
+        product_id: item.id,
+        quantity: item.quantity,
+      });
+      if (response && response.ok) {
+        const updatedCart = await response.json();
+        // setCart(updatedCart.data.cart);
+      } else {
+        console.error("Failed to add item to cart");
+      }
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+    }
   };
 
-  const removeFromCart = (id: number) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // Remove item from cart
+  const removeFromCart = async (id: number) => {
+    try {
+      const response = await removeCartItem(id);
+      if (response && response.ok) {
+        const updatedCart = await response.json();
+        setCart(updatedCart.data.cart);
+      } else {
+        console.error("Failed to remove item from cart");
+      }
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+    }
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
-    const updatedCart = cart.map((item) =>
-      item.id === id ? { ...item, quantity: Math.max(0, quantity) } : item
-    );
-
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // Update item quantity
+  const updateQuantity = async (id: number, quantity: number) => {
+    console.log("&*************", id, quantity);
+    try {
+      const response = await addOrUpdateCart({
+        product_id: id,
+        quantity,
+      });
+      if (response && response.ok) {
+        const updatedCart = await response.json();
+        // setCart(updatedCart.data.cart);
+      } else {
+        console.error("Failed to update item quantity");
+      }
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+    }
   };
 
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem("cart");
+  // Clear cart
+  const clearCart = async () => {
+    try {
+      const response = await addOrUpdateCart([]);
+      if (response && response.ok) {
+        setCart([]);
+      } else {
+        console.error("Failed to clear cart");
+      }
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
   };
 
-  const totalItems = Array.isArray(cart)
-    ? cart.reduce((total, item) => total + item.quantity, 0)
-    : 0;
-
-  const totalPrice = Array.isArray(cart)
-    ? cart.reduce(
-        (total, item) => total + parseInt(item.price) * item.quantity,
-        0
-      )
-    : 0;
+  // Calculate total items and total price
+  const totalItems = cart?.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = cart?.reduce(
+    (total, item) => total + parseFloat(item.unit_price) * item.quantity,
+    0
+  );
 
   return (
     <CartContext.Provider
@@ -111,6 +143,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         clearCart,
         totalItems,
         totalPrice,
+        shippingCost,
+        taxRate,
       }}
     >
       {children}
