@@ -8,8 +8,7 @@ export const createPaymentIntent = async () => {
         form.append("paymentMethodId", "pm_card_mastercard");
         form.append("amount", "pm_card_mastercard");
 
-        const response = await fetch(
-            `${baseUrl}/general/checkout/createProductPayment`,
+        const response = await fetch(`${baseUrl}/general/checkout/createProductPayment`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage
@@ -20,7 +19,6 @@ export const createPaymentIntent = async () => {
                 body: form,
             }
         );
-
         return response;
     } catch (error) {
         console.error("Failed to make product payment:", error);

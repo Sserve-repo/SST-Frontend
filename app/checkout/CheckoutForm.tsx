@@ -5,7 +5,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { StripePaymentForm } from "@/components/StripePaymentForm";
 import OrderSummary from "./_components/OrderSummary";
-import { useCart } from "@/context/CartContext";
 import { createPaymentIntent } from "@/actions/checkout";
 import { getProvinces } from "@/actions/provinces";
 import { useRouter } from "next/navigation";
@@ -23,7 +22,6 @@ export default function CheckoutForm() {
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
-  const { cart } = useCart();
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -75,7 +73,7 @@ export default function CheckoutForm() {
 
   useEffect(() => {
     console.log("cart length", cartData);
-    if (!isLoadingCart && cartData.length === 0) {
+    if (!isLoadingCart && cartData && cartData.length === 0) {
       router.push("/");
     }
   }, [isLoadingCart, cartData]);
@@ -101,7 +99,7 @@ export default function CheckoutForm() {
     </div>
   ) : (
     <div className="container mx-auto py-32">
-      {cartData.length > 0 ? (
+      {cartData && cartData.length > 0 ? (
         <>
           <h1 className="text-3xl font-bold mb-6">Checkout</h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -241,7 +239,7 @@ export default function CheckoutForm() {
                     <StripePaymentForm
                       onSuccess={handleFormSubmit}
                       checkoutData={checkoutData}
-                      {...formData}
+                      // {...formData}
                     />
                   </Elements>
                 ) : (

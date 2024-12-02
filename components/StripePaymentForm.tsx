@@ -10,38 +10,34 @@ import { Button } from "@/components/ui/button";
 import { confirmPaymentPayload } from "@/forms/checkout";
 import { confirmPayment } from "@/actions/checkout";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 type StripePaymentFormProps = {
   onSuccess: (e: React.FormEvent) => void;
   checkoutData: any;
-  fullname: string;
-  postalCode: string;
-  email: string;
-  address: string;
-  city: string;
-  provinceId: string;
+  // fullname: string;
+  // postalCode: string;
+  // email: string;
+  // address: string;
+  // city: string;
+  // provinceId: string;
 };
 export function StripePaymentForm({
   onSuccess,
   checkoutData,
-  fullname,
-  address,
-  city,
-  provinceId,
-  postalCode,
-  email,
 }: StripePaymentFormProps) {
+  const { clearCart } = useCart();
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [shippingInfo, setShipppingInfo] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
     const data_ = localStorage.getItem("formData") || "";
     setShipppingInfo(JSON.parse(data_));
-    console.log("----------------------------***..........", shippingInfo);
   }, []);
 
   const handleSubmit = useCallback(
@@ -49,20 +45,11 @@ export function StripePaymentForm({
       event.preventDefault();
       setIsLoading(true);
 
-      // setIsLoading(true);
       const data_ = {
-        // fullname,
-        // address,
-        // postalCode,
-        // provinceId,
-        // city,
-        // email,
         ...checkoutData,
         ...shippingInfo,
         orderId: checkoutData.orderId,
       };
-      console.log("shippingoptin***..........", shippingInfo);
-      console.log("data***..........", data_);
 
       if (!stripe || !elements) {
         return;
@@ -74,9 +61,15 @@ export function StripePaymentForm({
       if (response.ok) {
         onSuccess(event);
         setIsLoading(false);
-        router.push("/");
+        setSuccessMessage("Payment Successfull...");
+        localStorage.removeItem("formData");
+
+        clearCart();
+        setTimeout(() => {
+          router.push("/");
+        }, 1200);
       } else {
-        setErrorMessage(`error occurec......,${data.data}`);
+        setErrorMessage(`An error occured......,${data.data}`);
         setIsLoading(false);
       }
     },
@@ -94,6 +87,11 @@ export function StripePaymentForm({
         {isLoading ? "Processing..." : "Pay now"}
       </Button>
       {errorMessage && <div className="text-red-500 mt-2">{errorMessage}</div>}
+      {successMessage && (
+        <div className="text-red-500 mt-2 inline-flex justify-center items-center">
+          {successMessage}
+        </div>
+      )}
     </form>
   );
 }

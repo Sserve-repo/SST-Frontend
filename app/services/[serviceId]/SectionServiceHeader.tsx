@@ -61,10 +61,11 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
   const handleAddToCart = () => {
     addToCart({
       id: id,
-      name: productName,
-      price: discountedPrice?.toString() || price,
+      title: productName,
+      unit_price: discountedPrice?.toString() || price,
       quantity,
       image: images[0],
+      product_id: 0
     });
     toast.success(`Added ${quantity} ${productName} to cart`);
   };

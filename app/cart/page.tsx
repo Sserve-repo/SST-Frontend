@@ -1,17 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import OrderSummary from "../checkout/_components/OrderSummary";
-import { toast } from "sonner";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { fetchCart } from "@/actions/cart";
 
 const CartPage = () => {
-  const { cart, removeFromCart, updateQuantity } = useCart();
+  const { cart, setCartExt, removeFromCart, updateQuantity } = useCart();
 
-  if ((cart && cart.toString() === "undefined") || cart?.length === 0) {
+  const handleFetchCart = async () => {
+    const response = await fetchCart();
+    if (response && response.ok) {
+      const data = await response.json();
+      setCartExt(data.data["Cart Items"]);
+    } else {
+      console.error("Failed to fetch cart from server");
+    }
+  };
+
+  useEffect(() => {
+    handleFetchCart();
+  }, []);
+
+  if (!cart) {
     return (
       <div className="container mx-auto flex justify-center items-center flex-col min-h-screen px-4 py-24 text-center">
         <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>
@@ -33,32 +47,41 @@ const CartPage = () => {
           {cart &&
             cart.length > 0 &&
             cart.map((item) => (
-              <div key={item.id} className="flex items-center border-b py-4">
-                <Link href={`/products/${item.id}`}>
+              <div
+                key={item.product_id}
+                className="flex items-center border-b py-4"
+              >
+                <Link href={`/products/${item?.product_id}`}>
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item?.image}
+                    alt={item?.title}
                     className="w-24 h-24 rounded object-cover mr-4"
                   />
                 </Link>
                 <div className="flex-grow text-black">
-                  <h2 className="font-semibold">{item.name  || "Some names"}</h2>
+                  <h2 className="font-semibold">{item?.title}</h2>
                   <p className="text-gray-600">
-                    ${parseInt(item.unit_price).toFixed(2)}
+                    ${parseInt(item?.unit_price).toFixed(2)}
                   </p>
                   <div className="flex items-center mt-2">
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item?.product_id, item?.quantity - 1)
+                      }
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="mx-2">{item.quantity}</span>
+                    <span className="mx-2">{item?.quantity}</span>
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => {
+                        if (item) {
+                          updateQuantity(item.product_id, item.quantity + 1);
+                        }
+                      }}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>
@@ -66,7 +89,11 @@ const CartPage = () => {
                       variant="ghost"
                       size="icon"
                       className="ml-4"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => {
+                        if (item && item.id) {
+                          removeFromCart(item?.id);
+                        }
+                      }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -74,7 +101,7 @@ const CartPage = () => {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">
-                    ${(parseInt(item.unit_price) * item.quantity).toFixed(2)}
+                    ${(parseInt(item?.unit_price) * item?.quantity).toFixed(2)}
                   </p>
                 </div>
               </div>

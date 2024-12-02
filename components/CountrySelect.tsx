@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 
 import countryList from "react-select-country-list";
 import { cn } from "@/lib/utils";

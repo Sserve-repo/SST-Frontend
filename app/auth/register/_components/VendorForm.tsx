@@ -54,7 +54,6 @@ import {
 import { OtpForm } from "./OtpForm";
 import { otpPayload } from "@/forms/artisans";
 import { getProvinces } from "@/actions/provinces";
-import { useSearchParams } from "next/navigation";
 
 type FormData = {
   // Step 1: Create Account
@@ -126,7 +125,6 @@ type VendorFormProps = {
 
 export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [step, setStep] = useState(1);
-  const searchParam = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [document, setDocument] = useState<string | null>(null);

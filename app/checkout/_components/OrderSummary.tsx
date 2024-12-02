@@ -10,6 +10,7 @@ const OrderSummary = () => {
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
 
   useEffect(() => {
+    console.log(`${JSON.stringify(cart)}`);
     setIsCheckoutPage(window.location.pathname === "/checkout");
   }, []);
 
@@ -23,7 +24,7 @@ const OrderSummary = () => {
           cart?.map((item) => (
             <div key={item.id} className="flex justify-between">
               <span>
-                {item.name} (x{item.quantity} @ ${item.unit_price})
+                {item.title} (x{item.quantity} @ ${item.unit_price})
               </span>
               <span>
                 ${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}

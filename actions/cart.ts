@@ -46,9 +46,9 @@ export const removeCartItem = async (
     if (!token) return;
 
     const response = await fetch(
-      `${baseUrl}/general/cart/removeFromCart/${cartId}`,
+      `${baseUrl}/general/cart/destroyCart/${cartId}`,
       {
-        method: "DELETE",
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },

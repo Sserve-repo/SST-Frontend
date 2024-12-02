@@ -4,11 +4,12 @@ import { addOrUpdateCart, fetchCart, removeCartItem } from "@/actions/cart";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type CartItem = {
-  id: number;
-  name: string;
+  id?: number;
   unit_price: string;
   quantity: number;
+  title: string;
   image: string;
+  product_id: number;
 };
 
 type CartContextType = {
@@ -17,6 +18,7 @@ type CartContextType = {
   removeFromCart: (id: number) => Promise<void>;
   updateQuantity: (id: number, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
+  setCartExt: (item: CartItem[]) => Promise<void>;
   totalItems: number;
   totalPrice: number;
   shippingCost: number;
@@ -61,15 +63,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   // Add item to cart
-  const addToCart = async (item: CartItem) => {
+  const addToCart = async (item: any) => {
     try {
       const response = await addOrUpdateCart({
-        product_id: item.id,
+        product_id: item.product_id,
         quantity: item.quantity,
       });
       if (response && response.ok) {
         const updatedCart = await response.json();
-        // setCart(updatedCart.data.cart);
+        // setCart((prev) => [...Array(prev), updatedCart.data.cart_item]);
+        setCart((prev) => [
+          ...Array(prev),
+          { ...updatedCart.data.cart_item, ...item },
+        ]);
       } else {
         console.error("Failed to add item to cart");
       }
@@ -83,8 +89,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       const response = await removeCartItem(id);
       if (response && response.ok) {
-        const updatedCart = await response.json();
-        setCart(updatedCart.data.cart);
+        await response.json();
+        setCart((prev) => prev.filter((item) => item.id !== id));
       } else {
         console.error("Failed to remove item from cart");
       }
@@ -95,7 +101,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Update item quantity
   const updateQuantity = async (id: number, quantity: number) => {
-    console.log("&*************", id, quantity);
     try {
       const response = await addOrUpdateCart({
         product_id: id,
@@ -103,7 +108,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       if (response && response.ok) {
         const updatedCart = await response.json();
-        // setCart(updatedCart.data.cart);
+        setCart((prevCart) => {
+          return prevCart.map((item) =>
+            item.product_id === updatedCart.data.cart_item.product_id
+              ? {
+                  ...item,
+                  quantity: parseInt(updatedCart.data.cart_item.quantity),
+                }
+              : item
+          );
+        });
       } else {
         console.error("Failed to update item quantity");
       }
@@ -114,22 +128,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Clear cart
   const clearCart = async () => {
-    try {
-      const response = await addOrUpdateCart([]);
-      if (response && response.ok) {
-        setCart([]);
-      } else {
-        console.error("Failed to clear cart");
-      }
-    } catch (error) {
-      console.error("Error clearing cart:", error);
-    }
+    setCart([]);
+  };
+  // Clear cart
+  const setCartExt = async (cart) => {
+    setCart(cart);
   };
 
   // Calculate total items and total price
-  const totalItems = cart?.reduce((total, item) => total + item.quantity, 0);
+  const totalItems = cart?.reduce(
+    (total, item) => total + parseInt(`${item?.quantity}`),
+    0
+  );
   const totalPrice = cart?.reduce(
-    (total, item) => total + parseFloat(item.unit_price) * item.quantity,
+    (total, item) => total + parseFloat(item?.unit_price) * item?.quantity,
     0
   );
 
@@ -141,6 +153,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         removeFromCart,
         updateQuantity,
         clearCart,
+        setCartExt,
         totalItems,
         totalPrice,
         shippingCost,
