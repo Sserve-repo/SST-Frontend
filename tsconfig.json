@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["react-day-picker"],
     "plugins": [
       {
         "name": "next"
