@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock10, Eye, EyeOff, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineDocumentArrowUp } from "react-icons/hi2";
@@ -95,6 +95,7 @@ type FormData = {
   document2: File | null;
   productSubcategory: string;
   servicePrice: string;
+  serviceDuration: string;
   serviceName: string;
   otp: string;
   serviceDescription: string;
@@ -203,6 +204,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       businessLocation: "",
       aboutService: "",
       servicePrice: "",
+      serviceDuration: "",
       serviceName: "",
       cancellationPolicy: "",
       shopAddress: "",
@@ -426,6 +428,10 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       }
       if (!data.servicePrice) {
         errors.servicePrice = "Service price is required";
+        isValid = false;
+      }
+      if (!data.serviceDuration) {
+        errors.serviceDuration = "Service Duration is required";
         isValid = false;
       }
 
@@ -1796,6 +1802,44 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             type="number"
                             placeholder="99.99"
                           />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="serviceDuration"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                          Service Duration *
+                        </FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => field.onChange(value)}
+                            value={field.value}
+                          >
+                            <SelectTrigger id="duration">
+                              <div className="flex items-center">
+                                <Clock10 className="mr-2 h-4 w-4" />
+                                <SelectValue placeholder="Select duration" />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[
+                                "30 minutes",
+                                "1 hour",
+                                "1.5 hours",
+                                "2 hours",
+                              ].map((duration) => (
+                                <SelectItem key={duration} value={duration}>
+                                  {duration}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
