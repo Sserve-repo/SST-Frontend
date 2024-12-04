@@ -31,13 +31,43 @@ export const getServicesMenu = async () => {
   }
 };
 
+// export const getServiceByCategory = async (catId: number) => {
+//   try {
+//     const response = await fetch(
+//       `${baseUrl}/general/services/geServiceByCategorySub?limit=20&page=1&service_category=${catId}`
+//     );
+//     return response;
+//   } catch (error: any) {
+//     console.log("failed to fetch service menu", error);
+//   }
+// };
+
+
 export const getServiceByCategory = async (catId: number) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/geServiceByCategorySub?limit=20&page=1&service_category=${catId}`
+      `${baseUrl}/general/services/getServicesByCategory/${catId}`
     );
     return response;
   } catch (error: any) {
-    console.log("failed to fetch service menu", error);
+    console.log("failed to fetch service category", error);
+  }
+};
+
+
+export const getServiceDetail = async (id) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/checkout/getAvailableDatesAndTimes/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage
+          .getItem("accessToken")
+          ?.replaceAll('"', "")}`,
+      }
+    }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch featured artisan", error);
   }
 };

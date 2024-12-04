@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
   Star,
@@ -26,6 +26,9 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 import { Calendar } from "@/components/ui/calendar";
+import { getServiceByCategory } from "@/actions/service";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 
 type ServiceType =
   | "plumbing"
@@ -43,14 +46,18 @@ interface ScheduleRequest {
 
 interface ServiceProvider {
   id: string;
-  name: string;
-  serviceType: ServiceType;
-  pricePerHour: number;
-  duration: number;
+  user_id: string;
+  title: string;
+  price: number;
+  start_time: string;
+  end_time: string;
   location: string;
   rating: number;
+  province: string;
   description: string;
-  imageUrl: string;
+  image: string;
+  service_category_items_name?: string;
+  service_category_name?: string;
 }
 
 const serviceTypes: ServiceType[] = [
@@ -74,70 +81,11 @@ const serviceLocations = [
   "San Jose",
 ];
 
-const mockServiceProviders: ServiceProvider[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    serviceType: "plumbing",
-    pricePerHour: 50,
-    duration: 2,
-    location: "New York",
-    rating: 4.5,
-    description:
-      "Experienced plumber specializing in residential and commercial plumbing services.",
-    imageUrl: "/image-url.jpg",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    serviceType: "electrical",
-    pricePerHour: 60,
-    duration: 3,
-    location: "Los Angeles",
-    rating: 4.8,
-    description:
-      "Licensed electrician with expertise in wiring, installations, and repairs.",
-    imageUrl: "/image-url.jpg",
-  },
-  {
-    id: "3",
-    name: "Bob Johnson",
-    serviceType: "carpentry",
-    pricePerHour: 55,
-    duration: 4,
-    location: "Chicago",
-    rating: 4.2,
-    description:
-      "Skilled carpenter offering custom woodworking and furniture repair services.",
-    imageUrl: "/image-url.jpg",
-  },
-  {
-    id: "4",
-    name: "Alice Brown",
-    serviceType: "painting",
-    pricePerHour: 45,
-    duration: 5,
-    location: "Houston",
-    rating: 4.7,
-    description:
-      "Professional painter specializing in interior and exterior painting for homes and businesses.",
-    imageUrl: "/image-url.jpg",
-  },
-  {
-    id: "5",
-    name: "Charlie Wilson",
-    serviceType: "general",
-    pricePerHour: 40,
-    duration: 2,
-    location: "Phoenix",
-    rating: 4.0,
-    description:
-      "Versatile handyman capable of handling various home repair and maintenance tasks.",
-    imageUrl: "/image-url.jpg",
-  },
-];
-
 export default function ServiceAvailability() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("categoryId");
+  const [services, setServices] = useState<ServiceProvider[]>([]);
   const [scheduleRequest, setScheduleRequest] = useState<ScheduleRequest>({
     date: undefined,
     time: "",
@@ -145,13 +93,13 @@ export default function ServiceAvailability() {
     location: null,
   });
 
-  const filteredProviders = mockServiceProviders.filter(
-    (provider) =>
-      (!scheduleRequest.serviceType ||
-        provider.serviceType === scheduleRequest.serviceType) &&
-      (!scheduleRequest.location ||
-        provider.location === scheduleRequest.location)
-  );
+  // const filteredProviders = mockServiceProviders.filter(
+  //   (provider) =>
+  //     (!scheduleRequest.serviceType ||
+  //       provider.serviceType === scheduleRequest.serviceType) &&
+  //     (!scheduleRequest.location ||
+  //       provider.location === scheduleRequest.location)
+  // );
 
   const handleScheduleChange = (field: keyof ScheduleRequest, value: any) => {
     setScheduleRequest((prev) => ({ ...prev, [field]: value }));
@@ -161,10 +109,32 @@ export default function ServiceAvailability() {
     console.log("Searching with:", scheduleRequest);
   };
 
+  const handleFetchService = async (catId: number) => {
+    const response = await getServiceByCategory(catId);
+    if (response && response.ok) {
+      const data = await response.json();
+      setServices(data.data["Services"]);
+    } else {
+      setServices([]);
+    }
+  };
+
+  useEffect(() => {
+    if (categoryId) {
+      handleFetchService(parseInt(categoryId));
+    }
+  }, [categoryId]);
+
+  const handleHireNow = async (serviceId) => {
+    router.push(`/booking/?serviceId=${serviceId}`);
+  };
+
   return (
     <div className="container flex justify-center items-center flex-col mx-auto p-4 max-w-7xl py-28 md:py-32">
       <div className="mb-8 text-center">
-        <h2 className="text-3xl font-semibold my-4 text-primary">Check Service Availability</h2>
+        <h2 className="text-3xl font-semibold my-4 text-primary">
+          Check Service Availability
+        </h2>
         <div className="flex flex-wrap gap-4">
           <Card className="w-[220px]">
             <CardContent className="p-2">
@@ -268,7 +238,7 @@ export default function ServiceAvailability() {
           <Card className="w-[220px]">
             <CardContent className="p-2 flex items-end">
               <Button className="w-full" onClick={handleSearch}>
-              Check Availability
+                Check Availability
               </Button>
             </CardContent>
           </Card>
@@ -276,60 +246,78 @@ export default function ServiceAvailability() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 w-full max-w-6xl">
-        {filteredProviders.map((provider) => (
+        {services.map((provider) => (
           <Card key={provider.id} className="overflow-hidden bg-gray-50">
             <div className="flex flex-col md:flex-row">
               <div className="p-6 flex-grow">
                 <div className="flex items-center space-x-4 mb-4">
                   <Image
-                    src={provider.imageUrl}
-                    alt={`${provider.name}'s profile picture`}
+                    src={provider.image}
+                    alt={`${provider.title}'s profile picture`}
                     width={100}
                     height={100}
                     className="rounded-md bg-gray-300"
                   />
                   <div>
-                    <h3 className="text-xl font-semibold">{provider.name}</h3>
-                    <p className="text-sm text-gray-500 capitalize">
-                      {provider.serviceType}
+                    <h3 className="text-[2rem] text-[#502266] font-semibold">
+                      {provider.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {provider.description}
                     </p>
-                    <div className="flex items-center mt-1">
-                      <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                      <span className="ml-1">{provider.rating.toFixed(1)}</span>
+                    <div className="flex ">
+                      <Badge variant="secondary" className="bg-[#FFDFC0]">
+                        {" "}
+                        {provider?.service_category_items_name}
+                      </Badge>
+                      <Badge variant="secondary" className="bg-[#FFDFC0]">
+                        {" "}
+                        {provider?.service_category_name}
+                      </Badge>
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">
-                  {provider.description}
-                </p>
-                <div className="flex items-center text-green-600">
-                  {/* <DollarSign className="w-5 h-5 mr-1" /> */}
-                  <span className="font-semibold text-lg">
-                    ${provider.pricePerHour}/hour
-                  </span>
+
+                <div className="flex flex-row gap-x-4 items-center justify-start ">
+                  <div className="flex items-center text-[#502266]">
+                    <span className="font-semibold text-lg">
+                      ${provider.price}
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                    <span className="ml-1">{provider?.rating?.toFixed(1)}</span>
+                  </div>
                 </div>
               </div>
+
               <div className="bg-gray-50 p-6 flex flex-col justify-between">
                 <div className="flex items-center mb-4">
                   <Clock className="w-5 h-5 mr-2 text-gray-600" />
                   <span className="text-sm text-gray-700">
-                    Duration: {provider.duration} hrs
+                    Duration: {`${provider.start_time} -- ${provider.end_time}`}{" "}
+                    hrs
                   </span>
                 </div>
                 <div className="flex items-center mb-4">
                   <MapPin className="w-5 h-5 mr-2 text-gray-600" />
                   <span className="text-sm text-gray-700">
-                    {provider.location}
+                    {provider.province}
                   </span>
                 </div>
-                <Button className="mt-auto">Book Now</Button>
+                <Button
+                  className="mt-auto text-white"
+                  onClick={() => handleHireNow(provider.id)}
+                >
+                  Book Now
+                </Button>
               </div>
             </div>
           </Card>
         ))}
       </div>
 
-      {filteredProviders.length === 0 && (
+      {services.length === 0 && (
         <div className="text-center mt-8 text-gray-600">
           <p>No service providers found matching your criteria.</p>
         </div>

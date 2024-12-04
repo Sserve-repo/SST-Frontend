@@ -173,3 +173,27 @@ export const creatOtp = async (requestPayload: any) => {
     console.log("Otp verification creation failed", error);
   }
 };
+
+
+export const getArtisanProfile = async (artisanId) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getArtisanBusinessProfile/${artisanId}`)
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch artisan profile", error);
+  }
+};
+
+
+
+export const getFeaturedArtisans = async () => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/featuredArtisans`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch featured artisan", error);
+  }
+};

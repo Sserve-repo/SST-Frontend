@@ -1,10 +1,10 @@
 import React, { Suspense } from "react";
-import ServiceAvailability from "./ServiceAvailability";
+import ServicePage from "./ServicePage";
 
 const Service = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ServiceAvailability />
+      <ServicePage />
     </Suspense>
   );
 };

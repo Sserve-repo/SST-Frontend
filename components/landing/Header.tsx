@@ -97,7 +97,7 @@ export default function Header() {
                             (item, index) => (
                               <Link
                                 key={index}
-                                href={`/service/?categoryId=${item.id}`}
+                                href={`/services/?categoryId=${item.id}&categoryName=${item.name}`}
                                 className="hover:underline mb-1"
                               >
                                 {item.name}

@@ -1,12 +1,53 @@
+"use client";
+
+import React, { Suspense, useEffect, useState } from "react";
+import { useSearchParams, useParams } from "next/navigation";
+import { getArtisanProfile } from "@/actions/artisans";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import Image from "next/image";
-import React, { Suspense } from "react";
+
+type ArtisanListing = {
+  id: string;
+  image: string;
+  price: number;
+  title: string;
+  description: string;
+};
+
+type Artisan = {
+  firstname: string;
+  lastname: string;
+  service_category: any;
+  service_category_item: any;
+  artisan_service_listing: ArtisanListing[];
+  artisan_business_details: any;
+  artisan_service_area: any;
+  artisan_business_policy: any;
+};
 
 const Service = () => {
+  const [artisan, setArtisan] = useState<Artisan | null>(null);
+  const { artisanId } = useParams();
+
+  const handleFetchArtisanProfile = async (id) => {
+    const response = await getArtisanProfile(id);
+    if (response && response.ok) {
+      const data = await response.json();
+      setArtisan(data.data["Artisan Business profile"]);
+    }
+  };
+
+  useEffect(() => {
+    if (artisanId) {
+      handleFetchArtisanProfile(artisanId);
+    }
+  }, [artisanId]);
+  // console.log("artisan...........", artisan);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <main className="py-32 w-full mx-auto max-w-7xl p-4">
@@ -14,7 +55,7 @@ const Service = () => {
           {/* Main Image */}
           <div className="relative aspect-video rounded-lg bg-gray-100">
             <Image
-              src="/placeholder.svg"
+              src="/assets/images/tailor.png?height=300&width=400"
               alt="Service preview"
               fill
               className="rounded-lg object-cover"
@@ -27,14 +68,16 @@ const Service = () => {
               <div className="flex items-start justify-between">
                 <div className="flex gap-4">
                   <Image
-                    src="/placeholder.svg"
+                    src="/assets/images/tailor.png?height=300&width=400"
                     alt="Profile"
                     width={60}
                     height={60}
                     className="rounded-md bg-gray-100"
                   />
                   <div>
-                    <h1 className="text-xl font-semibold">John Doe</h1>
+                    <h1 className="text-xl font-semibold">
+                      {`${artisan?.firstname} ${artisan?.lastname}`}
+                    </h1>
                     <p className="text-sm text-muted-foreground">
                       Add to Favorite Artisan
                     </p>
@@ -47,12 +90,18 @@ const Service = () => {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <Badge variant="outline">Professional Plumber</Badge>
-                <Badge variant="outline">Home Hydraulics</Badge>
-                <Badge variant="outline">Handy-man</Badge>
+                <Badge variant="outline">
+                  {artisan?.artisan_business_details?.service_category?.name}
+                </Badge>
+                <Badge variant="outline">
+                  {
+                    artisan?.artisan_business_details?.service_category_item
+                      ?.name
+                  }
+                </Badge>
               </div>
 
-              <Button className="mt-4 w-full">Message John Doe</Button>
+              <Button className="mt-4 w-full">Message </Button>
               <p className="mt-2 text-center text-xs text-muted-foreground">
                 We answer quickly, within a few hours
               </p>
@@ -61,7 +110,7 @@ const Service = () => {
             <div className="rounded-lg border p-6">
               <h2 className="text-lg font-semibold">About this service</h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Plumbing Expert with over 10 years of experience.
+                {artisan?.artisan_business_details?.business_details}.
               </p>
               <div className="mt-4">
                 <div className="flex items-center gap-2">
@@ -72,11 +121,12 @@ const Service = () => {
                   </span>
                 </div>
                 <p className="mt-2 text-sm">
-                  <span className="font-medium">Shop Address:</span> 123 Rue
-                  Sainte-Catherine Ouest
+                  <span className="font-medium">Shop Address:</span>{" "}
+                  {artisan?.artisan_business_details?.city}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">City/Town:</span> Montreal QC
+                  <span className="font-medium">City/Town:</span>{" "}
+                  {artisan?.artisan_business_details?.city}
                 </p>
               </div>
             </div>
@@ -87,30 +137,25 @@ const Service = () => {
         <section className="mb-8">
           <h2 className="mb-4 text-2xl font-bold">My Services</h2>
           <div className="grid gap-6 md:grid-cols-3">
-            <ServiceCard
-              title="Full Apartment Plumbing"
-              price={65}
-              rating={4.9}
-              reviews={12}
-              isNew
-              imageUrl="/placeholder.svg"
-            />
-            <ServiceCard
-              title="Full Apartment Plumbing"
-              price={65}
-              rating={4.9}
-              reviews={8}
-              isNew
-              imageUrl="/placeholder.svg"
-            />
-            <ServiceCard
-              title="Full Apartment Plumbing"
-              price={65}
-              rating={4.9}
-              reviews={15}
-              isNew
-              imageUrl="/placeholder.svg"
-            />
+            <>
+              {artisan &&
+                artisan.artisan_service_listing.map((listing, index) => {
+                  return (
+                    <ServiceCard
+                      key={index}
+                      id={listing.id}
+                      userId={artisan.artisan_business_details.user_id}
+                      title={listing.title}
+                      price={listing.price}
+                      description={listing.description}
+                      rating={4.9}
+                      reviews={12}
+                      isNew
+                      imageUrl={listing?.image}
+                    />
+                  );
+                })}
+            </>
           </div>
           <Button variant="outline" className="mt-4">
             View all (3)
