@@ -28,8 +28,10 @@ export function StripeServicePaymentForm({
   const router = useRouter();
 
   useEffect(() => {
-    const data_ = localStorage.getItem("formData") || "";
-    setShipppingInfo(JSON.parse(data_));
+    const data_ = localStorage.getItem("formData");
+    if (data_) {
+      setShipppingInfo(JSON.parse(data_));
+    }
   }, []);
 
   const handleSubmit = useCallback(
