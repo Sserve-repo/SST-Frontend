@@ -80,7 +80,7 @@ const ServicePage = () => {
           <div className="flex items-center space-x-4">
             <span className="text-sm">Sort By:</span>
             <Select
-              onValueChange={(value) => setSortOption(value)}
+              // onValueChange={(value) => setSortOption(value)}
               defaultValue="Most Relevant"
             >
               <SelectTrigger className="w-48">
