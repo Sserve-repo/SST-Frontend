@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useEffect, useState } from "react";
-import { useSearchParams, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getArtisanProfile } from "@/actions/artisans";
 import { ReviewCard } from "@/components/ReviewCard";
 import { ServiceCard } from "@/components/ServiceCard";

@@ -1,4 +1,25 @@
 import { baseUrl } from "../config/constant";
+import Cookies from "js-cookie";
+
+
+export const isAuthenticated = async () => {
+  const token = Cookies.get("accessToken")
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/user/getUserDetails/`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+    );
+    const data = await response.json();
+    if (response.ok && response.status === 200) {
+      return data;
+    }
+  } catch (error: any) {
+    console.log("Form validation failed", error);
+  }
+};
 
 export const getUserDetails = async (email: any) => {
   try {
@@ -35,7 +56,14 @@ export const loginUser = async (requestPayload: any) => {
       method: "POST",
       body: requestPayload,
     });
-    return response;
+    const data = await response.json()
+    if (response.ok) {
+      // createSession(JSON.stringify(data.data))
+      return data;
+    }
+    if (response.status === 404) {
+      console.error(data.message || "Invalid email or password.");
+    }
   } catch (error: any) {
     console.log("Login failed", error);
   }

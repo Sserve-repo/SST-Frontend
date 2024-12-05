@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { FilterIcon, Plus } from "lucide-react";
+import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ type ServicesItem = {
 
 const ServicePage = () => {
   const [services, setServices] = useState<ServicesItem[]>([]);
-  const [sortOption, setSortOption] = useState("Most Relevant");
+  // const [sortOption, setSortOption] = useState("Most Rvant");
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -55,19 +55,19 @@ const ServicePage = () => {
   };
 
   // Derived sorting (avoiding infinite loop)
-  const sortedServices = React.useMemo(() => {
-    if (!services || services.length === 0) return [];
+  // const sortedServices = React.useMemo(() => {
+  //   if (!services || services.length === 0) return [];
 
-    const sorted = [...services];
-    if (sortOption === "Price: low to high") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (sortOption === "Price: high to low") {
-      sorted.sort((a, b) => b.price - a.price);
-    } else if (sortOption === "Newest") {
-      sorted.sort((a, b) => b.id - a.id);
-    }
-    return sorted;
-  }, [services, sortOption]);
+  //   const sorted = [...services];
+  //   if (sortOption === "Price: low to high") {
+  //     sorted.sort((a, b) => a.price - b.price);
+  //   } else if (sortOption === "Price: high to low") {
+  //     sorted.sort((a, b) => b.price - a.price);
+  //   } else if (sortOption === "Newest") {
+  //     sorted.sort((a, b) => b.id - a.id);
+  //   }
+  //   return sorted;
+  // }, [services, sortOption]);
 
   return (
     <section className="bg-white py-12 md:py-24">

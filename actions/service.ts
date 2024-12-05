@@ -1,4 +1,5 @@
 import { baseUrl } from "../config/constant";
+import Cookies from "js-cookie";
 
 export const getRegions = async () => {
   try {
@@ -44,6 +45,7 @@ export const getServicesMenu = async () => {
 
 
 export const getServiceByCategory = async (catId: number) => {
+  
   try {
     const response = await fetch(
       `${baseUrl}/general/services/getServicesByCategory/${catId}`
@@ -56,13 +58,12 @@ export const getServiceByCategory = async (catId: number) => {
 
 
 export const getServiceDetail = async (id) => {
+  const token = Cookies.get("accessToken");
   try {
     const response = await fetch(
       `${baseUrl}/general/checkout/getAvailableDatesAndTimes/${id}`, {
       headers: {
-        Authorization: `Bearer ${localStorage
-          .getItem("accessToken")
-          ?.replaceAll('"', "")}`,
+        Authorization: `Bearer ${token}`,
       }
     }
     );

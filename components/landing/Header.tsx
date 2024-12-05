@@ -19,6 +19,7 @@ import CartIcon from "../CartIcon";
 import { useRouter } from "next/navigation";
 import { getProductMenu } from "@/actions/product";
 import { getServicesMenu } from "@/actions/service";
+import Cookies from "js-cookie";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -33,7 +34,7 @@ export default function Header() {
 
   const handleAuth = () => {
     if (isAuth) {
-      localStorage.removeItem("accessToken");
+      Cookies.remove("accessToken");
       setIsAuth(false);
     } else {
       router.push("/auth/login");
@@ -57,7 +58,7 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = Cookies.get("accessToken");
     if (token) {
       setIsAuth(true);
     }

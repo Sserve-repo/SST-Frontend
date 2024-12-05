@@ -7,20 +7,18 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
-import { confirmPaymentPayload } from "@/forms/checkout";
-import { confirmPayment } from "@/actions/checkout";
+import { confirmServicePaymentPayload } from "@/forms/checkout";
+import { confirmServicePayment } from "@/actions/checkout";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/context/CartContext";
 
-type StripePaymentFormProps = {
+type StripeServicePaymentFormProps = {
   onSuccess: (e: React.FormEvent) => void;
   checkoutData: any;
 };
-export function StripePaymentForm({
+export function StripeServicePaymentForm({
   onSuccess,
   checkoutData,
-}: StripePaymentFormProps) {
-  const { clearCart } = useCart();
+}: StripeServicePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
@@ -48,8 +46,8 @@ export function StripePaymentForm({
       if (!stripe || !elements) {
         return;
       }
-      const payload = confirmPaymentPayload(data_);
-      const response = await confirmPayment(payload);
+      const payload = confirmServicePaymentPayload(data_);
+      const response = await confirmServicePayment(payload);
       const data = await response.json();
 
       if (response.ok) {
@@ -58,7 +56,6 @@ export function StripePaymentForm({
         setSuccessMessage("Payment Successfull...");
         localStorage.removeItem("formData");
 
-        clearCart();
         setTimeout(() => {
           router.push("/");
         }, 1200);

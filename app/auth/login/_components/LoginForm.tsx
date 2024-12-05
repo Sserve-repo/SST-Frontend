@@ -11,6 +11,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Cookies from "js-cookie";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -82,20 +83,18 @@ export default function LoginForm() {
       requestPayload.append("password", data.password);
 
       const response = await loginUser(requestPayload);
-
-      if (!response) {
-        throw new Error("Failed to connect to the server.");
-      }
-
-      const res = await response.json();
-
-      if (response.status === 404) {
-        toast.error(res.message || "Invalid email or password.");
-      } else if (response.ok) {
-        localStorage.setItem("email", JSON.stringify(res.data.user.email));
-        localStorage.setItem("username", `${res.data.user.firstname}`);
-        localStorage.setItem("accessToken", JSON.stringify(res.token));
+      if (response) {
         const userRes = await getUserDetails(data.email);
+        localStorage.setItem("email", JSON.stringify(response.data.user.email));
+        localStorage.setItem("username", `${response.data.user.firstname}`);
+
+        // Set the cookie to expire in 10 hours
+        Cookies.set("accessToken", response.token, {
+          path: "/",
+          secure: true,
+          sameSite: "Strict",
+          expires: 10 / 24,
+        });
 
         const {
           registration_status,
@@ -106,11 +105,14 @@ export default function LoginForm() {
         const type = getUserType(user_type);
 
         if (parseInt(is_completed) == 1) {
-          localStorage.setItem("email", JSON.stringify(res.data.user.email));
-          localStorage.setItem("username", `${res.data.user.firstname}`);
+          localStorage.setItem(
+            "email",
+            JSON.stringify(response.data.user.email)
+          );
+          localStorage.setItem("username", `${response.data.user.firstname}`);
           toast.success("Login successful! Redirecting...");
           router.push("/");
-          return
+          return;
         }
         if (!verified_status || parseInt(verified_status) !== 1) {
           toast.info("Account not verified. Redirecting to verification...");
@@ -122,12 +124,12 @@ export default function LoginForm() {
           router.push(`/auth/register?role=${type}&&step=${step}`);
         }
       } else {
-        if (res?.status_code === 422) {
-          const { errors } = res.data;
+        if (response?.status_code === 422) {
+          const { errors } = response.data;
           formatErrors(errors, form);
           toast.error("Please fix the form errors and try again.");
         } else {
-          toast.error(res.message || "An unexpected error occurred.");
+          toast.error(response.message || "An unexpected error occurred.");
         }
       }
     } catch (error: any) {

@@ -20,7 +20,6 @@ interface ServiceCardProps {
 
 export function ServiceCard({
   id,
-  userId,
   title,
   price,
   rating,
