@@ -31,7 +31,9 @@ export function StripePaymentForm({
 
   useEffect(() => {
     const data_ = localStorage.getItem("formData") || "";
-    setShipppingInfo(JSON.parse(data_));
+    if(data_){
+      setShipppingInfo(JSON.parse(data_));
+    }
   }, []);
 
   const handleSubmit = useCallback(
