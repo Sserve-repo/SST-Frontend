@@ -9,8 +9,6 @@ import { useAuth } from "@/context/AuthContext";
 export default function Hero() {
   const { currentUser } = useAuth();
 
-  console.log("currentuser.......", currentUser);
-
   const products = [
     "Cuisines",
     "Fashion and textiles",

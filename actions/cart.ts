@@ -1,8 +1,8 @@
 import { baseUrl } from "../config/constant";
-
+import Cookies from "js-cookie"
 export const fetchCart = async () => {
   try {
-    const token = localStorage.getItem("accessToken");
+    const token = Cookies.get("accessToken");
     if (!token) return;
 
     const response = await fetch(`${baseUrl}/general/cart/fetchCart`, {
@@ -20,7 +20,7 @@ export const fetchCart = async () => {
 
 
 export const addOrUpdateCart = async (cart) => {
-  const token = localStorage.getItem("accessToken")?.replaceAll('"', "");
+  const token = Cookies.get("accessToken")?.replaceAll('"', "");
   try {
     const form = new FormData();
     form.append("product_id", cart.product_id);
@@ -42,7 +42,7 @@ export const removeCartItem = async (
   cartId
 ) => {
   try {
-    const token = localStorage.getItem("accessToken");
+    const token = Cookies.get("accessToken");
     if (!token) return;
 
     const response = await fetch(
@@ -64,7 +64,7 @@ export const removeCartItem = async (
 
 export const clearCart = async (setCart: (cart: any) => void) => {
   try {
-    const token = localStorage.getItem("accessToken");
+    const token = Cookies.get("accessToken");
     if (!token) return;
 
     const response = await fetch(`${baseUrl}/general/cart/clearCart`, {
