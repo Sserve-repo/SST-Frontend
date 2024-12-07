@@ -58,7 +58,6 @@ export const loginUser = async (requestPayload: any) => {
     });
     const data = await response.json()
     if (response.ok) {
-      // createSession(JSON.stringify(data.data))
       return data;
     }
     if (response.status === 404) {

@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import Marquee from "react-fast-marquee";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Hero() {
-  const [username, setUsername] = useState("");
+  const { currentUser } = useAuth();
+
+  console.log("currentuser.......", currentUser);
+
   const products = [
     "Cuisines",
     "Fashion and textiles",
@@ -25,11 +29,6 @@ export default function Hero() {
     "Home Services/Improvement",
   ];
 
-  useEffect(() => {
-    const username = localStorage.getItem("username") || "";
-    setUsername(username);
-  }, []);
-
   return (
     <div className="relative h-full w-full overflow-hidden z-10">
       {/* Background Image */}
@@ -47,10 +46,11 @@ export default function Hero() {
           {/* Text Content */}
           <div className="text-white max-w-5xl">
             <p className="text-xl md:text-2xl mb-4">
-              Welcome, {username ? username : ""}
+              Welcome, {currentUser ? currentUser.firstname : ""}
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-              Find trusted Vendors & <br className="hidden md:block" /> Artisans for your needs.
+              Find trusted Vendors & <br className="hidden md:block" /> Artisans
+              for your needs.
             </h1>
             <p className="text-xl md:text-2xl text-[#FFDFC0] mb-8">
               Get quality products & services—all in one place.

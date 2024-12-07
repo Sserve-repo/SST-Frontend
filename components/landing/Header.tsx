@@ -20,22 +20,23 @@ import { useRouter } from "next/navigation";
 import { getProductMenu } from "@/actions/product";
 import { getServicesMenu } from "@/actions/service";
 import Cookies from "js-cookie";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
   const [productsMenu, setProductsMenu] = useState<any[]>([]);
   const [servicesMenu, setServicesMenu] = useState<any[]>([]);
   const router = useRouter();
+  const { setAuth, isAuthenticated } = useAuth();
 
   const handleOpenRole = () => {
     setModalOpen(!isModalOpen);
   };
 
   const handleAuth = () => {
-    if (isAuth) {
+    if (isAuthenticated) {
       Cookies.remove("accessToken");
-      setIsAuth(false);
+      setAuth(false, "");
     } else {
       router.push("/auth/login");
     }
@@ -58,10 +59,10 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const token = Cookies.get("accessToken");
-    if (token) {
-      setIsAuth(true);
-    }
+    // const token = Cookies.get("accessToken");
+    // if (token) {
+    //   setIsAuth(true);
+    // }
 
     handleFetchProductMenu();
     handleFetchServicesMenu();
@@ -163,7 +164,7 @@ export default function Header() {
               // variant="outline"
               // asChild
             >
-              {isAuth ? "Logout" : "Login"}
+              {isAuthenticated ? "Logout" : "Login"}
             </Button>
             <Button onClick={handleOpenRole}>Join SphereServe</Button>
           </div>
@@ -198,7 +199,7 @@ export default function Header() {
                   className="border-[#FFB46A]"
                   asChild
                 >
-                  {isAuth ? "Logout" : "Login"}
+                  {isAuthenticated ? "Logout" : "Login"}
                 </Button>
                 <Button onClick={handleOpenRole}>Join SphereServer</Button>
               </div>

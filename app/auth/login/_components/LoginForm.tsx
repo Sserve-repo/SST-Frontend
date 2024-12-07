@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { useRouter } from "next/navigation";
 import { getUserDetails, loginUser, resendOtp } from "@/actions/auth";
+import { useAuth } from "@/context/AuthContext";
 
 type FormData = {
   email: string;
@@ -27,6 +28,7 @@ type FormData = {
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { setAuth } = useAuth();
 
   const router = useRouter();
 
@@ -86,7 +88,6 @@ export default function LoginForm() {
       if (response) {
         const userRes = await getUserDetails(data.email);
         localStorage.setItem("email", JSON.stringify(response.data.user.email));
-        localStorage.setItem("username", `${response.data.user.firstname}`);
 
         // Set the cookie to expire in 10 hours
         Cookies.set("accessToken", response.token, {
@@ -95,6 +96,8 @@ export default function LoginForm() {
           sameSite: "Strict",
           expires: 10 / 24,
         });
+        console.log("*******1", response.data.user);
+        setAuth(true, response.data.user || null);
 
         const {
           registration_status,
@@ -109,7 +112,6 @@ export default function LoginForm() {
             "email",
             JSON.stringify(response.data.user.email)
           );
-          localStorage.setItem("username", `${response.data.user.firstname}`);
           toast.success("Login successful! Redirecting...");
           router.push("/");
           return;
