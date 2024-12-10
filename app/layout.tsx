@@ -3,7 +3,6 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import ClientLayout from "@/components/extras/ClientLayout";
 
 const APP_NAME = "SphereServes";
 const APP_DEFAULT_TITLE = "SphereServes";
@@ -62,9 +61,9 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning={true}>
         <NextTopLoader color="hsl(281, 50%, 27%)" />
-        <Toaster position="top-right" richColors  closeButton  />
+        <Toaster position="top-right" richColors closeButton />
         <ThemeProvider attribute="class" enableSystem={false}>
-          <ClientLayout>{children}</ClientLayout>
+          {children}
         </ThemeProvider>
       </body>
     </html>
