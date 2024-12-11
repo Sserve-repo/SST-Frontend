@@ -9,10 +9,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import BookingOrderSummary from "@/app/booking/BookingOrderSummary";
 import { getServiceDetail } from "@/actions/service";
 import Cookies from "js-cookie";
 import { StripeServicePaymentForm } from "./StripeServicePaymentForm";
+import BookingOrderSummary from "@/app/(site)/booking/BookingOrderSummary";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
