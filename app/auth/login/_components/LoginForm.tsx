@@ -96,8 +96,9 @@ export default function LoginForm() {
           sameSite: "Strict",
           expires: 10 / 24,
         });
-        console.log("*******1", response.data.user);
+        console.log("before calling setauth", response.data.user);
         setAuth(true, response.data.user || null);
+        console.log("after calling setauth", response.data.user);
 
         const {
           registration_status,

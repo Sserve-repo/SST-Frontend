@@ -104,6 +104,7 @@ export const serviceListingPayload = (data: any) => {
   requestPayload.append("title", data.serviceName);
   requestPayload.append("price", data.servicePrice);
   requestPayload.append("description", data.serviceDescription);
+  requestPayload.append("service_duration", data.serviceDuration);
   requestPayload.append("image", data.serviceImage);
   return requestPayload;
 };

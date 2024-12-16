@@ -1,5 +1,4 @@
-import React from "react";
-import Splash from "./_components/splash";
+"use client";
 
 export default function AuthLayout({
   children,
@@ -8,10 +7,16 @@ export default function AuthLayout({
 }>) {
   return (
     <>
-      <main className="grid grid-cols-1 lg:grid-cols-12 w-full h-screen">
+      {/* <main className="grid grid-cols-1 lg:grid-cols-12 w-full h-screen">
         <div className="hidden lg:col-span-5 lg:block h-full overflow-hidden">
-          <Splash />
         </div>
+        <div className="col-span-12 lg:col-span-7 overflow-auto">
+          {children}
+        </div>
+      </main>
+       */}
+
+      <main className="grid w-full h-screen">
         <div className="col-span-12 lg:col-span-7 overflow-auto">
           {children}
         </div>

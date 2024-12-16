@@ -137,7 +137,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     ProductCategory[]
   >([]);
   const [success, setSuccess] = useState(false);
-  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [provinces, setProvinces] = useState([]);
   const [userVerified, setUserVerified] = useState(false);
@@ -429,7 +428,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
           const res = await response?.json();
           if (response && response.ok && response.status === 200) {
             toast.success(res.message);
-            setEmail(res.data.email);
             setUserVerified(true);
             handleNextStep();
           } else {
@@ -521,8 +519,6 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
           if (response.ok && response.status === 201) {
             toast.success(res.message);
-            const email = data.email || localStorage.getItem("email") || "";
-            setEmail(email.replaceAll('"', ""));
             toast.success(res.message);
             setSuccess(true);
           } else {
@@ -618,11 +614,11 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   (!userVerified && !completedUserRegistration ? (
                     <>
                       <div>
-                        <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
+                        <div className="flex justify-start flex-col max-w-md mb-[30px] w-full">
                           <h2 className="text-[40px] font-semibold text-[#502266] w-full">
                             Create Account
                           </h2>
-                          <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[290px]">
+                          <p className="w-full text-lg font-normal text-[#b9b9b9] mb-[10px] ">
                             For the purpose of industry regulation, your details
                             are required.
                           </p>
@@ -774,25 +770,37 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                         name="agreeToTerms"
                         render={({ field }) => (
                           <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <div className="flex items-center self-start gap-[14px] mt-4">
-                              <FormLabel>
-                                <p className="font-normal text-base text-[#9E4FC4]">
-                                  I agree to the &nbsp;
-                                  <span className="text-[#240F2E] hover:underline">
-                                    <a href="#">Terms of Use</a>
-                                  </span>
-                                  &nbsp; and &nbsp;
-                                  <span className="text-[#240F2E] hover:underline">
-                                    <a href="#">Privacy Policy</a>
-                                  </span>
-                                </p>
-                              </FormLabel>
+                            <div className="flex flex-col">
+                              <div className="flex items-center self-start gap-[14px] mt-4">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel>
+                                  <p className="font-normal text-base text-[#9E4FC4]">
+                                    I agree to the &nbsp;
+                                    <span className="text-[#240F2E] hover:underline">
+                                      <a href="#">Terms of Use</a>
+                                    </span>
+                                    &nbsp; and &nbsp;
+                                    <span className="text-[#240F2E] hover:underline">
+                                      <a href="#">Privacy Policy</a>
+                                    </span>
+                                  </p>
+                                </FormLabel>
+                              </div>
+
+                              <div className="flex items-center w-full text-gray-400 mt-6">
+                                Already have an account?{" "}
+                                <a
+                                  href="/auth/login"
+                                  className="font-semibold text-primary ml-1 hover:underline"
+                                >
+                                  Login
+                                </a>
+                              </div>
                             </div>
                             <FormMessage />
                           </FormItem>
@@ -1140,11 +1148,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               {/* Display preview and file name */}
                               {document ? (
                                 <div className="mt-4 flex flex-col items-center">
-                                  <img
-                                    src={document}
-                                    alt="Uploaded Preview"
-                                    className="w-fit h-24 object-cover rounded-lg"
-                                  />
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
                                   <p className="mt-2 text-sm text-gray-600">
                                     {value?.name}
                                   </p>
@@ -1168,7 +1172,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                               {/* Hidden Input for File */}
                               <Input
                                 type="file"
-                                accept="pdf/*"
+                                accept="application/pdf"
                                 className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0] || null;
@@ -1800,7 +1804,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
           </>
         ) : (
           <div>
-            <Success email={email} />
+            <Success />
           </div>
         )}
       </div>

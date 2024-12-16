@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Eye, EyeOff, Loader } from "lucide-react";
-import { Success } from "./Success";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { OtpForm } from "./OtpForm";
@@ -22,6 +21,7 @@ import { otpPayload } from "@/forms/artisans";
 import { userRegistrationPayload } from "@/forms/vendors";
 import { registerUser } from "@/actions/auth";
 import { creatOtp } from "@/actions/buyer";
+import { useRouter } from "next/navigation";
 
 type FormData = {
   firstName: string;
@@ -42,9 +42,9 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleNextStep = () => {
     setStep((prevStep) => prevStep + 1);
@@ -148,7 +148,6 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
 
             if (response.ok && response.status === 200) {
               toast.success(res.message || "OTP verified successfully!");
-              setEmail(res.data.email);
               setSuccess(true);
             } else {
               toast.error(res.message || "Error verifying OTP.");
@@ -352,21 +351,32 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <div className="flex items-center self-start gap-[14px] mt-4">
-                          <FormLabel>
-                            <p className="font-normal text-base text-[#502266]">
-                              I agree to the &nbsp;
-                              <span className="text-[#240F2E] hover:underline">
-                                <a href="#">Terms and Conditions</a>
-                              </span>
-                              &nbsp; and &nbsp;
-                              <span className="text-[#240F2E] hover:underline">
-                                <a href="#">Privacy Policy</a>
-                              </span>
-                            </p>
-                          </FormLabel>
-                        </div>
+                        <div className="flex flex-col">
+                          <div className="flex items-center self-start gap-[14px] mt-4">
+                            <FormLabel>
+                              <p className="font-normal text-base text-[#502266]">
+                                I agree to the &nbsp;
+                                <span className="text-[#240F2E] hover:underline">
+                                  <a href="#">Terms and Conditions</a>
+                                </span>
+                                &nbsp; and &nbsp;
+                                <span className="text-[#240F2E] hover:underline">
+                                  <a href="#">Privacy Policy</a>
+                                </span>
+                              </p>
+                            </FormLabel>
+                          </div>
 
+                          <div className="flex items-center w-full text-gray-400 mt-6">
+                            Already have an account?{" "}
+                            <a
+                              href="/auth/login"
+                              className="font-semibold text-primary ml-1 hover:underline"
+                            >
+                              Login
+                            </a>
+                          </div>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -395,7 +405,15 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
           </Form>
         </div>
       ) : (
-        <Success email={email} />
+        <div className="max-w-lg mx-auto w-full relative">
+          <div className="flex flex-col items-center  text-center gap-y-6 text-[#502266]">
+            <p className="text-3xl font-semibold">Congratulations 🎉</p>
+            <div className="text-center">
+              <p>Account setup completed</p>
+              <Button onClick={() => router.push("/")}>Continue</Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

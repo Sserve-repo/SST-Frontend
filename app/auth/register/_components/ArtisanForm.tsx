@@ -149,7 +149,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   >(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
   const [selectedDates, setSelectedDates] = useState<Value[] | undefined>(
     undefined
   );
@@ -168,14 +167,18 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [otp, setOtp] = useState("");
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyAGVJfZMAKYfZ71nzL_v5i3LjTTWnCYwTY",
+    googleMapsApiKey: "AIzaSyA7vFamIjQG8n8wS4pl9fDmX6gQRH0oTm4",
   });
 
   const [map, setMap] = React.useState(null);
 
   const handleDateChange = (dates) => {
-    setSelectedDates(dates);
-    console.log("***** dates:", selectedDates, map);
+    const formattedDates = dates.map((date) => {
+      const d = new Date(date);
+      return d.toISOString().split("T")[0];
+    });
+    setSelectedDates(formattedDates);
+    console.log("Formatted Dates:", formattedDates);
   };
 
   const form = useForm<FormData>({
@@ -480,7 +483,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
             const res = await response?.json();
             if (response && response.ok && response.status === 200) {
               toast.success(res.message);
-              setEmail(res.data.email);
               setUserVerified(true);
               handleNextStep();
             } else {
@@ -588,8 +590,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
             const res = await response.json();
 
             if (response.ok && response.status === 201) {
-              const email = data.email || localStorage.getItem("email") || "";
-              setEmail(email.replaceAll('"', ""));
               toast.success(res.message);
               setSuccess(true);
             } else {
@@ -668,7 +668,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     if (registrationStep) {
       setStep(registrationStep);
     }
-  }, [registrationStep]);
+    console.log("maps.......", map);
+  }, [registrationStep, map]);
 
   return (
     <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
@@ -858,6 +859,15 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           <a href="#">Privacy Policy</a>
                         </span>
                       </p>
+                    </div>
+                    <div className="flex items-center w-full text-gray-400 mt-6">
+                      Already have an account?{" "}
+                      <a
+                        href="/auth/login"
+                        className="font-semibold text-primary ml-1 hover:underline"
+                      >
+                        Login
+                      </a>
                     </div>
                   </>
                 ) : (
@@ -1172,6 +1182,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                           }
                           multiple
                           value={selectedDates}
+                          // format="MMMM DD YYYY"
                           onChange={(dates) => {
                             handleDateChange(dates);
                           }}
@@ -1319,12 +1330,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             {/* Display preview and file name */}
                             {businessLicensePreview ? (
                               <div className="mt-4 flex flex-col items-center">
-                                <img
-                                  src={businessLicensePreview}
-                                  alt="Uploaded Preview"
-                                  className="w-fit h-24 object-cover rounded-lg"
-                                />
-                                <p className="mt-2 text-sm text-gray-600">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                  <p className="mt-2 text-sm text-gray-600">
                                   {value?.name}
                                 </p>
                               </div>
@@ -1380,12 +1387,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             {/* Display preview and file name */}
                             {proofOfInsurancePreview ? (
                               <div className="mt-4 flex flex-col items-center">
-                                <img
-                                  src={proofOfInsurancePreview}
-                                  alt="Uploaded Preview"
-                                  className="w-fit h-24 object-cover rounded-lg"
-                                />
-                                <p className="mt-2 text-sm text-gray-600">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                  <p className="mt-2 text-sm text-gray-600">
                                   {value?.name}
                                 </p>
                               </div>
@@ -1829,13 +1832,21 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             </SelectTrigger>
                             <SelectContent>
                               {[
-                                "30 minutes",
-                                "1 hour",
-                                "1.5 hours",
-                                "2 hours",
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                "11",
+                                "12",
                               ].map((duration) => (
                                 <SelectItem key={duration} value={duration}>
-                                  {duration}
+                                  {duration} hour
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1943,8 +1954,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : step === 1 ? (
                   "Register"
-                ) : step === 2 ? (
-                  "Verify OTP"
                 ) : step === 4 ? (
                   "Submit Documents & Continue"
                 ) : step === 8 ? (
@@ -1958,7 +1967,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         </>
       ) : (
         <div>
-          <Success email={email} />
+          <Success />
         </div>
       )}
     </div>

@@ -103,11 +103,7 @@ const ServiceCertifications: React.FC<ServiceCertificationsProps> = ({
                     <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
                       {certificatePreviews[`preview${index}`] ? (
                         <div className="mt-4 flex flex-col items-center">
-                          <img
-                            src={certificatePreviews[`preview${index}`] || ""}
-                            alt="Uploaded Preview"
-                            className="w-fit h-24 object-cover rounded-lg"
-                          />
+                          <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
                           <p className="mt-2 text-sm text-gray-600">
                             {value?.name}
                           </p>

@@ -30,7 +30,11 @@ export default function Header() {
   const { setAuth, isAuthenticated } = useAuth();
 
   const handleOpenRole = () => {
-    setModalOpen(!isModalOpen);
+    if (!isAuthenticated) {
+      setModalOpen(!isModalOpen);
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   const handleAuth = () => {
@@ -166,7 +170,10 @@ export default function Header() {
             >
               {isAuthenticated ? "Logout" : "Login"}
             </Button>
-            <Button onClick={handleOpenRole}>Join SphereServe</Button>
+
+            <Button onClick={handleOpenRole}>
+              {isAuthenticated ? "Dashboard" : "Join SphereServe"}
+            </Button>
           </div>
         </div>
 
@@ -201,7 +208,7 @@ export default function Header() {
                 >
                   {isAuthenticated ? "Logout" : "Login"}
                 </Button>
-                <Button onClick={handleOpenRole}>Join SphereServer</Button>
+                {isAuthenticated ? "Dashboard" : "Join SphereServe"}
               </div>
             </nav>
           </SheetContent>

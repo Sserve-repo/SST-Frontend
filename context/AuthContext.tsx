@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   createContext,
   useContext,
@@ -10,7 +12,7 @@ import Cookies from "js-cookie";
 interface AuthContextType {
   isAuthenticated: boolean;
   currentUser: any | null;
-  setAuth: (authState: boolean, user?: any | null) => void;
+  setAuth: (authState: boolean, user?: any | null) => any;
   getCurrentUser: () => any | null;
   getAuth: () => boolean;
 }
@@ -32,7 +34,9 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isBrowser = typeof window !== "undefined"; // Check if running in the browser
 
-  const getAuthenticatedUser = isBrowser ? Cookies.get("isAuthenticated") : null;
+  const getAuthenticatedUser = isBrowser
+    ? Cookies.get("isAuthenticated")
+    : null;
   const initialAuth = getAuthenticatedUser === "true";
 
   const storedUser = isBrowser ? localStorage.getItem("currentUser") : null;
@@ -43,7 +47,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateStorage = (authState: boolean, user: any | null): void => {
     if (isBrowser) {
-      Cookies.set("isAuthenticated", authState.toString(), { secure: true, sameSite: "Strict" });
+      Cookies.set("isAuthenticated", authState.toString(), {
+        secure: true,
+        sameSite: "Strict",
+      });
       if (user) {
         localStorage.setItem("currentUser", JSON.stringify(user));
       } else {
@@ -52,7 +59,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const setAuth = (authState: boolean, user: any | null = null): void => {
+  const setAuth = async (authState: boolean, user: any | null = null) => {
+    console.log("calling in context", authState, user);
     setIsAuthenticated(authState);
     setCurrentUser(user);
     updateStorage(authState, user);
