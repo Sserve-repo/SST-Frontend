@@ -76,7 +76,7 @@ export default function CheckoutForm() {
     if (!isLoadingCart && cartData && cartData.length === 0) {
       router.push("/");
     }
-  }, [isLoadingCart, cartData]);
+  }, [isLoadingCart, cartData, router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

@@ -178,7 +178,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       return d.toISOString().split("T")[0];
     });
     setSelectedDates(formattedDates);
-    console.log("Formatted Dates:", formattedDates);
+    console.log("Formatted Dates:", formattedDates, map);
   };
 
   const form = useForm<FormData>({

@@ -31,7 +31,7 @@ export function StripePaymentForm({
 
   useEffect(() => {
     const data_ = localStorage.getItem("formData") || "";
-    if(data_){
+    if (data_) {
       setShipppingInfo(JSON.parse(data_));
     }
   }, []);
@@ -69,7 +69,7 @@ export function StripePaymentForm({
         setIsLoading(false);
       }
     },
-    [stripe, elements]
+    [stripe, elements, clearCart, checkoutData, onSuccess, router, shippingInfo]
   );
 
   return (

@@ -66,7 +66,7 @@ export function StripeServicePaymentForm({
         setIsLoading(false);
       }
     },
-    [stripe, elements]
+    [stripe, elements, checkoutData, onSuccess, router, shippingInfo]
   );
 
   return (

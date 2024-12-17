@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { pathOr } from "ramda";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import SectionProductHeader from "./SectionProductHeader";
 import { products } from "@/lib/content";
@@ -20,27 +20,30 @@ const SingleProductPage = ({ params }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const fetchProductData = async (id: number) => {
-    try {
-      const response = await getSingleProduct(id);
-      if (response?.ok) {
-        const data = await response.json();
-        const productData = data.data["Products Items"];
-        setSelectedProduct({ ...productData, images: [productData.image] });
-      } else {
-        router.push("/404"); // Navigate to 404 page if product is not found
+  const fetchProductData = useCallback(
+    async (id: number) => {
+      try {
+        const response = await getSingleProduct(id);
+        if (response?.ok) {
+          const data = await response.json();
+          const productData = data.data["Products Items"];
+          setSelectedProduct({ ...productData, images: [productData.image] });
+        } else {
+          router.push("/404");
+        }
+      } catch (error) {
+        console.error("Error fetching product data:", error);
+        router.push("/404");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching product data:", error);
-      router.push("/404");
-    } finally {
-      setIsLoading(false); // Ensure loading state ends regardless of outcome
-    }
-  };
+    },
+    [router, setSelectedProduct, setIsLoading]
+  );
 
   useEffect(() => {
     fetchProductData(params.productId);
-  }, [params.productId]);
+  }, [params.productId, fetchProductData]);
 
   if (isLoading) {
     return (

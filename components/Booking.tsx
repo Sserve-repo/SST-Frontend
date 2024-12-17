@@ -67,17 +67,14 @@ export default function BookingForm() {
     }
   };
 
-  const fetchServiceDetail = useCallback(
-    async (id) => {
-      const response = await getServiceDetail(id);
-      if (response && response.ok) {
-        const data = await response.json();
-        setService(data.data);
-        setCheckoutData(data.data);
-      }
-    },
-    [service]
-  );
+  const fetchServiceDetail = useCallback(async (id) => {
+    const response = await getServiceDetail(id);
+    if (response && response.ok) {
+      const data = await response.json();
+      setService(data.data);
+      setCheckoutData(data.data);
+    }
+  }, []);
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -87,7 +84,7 @@ export default function BookingForm() {
     if (serviceId) {
       fetchServiceDetail(serviceId);
     }
-  }, []);
+  }, [fetchServiceDetail, service, serviceId, router]);
 
   useEffect(() => {
     (async () => {

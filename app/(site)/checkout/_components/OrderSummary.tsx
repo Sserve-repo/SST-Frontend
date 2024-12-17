@@ -12,7 +12,7 @@ const OrderSummary = () => {
   useEffect(() => {
     console.log(`${JSON.stringify(cart)}`);
     setIsCheckoutPage(window.location.pathname === "/checkout");
-  }, []);
+  }, [cart]);
 
   return (
     <div className="bg-gray-100 shadow-md p-6 rounded-lg sticky top-24">
