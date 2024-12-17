@@ -127,6 +127,10 @@ export default function LoginForm() {
           router.push(`/auth/register?role=${type}&&step=${step}`);
         }
       } else {
+        if (response?.status_code === 404) {
+          const { message } = response;
+          toast.error(message);
+        }
         if (response?.status_code === 422) {
           const { errors } = response.data;
           formatErrors(errors, form);
