@@ -48,14 +48,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         const response = await fetchCart();
         if (response && response.ok) {
           const data = await response.json();
-          setCart(data.data["Cart Items"]);
+          if (data.data["Cart Items"].length > 0) {
+            setCart(data.data["Cart Items"]);
+          } else {
+            setCart([]);
+          }
           setShippingCost(data.data["Shipping Cost"]);
           setTaxRate(data.data["Tax Rate"]);
         } else {
           console.error("Failed to fetch cart from server");
+          setCart([]);
         }
       } catch (error) {
         console.error("Error fetching cart:", error);
+        setCart([]);
       }
     };
 
@@ -69,13 +75,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         product_id: item.product_id,
         quantity: item.quantity,
       });
+
       if (response && response.ok) {
         const updatedCart = await response.json();
-        // setCart((prev) => [...Array(prev), updatedCart.data.cart_item]);
-        setCart((prev) => [
-          ...Array(prev),
-          { ...updatedCart.data.cart_item, ...item },
-        ]);
+
+        setCart((prevCart) => {
+          const existingItem = prevCart.find(
+            (cartItem) =>
+              cartItem.product_id ===
+              updatedCart.data.cart_item.product_listing_detail_id
+          );
+
+          if (existingItem) {
+            return prevCart.map((cartItem) =>
+              cartItem.product_id ===
+              updatedCart.data.cart_item.product_listing_detail_id
+                ? {
+                    ...cartItem,
+                    quantity: parseInt(updatedCart.data.cart_item.quantity),
+                  }
+                : cartItem
+            );
+          } else {
+            return [...prevCart, updatedCart.data.cart_item];
+          }
+        });
       } else {
         console.error("Failed to add item to cart");
       }
@@ -108,9 +132,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       if (response && response.ok) {
         const updatedCart = await response.json();
+
         setCart((prevCart) => {
           return prevCart.map((item) =>
-            item.product_id === updatedCart.data.cart_item.product_id
+            item.product_id ===
+            updatedCart.data.cart_item.product_listing_detail_id
               ? {
                   ...item,
                   quantity: parseInt(updatedCart.data.cart_item.quantity),
@@ -130,7 +156,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const clearCart = async () => {
     setCart([]);
   };
-  // Clear cart
+
   const setCartExt = async (cart) => {
     setCart(cart);
   };

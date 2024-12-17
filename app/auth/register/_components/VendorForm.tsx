@@ -531,6 +531,18 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     }
   };
 
+  const getButtonText = () => {
+    if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+    if (step === 1) {
+      return !userVerified && !completedUserRegistration
+        ? "Register"
+        : "Verify OTP";
+    }
+    if (step === 4) return "Submit Documents & Continue";
+    if (step === 8) return "Submit";
+    return "Save & Continue";
+  };
+
   const stepTitles: string[] = [
     "Create Account",
     "Shop Preferences",
@@ -1787,17 +1799,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   type="submit"
                   className="w-full max-w-sm rounded-xl h-12"
                 >
-                  {loading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : step === 1 ? (
-                    "Register"
-                  ) : step === 3 ? (
-                    "Submit Documents & Continue"
-                  ) : step === 7 ? (
-                    "Submit"
-                  ) : (
-                    "Save & Continue"
-                  )}
+                  {getButtonText()}
                 </Button>
               </form>
             </Form>

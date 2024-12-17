@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getProductByCategory } from "@/actions/product";
+import { getProductByCategory, getProductList } from "@/actions/product";
 import {
   Select,
   SelectContent,
@@ -44,9 +44,21 @@ const ProductPage = () => {
     }
   };
 
+  const handleFetchProductList = async () => {
+    const response = await getProductList();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProducts(data.data["product_listing"]);
+    } else {
+      setProducts([]);
+    }
+  };
+
   useEffect(() => {
     if (categoryId) {
       handleFetchProduct(parseInt(categoryId));
+    } else {
+      handleFetchProductList();
     }
   }, [categoryId]);
 

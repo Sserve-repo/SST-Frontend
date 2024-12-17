@@ -48,7 +48,7 @@ const CartPage = () => {
             cart.length > 0 &&
             cart.map((item) => (
               <div
-                key={item.product_id}
+                key={item?.product_id}
                 className="flex items-center border-b py-4"
               >
                 <Link href={`/products/${item?.product_id}`}>

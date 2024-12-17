@@ -7,7 +7,6 @@ export const createPaymentIntent = async () => {
     try {
         const form = new FormData();
         form.append("paymentMethodId", "pm_card_mastercard");
-        form.append("amount", "pm_card_mastercard");
         const response = await fetch(`${baseUrl}/general/checkout/createProductPayment`,
             {
                 headers: {

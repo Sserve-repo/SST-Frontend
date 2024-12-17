@@ -608,6 +608,18 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     }
   };
 
+  const getButtonText = () => {
+    if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+    if (step === 1) {
+      return !userVerified && !completedUserRegistration
+        ? "Register"
+        : "Verify OTP";
+    }
+    if (step === 4) return "Submit Documents & Continue";
+    if (step === 8) return "Submit";
+    return "Save & Continue";
+  };
+
   const stepTitles: string[] = [
     "Basic Details",
     "Customize Shop Profile",
@@ -668,8 +680,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     if (registrationStep) {
       setStep(registrationStep);
     }
-    console.log("maps.......", map);
-  }, [registrationStep, map]);
+  }, [registrationStep]);
 
   return (
     <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
@@ -877,7 +888,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     </div>
                   </div>
                 ))}
-
               {step === 2 && (
                 <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1156,7 +1166,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   />
                 </div>
               )}
-
               {step === 3 && (
                 <div className="w-full flex flex-col ">
                   <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
@@ -1298,7 +1307,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   />
                 </div>
               )}
-
               {step === 4 && (
                 <div className="flex flex-col gap-y-3  w-full">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1330,8 +1338,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             {/* Display preview and file name */}
                             {businessLicensePreview ? (
                               <div className="mt-4 flex flex-col items-center">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
-                                  <p className="mt-2 text-sm text-gray-600">
+                                <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                <p className="mt-2 text-sm text-gray-600">
                                   {value?.name}
                                 </p>
                               </div>
@@ -1387,8 +1395,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             {/* Display preview and file name */}
                             {proofOfInsurancePreview ? (
                               <div className="mt-4 flex flex-col items-center">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
-                                  <p className="mt-2 text-sm text-gray-600">
+                                <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                <p className="mt-2 text-sm text-gray-600">
                                   {value?.name}
                                 </p>
                               </div>
@@ -1439,7 +1447,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   />
                 </div>
               )}
-
               {step === 5 && (
                 <div className="w-full flex flex-col gap-y-7">
                   <div>
@@ -1495,7 +1502,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   </Link>
                 </div>
               )}
-
               {step === 6 && (
                 <div className=" flex flex-col w-full gap-y-7">
                   <div>
@@ -1668,7 +1674,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   </div>
                 </div>
               )}
-
               {step === 7 && (
                 <div className="flex flex-col w-full gap-y-4">
                   <h2 className="text-[40px] font-semibold text-[#502266]">
@@ -1758,7 +1763,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   />
                 </div>
               )}
-
               {step === 8 && (
                 <div className="w-full space-y-[22px]">
                   <div>
@@ -1944,24 +1948,14 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   />
                 </div>
               )}
-
               <Button
                 type="submit"
                 className="w-full max-w-sm rounded-xl h-12 mt-4"
                 disabled={loading}
               >
-                {loading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : step === 1 ? (
-                  "Register"
-                ) : step === 4 ? (
-                  "Submit Documents & Continue"
-                ) : step === 8 ? (
-                  "Submit"
-                ) : (
-                  "Save & Continue"
-                )}
+                {getButtonText()}
               </Button>
+              ;
             </form>
           </Form>
         </>

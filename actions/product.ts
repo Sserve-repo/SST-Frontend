@@ -53,3 +53,15 @@ export const getProductByCategory = async (catId: number) => {
     console.log("failed to fetch product menu", error);
   }
 };
+
+
+export const getProductList = async () => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/products/getProductByCategorySub?limit=20&page=1`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+};
