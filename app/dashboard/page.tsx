@@ -14,8 +14,8 @@ export default function DashboardPage() {
         <div className="">
           <Overview />
         </div>
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-8">
-          <TransactionList className="sm:col-span-1 md:col-span-1 lg:col-span-5 " />
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-9">
+          <TransactionList className="sm:col-span-1 md:col-span-1 lg:col-span-6 " />
           <Messages className="sm:col-span-1 md:col-span-1 lg:col-span-3" />
         </div>
       </div>
