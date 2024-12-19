@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,56 +10,72 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import { BsList } from "react-icons/bs";
+import { FiShoppingCart } from "react-icons/fi";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 
 export function Header() {
-  const {  toggleSidebar } = useSidebarToggle();
+  const { toggleSidebar } = useSidebarToggle();
 
   return (
-    <>
-    
-    <header className="sticky top-0 z-50 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background">
-      <div className="container flex h-16 items-center justify-between">
-        <button 
-          onClick={toggleSidebar} 
-          className=" bg-sidebar-muted text-sidebar-muted-foreground ml-4 rounded-md w-[30px] h-[30px] flex items-center justify-center transition duration-300 ease-in-out"
-        >
-          <BsList size={24} />
-        </button>
+    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+      <div className=" flex h-16 items-center justify-between px-4 sm:pr-6 lg:pr-8">
+        <div className="flex items-center space-x-4 md:w-[50%] ">
+          {/* Sidebar Toggle */}
+          <button
+            onClick={toggleSidebar}
+            className="text-primary rounded-md w-10 h-10 flex items-center justify-center hover:bg-purple-50 transition duration-300"
+          >
+            <BsList size={24} />
+          </button>
 
-        {/* Search */}
-        <div className="flex items-center space-x-2 md:justify-end">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search"
-              className="pl-8 md:w-[300px] lg:w-[400px]"
-            />
+          {/* Search */}
+          <div className="flex-grow max-w-md mx-4 sm:block hidden">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Input
+                placeholder="Search"
+                className="pl-10 py-2 border-2 border-gray-300 rounded-full text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
           </div>
-          <Button variant="ghost" size="icon" aria-label="Notifications">
-            <Bell className="h-4 w-4" />
-          </Button>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center space-x-6">
+          {/* Cart */}
+          <div className="relative">
+            <FiShoppingCart className="h-6 w-6 text-primary" />
+            <span className="absolute -top-1 -right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              6
+            </span>
+          </div>
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/avatars/01.png" alt="Avatar" />
-                  <AvatarFallback>JD</AvatarFallback>
+              <div className="flex items-center space-x-2 cursor-pointer">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src="/assets/images/user.jpeg" alt="User Avatar" />
+                  <AvatarFallback>TE</AvatarFallback>
                 </Avatar>
-              </Button>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-primary">
+                    Timothy Edibo
+                  </p>
+                  <p className="text-xs text-gray-500">Engineer</p>
+                </div>
+              </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    Jonathan Doe
+                    Timothy Edibo
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    jonathan@example.com
+                    timmy@example.com
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -74,6 +89,5 @@ export function Header() {
         </div>
       </div>
     </header>
-    </>
   );
 }
