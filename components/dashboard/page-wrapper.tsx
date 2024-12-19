@@ -12,7 +12,7 @@ export function PageWrapper({ children }: { children: ReactNode }) {
       className={cn(
         "flex-1 overflow-y-auto transition-all duration-300 ease-in-out",
         isCollapsed ? "lg:ml-[64px]" : "lg:ml-[0px]",
-        "p-4"
+        "sm:pl-1.5"
       )}
     >
       {children}
