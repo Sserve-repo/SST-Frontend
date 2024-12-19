@@ -7,7 +7,6 @@ import { createServicePaymentIntent } from "@/actions/checkout";
 import { getProvinces } from "@/actions/provinces";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getServiceDetail } from "@/actions/service";
 import Cookies from "js-cookie";
@@ -18,13 +17,6 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-// const availability = {
-//   "2024-11-01": ["09:00", "13:00", "17:00"],
-//   "2024-11-03": ["09:00", "13:00", "17:00"],
-//   "2024-11-07": ["09:00", "13:00", "17:00"],
-//   "2024-11-20": ["09:00", "13:00", "17:00"],
-// };
-
 type Service = {
   "Service Details": any;
 };
@@ -34,7 +26,7 @@ export default function BookingForm() {
   const params = useSearchParams();
   const serviceId = params.get("serviceId");
   const [service, setService] = useState<Service | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
@@ -93,10 +85,14 @@ export default function BookingForm() {
     })();
   }, []);
 
+  const handleSetDate = () => {
+    setFormData;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const date = selectedDate ? selectedDate.toISOString().split("T")[0] : null;
-    const time = selectedDate ? selectedDate.toTimeString().slice(0, 5) : null;
+    const date = selectedDate ? selectedDate.split(" ")[0] : null;
+    const time = selectedDate ? selectedDate.split(" ")[1] : null;
 
     setFormData((prev) => ({
       ...prev,
@@ -137,28 +133,30 @@ export default function BookingForm() {
               className="space-y-6"
             >
               {/* Date Information */}
-              <div className="border rounded-lg p-4">
-                <h1 className="text-2xl">
-                  {service && service["Service Details"].title}
-                </h1>
-                <label className="block text-sm font-medium text-gray-700">
-                  Select dates
-                </label>
+              <label className="font-bold">Date & Time Availability</label>
+              <select
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="h-12 mt-2 border-2 w-full px-2"
+              >
+                <option value="">Please select</option>
+                {service?.["Date & Time Availability"] &&
+                  Object.entries(service["Date & Time Availability"]).map(
+                    ([date, times]) =>
+                      (times as string[]).map((time, index) => (
+                        <option
+                          className="my-4"
+                          key={`${date}-${index}`}
+                          value={`${date} ${time}`}
+                        >
+                          {`${date} ${time}`}
+                        </option>
+                      ))
+                  )}
+              </select>
 
-                <DatePicker
-                  selected={selectedDate}
-                  onChange={(date) => {
-                    if (date) {
-                      setSelectedDate(date);
-                    }
-                  }}
-                  showTimeSelect
-                  timeIntervals={30}
-                  inline
-                  dateFormat="MM/dd/yyyy h:mm aa"
-                />
-
-                <div className="flex space-x-4">
+              <div className="flex space-x-4 flex-col">
+                <label className="font-bold">Do you want home services </label>
+                <div className="flex gap-4">
                   <input
                     type="checkbox"
                     // name={homeService}
@@ -166,14 +164,14 @@ export default function BookingForm() {
                   />
                   <label>Yes, I want Home Services </label>
                 </div>
-
-                <p className="mt-2">
-                  Address:{" "}
-                  {`${service && service["Service Details"].booking_details!}`}
-                </p>
               </div>
 
-              {homeService ? (
+              <p className="my-4">
+                <span className="font-bold">Artisan Shop Address:</span>
+                {`${service && service["Service Details"].booking_details!}`}
+              </p>
+
+              {!homeService ? (
                 <>
                   <div className="border rounded-lg p-4">
                     <h2 className="font-bold text-lg mb-4">

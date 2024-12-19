@@ -42,12 +42,18 @@ export const artisanIdentityPayload = (data: any, documentList: any) => {
 export const serviceAvailabilityPayload = (data: any) => {
   const requestPayload = new FormData();
   const email = localStorage.getItem("email");
+ 
+  const formattedDates = data.availableDays.map((date) => {
+    const d = new Date(date);
+    return d.toISOString().split("T")[0];
+  });
 
   requestPayload.append("user_email", data.email || email?.replaceAll('"', ""));
-  requestPayload.append("available_dates", data.availableDays);
+  requestPayload.append("available_dates", formattedDates);
   requestPayload.append("start_time", data.availableFrom);
   requestPayload.append("end_time", data.availableTo);
-  requestPayload.append("longitude", data.shopAddress);
+  requestPayload.append("longitude", data.longitude);
+  requestPayload.append("latitude", data.latitude);
   requestPayload.append("latitude", data.shopAddress);
   requestPayload.append("homeService", data.homeService);
   return requestPayload;

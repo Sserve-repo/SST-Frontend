@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import "react-multi-date-picker/styles/colors/purple.css";
 import InputIcon from "react-multi-date-picker/components/input_icon";
 import ServiceCertifications from "./ServiceCertifications";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import { StandaloneSearchBox, useJsApiLoader } from "@react-google-maps/api";
 
 import {
   Form,
@@ -61,16 +61,7 @@ import {
 } from "@/actions/artisans";
 import { OtpForm } from "./OtpForm";
 import { getProvinces } from "@/actions/provinces";
-
-const containerStyle = {
-  width: "400px",
-  height: "400px",
-};
-
-const center = {
-  lat: 9.058831,
-  lng: 7.516468,
-};
+import { googleApiKey } from "@/config/constant";
 
 type FormData = {
   firstName: string;
@@ -107,6 +98,8 @@ type FormData = {
   availableTo: string;
   homeService: boolean;
   availableDays: string;
+  latitude: string;
+  longitude: string;
 
   // Step 7: Set Up Billing
   cardNumber: string;
@@ -162,23 +155,28 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [userVerified, setUserVerified] = useState(false);
   const [completedUserRegistration, setCompletedUserRegistration] =
     useState(false);
+  const [shopperAddress, setShopperAddress] = useState("");
 
   const [documentList, setDocumentList] = useState<File[] | null>([]);
   const [otp, setOtp] = useState("");
+  const addressRef = useRef<any>(null);
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyA7vFamIjQG8n8wS4pl9fDmX6gQRH0oTm4",
+    googleMapsApiKey: googleApiKey!,
+    libraries: ["places"],
   });
 
-  const [map, setMap] = React.useState(null);
-
   const handleDateChange = (dates) => {
-    const formattedDates = dates.map((date) => {
-      const d = new Date(date);
-      return d.toISOString().split("T")[0];
-    });
-    setSelectedDates(formattedDates);
-    console.log("Formatted Dates:", formattedDates, map);
+    setSelectedDates(dates);
+    console.log("Formatted Dates:", dates);
+  };
+
+  const handleOnPlacesChanged = () => {
+    const address = addressRef.current.getPlaces();
+    if (address.length > 0) {
+      getAddressGeoCode(address[0].formatted_address);
+      setShopperAddress(address[0].formatted_address);
+    }
   };
 
   const form = useForm<FormData>({
@@ -228,6 +226,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       accountNumber: "",
       institutionNumber: "",
       transitNumber: "",
+      latitude: "",
+      longitude: "",
     },
   });
 
@@ -332,10 +332,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
     // Step 3 validation
     if (step === 3) {
-      if (!data.shopAddress) {
-        errors.shopAddress = "Shop Address is required";
-        isValid = false;
-      }
       data.availableDays = `${selectedDates}`;
       if (!data.availableDays) {
         errors.availableDays = "Days of availability is required";
@@ -349,8 +345,18 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         errors.availableTo = "end time of availability is required";
         isValid = false;
       }
+
+      data.shopAddress = shopperAddress;
       if (!data.shopAddress) {
         errors.shopAddress = "Shop address is required";
+        isValid = false;
+      }
+
+      data.latitude = "";
+      data.longitude = "";
+
+      if (!data.latitude || !data.longitude) {
+        errors.shopAddress = "Error setting lat and long for selected location";
         isValid = false;
       }
     }
@@ -461,6 +467,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
   const handleSubmit: SubmitHandler<FormData> = async (data) => {
     const isValid = validateForm(data);
+    console.log("*****", data);
 
     if (isValid) {
       try {
@@ -620,6 +627,21 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     return "Save & Continue";
   };
 
+  const getAddressGeoCode = async (address: string) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${googleApiKey}`
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const cordinates = data.results[0].geometry.location;
+        console.log("showing cordinates", cordinates);
+      }
+    } catch (error) {
+      console.log("error occured when getting cordinates");
+    }
+  };
+
   const stepTitles: string[] = [
     "Basic Details",
     "Customize Shop Profile",
@@ -658,20 +680,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       }
     }
   };
-
-  const onLoad = React.useCallback(function callback(map) {
-    const bounds = new window.google.maps.LatLngBounds(center);
-    map.fitBounds(bounds);
-
-    setMap(map);
-  }, []);
-
-  const onUnmount = React.useCallback(
-    function callback(/* map */) {
-      setMap(null);
-    },
-    []
-  );
 
   useEffect(() => {
     getServiceCat();
@@ -1187,7 +1195,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
                         <DatePicker
                           render={
-                            <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-[#b9b9b9] py-3 inline-flex justify-center items-center shadow-sm " />
+                            <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-[#b9b9b9] py-3 inline-flex justify-center items-center shadow-sm pr-6" />
                           }
                           multiple
                           value={selectedDates}
@@ -1245,25 +1253,24 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="shopAddress"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base mb-3">
-                          Enter Shop Address*
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="123 Rue Sainte-Catherine Ouest, Montréal, QC H3G 1P, Canada"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <>
+                    {isLoaded && (
+                      <div className="flex justify-center items-center w-full border">
+                        <StandaloneSearchBox
+                          onLoad={(ref) => (addressRef.current = ref)}
+                          onPlacesChanged={handleOnPlacesChanged}
+                        >
+                          <div className="w-full">
+                            <Input
+                              placeholder="Search for a place"
+                              className="w-[38em] h-14 outline-none border-2 rounded-2xl px-4"
+                              style={{ boxSizing: "border-box" }}
+                            />
+                          </div>
+                        </StandaloneSearchBox>
+                      </div>
                     )}
-                  />
+                  </>
 
                   <FormField
                     control={form.control}
@@ -1287,21 +1294,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             Yes, I offer home services
                           </FormLabel>
                         </div>
-
-                        {isLoaded ? (
-                          <GoogleMap
-                            mapContainerStyle={containerStyle}
-                            center={center}
-                            zoom={13}
-                            onLoad={onLoad}
-                            onUnmount={onUnmount}
-                          >
-                            {/* Child components, such as markers, info windows, etc. */}
-                            <></>
-                          </GoogleMap>
-                        ) : (
-                          <></>
-                        )}
                       </FormItem>
                     )}
                   />
