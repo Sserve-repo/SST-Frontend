@@ -69,7 +69,7 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-2 cursor-pointer">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={currentUser.user_photo} alt="User Avatar" />
+                  <AvatarImage src={currentUser?.user_photo} alt="User Avatar" />
                   <AvatarFallback>
                     {" "}
                     {currentUser.firstname[0] + currentUser.lastname[0]}

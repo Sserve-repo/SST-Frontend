@@ -50,7 +50,7 @@ export function Overview() {
           <Avatar className="h-24 w-24 aspect-square">
             <AvatarImage
               className="aspect-square"
-              src={currentUser.user_photo}
+              src={currentUser?.user_photo}
             />
             <AvatarFallback>
               {currentUser.firstname[0] + currentUser.lastname[0]}
