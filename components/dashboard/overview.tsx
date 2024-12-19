@@ -6,24 +6,41 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 
 export function Overview() {
+  const currentHour = new Date().getHours();
+
+  const getGreeting = () => {
+    if (currentHour < 12) {
+      return "Good morning";
+    } else if (currentHour < 18) {
+      return "Good afternoon";
+    } else {
+      return "Good evening";
+    }
+  };
+
   return (
-    <div className="flex-1 space-y-4">
-      <div className="flex items-center justify-between space-y-2">
+    <div className="flex-1 space-y-4 mt-2">
+      <div className="flex items-center justify-between space-y-2 md:space-y-0 md:flex-row flex-col">
         <div className="flex items-center space-x-2">
-          <Avatar className="h-20 w-20 aspect-square">
-            <AvatarImage className="aspect-square" src="/avatars/01.png" />
-            <AvatarFallback>L</AvatarFallback>
+          <Avatar className="h-24 w-24 aspect-square">
+            <AvatarImage
+              className="aspect-square"
+              src="/assets/images/user.jpeg"
+            />
+            <AvatarFallback>TE</AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              Good evening Lola
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              {`${getGreeting()} Timmy`}
             </h2>
-            <p className="text-muted-foreground">How are you today? 😊</p>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              How are you today? 😊
+            </p>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Tabs defaultValue="products" className="space-y-4">
-            <TabsList>
+        <div className="flex items-center space-x-2 mt-4 md:mt-0">
+          <Tabs defaultValue="products" className="space-y-4 bg-white">
+            <TabsList className="flex space-x-4 bg-white p-1 rounded-lg border border-gray-200">
               <TabsTrigger value="products">Products</TabsTrigger>
               <TabsTrigger value="service">Service</TabsTrigger>
             </TabsList>
@@ -31,73 +48,81 @@ export function Overview() {
         </div>
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="p-6">
+        <Card className="p-6 rounded-xl  border border-gray-200">
           <div className="flex items-center gap-4">
             <div className="rounded-2xl bg-emerald-50 p-4">
               <Wallet className="h-6 w-6 text-emerald-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Expenditure</p>
-              <h3 className="text-2xl font-semibold">$400.45</h3>
+              <p className="text-sm font-medium text-gray-500">
+                Total Expenditure
+              </p>
+              <h3 className="text-2xl font-semibold text-gray-900">$740.45</h3>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
             <Image
-              src="/placeholder-user.jpg"
+              src="/assets/images/3dicons.png"
               alt="Avatar"
-              width={24}
-              height={24}
+              width={28}
+              height={28}
               className="rounded-full"
             />
-            <span className="text-sm text-orange-600">
-              5 Pending Transaction
+            <span className="text-sm font-medium text-emerald-600">
+              2 Pending Transaction
             </span>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 rounded-xl border border-gray-200">
           <div className="flex items-center gap-4">
             <div className="rounded-2xl bg-purple-50 p-4">
               <ShoppingBag className="h-6 w-6 text-purple-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Orders Received</p>
-              <h3 className="text-2xl font-semibold">45</h3>
+              <p className="text-sm font-medium text-gray-500">
+                Delivered Products
+              </p>
+              <h3 className="text-2xl font-semibold text-gray-900">12</h3>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
             <Image
-              src="/placeholder-user.jpg"
+              src="/assets/images/3dicons.png"
               alt="Avatar"
-              width={24}
-              height={24}
+              width={28}
+              height={28}
               className="rounded-full"
             />
-            <span className="text-sm text-purple-600">
-              5 Pending Transaction
+            <span className="text-sm font-medium text-purple-600">
+              2 Pending Transaction
             </span>
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 rounded-xl border border-gray-200">
           <div className="flex items-center gap-4">
-            <div className="rounded-2xl bg-pink-50 p-4">
-              <History className="h-6 w-6 text-pink-500" />
+            <div className="rounded-2xl bg-orange-50 p-4">
+              <History className="h-6 w-6 text-orange-500" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Orders Refunds</p>
-              <h3 className="text-2xl font-semibold">3</h3>
+              <p className="text-sm font-medium text-gray-500">
+                Products In Transit
+              </p>
+              <h3 className="text-2xl font-semibold text-gray-900">3</h3>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
             <Image
-              src="/placeholder-user.jpg"
+              src="/assets/images/3dicons.png"
               alt="Avatar"
-              width={24}
-              height={24}
+              width={28}
+              height={28}
               className="rounded-full"
             />
-            <span className="text-sm text-pink-600">5 Pending Transaction</span>
+            <span className="text-sm font-medium text-red-600">
+              3 Cancelled Products
+            </span>
           </div>
         </Card>
       </div>
