@@ -83,11 +83,8 @@ export default function BookingForm() {
       await handleGetProvinces();
       await createStripePaymentIntent();
     })();
-  }, []);
+  }, [createStripePaymentIntent]);
 
-  const handleSetDate = () => {
-    setFormData;
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

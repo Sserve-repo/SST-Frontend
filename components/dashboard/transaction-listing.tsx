@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
+import { useEffect, useState } from "react";
+import { getOverview } from "@/actions/dashboard";
 
 interface Transaction {
   id: string;
@@ -28,34 +30,6 @@ const transactions: Transaction[] = [
     status: "delivered",
     date: "22 Oct, 10:55 AM",
   },
-  {
-    id: "2",
-    product: "Apple Watch",
-    amount: 34295,
-    status: "pending",
-    date: "22 Oct, 10:55 AM",
-  },
-  {
-    id: "3",
-    product: "Apple Watch",
-    amount: 34295,
-    status: "delivered",
-    date: "22 Oct, 10:55 AM",
-  },
-  {
-    id: "4",
-    product: "Apple Watch",
-    amount: 34295,
-    status: "cancelled",
-    date: "22 Oct, 10:55 AM",
-  },
-  {
-    id: "5",
-    product: "Apple Watch",
-    amount: 34295,
-    status: "delivered",
-    date: "22 Oct, 10:55 AM",
-  },
 ];
 
 const statusStyles = {
@@ -64,7 +38,40 @@ const statusStyles = {
   cancelled: "bg-red-100 text-red-600",
 };
 
+type TransactionType = {
+  id: number;
+  order_id: number;
+  user_id: number;
+  local_id: string;
+  vendor_id: number;
+  product_listing_detail_id: number;
+  quantity: number;
+  currency: string;
+  unit_price: string;
+  total_amount: string;
+  order_status: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export function TransactionList({ className }: { className?: string }) {
+  const [transactionData, setTransactionData] = useState<
+    TransactionType[] | null
+  >(null);
+
+  const handleFetchOverview = async () => {
+    const response = await getOverview();
+    if (response && response.ok) {
+      const data = await response.json();
+      setTransactionData(data.data["Transaction"]);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchOverview();
+  });
+
   return (
     <Card
       className={`rounded-2xl shadow-md p-2 border-none bg-white ${className}`}
@@ -95,38 +102,39 @@ export function TransactionList({ className }: { className?: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow
-                  key={transaction.id}
-                  className="border-none cursor-pointer"
-                >
-                  <TableCell className="font-medium text-gray-900">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder.svg" alt="Product" />
-                        <AvatarFallback>AW</AvatarFallback>
-                      </Avatar>
-                      {transaction.product}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    ${transaction.amount.toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        statusStyles[transaction.status]
-                      }`}
-                    >
-                      {transaction.status.charAt(0).toUpperCase() +
-                        transaction.status.slice(1)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    {transaction.date}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {transactionData &&
+                transactionData.map((transaction) => (
+                  <TableRow
+                    key={transaction.id}
+                    className="border-none cursor-pointer"
+                  >
+                    <TableCell className="font-medium text-gray-900">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src="/placeholder.svg" alt="Product" />
+                          <AvatarFallback>AW</AvatarFallback>
+                        </Avatar>
+                        {transaction.order_id}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      ${transaction.total_amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          statusStyles[transaction.status]
+                        }`}
+                      >
+                        {transaction.status.charAt(0).toUpperCase() +
+                          transaction.status.slice(1)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {transaction.created_at}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

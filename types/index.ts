@@ -12,6 +12,6 @@ export interface ChatMessage {
     id: string
     content: string
     timestamp: string
-    sender: 'user' | 'other'
+    sender: string
 }
 

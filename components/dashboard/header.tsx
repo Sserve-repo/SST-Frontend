@@ -14,9 +14,21 @@ import { Search } from "lucide-react";
 import { BsList } from "react-icons/bs";
 import { FiShoppingCart } from "react-icons/fi";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const { toggleSidebar } = useSidebarToggle();
+  const { currentUser } = useAuth();
+
+  const getUserType = (user_type: string) => {
+    return user_type === "3"
+      ? "Vendor"
+      : user_type === "2"
+      ? "Shopper"
+      : user_type === "4"
+      ? "Artisan"
+      : null;
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
@@ -57,14 +69,19 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-2 cursor-pointer">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src="/assets/images/user.jpeg" alt="User Avatar" />
-                  <AvatarFallback>TE</AvatarFallback>
+                  <AvatarImage src={currentUser.user_photo} alt="User Avatar" />
+                  <AvatarFallback>
+                    {" "}
+                    {currentUser.firstname[0] + currentUser.lastname[0]}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="text-left">
                   <p className="text-sm font-medium text-primary">
-                    Timothy Edibo
+                    {currentUser.firstname}`
                   </p>
-                  <p className="text-xs text-gray-500">Engineer</p>
+                  <p className="text-xs text-gray-500">
+                    {getUserType(currentUser.user_type)}
+                  </p>
                 </div>
               </div>
             </DropdownMenuTrigger>
@@ -72,10 +89,10 @@ export function Header() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    Timothy Edibo
+                    {currentUser.firstname}`
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    timmy@example.com
+                    {currentUser.email}`
                   </p>
                 </div>
               </DropdownMenuLabel>

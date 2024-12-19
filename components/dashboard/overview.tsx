@@ -4,9 +4,34 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { getOverview } from "@/actions/dashboard";
 
+type OverviewType = {
+  Transactions: any;
+  TotalExpenditure: string;
+  orderInProgress: string;
+  cancelleOrder: string;
+  pendingOrder: string;
+  completeOrder: string;
+};
 export function Overview() {
   const currentHour = new Date().getHours();
+  const { currentUser } = useAuth();
+  const [overviewData, setOverviewData] = useState<OverviewType | null>(null);
+
+  const handleFetchOverview = async () => {
+    const response = await getOverview();
+    if (response && response.ok) {
+      const data = await response.json();
+      setOverviewData(data.data);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchOverview();
+  });
 
   const getGreeting = () => {
     if (currentHour < 12) {
@@ -25,13 +50,15 @@ export function Overview() {
           <Avatar className="h-24 w-24 aspect-square">
             <AvatarImage
               className="aspect-square"
-              src="/assets/images/user.jpeg"
+              src={currentUser.user_photo}
             />
-            <AvatarFallback>TE</AvatarFallback>
+            <AvatarFallback>
+              {currentUser.firstname[0] + currentUser.lastname[0]}
+            </AvatarFallback>
           </Avatar>
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              {`${getGreeting()} Timmy`}
+              {`${getGreeting()} ${currentUser.firstname}`}
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base">
               How are you today? 😊
@@ -57,7 +84,9 @@ export function Overview() {
               <p className="text-sm font-medium text-gray-500">
                 Total Expenditure
               </p>
-              <h3 className="text-2xl font-semibold text-gray-900">$740.45</h3>
+              <h3 className="text-2xl font-semibold text-gray-900">
+                $ {overviewData?.TotalExpenditure || 0}
+              </h3>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
@@ -69,7 +98,7 @@ export function Overview() {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-emerald-600">
-              2 Pending Transaction
+              {overviewData?.pendingOrder || 0} Pending Transaction
             </span>
           </div>
         </Card>
@@ -83,7 +112,9 @@ export function Overview() {
               <p className="text-sm font-medium text-gray-500">
                 Delivered Products
               </p>
-              <h3 className="text-2xl font-semibold text-gray-900">12</h3>
+              <h3 className="text-2xl font-semibold text-gray-900">
+                {overviewData?.completeOrder || 0}
+              </h3>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
@@ -95,7 +126,7 @@ export function Overview() {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-purple-600">
-              2 Pending Transaction
+              {overviewData?.orderInProgress || 0} Pending Order
             </span>
           </div>
         </Card>
@@ -109,7 +140,10 @@ export function Overview() {
               <p className="text-sm font-medium text-gray-500">
                 Products In Transit
               </p>
-              <h3 className="text-2xl font-semibold text-gray-900">3</h3>
+              <h3 className="text-2xl font-semibold text-gray-900">
+                {" "}
+                {overviewData?.orderInProgress || 0}
+              </h3>
             </div>
           </div>
           <div className="mt-4 flex items-center gap-2">
@@ -121,7 +155,7 @@ export function Overview() {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-red-600">
-              3 Cancelled Products
+              {overviewData?.cancelleOrder || 0} Cancelled Products
             </span>
           </div>
         </Card>

@@ -638,7 +638,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         console.log("showing cordinates", cordinates);
       }
     } catch (error) {
-      console.log("error occured when getting cordinates");
+      console.log("error occured when getting cordinates", error);
     }
   };
 
