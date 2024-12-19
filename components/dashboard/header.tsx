@@ -72,15 +72,15 @@ export function Header() {
                   <AvatarImage src={currentUser?.user_photo} alt="User Avatar" />
                   <AvatarFallback>
                     {" "}
-                    {currentUser.firstname[0] + currentUser.lastname[0]}
+                    {currentUser?.firstname[0] + currentUser?.lastname[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-left">
                   <p className="text-sm font-medium text-primary">
-                    {currentUser.firstname}`
+                    {currentUser?.firstname}`
                   </p>
                   <p className="text-xs text-gray-500">
-                    {getUserType(currentUser.user_type)}
+                    {getUserType(currentUser?.user_type)}
                   </p>
                 </div>
               </div>
@@ -89,10 +89,10 @@ export function Header() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {currentUser.firstname}`
+                    {currentUser?.firstname}`
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {currentUser.email}`
+                    {currentUser?.email}`
                   </p>
                 </div>
               </DropdownMenuLabel>

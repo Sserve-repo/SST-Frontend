@@ -53,12 +53,12 @@ export function Overview() {
               src={currentUser?.user_photo}
             />
             <AvatarFallback>
-              {currentUser.firstname[0] + currentUser.lastname[0]}
+              {currentUser?.firstname[0] + currentUser?.lastname[0]}
             </AvatarFallback>
           </Avatar>
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              {`${getGreeting()} ${currentUser.firstname}`}
+              {`${getGreeting()} ${currentUser?.firstname}`}
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base">
               How are you today? 😊
