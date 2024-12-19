@@ -7,18 +7,14 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  Clock,
-  TruckIcon,
-  Star,
-  Inbox,
-  Heart,
   Settings,
   LogOut,
 } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
+import { TbChartArcs } from "react-icons/tb";
+import { HiOutlineArchive } from "react-icons/hi";
+import { RiShoppingBag3Line } from "react-icons/ri";
 
 interface NavItem {
   title: string;
@@ -27,13 +23,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
-  { title: "OrderList", href: "/dashboard/ordersPage", icon: Clock },
-  { title: "Track Orders", href: "/dashboard/track", icon: TruckIcon },
-  { title: "Reviews and Ratings", href: "/dashboard/reviews", icon: Star },
-  { title: "Inbox", href: "/dashboard/inbox", icon: Inbox },
-  { title: "Favorites", href: "/dashboard/favorites", icon: Heart },
+  { title: "Overview", href: "/dashboard", icon: TbChartArcs },
+  { title: "Orders", href: "/dashboard/orders", icon: RiShoppingBag3Line },
+  { title: "Inbox", href: "/dashboard/inbox", icon: HiOutlineArchive },
 ];
 
 export function DashboardNav() {
@@ -66,52 +58,46 @@ export function DashboardNav() {
           isCollapsed
             ? "w-[70px] translate-x-0"
             : isMobile
-            ? "w-[280px] translate-x-0"
-            : "w-[280px] translate-x-0 lg:relative",
+            ? "w-[240px] translate-x-0"
+            : "w-[240px] translate-x-0 lg:relative",
           isMobile && isCollapsed && "-translate-x-full"
         )}
       >
-        <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between h-16 px-4 py-1">
+        <div className="flex h-full flex-col px-3">
+          {/* Logo Section */}
+          <div className="flex items-center justify-start h-16">
             <Link href="/" className="flex items-center space-x-2">
-              {!isCollapsed && (
-                <span className="font-bold">
-                  <Image
-                    src="/assets/images/logo.svg"
-                    alt="Logo"
-                    width={160}
-                    height={30}
-                  />
-                </span>
-              )}
+              <Image
+                src="/assets/images/logo.svg"
+                alt="Logo"
+                width={160}
+                height={50}
+              />
             </Link>
-            {/* <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              aria-label="Toggle Navigation"
-            >
-              {isCollapsed ? (
-                <Menu className="h-5 w-5" />
-              ) : (
-                <X className="h-5 w-5" />
-              )}
-            </Button> */}
           </div>
 
-          <ScrollArea className="flex-1 w-full py-2">
+          {/* Navigation Items */}
+          <ScrollArea className="flex-1">
             {navItems.map((item) => (
               <Button
                 key={item.href}
-                variant={pathname === item.href ? "secondary" : "ghost"}
+                variant="ghost"
                 className={cn(
-                  "justify-start w-full mx-1 my-1",
-                  pathname === item.href && "bg-muted"
+                  "w-full flex items-center justify-start px-3.5 py-3 my-2 rounded-lg text-left group",
+                  pathname === item.href
+                    ? "bg-primary text-white"
+                    : "text-primary hover:bg-purple-50"
                 )}
                 asChild
               >
                 <Link href={item.href}>
-                  <item.icon className="mr-2 h-5 w-5" />
+                  <item.icon
+                    className={cn(
+                      "mr-4 h-5 w-5 group-hover:text-purple-900 transition-all",
+                      pathname === item.href && "text-white",
+                      isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
+                    )}
+                  />
                   {!isCollapsed && (
                     <span className="truncate">{item.title}</span>
                   )}
@@ -120,19 +106,35 @@ export function DashboardNav() {
             ))}
           </ScrollArea>
 
-          <div className="mt-auto border-t space-y-1 py-4">
-            <Button variant="ghost" className="w-full justify-start" asChild>
+          {/* Footer Section */}
+          <div className="mt-auto space-y-2 border-t py-4">
+            <Button
+              variant="ghost"
+              className="w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-primary hover:bg-purple-50"
+              asChild
+            >
               <Link href="/settings">
-                <Settings className="mr-2 h-5 w-5" />
-                {!isCollapsed && "Settings"}
+                <Settings
+                  className={cn(
+                    "mr-4 h-5 w-5 transition-all",
+                    pathname === "/settings" && "text-white",
+                    isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
+                  )}
+                />
+                {!isCollapsed && <span className="truncate">Settings</span>}
               </Link>
             </Button>
             <Button
               variant="ghost"
-              className="w-full justify-start text-muted-foreground"
+              className="w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-red-600 hover:bg-red-50"
             >
-              <LogOut className="mr-2 h-45w-5" />
-              {!isCollapsed && "Logout"}
+              <LogOut
+                className={cn(
+                  "mr-4 h-5 w-5 transition-all",
+                  isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
+                )}
+              />
+              {!isCollapsed && <span className="truncate">Logout</span>}
             </Button>
           </div>
         </div>
