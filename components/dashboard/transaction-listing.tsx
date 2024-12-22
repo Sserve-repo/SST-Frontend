@@ -79,7 +79,7 @@ export function TransactionList({ className }: { className?: string }) {
     >
       <CardHeader className="pb-4">
         <CardTitle className="md:text-2xl sm:text-xl text-lg">
-          Recent Transaction Details
+          Transaction Details
         </CardTitle>
       </CardHeader>
       <CardContent>
