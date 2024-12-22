@@ -51,7 +51,7 @@ export default function OrdersPage() {
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Orders Lists
         </h2>
-       
+
         {/* Filters */}
         <div className="mb-6 flex flex-wrap items-center gap-4 p-3 bg-white rounded-3xl border-2 border-gray-100">
           <div className="flex items-center gap-2">
