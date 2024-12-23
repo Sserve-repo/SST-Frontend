@@ -12,12 +12,11 @@ export const confirmPaymentPayload = (data) => {
   return requestPayload;
 };
 
-
-
 export const confirmServicePaymentPayload = (data) => {
+  console.log("data****", data);
   const requestPayload = new FormData();
-  const date = data === "dates" ? data.split(" ")[0] : null;
-  const time = data === "dates" ? data.split(" ")[1] : null;
+  const date = data.dates ? data.dates.split(" ")[0] : null;
+  const time = data.dates ? data.dates.split(" ")[1] : null;
 
   requestPayload.append("orderId", data.orderId);
   requestPayload.append("paymentIntentId", data.paymentIntentId);
@@ -30,8 +29,5 @@ export const confirmServicePaymentPayload = (data) => {
   requestPayload.append("booked_date", date);
   requestPayload.append("booked_time", time);
   requestPayload.append("listingId", data.listingId);
-
-
-
   return requestPayload;
 };

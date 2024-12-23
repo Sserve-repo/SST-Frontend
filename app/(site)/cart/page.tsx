@@ -10,7 +10,7 @@ import { fetchCart } from "@/actions/cart";
 
 const CartPage = () => {
   const { cart, setCartExt, removeFromCart, updateQuantity } = useCart();
-  const [cartMetadata, setCartMetadata] = useState<Object | null>(null);
+  const [cartMetadata, setCartMetadata] = useState<any | null>(null);
   const handleFetchCart = useCallback(async () => {
     const response = await fetchCart();
     if (response && response.ok) {

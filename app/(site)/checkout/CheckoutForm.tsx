@@ -22,7 +22,7 @@ export default function CheckoutForm() {
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
-  const [cartMetadata, setCartMetadata] = useState<Object | null>(null);
+  const [cartMetadata, setCartMetadata] = useState<any | null>(null);
   const { formData, handleInputChange } = usePaymentProvider();
 
   const handleFetchCart = async () => {

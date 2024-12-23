@@ -5,7 +5,6 @@ import React, {
   useContext,
   useState,
   useEffect,
-  ReactNode,
   ChangeEvent,
 } from "react";
 
@@ -29,6 +28,7 @@ interface PaymentContextType {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => void;
   formData: FormDataType;
+  setFormData: (e) => void;
 }
 
 const defaultFormData: FormDataType = {
@@ -110,6 +110,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({
         formData,
         setPaymentInfo,
         handleInputChange,
+        setFormData,
       }}
     >
       {children}
