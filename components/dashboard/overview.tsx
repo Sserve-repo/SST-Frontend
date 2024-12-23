@@ -17,22 +17,10 @@ type OverviewType = {
   completeOrder: string;
 };
 
-export function Overview() {
+export function Overview(overview) {
   const currentHour = new Date().getHours();
   const { currentUser } = useAuth();
-  const [overviewData, setOverviewData] = useState<OverviewType | null>(null);
-
-  const handleFetchOverview = async () => {
-    const response = await getOverview();
-    if (response && response.ok) {
-      const data = await response.json();
-      setOverviewData(data.data);
-    }
-  };
-
-  useEffect(() => {
-    handleFetchOverview();
-  });
+  const overviewData = overview;
 
   const getGreeting = () => {
     if (currentHour < 12) {

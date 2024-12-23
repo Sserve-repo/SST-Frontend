@@ -21,8 +21,6 @@ type CartContextType = {
   setCartExt: (item: CartItem[]) => Promise<void>;
   totalItems: number;
   totalPrice: number;
-  shippingCost: number;
-  taxRate: number;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -39,8 +37,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [shippingCost, setShippingCost] = useState(0);
-  const [taxRate, setTaxRate] = useState(0);
 
   useEffect(() => {
     const fetchInitialCart = async () => {
@@ -53,8 +49,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           } else {
             setCart([]);
           }
-          setShippingCost(data.data["Shipping Cost"]);
-          setTaxRate(data.data["Tax Rate"]);
         } else {
           console.error("Failed to fetch cart from server");
           setCart([]);
@@ -182,8 +176,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         setCartExt,
         totalItems,
         totalPrice,
-        shippingCost,
-        taxRate,
       }}
     >
       {children}

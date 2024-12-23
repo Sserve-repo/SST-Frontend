@@ -12,6 +12,7 @@ import { getServiceDetail } from "@/actions/service";
 import Cookies from "js-cookie";
 import { StripeServicePaymentForm } from "./StripeServicePaymentForm";
 import BookingOrderSummary from "@/app/(site)/booking/BookingOrderSummary";
+import { usePaymentProvider } from "@/context/PaymentContext ";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -26,38 +27,27 @@ export default function BookingForm() {
   const params = useSearchParams();
   const serviceId = params.get("serviceId");
   const [service, setService] = useState<Service | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>("");
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
-  const [homeService, setHomeService] = useState(true);
+  const { formData, handleInputChange } = usePaymentProvider();
 
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    provinceId: "",
-  });
-
-  const handleGetProvinces = async () => {
+  const handleGetProvinces = useCallback(async () => {
     const response = await getProvinces();
     if (response && response.ok) {
       const data = await response.json();
       setProvinces(data.data["Provinces"]);
     }
-  };
+  }, []);
 
-  const createStripePaymentIntent = async () => {
+  const createStripePaymentIntent = useCallback(async () => {
     const response = await createServicePaymentIntent(serviceId!);
     if (response.ok) {
       const data = await response.json();
       setClientSecret(data.data["clientSecret"]);
       setCheckoutData(data.data);
     }
-  };
+  }, []);
 
   const fetchServiceDetail = useCallback(async (id) => {
     const response = await getServiceDetail(id);
@@ -76,7 +66,7 @@ export default function BookingForm() {
     if (serviceId) {
       fetchServiceDetail(serviceId);
     }
-  }, [fetchServiceDetail, service, serviceId, router]);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -84,31 +74,6 @@ export default function BookingForm() {
       await createStripePaymentIntent();
     })();
   }, [createStripePaymentIntent]);
-
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    const date = selectedDate ? selectedDate.split(" ")[0] : null;
-    const time = selectedDate ? selectedDate.split(" ")[1] : null;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-      listingId: service && service["Service Details"].id,
-      booked_date: date,
-      booked_time: time,
-    }));
-
-    localStorage.setItem(
-      "formData",
-      JSON.stringify({
-        ...formData,
-        [name]: value,
-        booked_date: date,
-        booked_time: time,
-      })
-    );
-  };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -129,11 +94,17 @@ export default function BookingForm() {
               onSubmit={handleFormSubmit}
               className="space-y-6"
             >
+              <input
+                hidden
+                value={service && service["Service Details"].id}
+                name="listingId"
+              />
               {/* Date Information */}
               <label className="font-bold">Date & Time Availability</label>
               <select
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={handleInputChange}
                 className="h-12 mt-2 border-2 w-full px-2"
+                name="dates"
               >
                 <option value="">Please select</option>
                 {service?.["Date & Time Availability"] &&
@@ -143,7 +114,7 @@ export default function BookingForm() {
                         <option
                           className="my-4"
                           key={`${date}-${index}`}
-                          value={`${date} ${time}`}
+                          value={formData.dates}
                         >
                           {`${date} ${time}`}
                         </option>
@@ -156,9 +127,11 @@ export default function BookingForm() {
                 <div className="flex gap-4">
                   <input
                     type="checkbox"
-                    // name={homeService}
-                    onChange={() => setHomeService((prev) => !prev)}
+                    name="homeService"
+                    onChange={handleInputChange}
+                    checked={formData.homeService}
                   />
+
                   <label>Yes, I want Home Services </label>
                 </div>
               </div>
@@ -168,7 +141,7 @@ export default function BookingForm() {
                 {`${service && service["Service Details"].booking_details!}`}
               </p>
 
-              {!homeService ? (
+              {formData.homeService ? (
                 <>
                   <div className="border rounded-lg p-4">
                     <h2 className="font-bold text-lg mb-4">

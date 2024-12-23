@@ -11,26 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
-import { getOverview } from "@/actions/dashboard";
-
-interface Transaction {
-  id: string;
-  product: string;
-  amount: number;
-  status: "delivered" | "pending" | "cancelled";
-  date: string;
-}
-
-const transactions: Transaction[] = [
-  {
-    id: "1",
-    product: "Apple Watch",
-    amount: 34295,
-    status: "delivered",
-    date: "22 Oct, 10:55 AM",
-  },
-];
 
 const statusStyles = {
   delivered: "bg-green-100 text-green-600",
@@ -38,39 +18,27 @@ const statusStyles = {
   cancelled: "bg-red-100 text-red-600",
 };
 
-type TransactionType = {
-  id: number;
-  order_id: number;
-  user_id: number;
-  local_id: string;
-  vendor_id: number;
-  product_listing_detail_id: number;
-  quantity: number;
-  currency: string;
-  unit_price: string;
-  total_amount: string;
-  order_status: string;
+export type TransactionType = {
+  id: string;
+  order_no: string;
+  user_id: string;
+  total: string;
+  vendor_tax: string;
+  shipping_cost: string;
+  cart_total: string;
+  order_type: string;
   status: string;
   created_at: string;
   updated_at: string;
 };
-
-export function TransactionList({ className }: { className?: string }) {
-  const [transactionData, setTransactionData] = useState<
-    TransactionType[] | null
-  >(null);
-
-  const handleFetchOverview = async () => {
-    const response = await getOverview();
-    if (response && response.ok) {
-      const data = await response.json();
-      setTransactionData(data.data["Transaction"]);
-    }
-  };
-
-  useEffect(() => {
-    handleFetchOverview();
-  });
+export function TransactionList({
+  className,
+  overview,
+}: {
+  className?: string;
+  overview: any;
+}) {
+  const transaction = overview?.Transaction;
 
   return (
     <Card
@@ -102,8 +70,8 @@ export function TransactionList({ className }: { className?: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactionData &&
-                transactionData.map((transaction) => (
+              {transaction &&
+                transaction.map((transaction) => (
                   <TableRow
                     key={transaction.id}
                     className="border-none cursor-pointer"
@@ -114,11 +82,11 @@ export function TransactionList({ className }: { className?: string }) {
                           <AvatarImage src="/placeholder.svg" alt="Product" />
                           <AvatarFallback>AW</AvatarFallback>
                         </Avatar>
-                        {transaction.order_id}
+                        {transaction.order_no}
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
-                      ${transaction.total_amount.toLocaleString()}
+                      ${transaction.cart_total?.toLocaleString()}
                     </TableCell>
                     <TableCell>
                       <span
@@ -139,7 +107,7 @@ export function TransactionList({ className }: { className?: string }) {
           </Table>
         </div>
         <div className="mt-4 flex justify-between items-center text-sm text-muted-foreground">
-          <span>Showing 1-05 of {transactions.length}</span>
+          <span>Showing 1-05 of {transaction?.length}</span>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
               Previous

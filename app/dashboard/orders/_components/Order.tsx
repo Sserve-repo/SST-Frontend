@@ -24,6 +24,7 @@ import { getOrderlist } from "@/actions/dashboard";
 import { useRouter } from "next/navigation";
 
 type OrderType = {
+  id:string;
   order_no: string;
   order_type: string;
   cart_total: string;
@@ -43,7 +44,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     handleFetchOrders();
-  });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -110,7 +111,9 @@ export default function OrdersPage() {
                   <TableRow
                     key={order?.order_no}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => router.push(order?.order_no)}
+                    onClick={() =>
+                      router.push(`/dashboard/orders/${order?.id}`)
+                    }
                   >
                     <TableCell className="font-medium">
                       {order?.order_no}

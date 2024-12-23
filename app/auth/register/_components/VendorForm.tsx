@@ -409,122 +409,129 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
     const isValid = validateForm(data, step);
 
     if (isValid) {
-      setLoading(true);
-      if (step === 1) {
-        if (!userVerified && !completedUserRegistration) {
-          const payload = userRegistrationPayload(data);
-          const response = await registerUser("vendor", payload);
-          const res = await response?.json();
-          if (response && response.ok && response.status === 201) {
-            toast.success(res.message);
-            setCompletedUserRegistration(true);
+      try {
+        setLoading(true);
+        if (step === 1) {
+          if (!userVerified && !completedUserRegistration) {
+            const payload = userRegistrationPayload(data);
+            const response = await registerUser("vendor", payload);
+            const res = await response?.json();
+            if (response && response.ok && response.status === 201) {
+              toast.success(res.message);
+              setCompletedUserRegistration(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           } else {
-            formatErrors(res.data.errors, res);
-          }
-        } else {
-          console.log(!userVerified, !completedUserRegistration);
-          const payload = otpPayload(data);
-          const response = await creatOtp(payload);
-          const res = await response?.json();
-          if (response && response.ok && response.status === 200) {
-            toast.success(res.message);
-            setUserVerified(true);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
-          }
-        }
-      }
-
-      if (step === 2) {
-        const payload = businessProfilePayload(data);
-        const response = await createBusinessProfile(payload);
-        if (response) {
-          const res = await response.json();
-
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            console.log(!userVerified, !completedUserRegistration);
+            const payload = otpPayload(data);
+            const response = await creatOtp(payload);
+            const res = await response?.json();
+            if (response && response.ok && response.status === 200) {
+              toast.success(res.message);
+              setUserVerified(true);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 3) {
-        const payload = vendorIdentityPayload(data);
-        const response = await createVendorIdentity(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 2) {
+          const payload = businessProfilePayload(data);
+          const response = await createBusinessProfile(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 4) {
-        const payload = shippingPolicyPayload(data);
-        const response = await createShippingPolicy(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 3) {
+          const payload = vendorIdentityPayload(data);
+          const response = await createVendorIdentity(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 5) {
-        const payload = paymentPreferencePayload(data);
-        const response = await createPaymentPreference(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 4) {
+          const payload = shippingPolicyPayload(data);
+          const response = await createShippingPolicy(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 6) {
-        const payload = billingPayload(data);
-        const response = await createBilling(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 5) {
+          const payload = paymentPreferencePayload(data);
+          const response = await createPaymentPreference(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 200) {
-            toast.success("Billing Created Successfully");
-            handleNextStep();
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
-      }
 
-      if (step === 7) {
-        const payload = productListingPayload(data);
-        const response = await createProductListing(payload);
-        if (response) {
-          const res = await response.json();
+        if (step === 6) {
+          const payload = billingPayload(data);
+          const response = await createBilling(payload);
+          if (response) {
+            const res = await response.json();
 
-          if (response.ok && response.status === 201) {
-            toast.success(res.message);
-            toast.success(res.message);
-            setSuccess(true);
-          } else {
-            formatErrors(res.data.errors, res);
+            if (response.ok && response.status === 200) {
+              toast.success("Billing Created Successfully");
+              handleNextStep();
+            } else {
+              formatErrors(res.data.errors, res);
+            }
           }
         }
+
+        if (step === 7) {
+          const payload = productListingPayload(data);
+          const response = await createProductListing(payload);
+          if (response) {
+            const res = await response.json();
+
+            if (response.ok && response.status === 201) {
+              toast.success(res.message);
+              toast.success(res.message);
+              setSuccess(true);
+            } else {
+              formatErrors(res.data.errors, res);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        toast.error("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
       }
     } else {
       console.log("Form validation failed");
@@ -1543,8 +1550,8 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 )}
 
                 {step === 7 && (
-                  <div className="w-full space-y-7">
-                    <div>
+                  <div className="w-full space-y-7 ">
+                    <div className="mt-16 border">
                       <h2 className="text-[40px] font-semibold text-[#502266]">
                         Tell Us About Your Listing
                       </h2>

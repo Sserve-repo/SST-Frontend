@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
@@ -10,12 +10,13 @@ import { fetchCart } from "@/actions/cart";
 
 const CartPage = () => {
   const { cart, setCartExt, removeFromCart, updateQuantity } = useCart();
-
+  const [cartMetadata, setCartMetadata] = useState<Object | null>(null);
   const handleFetchCart = useCallback(async () => {
     const response = await fetchCart();
     if (response && response.ok) {
       const data = await response.json();
       setCartExt(data.data["Cart Items"]);
+      setCartMetadata(data.data);
     } else {
       console.error("Failed to fetch cart from server");
     }
@@ -23,7 +24,7 @@ const CartPage = () => {
 
   useEffect(() => {
     handleFetchCart();
-  }, [handleFetchCart]);
+  }, []);
 
   if (!cart) {
     return (
@@ -107,7 +108,7 @@ const CartPage = () => {
               </div>
             ))}
         </div>
-        <div>{cart && cart.length > 0 && <OrderSummary />}</div>
+        <div>{cart && cart.length > 0 && <OrderSummary  cartMetadata={cartMetadata} />}</div>
       </div>
     </div>
   );

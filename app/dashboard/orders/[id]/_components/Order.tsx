@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Filter } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,66 +19,48 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle2, Truck, ShieldCheck, ClipboardCheck } from "lucide-react";
 import { OrderDetails } from "./order-details";
 import { MdReplay } from "react-icons/md";
+import { useParams } from "next/navigation";
+import { getOrderDetail } from "@/actions/dashboard";
 
-interface Order {
+type OrderItemsType = {
   id: string;
-  name: string;
-  address: string;
-  category: string;
-  date: string;
+  order_id: string;
+  user_id: string;
+  local_id: string;
+  vendor_id: string;
+  product_listing_detail_id: string;
+  quantity: string;
+  currency: string;
+  unit_price: string;
+  total_amount: string;
+  order_status: string;
   status: string;
-  quantity: number;
-  tax: number;
-  shippingCost: number;
-  price: number;
+  created_at: string;
+  updated_at: string;
+  product_name: string;
+};
+
+interface OrderType {
+  id: string;
+  order_no: string;
+  user_id: string;
+  total: string;
+  vendor_tax: string;
+  shipping_cost: string;
+  cart_total: string;
+  order_type: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  product_items: OrderItemsType[];
   activities: {
     message: string;
     date: string;
     icon: React.ReactNode;
-  }[];
+  };
 }
-
-const orders: Order[] = [
-  {
-    id: "#96459761",
-    name: "Christine Brooks",
-    address: "089 Hutch Green Apt. 448",
-    category: "Electric",
-    date: "17 Jan 2021",
-    status: "Delivered",
-    quantity: 1,
-    tax: 5.0,
-    shippingCost: 15.0,
-    price: 50.0,
-    activities: [
-      {
-        message:
-          "Your order has been delivered. Thank you for shopping at Clicon!",
-        date: "23 Jan, 2021 at 7:32 PM",
-        icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
-      },
-      {
-        message: "Your order is in Transit.",
-        date: "22 Jan, 2021 at 8:00 AM",
-        icon: <Truck className="h-5 w-5 text-purple-500" />,
-      },
-      {
-        message: "Your order is successfully Verified.",
-        date: "20 Jan, 2021 at 7:32 PM",
-        icon: <ShieldCheck className="h-5 w-5 text-orange-500" />,
-      },
-      {
-        message: "Your order has been Confirmed.",
-        date: "19 Jan, 2021 at 2:61 PM",
-        icon: <ClipboardCheck className="h-5 w-5 text-blue-500" />,
-      },
-    ],
-  },
-  // ... other orders with similar structure
-];
 
 const statusStyles = {
   Delivered: "bg-emerald-50 text-emerald-700",
@@ -88,7 +70,24 @@ const statusStyles = {
 };
 
 export default function OrdersPage() {
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<OrderType | null>(null);
+  const { id } = useParams();
+
+  const handleFetchOrders = async (id) => {
+    const response = await getOrderDetail(id);
+    if (response && response.ok) {
+      const data = await response.json();
+      setOrder(data.data["Order Details"]);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchOrders(id);
+  }, []);
+
+  const [selectedOrder, setSelectedOrder] = useState<OrderItemsType | null>(
+    null
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -101,15 +100,13 @@ export default function OrdersPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <h2 className="text-sm font-medium text-gray-600">
-                Order ID No.: {orders[0].id}
+                Order ID No.: {order && order.id}
               </h2>
               <p className="text-sm text-gray-500">
                 4 Products • Order Placed in 17 Jan 2021 at 7:32 PM
               </p>
             </div>
-            <div className="text-2xl font-semibold text-primary">
-              $1199.00
-            </div>
+            <div className="text-2xl font-semibold text-primary">$1199.00</div>
           </div>
         </div>
 
@@ -166,37 +163,44 @@ export default function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
-                <TableRow
-                  key={order.id}
-                  className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => setSelectedOrder(order)}
-                >
-                  <TableCell className="font-medium">{order.name}</TableCell>
-                  <TableCell>{order.address}</TableCell>
-                  <TableCell>{order.category}</TableCell>
-                  <TableCell>
-                    <Select>
-                      <SelectTrigger className="w-[130px]">
-                        <SelectValue placeholder="Complete" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="complete">Complete</SelectItem>
-                        <SelectItem value="cancel">Cancel</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
-                        statusStyles[order.status as keyof typeof statusStyles]
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {order &&
+                order["product_items"].map((orderItem, index) => (
+                  <TableRow
+                    key={order.order_no}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() =>
+                      setSelectedOrder(order["product_items"][index])
+                    }
+                  >
+                    <TableCell className="font-medium">
+                      {orderItem.id}
+                    </TableCell>
+                    <TableCell>{order.user_id}</TableCell>
+                    <TableCell>{order.order_type}</TableCell>
+                    <TableCell>
+                      <Select>
+                        <SelectTrigger className="w-[130px]">
+                          <SelectValue placeholder="Complete" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="complete">Complete</SelectItem>
+                          <SelectItem value="cancel">Cancel</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
+                          statusStyles[
+                            orderItem.status as keyof typeof statusStyles
+                          ]
+                        }`}
+                      >
+                        {orderItem.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
 
@@ -219,7 +223,11 @@ export default function OrdersPage() {
           <OrderDetails
             isOpen={!!selectedOrder}
             onClose={() => setSelectedOrder(null)}
-            order={selectedOrder}
+            order={{
+              ...selectedOrder,
+              shipping_cost: order?.shipping_cost || "0.00",
+              vendor_tax: order?.vendor_tax || "0.00",
+            }}
           />
         )}
       </div>

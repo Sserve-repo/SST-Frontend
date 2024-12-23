@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import OrdersPage from "./components/Order";
+import OrdersPage from "./_components/Order";
 
 export const metadata: Metadata = {
   title: "Orders | SphereServe",

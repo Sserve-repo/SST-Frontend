@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { confirmServicePaymentPayload } from "@/forms/checkout";
 import { confirmServicePayment } from "@/actions/checkout";
 import { useRouter } from "next/navigation";
+import { usePaymentProvider } from "@/context/PaymentContext ";
+import { PaymentSuccess } from "./PaymentSuccess";
 
 type StripeServicePaymentFormProps = {
   onSuccess: (e: React.FormEvent) => void;
@@ -23,16 +25,9 @@ export function StripeServicePaymentForm({
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
-  const [shippingInfo, setShipppingInfo] = useState({});
+  const { formData } = usePaymentProvider();
   const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
-
-  useEffect(() => {
-    const data_ = localStorage.getItem("formData");
-    if (data_) {
-      setShipppingInfo(JSON.parse(data_));
-    }
-  }, []);
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent) => {
@@ -41,7 +36,7 @@ export function StripeServicePaymentForm({
 
       const data_ = {
         ...checkoutData,
-        ...shippingInfo,
+        ...formData,
         orderId: checkoutData.orderId,
       };
 
@@ -61,30 +56,31 @@ export function StripeServicePaymentForm({
         setTimeout(() => {
           router.push("/");
         }, 1200);
+        
       } else {
         setErrorMessage(`An error occured......,${data.data}`);
         setIsLoading(false);
       }
     },
-    [stripe, elements, checkoutData, onSuccess, router, shippingInfo]
+    [stripe, elements, checkoutData, onSuccess, router]
   );
 
   return (
     <form onSubmit={handleSubmit}>
-      <PaymentElement />
-      <Button
-        type="submit"
-        disabled={!stripe || isLoading}
-        className="w-full mt-4"
-      >
-        {isLoading ? "Processing..." : "Pay now"}
-      </Button>
-      {errorMessage && <div className="text-red-500 mt-2">{errorMessage}</div>}
-      {successMessage && (
-        <div className="text-red-500 mt-2 inline-flex justify-center items-center">
-          {successMessage}
+      {!successMessage && (
+        <div>
+          <PaymentElement />
+          <Button
+            type="submit"
+            disabled={!stripe || isLoading}
+            className="w-full mt-4"
+          >
+            {isLoading ? "Processing..." : "Pay now"}
+          </Button>
         </div>
       )}
+      {errorMessage && <div className="text-red-500 mt-2">{errorMessage}</div>}
+      <div>{successMessage && <PaymentSuccess />}</div>
     </form>
   );
 }

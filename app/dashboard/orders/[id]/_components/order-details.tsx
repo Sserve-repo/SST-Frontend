@@ -14,30 +14,23 @@ interface OrderActivity {
   icon: React.ReactNode;
 }
 
-interface OrderDetailsProps {
+type OrderDetailsProps = {
   isOpen: boolean;
   onClose: () => void;
-  order: {
-    id: string;
-    name: string;
-    status: string;
-    quantity: number;
-    tax: number;
-    shippingCost: number;
-    price: number;
-    activities: OrderActivity[];
-  };
-}
+  order: any;
+};
 
 export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
-  const totalPrice = order.price + order.tax + order.shippingCost;
+  const totalPrice = order.price + order.vendor_tax + order.shipping_cost;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="sm:max-w-[500px]">
         <SheetHeader className="space-y-4">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-3xl font-bold text-primary">{order.name}</SheetTitle>
+            <SheetTitle className="text-3xl font-bold text-primary">
+              {order.name}
+            </SheetTitle>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>
@@ -59,31 +52,30 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Tax</span>
-              <span>${order.tax.toFixed(2)}</span>
+              <span>${order?.vendor_tax && order?.vendor_tax}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Shipping Cost</span>
-              <span>${order.shippingCost.toFixed(2)}</span>
+              <span>${order?.shipping_cost && order?.shipping_cost}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Price</span>
-              <span>${order.price.toFixed(2)}</span>
+              <span>${order?.price}</span>
             </div>
           </div>
 
           <Separator />
-
           <div className="flex justify-between items-center">
             <span className="text-xl font-semibold">Total Price</span>
             <span className="text-xl font-semibold">
-              ${totalPrice.toFixed(2)}
+              {`${totalPrice}`.toString()}
             </span>
           </div>
 
           <div className="mt-8">
             <h3 className="text-xl mb-4">Order Activity</h3>
             <div className="space-y-4">
-              {order.activities.map((activity, index) => (
+              {order?.activities?.map((activity, index) => (
                 <div key={index} className="flex gap-3">
                   <div className="mt-1">{activity.icon}</div>
                   <div className="flex-1">

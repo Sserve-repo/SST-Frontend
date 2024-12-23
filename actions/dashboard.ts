@@ -41,3 +41,24 @@ export const getOrderlist = async () => {
         console.log("failed to fetch product menu", error);
     }
 };
+
+
+export const getOrderDetail = async (id) => {
+    try {
+        const token = Cookies.get("accessToken");
+        if (!token) return;
+
+        const response = await fetch(
+            `${baseUrl}/shopper/dashboard/getOrderItemsList/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+        );
+        return response;
+    } catch (error: any) {
+        console.log("failed to fetch order details", );
+    }
+};
+

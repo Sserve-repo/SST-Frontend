@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { StripePaymentForm } from "@/components/StripePaymentForm";
+import { StripePaymentForm } from "@/components/StripeProductPaymentForm";
 import OrderSummary from "./_components/OrderSummary";
 import { createPaymentIntent } from "@/actions/checkout";
 import { getProvinces } from "@/actions/provinces";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { fetchCart } from "@/actions/cart";
-
+import { usePaymentProvider } from "@/context/PaymentContext ";
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
@@ -22,15 +22,8 @@ export default function CheckoutForm() {
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
-  const [formData, setFormData] = useState({
-    fullname: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    provinceId: "",
-  });
+  const [cartMetadata, setCartMetadata] = useState<Object | null>(null);
+  const { formData, handleInputChange } = usePaymentProvider();
 
   const handleFetchCart = async () => {
     try {
@@ -38,6 +31,7 @@ export default function CheckoutForm() {
       if (response && response.ok) {
         const data = await response.json();
         setCartData(data.data["Cart Items"]);
+        setCartMetadata(data.data);
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -78,15 +72,6 @@ export default function CheckoutForm() {
     }
   }, [isLoadingCart, cartData, router]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    localStorage.setItem(
-      "formData",
-      JSON.stringify({ ...formData, [name]: value })
-    );
-  };
-
   const handleFormSubmit = (e) => {
     e.preventDefault();
     console.log("Form data submitted:", formData);
@@ -105,7 +90,7 @@ export default function CheckoutForm() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 pr-0 lg:pr-4 mx-6">
               <div className="lg:col-span-1 lg:hidden">
-                <OrderSummary />
+                <OrderSummary cartMetadata={cartMetadata} />
               </div>
               <form
                 id="checkout-form"
@@ -239,7 +224,6 @@ export default function CheckoutForm() {
                     <StripePaymentForm
                       onSuccess={handleFormSubmit}
                       checkoutData={checkoutData}
-                      // {...formData}
                     />
                   </Elements>
                 ) : (
@@ -253,7 +237,7 @@ export default function CheckoutForm() {
 
             {/* Order Summary */}
             <div className="lg:col-span-1 hidden lg:block">
-              <OrderSummary />
+              <OrderSummary cartMetadata={cartMetadata} />
             </div>
           </div>
         </>

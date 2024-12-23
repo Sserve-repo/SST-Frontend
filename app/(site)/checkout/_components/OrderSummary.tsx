@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
-const OrderSummary = () => {
-  const { cart, shippingCost, taxRate, totalPrice } = useCart();
+const OrderSummary = ({cartMetadata}) => {
+  const { cart, totalPrice } = useCart();
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
 
   useEffect(() => {
@@ -42,13 +42,13 @@ const OrderSummary = () => {
       {/* Shipping */}
       <div className="flex justify-between mb-2">
         <span>Shipping:</span>
-        <span>{shippingCost ? shippingCost : "Free"} </span>
+        <span>{cartMetadata && cartMetadata["Shipping Cost"] &&  cartMetadata["Shipping Cost"].toFixed(2) || "Free"} </span>
       </div>
 
       {/* Tax */}
       <div className="flex justify-between mb-2">
         <span>Tax:</span>
-        <span>${taxRate && taxRate.toFixed(2)} </span>
+        <span>${cartMetadata && cartMetadata["Tax Rate"] && cartMetadata["Tax Rate"].toFixed(2)} </span>
       </div>
 
       {/* Grand Total */}

@@ -5,6 +5,7 @@ import Header from "../landing/Header";
 import Footer from "../landing/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { PaymentProvider } from "@/context/PaymentContext ";
 
 export default function ClientLayout({
   children,
@@ -17,11 +18,13 @@ export default function ClientLayout({
   return (
     <>
       <AuthProvider>
-        <CartProvider>
-          {!isAuthPage && <Header />}
-          <main className="w-full">{children}</main>
-          {!isAuthPage && <Footer />}
-        </CartProvider>
+        <PaymentProvider>
+          <CartProvider>
+            {!isAuthPage && <Header />}
+            <main className="w-full">{children}</main>
+            {!isAuthPage && <Footer />}
+          </CartProvider>
+        </PaymentProvider>
       </AuthProvider>
     </>
   );
