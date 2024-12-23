@@ -8,11 +8,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-interface OrderActivity {
-  message: string;
-  date: string;
-  icon: React.ReactNode;
-}
+// interface OrderActivity {
+//   message: string;
+//   date: string;
+//   icon: React.ReactNode;
+// }
 
 type OrderDetailsProps = {
   isOpen: boolean;
@@ -21,8 +21,6 @@ type OrderDetailsProps = {
 };
 
 export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
-  const totalPrice = order.price + order.vendor_tax + order.shipping_cost;
-
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="sm:max-w-[500px]">
@@ -60,7 +58,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Price</span>
-              <span>${order?.price}</span>
+              <span>${order?.cart_total}</span>
             </div>
           </div>
 
@@ -68,7 +66,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
           <div className="flex justify-between items-center">
             <span className="text-xl font-semibold">Total Price</span>
             <span className="text-xl font-semibold">
-              {`${totalPrice}`.toString()}
+              ${order?.total}
             </span>
           </div>
 

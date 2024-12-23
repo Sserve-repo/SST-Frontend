@@ -5,19 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
-import { getOverview } from "@/actions/dashboard";
 
-type OverviewType = {
-  Transactions: any;
-  TotalExpenditure: string;
-  orderInProgress: string;
-  cancelleOrder: string;
-  pendingOrder: string;
-  completeOrder: string;
-};
-
-export function Overview(overview) {
+export function Overview({ overview }) {
   const currentHour = new Date().getHours();
   const { currentUser } = useAuth();
   const overviewData = overview;

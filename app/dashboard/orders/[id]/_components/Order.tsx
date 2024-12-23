@@ -36,9 +36,11 @@ type OrderItemsType = {
   unit_price: string;
   total_amount: string;
   order_status: string;
+  order_type: string;
   status: string;
   created_at: string;
   updated_at: string;
+  address: string;
   product_name: string;
 };
 
@@ -50,9 +52,9 @@ interface OrderType {
   vendor_tax: string;
   shipping_cost: string;
   cart_total: string;
-  order_type: string;
   status: string;
   created_at: string;
+  order_type: string;
   updated_at: string;
   product_items: OrderItemsType[];
   activities: {
@@ -63,9 +65,9 @@ interface OrderType {
 }
 
 const statusStyles = {
-  Delivered: "bg-emerald-50 text-emerald-700",
+  success: "bg-emerald-50 text-emerald-700",
   Processing: "bg-purple-50 text-purple-700",
-  Cancelled: "bg-red-50 text-red-700",
+  cancelled: "bg-red-50 text-red-700",
   "In Transit": "bg-blue-50 text-blue-700",
 };
 
@@ -106,7 +108,9 @@ export default function OrdersPage() {
                 4 Products • Order Placed in 17 Jan 2021 at 7:32 PM
               </p>
             </div>
-            <div className="text-2xl font-semibold text-primary">$1199.00</div>
+            <div className="text-2xl font-semibold text-primary">
+              ${order?.total}
+            </div>
           </div>
         </div>
 
@@ -172,11 +176,13 @@ export default function OrdersPage() {
                       setSelectedOrder(order["product_items"][index])
                     }
                   >
-                    <TableCell className="font-medium">
-                      {orderItem.id}
+                    <TableCell>{orderItem?.product_name}</TableCell>
+                    <TableCell>
+                      {orderItem?.address ? orderItem?.address : "--"}
                     </TableCell>
-                    <TableCell>{order.user_id}</TableCell>
-                    <TableCell>{order.order_type}</TableCell>
+                    <TableCell>
+                      {orderItem?.order_type || order?.order_type}
+                    </TableCell>
                     <TableCell>
                       <Select>
                         <SelectTrigger className="w-[130px]">
@@ -227,6 +233,8 @@ export default function OrdersPage() {
               ...selectedOrder,
               shipping_cost: order?.shipping_cost || "0.00",
               vendor_tax: order?.vendor_tax || "0.00",
+              cart_total: order?.cart_total || "0.00",
+              total: order?.total || "0.00",
             }}
           />
         )}

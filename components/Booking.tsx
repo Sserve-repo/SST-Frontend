@@ -30,7 +30,7 @@ export default function BookingForm() {
   const [clientSecret, setClientSecret] = useState("");
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
-  const { formData, handleInputChange } = usePaymentProvider();
+  const { formData, setFormData, handleInputChange } = usePaymentProvider();
 
   const handleGetProvinces = useCallback(async () => {
     const response = await getProvinces();
@@ -55,6 +55,11 @@ export default function BookingForm() {
       const data = await response.json();
       setService(data.data);
       setCheckoutData(data.data);
+
+      setFormData((prev) => ({
+        ...prev,
+        listingId: data.data["Service Details"].id || "",
+      }));
     }
   }, []);
 
@@ -96,11 +101,12 @@ export default function BookingForm() {
             >
               <input
                 hidden
-                value={service && service["Service Details"].id}
+                value={service && service["Service Details"]?.id}
                 name="listingId"
               />
               {/* Date Information */}
               <label className="font-bold">Date & Time Availability</label>
+
               <select
                 onChange={handleInputChange}
                 className="h-12 mt-2 border-2 w-full px-2"
@@ -114,7 +120,7 @@ export default function BookingForm() {
                         <option
                           className="my-4"
                           key={`${date}-${index}`}
-                          value={formData.dates}
+                          value={`${date} ${time}`}
                         >
                           {`${date} ${time}`}
                         </option>

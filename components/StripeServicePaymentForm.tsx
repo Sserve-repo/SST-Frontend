@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   PaymentElement,
   useStripe,
@@ -50,7 +50,7 @@ export function StripeServicePaymentForm({
       if (response.ok) {
         onSuccess(event);
         setIsLoading(false);
-        setSuccessMessage("Payment Successfull...");
+        setSuccessMessage("Payment Successful...");
         localStorage.removeItem("formData");
 
         setTimeout(() => {
@@ -62,7 +62,7 @@ export function StripeServicePaymentForm({
         setIsLoading(false);
       }
     },
-    [stripe, elements, checkoutData, onSuccess, router]
+    [stripe, elements, checkoutData, formData, onSuccess, router]
   );
 
   return (
