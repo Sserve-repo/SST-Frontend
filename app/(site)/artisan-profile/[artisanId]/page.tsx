@@ -46,7 +46,6 @@ const Service = () => {
       handleFetchArtisanProfile(artisanId);
     }
   }, [artisanId]);
-  // console.log("artisan...........", artisan);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

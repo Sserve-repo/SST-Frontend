@@ -1,7 +1,7 @@
 import { baseUrl } from "@/config/constant";
 import Cookies from "js-cookie"
 
-export const getOverview = async () => {
+export const getProductOverview = async () => {
     try {
         const token = Cookies.get("accessToken");
         if (!token) return;
@@ -20,7 +20,24 @@ export const getOverview = async () => {
     }
 };
 
+export const getServiceOverview = async () => {
+    try {
+        const token = Cookies.get("accessToken");
+        if (!token) return;
 
+        const response = await fetch(
+            `${baseUrl}/shopper/dashboard/serviceOverview`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+        );
+        return response;
+    } catch (error: any) {
+        console.log("failed to fetch service menu", error);
+    }
+};
 
 
 export const getOrderlist = async () => {
@@ -58,7 +75,7 @@ export const getOrderDetail = async (id) => {
         );
         return response;
     } catch (error: any) {
-        console.log("failed to fetch order details", );
+        console.log("failed to fetch order details",);
     }
 };
 
