@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Filter } from "lucide-react";
+import {
+  CheckCircle2,
+  ClipboardCheck,
+  Filter,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +41,7 @@ type OrderItemsType = {
   currency: string;
   unit_price: string;
   total_amount: string;
+  booking_status?: string;
   order_status: string;
   order_type: string;
   status: string;
@@ -85,7 +92,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     handleFetchOrders(id);
-  }, []);
+  }, [id]);
 
   const [selectedOrder, setSelectedOrder] = useState<OrderItemsType | null>(
     null
@@ -168,6 +175,7 @@ export default function OrdersPage() {
             </TableHeader>
             <TableBody>
               {order &&
+                order.order_type === "product" &&
                 order["product_items"].map((orderItem, index) => (
                   <TableRow
                     key={order.order_no}
@@ -177,6 +185,47 @@ export default function OrdersPage() {
                     }
                   >
                     <TableCell>{orderItem?.product_name}</TableCell>
+                    <TableCell>
+                      {orderItem?.address ? orderItem?.address : "--"}
+                    </TableCell>
+                    <TableCell>
+                      {orderItem?.order_type || order?.order_type}
+                    </TableCell>
+                    <TableCell>
+                      <Select>
+                        <SelectTrigger className="w-[130px]">
+                          <SelectValue placeholder="Complete" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="complete">Complete</SelectItem>
+                          <SelectItem value="cancel">Cancel</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
+                          statusStyles[
+                            orderItem.status as keyof typeof statusStyles
+                          ]
+                        }`}
+                      >
+                        {orderItem.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}{" "}
+              {order &&
+                order.order_type === "service" &&
+                order["service_items"].map((orderItem, index) => (
+                  <TableRow
+                    key={order.order_no}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() =>
+                      setSelectedOrder(order["service_items"][index])
+                    }
+                  >
+                    <TableCell>{orderItem?.service_name}</TableCell>
                     <TableCell>
                       {orderItem?.address ? orderItem?.address : "--"}
                     </TableCell>
@@ -235,6 +284,31 @@ export default function OrdersPage() {
               vendor_tax: order?.vendor_tax || "0.00",
               cart_total: order?.cart_total || "0.00",
               total: order?.total || "0.00",
+              order_type: order?.order_type,
+
+              activities: [
+                {
+                  message:
+                    "Your order has been delivered. Thank you for shopping at Clicon!",
+                  date: "23 Jan, 2021 at 7:32 PM",
+                  icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
+                },
+                {
+                  message: "Your order is in Transit.",
+                  date: "22 Jan, 2021 at 8:00 AM",
+                  icon: <Truck className="h-5 w-5 text-purple-500" />,
+                },
+                {
+                  message: "Your order is successfully Verified.",
+                  date: "20 Jan, 2021 at 7:32 PM",
+                  icon: <ShieldCheck className="h-5 w-5 text-orange-500" />,
+                },
+                {
+                  message: "Your order has been Confirmed.",
+                  date: "19 Jan, 2021 at 2:61 PM",
+                  icon: <ClipboardCheck className="h-5 w-5 text-blue-500" />,
+                },
+              ],
             }}
           />
         )}

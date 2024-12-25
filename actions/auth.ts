@@ -35,6 +35,27 @@ export const getUserDetails = async (email: any) => {
   }
 };
 
+export const getLoggedInUserDetails = async () => {
+  try {
+    const token = Cookies.get("accessToken");
+    if (!token) return;
+    const response = await fetch(
+      `${baseUrl}/shopper/dashboard/getUserProfile`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+    );
+    const res = await response.json();
+    if (response.ok && response.status === 200) {
+      return res;
+    }
+  } catch (error: any) {
+    console.log("Form validation failed", error);
+  }
+};
+
 export const registerUser = async (userType: string, requestPayload: any) => {
   try {
     const response = await fetch(

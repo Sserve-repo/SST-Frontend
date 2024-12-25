@@ -6,10 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
 import { TbChartArcs } from "react-icons/tb";
@@ -113,11 +110,11 @@ export function DashboardNav() {
               className="w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-primary hover:bg-purple-50"
               asChild
             >
-              <Link href="/settings">
+              <Link href="/dashboard/profile-setting">
                 <Settings
                   className={cn(
                     "mr-4 h-5 w-5 transition-all",
-                    pathname === "/settings" && "text-white",
+                    pathname === "/dashboard/profile-setting" && "text-white",
                     isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
                   )}
                 />

@@ -24,7 +24,7 @@ const CartPage = () => {
 
   useEffect(() => {
     handleFetchCart();
-  }, []);
+  }, [handleFetchCart]);
 
   if (!cart) {
     return (
@@ -108,7 +108,11 @@ const CartPage = () => {
               </div>
             ))}
         </div>
-        <div>{cart && cart.length > 0 && <OrderSummary  cartMetadata={cartMetadata} />}</div>
+        <div>
+          {cart && cart.length > 0 && (
+            <OrderSummary cartMetadata={cartMetadata} />
+          )}
+        </div>
       </div>
     </div>
   );

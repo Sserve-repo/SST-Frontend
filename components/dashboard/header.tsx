@@ -12,9 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { BsList } from "react-icons/bs";
-import { FiShoppingCart } from "react-icons/fi";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { useAuth } from "@/context/AuthContext";
+import CartIcon from "../CartIcon";
 
 export function Header() {
   const { toggleSidebar } = useSidebarToggle();
@@ -58,10 +58,7 @@ export function Header() {
         <div className="flex items-center space-x-6">
           {/* Cart */}
           <div className="relative">
-            <FiShoppingCart className="h-6 w-6 text-primary" />
-            <span className="absolute -top-1 -right-2 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              6
-            </span>
+            <CartIcon />
           </div>
 
           {/* User Menu */}
@@ -69,7 +66,10 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center space-x-2 cursor-pointer">
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={currentUser?.user_photo} alt="User Avatar" />
+                  <AvatarImage
+                    src={currentUser?.user_photo}
+                    alt="User Avatar"
+                  />
                   <AvatarFallback>
                     {" "}
                     {currentUser?.firstname[0] + currentUser?.lastname[0]}

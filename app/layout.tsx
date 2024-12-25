@@ -4,6 +4,7 @@ import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
 
 const APP_NAME = "SphereServes";
 const APP_DEFAULT_TITLE = "SphereServes";
@@ -64,7 +65,9 @@ export default function RootLayout({
         <NextTopLoader color="hsl(281, 50%, 27%)" />
         <Toaster position="top-right" richColors closeButton />
         <ThemeProvider attribute="class" enableSystem={false}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <CartProvider>{children}</CartProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

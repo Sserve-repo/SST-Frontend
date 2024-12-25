@@ -47,7 +47,7 @@ export default function BookingForm() {
       setClientSecret(data.data["clientSecret"]);
       setCheckoutData(data.data);
     }
-  }, []);
+  }, [serviceId]);
 
   const fetchServiceDetail = useCallback(async (id) => {
     const response = await getServiceDetail(id);
@@ -61,7 +61,7 @@ export default function BookingForm() {
         listingId: data.data["Service Details"].id || "",
       }));
     }
-  }, []);
+  }, [setFormData]);
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -71,14 +71,14 @@ export default function BookingForm() {
     if (serviceId) {
       fetchServiceDetail(serviceId);
     }
-  }, []);
+  }, [fetchServiceDetail, serviceId, router]);
 
   useEffect(() => {
     (async () => {
       await handleGetProvinces();
       await createStripePaymentIntent();
     })();
-  }, [createStripePaymentIntent]);
+  }, [createStripePaymentIntent, handleGetProvinces]);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();

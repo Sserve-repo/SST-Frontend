@@ -5,8 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { Dispatch, SetStateAction } from "react";
 
-export function Overview({ overview }) {
+export type OverviewProps = {
+  overview: any;
+  setTab: Dispatch<SetStateAction<string>>;
+  tab: string;
+  className?: string;
+};
+export function Overview({ overview, tab, setTab }: OverviewProps) {
   const currentHour = new Date().getHours();
   const { currentUser } = useAuth();
   const overviewData = overview;
@@ -44,10 +51,14 @@ export function Overview({ overview }) {
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-4 md:mt-0">
-          <Tabs defaultValue="products" className="space-y-4 bg-white">
+          <Tabs defaultValue={tab} className="space-y-4 bg-white">
             <TabsList className="flex space-x-4 bg-white p-1 rounded-lg border border-gray-200">
-              <TabsTrigger value="products">Products</TabsTrigger>
-              <TabsTrigger value="service">Service</TabsTrigger>
+              <TabsTrigger onClick={() => setTab("products")} value="products">
+                Products
+              </TabsTrigger>
+              <TabsTrigger onClick={() => setTab("service")} value="service">
+                Service
+              </TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
