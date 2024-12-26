@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuth } from "@/context/AuthContext";
 
 type ProductsItem = {
   id: number;
@@ -30,7 +29,6 @@ type ProductsItem = {
 const ProductPage = () => {
   const [products, setProducts] = useState<ProductsItem[]>([]);
   const [sortOption, setSortOption] = useState("Most Relevant");
-  const { isAuthenticated } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
 
