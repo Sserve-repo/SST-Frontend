@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Filter } from "lucide-react";
+import { FaArrowRight } from "react-icons/fa6";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +25,7 @@ import { getOrderlist } from "@/actions/dashboard";
 import { useRouter } from "next/navigation";
 
 type OrderType = {
-  id:string;
+  id: string;
   order_no: string;
   order_type: string;
   cart_total: string;
@@ -121,7 +122,12 @@ export default function OrdersPage() {
                     <TableCell>{order?.created_at}</TableCell>
                     <TableCell>{order?.order_type}</TableCell>
                     <TableCell>{order?.cart_total}</TableCell>
-                    <TableCell>View Details</TableCell>
+                    <TableCell className="text-orange-400">
+                      <div className="flex gap-x-2">
+                        View Details
+                        <FaArrowRight />
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>

@@ -40,7 +40,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
   };
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-[500px]">
+      <SheetContent className="sm:max-w-[500px] overflow-y-auto">
         <SheetHeader className="space-y-4">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-3xl font-bold text-primary">

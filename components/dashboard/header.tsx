@@ -15,10 +15,13 @@ import { BsList } from "react-icons/bs";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { useAuth } from "@/context/AuthContext";
 import CartIcon from "../CartIcon";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const { toggleSidebar } = useSidebarToggle();
-  const { currentUser } = useAuth();
+  const { currentUser, logOut } = useAuth();
+  const router = useRouter();
 
   const getUserType = (user_type: string) => {
     return user_type === "3"
@@ -77,7 +80,7 @@ export function Header() {
                 </Avatar>
                 <div className="text-left">
                   <p className="text-sm font-medium text-primary">
-                    {currentUser?.firstname}`
+                    {currentUser?.firstname}
                   </p>
                   <p className="text-xs text-gray-500">
                     {getUserType(currentUser?.user_type)}
@@ -89,18 +92,26 @@ export function Header() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">
-                    {currentUser?.firstname}`
+                    {currentUser?.firstname}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {currentUser?.email}`
+                    {currentUser?.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              <Link href={"/dashboard/profile-setting"}>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+              </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Log out</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push("/");
+                  logOut();
+                }}
+              >
+                Log out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

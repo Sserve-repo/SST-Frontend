@@ -246,82 +246,84 @@ export default function ServiceAvailability() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 w-full max-w-6xl">
-        {services.map((provider) => (
-          <Card key={provider.id} className="overflow-hidden bg-gray-50">
-            <div className="flex flex-col md:flex-row">
-              <div className="p-6 flex-grow">
-                <div className="flex items-center space-x-4 mb-4">
-                  <Image
-                    src={provider.image}
-                    alt={`${provider.title}'s profile picture`}
-                    width={100}
-                    height={100}
-                    className="rounded-md bg-gray-300"
-                  />
-                  <div>
-                    <h3 className="text-[2rem] text-[#502266] font-semibold">
-                      {provider.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      {provider.description}
-                    </p>
-                    <div className="flex ">
-                      <Badge variant="secondary" className="bg-[#FFDFC0]">
-                        {" "}
-                        {provider?.service_category_items_name}
-                      </Badge>
-                      <Badge variant="secondary" className="bg-[#FFDFC0]">
-                        {" "}
-                        {provider?.service_category_name}
-                      </Badge>
+        {services && services.length > 0 ? (
+          services?.map((provider) => (
+            <Card key={provider.id} className="overflow-hidden bg-gray-50">
+              <div className="flex flex-col md:flex-row">
+                <div className="p-6 flex-grow">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <Image
+                      src={provider.image}
+                      alt={`${provider.title}'s profile picture`}
+                      width={100}
+                      height={100}
+                      className="rounded-md bg-gray-300"
+                    />
+                    <div>
+                      <h3 className="text-[2rem] text-[#502266] font-semibold">
+                        {provider.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        {provider.description}
+                      </p>
+                      <div className="flex ">
+                        <Badge variant="secondary" className="bg-[#FFDFC0]">
+                          {" "}
+                          {provider?.service_category_items_name}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-[#FFDFC0]">
+                          {" "}
+                          {provider?.service_category_name}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-row gap-x-4 items-center justify-start ">
+                    <div className="flex items-center text-[#502266]">
+                      <span className="font-semibold text-lg">
+                        ${provider.price}
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                      <span className="ml-1">
+                        {provider?.rating?.toFixed(1)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-row gap-x-4 items-center justify-start ">
-                  <div className="flex items-center text-[#502266]">
-                    <span className="font-semibold text-lg">
-                      ${provider.price}
+                <div className="bg-gray-50 p-6 flex flex-col justify-between">
+                  <div className="flex items-center mb-4">
+                    <Clock className="w-5 h-5 mr-2 text-gray-600" />
+                    <span className="text-sm text-gray-700">
+                      Duration:{" "}
+                      {`${provider.start_time} -- ${provider.end_time}`} hrs
                     </span>
                   </div>
-                  <div className="flex items-center">
-                    <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                    <span className="ml-1">{provider?.rating?.toFixed(1)}</span>
+                  <div className="flex items-center mb-4">
+                    <MapPin className="w-5 h-5 mr-2 text-gray-600" />
+                    <span className="text-sm text-gray-700">
+                      {provider.province}
+                    </span>
                   </div>
+                  <Button
+                    className="mt-auto text-white"
+                    onClick={() => handleHireNow(provider.id)}
+                  >
+                    Book Now
+                  </Button>
                 </div>
               </div>
-
-              <div className="bg-gray-50 p-6 flex flex-col justify-between">
-                <div className="flex items-center mb-4">
-                  <Clock className="w-5 h-5 mr-2 text-gray-600" />
-                  <span className="text-sm text-gray-700">
-                    Duration: {`${provider.start_time} -- ${provider.end_time}`}{" "}
-                    hrs
-                  </span>
-                </div>
-                <div className="flex items-center mb-4">
-                  <MapPin className="w-5 h-5 mr-2 text-gray-600" />
-                  <span className="text-sm text-gray-700">
-                    {provider.province}
-                  </span>
-                </div>
-                <Button
-                  className="mt-auto text-white"
-                  onClick={() => handleHireNow(provider.id)}
-                >
-                  Book Now
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ))
+        ) : (
+          <div className="text-center mt-8 text-gray-600">
+            <p>No service providers found matching your criteria.</p>
+          </div>
+        )}
       </div>
-
-      {services.length === 0 && (
-        <div className="text-center mt-8 text-gray-600">
-          <p>No service providers found matching your criteria.</p>
-        </div>
-      )}
     </div>
   );
 }

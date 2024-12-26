@@ -20,7 +20,6 @@ type OverviewType = {
 
 export default function DashboardPage() {
   const [tab, setTab] = useState("products");
-
   const [overviewData, setOverviewData] = useState<OverviewType | null>(null);
 
   const handleFetchProductOverview = async () => {

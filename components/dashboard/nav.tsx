@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +12,7 @@ import Image from "next/image";
 import { TbChartArcs } from "react-icons/tb";
 import { HiOutlineArchive } from "react-icons/hi";
 import { RiShoppingBag3Line } from "react-icons/ri";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavItem {
   title: string;
@@ -27,17 +28,27 @@ const navItems: NavItem[] = [
 
 export function DashboardNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated, logOut } = useAuth();
   const { isCollapsed, toggleSidebar } = useSidebarToggle();
   const [isMobile, setIsMobile] = useState(false);
 
+  const handleLogOut = () => {
+    logOut();
+    router.push("/auth/login");
+  };
+
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/auth/login");
+    }
+
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
-
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
@@ -122,6 +133,7 @@ export function DashboardNav() {
               </Link>
             </Button>
             <Button
+              onClick={() => handleLogOut()}
               variant="ghost"
               className="w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-red-600 hover:bg-red-50"
             >

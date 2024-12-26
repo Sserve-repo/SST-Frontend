@@ -15,6 +15,7 @@ interface AuthContextType {
   setAuth: (authState: boolean, user?: any | null) => any;
   getCurrentUser: () => any | null;
   getAuth: () => boolean;
+  logOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   setAuth: () => {},
   getCurrentUser: () => null,
   getAuth: () => false,
+  logOut: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -60,7 +62,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const setAuth = async (authState: boolean, user: any | null = null) => {
-    console.log("calling in context", authState, user);
     setIsAuthenticated(authState);
     setCurrentUser(user);
     updateStorage(authState, user);
@@ -68,6 +69,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const getCurrentUser = (): any | null => currentUser;
   const getAuth = (): boolean => isAuthenticated;
+
+  const logOut = () => {
+    setAuth(false, null);
+    Cookies.remove("accessToken");
+  };
 
   useEffect(() => {
     if (isBrowser) {
@@ -83,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAuth,
         getCurrentUser,
         getAuth,
+        logOut,
       }}
     >
       {children}
