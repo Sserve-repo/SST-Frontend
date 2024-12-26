@@ -167,7 +167,7 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
   const stepTitles: string[] = ["Create Account", "Confirm OTP"];
 
   return (
-    <div className="max-w-lg mx-auto w-full relative">
+    <div className="max-w-[515px] py-[72px] mx-auto w-full relative">
       {!success ? (
         <div>
           <div className="flex items-start mb-14 mt-3 text-[#C28FDA]">
@@ -187,222 +187,226 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
             </div>
           </div>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-6 flex flex-col items-center justify-center"
-            >
-              {step === 1 && (
-                <>
-                  <div>
-                    <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
-                      <h1 className="text-[40px] font-semibold text-[#502266]">
-                        Buyer Account
-                      </h1>
-                      <p className="text-lg font-normal text-[#b9b9b9] md:pr-[100px]">
-                        For the purpose of industry regulation, your details are
-                        required.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center sm:flex-row flex-col w-full gap-3">
-                    <FormField
-                      control={form.control}
-                      name="firstName"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266] text-base font-normal">
-                            First Name*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="John"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266] text-base font-normal">
-                            Last Name*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="Doe"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#502266] text-base font-normal">
-                          Email*
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="email"
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="johndoe@email.com"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex items-center sm:flex-row flex-col w-full gap-3">
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266] text-base font-normal">
-                            Password*
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                type={showPassword ? "text" : "password"}
-                                className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="*******************"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#502266] text-base font-normal">
-                            Confirm Password*
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                {...field}
-                                type={showConfirmPassword ? "text" : "password"}
-                                className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="*******************"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                              >
-                                {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="agreeToTerms"
-                    render={({ field }) => (
-                      <FormItem className="flex w-full flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="flex flex-col">
-                          <div className="flex items-center self-start gap-[14px] mt-4">
-                            <FormLabel>
-                              <p className="font-normal text-base text-[#502266]">
-                                I agree to the &nbsp;
-                                <span className="text-[#240F2E] hover:underline">
-                                  <a href="#">Terms and Conditions</a>
-                                </span>
-                                &nbsp; and &nbsp;
-                                <span className="text-[#240F2E] hover:underline">
-                                  <a href="#">Privacy Policy</a>
-                                </span>
-                              </p>
-                            </FormLabel>
-                          </div>
-
-                          <div className="flex items-center w-full text-gray-400 mt-6">
-                            Already have an account?{" "}
-                            <a
-                              href="/auth/login"
-                              className="font-semibold text-primary ml-1 hover:underline"
-                            >
-                              Login
-                            </a>
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-
-              {step === 2 && (
-                <>
-                  <OtpForm form={form} setOtp={setOtp} />
-                </>
-              )}
-
-              <Button
-                type="submit"
-                className="w-full max-w-sm rounded-xl h-12"
-                disabled={isLoading}
+          <div className="max-h-[calc(100vh-180px)] overflow-y-auto px-2">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-2 flex flex-col items-center justify-center"
               >
-                {isLoading ? (
-                  <Loader className="animate-spin h-5 w-5 mx-auto" />
-                ) : (
-                  "Submit"
+                {step === 1 && (
+                  <>
+                    <div>
+                      <div className="flex justify-center flex-col max-w-md mb-[30px] w-full">
+                        <h1 className="text-[40px] font-semibold text-[#502266]">
+                          Buyer Account
+                        </h1>
+                        <p className="text-lg font-normal text-[#b9b9b9] md:pr-[100px]">
+                          For the purpose of industry regulation, your details
+                          are required.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                      <FormField
+                        control={form.control}
+                        name="firstName"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266] text-base font-normal">
+                              First Name*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3"
+                                placeholder="John"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266] text-base font-normal">
+                              Last Name*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3"
+                                placeholder="Doe"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#502266] text-base font-normal">
+                            Email*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="email"
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="johndoe@email.com"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266] text-base font-normal">
+                              Password*
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  {...field}
+                                  type={showPassword ? "text" : "password"}
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="********"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                  ) : (
+                                    <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#502266] text-base font-normal">
+                              Confirm Password*
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  {...field}
+                                  type={
+                                    showConfirmPassword ? "text" : "password"
+                                  }
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="********"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                  onClick={() =>
+                                    setShowConfirmPassword(!showConfirmPassword)
+                                  }
+                                >
+                                  {showConfirmPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                  ) : (
+                                    <Eye className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="agreeToTerms"
+                      render={({ field }) => (
+                        <FormItem className="flex w-full flex-row items-center space-x-3 space-y-0">
+                          <div className="flex flex-col">
+                            <div className="flex items-center self-start gap-[14px] ">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormLabel>
+                                <p className="font-normal text-base text-[#502266]">
+                                  I agree to the &nbsp;
+                                  <span className="text-[#240F2E] hover:underline">
+                                    <a href="#">Terms and Conditions</a>
+                                  </span>
+                                  &nbsp; and &nbsp;
+                                  <span className="text-[#240F2E] hover:underline">
+                                    <a href="#">Privacy Policy</a>
+                                  </span>
+                                </p>
+                              </FormLabel>
+                            </div>
+
+                            <div className="flex items-center w-full text-gray-400 mt-6">
+                              Already have an account?{" "}
+                              <a
+                                href="/auth/login"
+                                className="font-semibold text-primary ml-1 hover:underline"
+                              >
+                                Login
+                              </a>
+                            </div>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
                 )}
-              </Button>
-            </form>
-          </Form>
+
+                {step === 2 && (
+                  <>
+                    <OtpForm form={form} setOtp={setOtp} />
+                  </>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full max-w-sm rounded-xl h-12"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader className="animate-spin h-5 w-5 mx-auto" />
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </div>
         </div>
       ) : (
         <div className="max-w-lg mx-auto w-full relative">

@@ -171,7 +171,7 @@ export default function Header() {
               {isAuthenticated ? "Logout" : "Login"}
             </Button>
 
-            <Button onClick={handleOpenRole}>
+            <Button onClick={() => handleOpenRole()}>
               {isAuthenticated ? "Dashboard" : "Join SphereServe"}
             </Button>
           </div>
@@ -193,22 +193,40 @@ export default function Header() {
                   height={60}
                 />
               </Link>
-              <div className="flex flex-col space-y-6 mt-6">
+              <div className="flex flex-col space-y-6 mt-6 text-black">
                 <Link href="/services">Services</Link>
                 <Link href="/products">Products</Link>
                 <Link href="/refer-earn">Refer & Earn</Link>
+                <Link href="/favorites">
+                  <div className="flex gap-x-2  hover:text-gray-900 ">
+                    <Heart className="h-6 w-6" /> Favorites
+                  </div>
+                </Link>
+                <Link href="/cart">
+                  <div className="flex gap-x-2  hover:text-gray-900 ">
+                    <CartIcon /> Cart
+                  </div>
+                </Link>
               </div>
 
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-3 ">
                 <Button
                   onClick={() => handleAuth()}
                   variant="outline"
-                  className="border-[#FFB46A]"
-                  asChild
+                  className="border-[#FFB46A] border-2"
+                  // asChild
                 >
                   {isAuthenticated ? "Logout" : "Login"}
                 </Button>
-                {isAuthenticated ? "Dashboard" : "Join SphereServe"}
+
+                <Button
+                  onClick={() => handleOpenRole()}
+                  variant="outline"
+                  className="bg-[#502266] text-white"
+                  // asChild
+                >
+                  {isAuthenticated ? "Dashboard" : "Join SphereServe"}
+                </Button>
               </div>
             </nav>
           </SheetContent>

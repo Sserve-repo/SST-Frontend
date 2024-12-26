@@ -712,1244 +712,1174 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
             </div>
           </div>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-4 flex flex-col items-center justify-center"
-            >
-              {step === 1 &&
-                (!userVerified && !completedUserRegistration ? (
-                  <>
-                    {/* Headings */}
-                    <div>
-                      <h1 className="text-[40px] font-semibold text-[#502266]">
-                        Create Account
-                      </h1>
-                      <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
-                        For the purpose of industry regulation, your details are
-                        required.
-                      </p>
-                    </div>
-                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+          <div className="max-h-[calc(100vh-180px)] overflow-y-auto px-2">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-4 flex flex-col items-center justify-center"
+              >
+                {step === 1 &&
+                  (!userVerified && !completedUserRegistration ? (
+                    <>
+                      {/* Headings */}
+                      <div>
+                        <h1 className="text-[40px] font-semibold text-[#502266]">
+                          Create Account
+                        </h1>
+                        <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
+                          For the purpose of industry regulation, your details
+                          are required.
+                        </p>
+                      </div>
+                      <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                        <FormField
+                          control={form.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266]">
+                                First Name*
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="John"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266]">
+                                Last Name*
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="rounded-xl shadow-sm h-12 px-3"
+                                  placeholder="Doe"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <FormField
                         control={form.control}
-                        name="firstName"
+                        name="email"
                         render={({ field }) => (
                           <FormItem className="w-full">
                             <FormLabel className="text-[#502266]">
-                              First Name*
+                              Email address*
                             </FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
+                                type="email"
                                 className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="John"
+                                placeholder="johndoe@email.com"
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="text-[#502266]">
-                              Last Name*
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                className="rounded-xl shadow-sm h-12 px-3"
-                                placeholder="Doe"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266]">
+                                Create Password*
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    type={showPassword ? "text" : "password"}
+                                    className="rounded-xl shadow-sm h-12 px-3"
+                                    placeholder="******"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() =>
+                                      setShowPassword(!showPassword)
+                                    }
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel className="text-[#502266]">
+                                Confirm Password*
+                              </FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input
+                                    {...field}
+                                    type={
+                                      showConfirmPassword ? "text" : "password"
+                                    }
+                                    className="rounded-xl shadow-sm h-12 px-3"
+                                    placeholder="******"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() =>
+                                      setShowConfirmPassword(
+                                        !showConfirmPassword
+                                      )
+                                    }
+                                  >
+                                    {showConfirmPassword ? (
+                                      <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                      <Eye className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="flex items-center self-start gap-[14px] mt-4">
+                        <Checkbox />
+                        <p className="font-normal text-base text-[#9E4FC4]">
+                          I agree to the &nbsp;
+                          <span className="text-[#240F2E] hover:underline">
+                            <a href="#">Terms of Use</a>
+                          </span>
+                          &nbsp; and &nbsp;
+                          <span className="text-[#240F2E] hover:underline">
+                            <a href="#">Privacy Policy</a>
+                          </span>
+                        </p>
+                      </div>
+                      <div className="flex items-center w-full text-gray-400 mt-6">
+                        Already have an account?{" "}
+                        <a
+                          href="/auth/login"
+                          className="font-semibold text-primary ml-1 hover:underline"
+                        >
+                          Login
+                        </a>
+                      </div>
+                    </>
+                  ) : (
+                    <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
+                      <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                        <OtpForm form={form} setOtp={setOtp} />
+                      </div>
                     </div>
+                  ))}
+                {step === 2 && (
+                  <div className=" w-full flex flex-col gap-y-2 mb-[20px] ">
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Customize Business Profile
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[20px]">
+                      Tell us about the services you offer: What makes your
+                      business stand out?
+                    </p>
                     <FormField
                       control={form.control}
-                      name="email"
+                      name="businessName"
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <FormLabel className="text-[#502266]">
-                            Email address*
+                            Business Name
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              type="email"
                               className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="johndoe@email.com"
+                              type="text"
+                              placeholder="My Awesome Business"
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="text-[#502266]">
-                              Create Password*
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  {...field}
-                                  type={showPassword ? "text" : "password"}
-                                  className="rounded-xl shadow-sm h-12 px-3"
-                                  placeholder="******"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                >
-                                  {showPassword ? (
-                                    <EyeOff className="h-4 w-4" />
-                                  ) : (
-                                    <Eye className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem className="w-full">
-                            <FormLabel className="text-[#502266]">
-                              Confirm Password*
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Input
-                                  {...field}
-                                  type={
-                                    showConfirmPassword ? "text" : "password"
-                                  }
-                                  className="rounded-xl shadow-sm h-12 px-3"
-                                  placeholder="******"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                  onClick={() =>
-                                    setShowConfirmPassword(!showConfirmPassword)
-                                  }
-                                >
-                                  {showConfirmPassword ? (
-                                    <EyeOff className="h-4 w-4" />
-                                  ) : (
-                                    <Eye className="h-4 w-4" />
-                                  )}
-                                </Button>
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className="flex items-center self-start gap-[14px] mt-4">
-                      <Checkbox />
-                      <p className="font-normal text-base text-[#9E4FC4]">
-                        I agree to the &nbsp;
-                        <span className="text-[#240F2E] hover:underline">
-                          <a href="#">Terms of Use</a>
-                        </span>
-                        &nbsp; and &nbsp;
-                        <span className="text-[#240F2E] hover:underline">
-                          <a href="#">Privacy Policy</a>
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center w-full text-gray-400 mt-6">
-                      Already have an account?{" "}
-                      <a
-                        href="/auth/login"
-                        className="font-semibold text-primary ml-1 hover:underline"
-                      >
-                        Login
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
-                    <div className="flex items-center sm:flex-row flex-col w-full gap-3">
-                      <OtpForm form={form} setOtp={setOtp} />
-                    </div>
-                  </div>
-                ))}
-              {step === 2 && (
-                <div className=" w-full flex flex-col gap-y-2 mb-[20px]">
-                  <h2 className="text-[40px] font-semibold text-[#502266]">
-                    Customize Business Profile
-                  </h2>
-                  <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[20px]">
-                    Tell us about the services you offer: What makes your
-                    business stand out?
-                  </p>
-                  <FormField
-                    control={form.control}
-                    name="businessName"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#502266]">
-                          Business Name
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            type="text"
-                            placeholder="My Awesome Business"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="businessPhone"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Business Phone Number
-                        </FormLabel>
-                        <FormControl className="w-full">
-                          <PhoneInput
-                            {...field}
-                            country={"us"}
-                            enableSearch={true}
-                            inputStyle={{
-                              width: "100%",
-                              borderRadius: "12px",
-                              border: "1px solid #e5e7eb",
-                              boxShadow: "0px 1px 4px rgba(0, 0, 0, 0.1)",
-                              height: "48px",
-                              padding: "0 64px",
-                            }}
-                            containerStyle={{
-                              width: "100%",
-                            }}
-                            buttonStyle={{
-                              padding: "8px",
-                              backgroundColor: "#f9fafb",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: "12px 0px 0px 12px",
-                            }}
-                            dropdownStyle={{
-                              zIndex: 50,
-                            }}
-                            placeholder="+1 (555) 123-4567"
-                            inputProps={{
-                              name: "businessPhone",
-                              required: true,
-                              autoFocus: true,
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="businessPhone"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Business Phone Number
+                          </FormLabel>
+                          <FormControl className="w-full">
+                            <PhoneInput
+                              {...field}
+                              country={"us"}
+                              enableSearch={true}
+                              inputStyle={{
+                                width: "100%",
+                                borderRadius: "12px",
+                                border: "1px solid #e5e7eb",
+                                boxShadow: "0px 1px 4px rgba(0, 0, 0, 0.1)",
+                                height: "48px",
+                                padding: "0 64px",
+                              }}
+                              containerStyle={{
+                                width: "100%",
+                              }}
+                              buttonStyle={{
+                                padding: "8px",
+                                backgroundColor: "#f9fafb",
+                                border: "1px solid #e5e7eb",
+                                borderRadius: "12px 0px 0px 12px",
+                              }}
+                              dropdownStyle={{
+                                zIndex: 50,
+                              }}
+                              placeholder="+1 (555) 123-4567"
+                              inputProps={{
+                                name: "businessPhone",
+                                required: true,
+                                autoFocus: true,
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="businessEmail"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Business Email
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            type="email"
-                            placeholder="business@example.com"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="businessEmail"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Business Email
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              type="email"
+                              placeholder="business@example.com"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="serviceCategory"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Service Category
-                        </FormLabel>
-                        <FormControl>
+                    <FormField
+                      control={form.control}
+                      name="serviceCategory"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Service Category
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              defaultValue={field.value}
+                              value={field.value}
+                              onValueChange={(selectedValue) => {
+                                field.onChange(selectedValue);
+                                handlefetchProductCatItems(selectedValue);
+                                serviceCategories.find(
+                                  (cat) => cat.id === selectedValue
+                                );
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {serviceCategories.map((cat, index) => {
+                                  return (
+                                    <SelectItem
+                                      key={index}
+                                      className="h-11 rounded-lg px-3"
+                                      value={cat.id.toString()}
+                                    >
+                                      {cat.name}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="serviceSubcategory"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Service Sub Category *
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              disabled={serviceCategoryItems.length < 1}
+                              defaultValue={field.value}
+                              onValueChange={(selectedValue) => {
+                                field.onChange(selectedValue);
+                                serviceCategoryItems.find(
+                                  (cat) => cat.id.toString() === selectedValue
+                                );
+                              }}
+                            >
+                              <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
+                                <SelectValue placeholder="Please Select" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {serviceCategoryItems.map((item) => (
+                                  <SelectItem
+                                    key={item.id}
+                                    value={item.id.toString()}
+                                    className="h-11 rounded-lg px-3"
+                                  >
+                                    {item.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="aboutService"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Tell us more about your services*
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[140px] rounded-xl shadow-sm px-3"
+                              placeholder="Type here..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            City/Town*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              type="text"
+                              placeholder="Some city here..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="postalCode"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Postal Code
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="--- ---"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="province"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Province
+                          </FormLabel>
                           <Select
+                            onValueChange={field.onChange}
                             defaultValue={field.value}
-                            value={field.value}
-                            onValueChange={(selectedValue) => {
-                              field.onChange(selectedValue);
-                              handlefetchProductCatItems(selectedValue);
-                              serviceCategories.find(
-                                (cat) => cat.id === selectedValue
-                              );
-                            }}
                           >
                             <FormControl>
                               <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue placeholder="Select a province" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {serviceCategories.map((cat, index) => {
+                              {provinces.map((item: any, index) => {
                                 return (
                                   <SelectItem
                                     key={index}
                                     className="h-11 rounded-lg px-3"
-                                    value={cat.id.toString()}
+                                    value={item.id.toString()}
                                   >
-                                    {cat.name}
+                                    {item.name}
                                   </SelectItem>
                                 );
                               })}
                             </SelectContent>
                           </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                {step === 3 && (
+                  <div className="w-full flex flex-col ">
+                    <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
+                      Set Service Areas & Availability
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[200px]">
+                      Specify the areas and times you&apos;re available to
+                      provide services.
+                    </p>
 
-                  <FormField
-                    control={form.control}
-                    name="serviceSubcategory"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Service Sub Category *
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            disabled={serviceCategoryItems.length < 1}
-                            defaultValue={field.value}
-                            onValueChange={(selectedValue) => {
-                              field.onChange(selectedValue);
-                              serviceCategoryItems.find(
-                                (cat) => cat.id.toString() === selectedValue
-                              );
+                    <FormField
+                      control={form.control}
+                      name="availableDays"
+                      render={() => (
+                        <FormItem className="w-full flex flex-col mb-[22px]">
+                          <FormLabel className="text-gray-400 text-base mt-[30px] mb-3">
+                            Select Days*
+                          </FormLabel>
+
+                          <DatePicker
+                            render={
+                              <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-[#b9b9b9] py-3 inline-flex justify-center items-center shadow-sm pr-6" />
+                            }
+                            multiple
+                            value={selectedDates}
+                            // format="MMMM DD YYYY"
+                            onChange={(dates) => {
+                              handleDateChange(dates);
                             }}
-                          >
-                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                              <SelectValue placeholder="Please Select" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {serviceCategoryItems.map((item) => (
-                                <SelectItem
-                                  key={item.id}
-                                  value={item.id.toString()}
-                                  className="h-11 rounded-lg px-3"
-                                >
-                                  {item.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="aboutService"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Tell us more about your services*
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="min-h-[140px] rounded-xl shadow-sm px-3"
-                            placeholder="Type here..."
+                            className="purple"
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          City/Town*
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            type="text"
-                            placeholder="Some city here..."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="postalCode"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Postal Code
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="--- ---"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="province"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Province
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl shadow-sm h-12 px-3">
-                              <SelectValue placeholder="Select a province" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {provinces.map((item: any, index) => {
-                              return (
-                                <SelectItem
-                                  key={index}
-                                  className="h-11 rounded-lg px-3"
-                                  value={item.id.toString()}
-                                >
-                                  {item.name}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-              {step === 3 && (
-                <div className="w-full flex flex-col ">
-                  <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
-                    Set Service Areas & Availability
-                  </h2>
-                  <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[200px]">
-                    Specify the areas and times you&apos;re available to provide
-                    services.
-                  </p>
-
-                  <FormField
-                    control={form.control}
-                    name="availableDays"
-                    render={() => (
-                      <FormItem className="w-full flex flex-col mb-[22px]">
-                        <FormLabel className="text-gray-400 text-base mt-[30px] mb-3">
-                          Select Days*
-                        </FormLabel>
-
-                        <DatePicker
-                          render={
-                            <InputIcon className="w-full px-2 rounded-xl  ring-1 ring-[#b9b9b9] py-3 inline-flex justify-center items-center shadow-sm pr-6" />
-                          }
-                          multiple
-                          value={selectedDates}
-                          // format="MMMM DD YYYY"
-                          onChange={(dates) => {
-                            handleDateChange(dates);
-                          }}
-                          className="purple"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="availableFrom"
-                      render={({ field }) => (
-                        <FormItem className="w-full mb-[22px]">
-                          <FormLabel className="text-[#b9b9b9] text-base mb-3">
-                            Select Start Time*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="time"
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
-                              placeholder="MM/YY"
-                            />
-                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="availableTo"
-                      render={({ field }) => (
-                        <FormItem className="w-full mb-[22px]">
-                          <FormLabel className="text-[#b9b9b9] text-base mb-3">
-                            Select End Time*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="time"
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
-                              placeholder="MM/YY"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
 
-                  <>
-                    {isLoaded && (
-                      <div className="flex justify-center items-center w-full border">
-                        <StandaloneSearchBox
-                          onLoad={(ref) => (addressRef.current = ref)}
-                          onPlacesChanged={handleOnPlacesChanged}
-                        >
-                          <div className="w-full">
-                            <Input
-                              placeholder="Search for a place"
-                              className="w-[38em] h-14 outline-none border-2 rounded-2xl px-4"
-                              style={{ boxSizing: "border-box" }}
-                            />
-                          </div>
-                        </StandaloneSearchBox>
-                      </div>
-                    )}
-                  </>
-
-                  <FormField
-                    control={form.control}
-                    name="homeService"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col justify-center items-start space-3 py-5 rounded-2xl">
-                        <FormLabel className="text-[#b9b9b9] text-base mb-3">
-                          Are you available for home service?*
-                        </FormLabel>
-                        <div>
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value === true}
-                              onCheckedChange={(checked) => {
-                                field.onChange(checked);
-                              }}
-                            />
-                          </FormControl>
-
-                          <FormLabel className="items-center font-normal ml-3">
-                            Yes, I offer home services
-                          </FormLabel>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-              {step === 4 && (
-                <div className="flex flex-col gap-y-3  w-full">
-                  <h2 className="text-[40px] font-semibold text-[#502266]">
-                    Verify Your Identity
-                  </h2>
-                  <p className="text-lg font-normal text-[#b9b9b9]">
-                    Please upload 3-4 relevant certifications based on your
-                    service type.
-                    <span className="text-[#502266]">
-                      &nbsp;Only required fields are marked with an asterisk
-                      (*).
-                    </span>
-                  </p>
-
-                  <p className="text-[#B9B9B9] font-medium text-xl my-5">
-                    Basic Business Certifications
-                  </p>
-
-                  <FormField
-                    control={form.control}
-                    name="businessLicense"
-                    render={({ field: { value, onChange, ...field } }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#502266] font-normal text-base mb-2">
-                          Business License *
-                        </FormLabel>
-                        <FormControl>
-                          <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
-                            {/* Display preview and file name */}
-                            {businessLicensePreview ? (
-                              <div className="mt-4 flex flex-col items-center">
-                                <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
-                                <p className="mt-2 text-sm text-gray-600">
-                                  {value?.name}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
-                                </div>
-                                <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                                  <span className="text-primary ">
-                                    Click to Upload Business License
-                                  </span>
-                                </p>
-                              </>
-                            )}
-                            {/* Hidden Input for File */}
-                            <Input
-                              type="file"
-                              accept="application/pdf"
-                              className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                onChange(file); // Pass the file to form state
-                                if (file) {
-                                  setbusinessLicensePreview(
-                                    URL.createObjectURL(file)
-                                  ); // Set IdFrontPreview image
-                                } else {
-                                  setbusinessLicensePreview(null);
-                                }
-                              }}
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Proof of Insurance (Optional) */}
-                  <FormField
-                    control={form.control}
-                    name="proofOfInsurance"
-                    render={({ field: { value, onChange, ...field } }) => (
-                      <FormItem className="w-full mt-6">
-                        <FormLabel className="text-[#b9b9b9] font-normal text-base mb-2">
-                          Proof of Insurance{" "}
-                          <span className="text-[#502266]">(Optional)</span>
-                        </FormLabel>
-                        <FormControl>
-                          <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
-                            {/* Display preview and file name */}
-                            {proofOfInsurancePreview ? (
-                              <div className="mt-4 flex flex-col items-center">
-                                <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
-                                <p className="mt-2 text-sm text-gray-600">
-                                  {value?.name}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary " />
-                                </div>
-                                <p className="text-xs font-medium text-[#D3AFE4] mb-2">
-                                  <span className="text-primary ">
-                                    Click to Upload Proof of Insurance
-                                  </span>
-                                </p>
-                              </>
-                            )}
-                            {/* Hidden Input for File */}
-                            <Input
-                              type="file"
-                              accept="application/pdf"
-                              className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                onChange(file);
-                                if (file) {
-                                  setproofOfInsurancePreview(
-                                    URL.createObjectURL(file)
-                                  );
-                                } else {
-                                  setproofOfInsurancePreview(null);
-                                }
-                              }}
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <p className="text-gray-400 font-medium text-xl mt-10 text-start ">
-                    Service-Specific Certifications *
-                  </p>
-
-                  <ServiceCertifications
-                    form={form}
-                    setDocumentList={setDocumentList}
-                  />
-                </div>
-              )}
-              {step === 5 && (
-                <div className="w-full flex flex-col gap-y-7">
-                  <div>
-                    <h2 className="text-[40px] font-semibold text-[#502266]">
-                      Business Service Policies
-                    </h2>
-                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[150px]">
-                      Outline your service booking, cancellation, and rebooking
-                      policies.
-                    </p>
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="bookingDetails"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Booking Details *
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="min-h-[140px] rounded-xl shadow-sm h-12 px-3"
-                            placeholder="Enter details of booking here"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="cancellationPolicy"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Define Cancellation and Rebooking Policies *
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="min-h-[140px] rounded-xl shadow-sm h-12 px-3"
-                            placeholder="Type here..."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Link href="/" className="text-[#9E4FC4]">
-                    *Please, ensure your terms & policies meet our standard
-                  </Link>
-                </div>
-              )}
-              {step === 6 && (
-                <div className=" flex flex-col w-full gap-y-7">
-                  <div>
-                    <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
-                      <p> Set Up Payment Preferences</p>
-                    </div>
-                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
-                      Your payment details will be securely stored and verified.
-                    </p>
-                  </div>
-                  {/* <FormField
-                 control={form.control}
-                 name="paymentOptions"
-                 render={() => (
-                   <FormItem className="w-full ">
-                     <FormLabel className="text-gray-400"></FormLabel>
-                     <div className="space-y-2">
-                       <FormField
-                         control={form.control}
-                         name="paymentOptions"
-                         render={({ field }) => (
-                           <FormItem className=" border h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
-                             <FormControl>
-                               <Checkbox
-                                 checked={field.value?.includes("paypal")}
-                                 onCheckedChange={(checked) => {
-                                   const updatedValue = checked
-                                     ? [...(field.value || []), "paypal"]
-                                     : field.value?.filter(
-                                         (value) => value !== "paypal"
-                                       ) || [];
-                                   field.onChange(updatedValue);
-                                 }}
-                               />
-                             </FormControl>
-                             <FormLabel className="font-normal">
-                               <p className="font-semibold">
-                                 {" "}
-                                 Pay with Pay{" "}
-                                 <span className="text-[#179BD7]">Pal</span>
-                               </p>
-                               <p className="text-[#B9B9B9]">
-                                 Use your PayPal account for secure payments.
-                               </p>
-                             </FormLabel>
-                           </FormItem>
-                         )}
-                       />
-                       <FormField
-                         control={form.control}
-                         name="paymentOptions"
-                         render={({ field }) => (
-                           <FormItem className="border  h-[6rem] flex items-center space-x-3 space-y-0 px-6 py-5 rounded-2xl bg-[#F7F0FA]">
-                             <FormControl>
-                               <Checkbox
-                                 checked={field.value?.includes("stripe")}
-                                 onCheckedChange={(checked) => {
-                                   const updatedValue = checked
-                                     ? [...(field.value || []), "stripe"]
-                                     : field.value?.filter(
-                                         (value) => value !== "stripe"
-                                       ) || [];
-                                   field.onChange(updatedValue);
-                                 }}
-                               />
-                             </FormControl>
-                             <FormLabel className="font-normal">
-                               <p className="font-semibold">
-                                 Pay with{" "}
-                                 <span className="text-[#179BD7]">
-                                   Stripe
-                                 </span>
-                                 /Bank Account
-                               </p>
-                               <p className="text-[#B9B9B9]">
-                                 Use your bank account or credit card via
-                                 Stripe.{" "}
-                               </p>
-                             </FormLabel>
-                           </FormItem>
-                         )}
-                       />
-                     </div>
-                     <FormMessage />
-                   </FormItem>
-                 )}
-               /> */}
-
-                  <FormField
-                    control={form.control}
-                    name="bankName"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                          Bank Name*
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="First Bank Nig Ltd."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="accountNumber"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                          Account Number*
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="0123456789"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid sm:grid-cols-2 gap-4 w-full">
-                    <FormField
-                      control={form.control}
-                      name="institutionNumber"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                            Institution Number*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
-                              type="text"
-                              placeholder="123"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="transitNumber"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
-                            Transit Number*
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
-                              type="text"
-                              placeholder="12345"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              )}
-              {step === 7 && (
-                <div className="flex flex-col w-full gap-y-4">
-                  <h2 className="text-[40px] font-semibold text-[#502266]">
-                    Set Up Billing
-                  </h2>
-                  <div className="text-lg font-normal text-[#b9b9b9] -mt-4 md:pr-[200px]">
-                    <p>We will securely store your billing fees.</p>
-                    <p> details for future platform</p>
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="cardNumber"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Credit Card Number
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="1234 5678 9012 3456"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="expiryDate"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            Expiry Date
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="MM/YY"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="cvcCode"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel className="text-gray-400">
-                            CVC Code
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              className="rounded-xl shadow-sm h-12 px-3"
-                              placeholder="123"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="billingAddress"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-gray-400">
-                          Billing Address
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-14 px-3"
-                            placeholder="123 Main St, City, Country"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-              {step === 8 && (
-                <div className="w-full space-y-[22px]">
-                  <div>
-                    <h2 className="text-[40px] font-semibold text-[#502266]">
-                      Tell Us About Your Listing
-                    </h2>
-                    <p className="text-lg font-normal text-[#b9b9b9] md:pr-[50px]">
-                      You can add up to 5 categories and customize each listing
-                      to match.
-                    </p>
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="serviceName"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Service Title/Name
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            placeholder="Enter name of Service"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="servicePrice"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Service Price *
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="rounded-xl shadow-sm h-12 px-3"
-                            type="number"
-                            placeholder="99.99"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="serviceDuration"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Service Duration *
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={(value) => field.onChange(value)}
-                            value={field.value}
-                          >
-                            <SelectTrigger id="duration">
-                              <div className="flex items-center">
-                                <Clock10 className="mr-2 h-4 w-4" />
-                                <SelectValue placeholder="Select duration" />
-                              </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {[
-                                "1",
-                                "2",
-                                "3",
-                                "4",
-                                "5",
-                                "6",
-                                "7",
-                                "8",
-                                "9",
-                                "10",
-                                "11",
-                                "12",
-                              ].map((duration) => (
-                                <SelectItem key={duration} value={duration}>
-                                  {duration} hour
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="serviceDescription"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Service Description
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className="min-h-[100px] rounded-xl shadow-sm px-3 text-[#b9b9b9]"
-                            placeholder="Describe your service..."
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="serviceImage"
-                    render={({ field: { value, onChange, ...field } }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-[#b9b9b9] text-base font-normal">
-                          Upload Service Image
-                        </FormLabel>
-                        <FormControl>
-                          <div className="border-2 border-dashed relative border-gray-300 p-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
-                            {/* Display preview and file name */}
-                            {serviceImages ? (
-                              <div className="mt-4 flex flex-col items-center">
-                                <img
-                                  src={serviceImages}
-                                  alt="Uploaded Preview"
-                                  className="w-fit h-24 object-cover rounded-lg"
-                                />
-                                <p className="mt-2 text-sm text-gray-600">
-                                  {value?.name}
-                                </p>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
-                                  <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
-                                </div>
-                                <p className="text-xs font-medium text-gray-600 mb-2">
-                                  <span className="text-primary ">
-                                    Click to Upload,{" "}
-                                  </span>{" "}
-                                  or drag and drop.
-                                </p>
-                                <p className="text-sm font-medium italic text-gray-600 mb-2">
-                                  (Max. File size: 25 MB)
-                                </p>
-                              </>
-                            )}
-                            {/* Hidden Input for File */}
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                onChange(file); // Pass the file to form state
-                                if (file) {
-                                  setServiceImages(URL.createObjectURL(file));
-                                } else {
-                                  setServiceImages(null);
-                                }
-                              }}
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        {value && value.name && (
-                          <p className="mt-2 text-sm text-gray-600">
-                            Uploaded File: {value.name}
-                          </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="availableFrom"
+                        render={({ field }) => (
+                          <FormItem className="w-full mb-[22px]">
+                            <FormLabel className="text-[#b9b9b9] text-base mb-3">
+                              Select Start Time*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="time"
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
+                                placeholder="MM/YY"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
-              <Button
-                type="submit"
-                className="w-full max-w-sm rounded-xl h-12 mt-4"
-                disabled={loading}
-              >
-                {getButtonText()}
-              </Button>
-              ;
-            </form>
-          </Form>
+                      />
+                      <FormField
+                        control={form.control}
+                        name="availableTo"
+                        render={({ field }) => (
+                          <FormItem className="w-full mb-[22px]">
+                            <FormLabel className="text-[#b9b9b9] text-base mb-3">
+                              Select End Time*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="time"
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3 text-[#b9b9b9]"
+                                placeholder="MM/YY"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <>
+                      {isLoaded && (
+                        <div className="flex justify-center items-center w-full border">
+                          <StandaloneSearchBox
+                            onLoad={(ref) => (addressRef.current = ref)}
+                            onPlacesChanged={handleOnPlacesChanged}
+                          >
+                            <div className="w-full">
+                              <Input
+                                placeholder="Search for a place"
+                                className="w-[38em] h-14 outline-none border-2 rounded-2xl px-4"
+                                style={{ boxSizing: "border-box" }}
+                              />
+                            </div>
+                          </StandaloneSearchBox>
+                        </div>
+                      )}
+                    </>
+
+                    <FormField
+                      control={form.control}
+                      name="homeService"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col justify-center items-start space-3 py-5 rounded-2xl">
+                          <FormLabel className="text-[#b9b9b9] text-base mb-3">
+                            Are you available for home service?*
+                          </FormLabel>
+                          <div>
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value === true}
+                                onCheckedChange={(checked) => {
+                                  field.onChange(checked);
+                                }}
+                              />
+                            </FormControl>
+
+                            <FormLabel className="items-center font-normal ml-3">
+                              Yes, I offer home services
+                            </FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                {step === 4 && (
+                  <div className="flex flex-col gap-y-3  w-full">
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Verify Your Identity
+                    </h2>
+                    <p className="text-lg font-normal text-[#b9b9b9]">
+                      Please upload 3-4 relevant certifications based on your
+                      service type.
+                      <span className="text-[#502266]">
+                        &nbsp;Only required fields are marked with an asterisk
+                        (*).
+                      </span>
+                    </p>
+
+                    <p className="text-[#B9B9B9] font-medium text-xl my-5">
+                      Basic Business Certifications
+                    </p>
+
+                    <FormField
+                      control={form.control}
+                      name="businessLicense"
+                      render={({ field: { value, onChange, ...field } }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#502266] font-normal text-base mb-2">
+                            Business License *
+                          </FormLabel>
+                          <FormControl>
+                            <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
+                              {/* Display preview and file name */}
+                              {businessLicensePreview ? (
+                                <div className="mt-4 flex flex-col items-center">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                  <p className="mt-2 text-sm text-gray-600">
+                                    {value?.name}
+                                  </p>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
+                                    <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                  </div>
+                                  <p className="text-xs font-medium text-[#D3AFE4] mb-2">
+                                    <span className="text-primary ">
+                                      Click to Upload Business License
+                                    </span>
+                                  </p>
+                                </>
+                              )}
+                              {/* Hidden Input for File */}
+                              <Input
+                                type="file"
+                                accept="application/pdf"
+                                className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0] || null;
+                                  onChange(file); // Pass the file to form state
+                                  if (file) {
+                                    setbusinessLicensePreview(
+                                      URL.createObjectURL(file)
+                                    ); // Set IdFrontPreview image
+                                  } else {
+                                    setbusinessLicensePreview(null);
+                                  }
+                                }}
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Proof of Insurance (Optional) */}
+                    <FormField
+                      control={form.control}
+                      name="proofOfInsurance"
+                      render={({ field: { value, onChange, ...field } }) => (
+                        <FormItem className="w-full mt-6">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base mb-2">
+                            Proof of Insurance{" "}
+                            <span className="text-[#502266]">(Optional)</span>
+                          </FormLabel>
+                          <FormControl>
+                            <div className="border-2 border-dashed relative border-gray-300 px-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
+                              {/* Display preview and file name */}
+                              {proofOfInsurancePreview ? (
+                                <div className="mt-4 flex flex-col items-center">
+                                  <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary" />
+                                  <p className="mt-2 text-sm text-gray-600">
+                                    {value?.name}
+                                  </p>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="p-2 rounded-full flex items-center justify-center aspect-square mb-2">
+                                    <HiOutlineDocumentArrowUp className="w-10 h-8 text-primary " />
+                                  </div>
+                                  <p className="text-xs font-medium text-[#D3AFE4] mb-2">
+                                    <span className="text-primary ">
+                                      Click to Upload Proof of Insurance
+                                    </span>
+                                  </p>
+                                </>
+                              )}
+                              {/* Hidden Input for File */}
+                              <Input
+                                type="file"
+                                accept="application/pdf"
+                                className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0] || null;
+                                  onChange(file);
+                                  if (file) {
+                                    setproofOfInsurancePreview(
+                                      URL.createObjectURL(file)
+                                    );
+                                  } else {
+                                    setproofOfInsurancePreview(null);
+                                  }
+                                }}
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <p className="text-gray-400 font-medium text-xl mt-10 text-start ">
+                      Service-Specific Certifications *
+                    </p>
+
+                    <ServiceCertifications
+                      form={form}
+                      setDocumentList={setDocumentList}
+                    />
+                  </div>
+                )}
+                {step === 5 && (
+                  <div className="w-full flex flex-col gap-y-7">
+                    <div>
+                      <h2 className="text-[40px] font-semibold text-[#502266]">
+                        Business Service Policies
+                      </h2>
+                      <p className="text-lg font-normal text-[#b9b9b9] md:pr-[150px]">
+                        Outline your service booking, cancellation, and
+                        rebooking policies.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="bookingDetails"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Booking Details *
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[140px] rounded-xl shadow-sm h-12 px-3"
+                              placeholder="Enter details of booking here"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="cancellationPolicy"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Define Cancellation and Rebooking Policies *
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[140px] rounded-xl shadow-sm h-12 px-3"
+                              placeholder="Type here..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Link href="/" className="text-[#9E4FC4]">
+                      *Please, ensure your terms & policies meet our standard
+                    </Link>
+                  </div>
+                )}
+                {step === 6 && (
+                  <div className=" flex flex-col w-full gap-y-7">
+                    <div>
+                      <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
+                        <p> Set Up Payment Preferences</p>
+                      </div>
+                      <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                        Your payment details will be securely stored and
+                        verified.
+                      </p>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="bankName"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Bank Name*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="First Bank Nig Ltd."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="accountNumber"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                            Account Number*
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="0123456789"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid sm:grid-cols-2 gap-4 w-full">
+                      <FormField
+                        control={form.control}
+                        name="institutionNumber"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                              Institution Number*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
+                                type="text"
+                                placeholder="123"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="transitNumber"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-[#b9b9b9] font-normal text-base">
+                              Transit Number*
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3 placeholder-gray-400"
+                                type="text"
+                                placeholder="12345"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                )}
+                {step === 7 && (
+                  <div className="flex flex-col w-full gap-y-4">
+                    <h2 className="text-[40px] font-semibold text-[#502266]">
+                      Set Up Billing
+                    </h2>
+                    <div className="text-lg font-normal text-[#b9b9b9] -mt-4 md:pr-[200px]">
+                      <p>We will securely store your billing fees.</p>
+                      <p> details for future platform</p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="cardNumber"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Credit Card Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="1234 5678 9012 3456"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="expiryDate"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-gray-400">
+                              Expiry Date
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3"
+                                placeholder="MM/YY"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="cvcCode"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="text-gray-400">
+                              CVC Code
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-xl shadow-sm h-12 px-3"
+                                placeholder="123"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="billingAddress"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-gray-400">
+                            Billing Address
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-14 px-3"
+                              placeholder="123 Main St, City, Country"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                {step === 8 && (
+                  <div className="w-full space-y-[22px] ">
+                    <div>
+                      <h2 className="text-[40px] font-semibold text-[#502266]">
+                        Tell Us About Your Listing
+                      </h2>
+                      <p className="text-lg font-normal text-[#b9b9b9] md:pr-[50px]">
+                        You can add up to 5 categories and customize each
+                        listing to match.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="serviceName"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Service Title/Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              placeholder="Enter name of Service"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="servicePrice"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Service Price *
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              className="rounded-xl shadow-sm h-12 px-3"
+                              type="number"
+                              placeholder="99.99"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="serviceDuration"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Service Duration *
+                          </FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={(value) => field.onChange(value)}
+                              value={field.value}
+                            >
+                              <SelectTrigger id="duration">
+                                <div className="flex items-center">
+                                  <Clock10 className="mr-2 h-4 w-4" />
+                                  <SelectValue placeholder="Select duration" />
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  "1",
+                                  "2",
+                                  "3",
+                                  "4",
+                                  "5",
+                                  "6",
+                                  "7",
+                                  "8",
+                                  "9",
+                                  "10",
+                                  "11",
+                                  "12",
+                                ].map((duration) => (
+                                  <SelectItem key={duration} value={duration}>
+                                    {duration} hour
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="serviceDescription"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Service Description
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className="min-h-[100px] rounded-xl shadow-sm px-3 text-[#b9b9b9]"
+                              placeholder="Describe your service..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="serviceImage"
+                      render={({ field: { value, onChange, ...field } }) => (
+                        <FormItem className="w-full">
+                          <FormLabel className="text-[#b9b9b9] text-base font-normal">
+                            Upload Service Image
+                          </FormLabel>
+                          <FormControl>
+                            <div className="border-2 border-dashed relative border-gray-300 p-8 rounded-xl shadow-sm flex flex-col items-center justify-center cursor-pointer hover:border-primary">
+                              {/* Display preview and file name */}
+                              {serviceImages ? (
+                                <div className="mt-4 flex flex-col items-center">
+                                  <img
+                                    src={serviceImages}
+                                    alt="Uploaded Preview"
+                                    className="w-fit h-24 object-cover rounded-lg"
+                                  />
+                                  <p className="mt-2 text-sm text-gray-600">
+                                    {value?.name}
+                                  </p>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="p-4 rounded-full flex items-center justify-center bg-slate-200 aspect-square mb-2">
+                                    <HiOutlineDocumentArrowUp className="w-10 h-auto text-primary" />
+                                  </div>
+                                  <p className="text-xs font-medium text-gray-600 mb-2">
+                                    <span className="text-primary ">
+                                      Click to Upload,{" "}
+                                    </span>{" "}
+                                    or drag and drop.
+                                  </p>
+                                  <p className="text-sm font-medium italic text-gray-600 mb-2">
+                                    (Max. File size: 25 MB)
+                                  </p>
+                                </>
+                              )}
+                              {/* Hidden Input for File */}
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                className="w-full h-full absolute top-0 left-0 opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0] || null;
+                                  onChange(file); // Pass the file to form state
+                                  if (file) {
+                                    setServiceImages(URL.createObjectURL(file));
+                                  } else {
+                                    setServiceImages(null);
+                                  }
+                                }}
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          {value && value.name && (
+                            <p className="mt-2 text-sm text-gray-600">
+                              Uploaded File: {value.name}
+                            </p>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                <Button
+                  type="submit"
+                  className="w-full max-w-sm rounded-xl h-12 mt-4"
+                  disabled={loading}
+                >
+                  {getButtonText()}
+                </Button>
+                ;
+              </form>
+            </Form>
+          </div>
         </>
       ) : (
         <div>

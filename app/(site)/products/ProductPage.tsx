@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
 
 type ProductsItem = {
   id: number;
@@ -29,9 +30,10 @@ type ProductsItem = {
 const ProductPage = () => {
   const [products, setProducts] = useState<ProductsItem[]>([]);
   const [sortOption, setSortOption] = useState("Most Relevant");
-
+  const { isAuthenticated } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const categoryId = searchParams.get("categoryId");
 
   const handleFetchProduct = async (catId: number) => {
@@ -79,10 +81,6 @@ const ProductPage = () => {
 
   const handleAddToCart = async (data: any) => {
     const { id, title } = data;
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      router.push("/auth/login");
-    }
     router.push(
       `/products/${id}/?title=${title.replace(" ", "-").toLocaleLowerCase()}`
     );

@@ -33,11 +33,11 @@ export default function Role() {
     switch (selectedRole) {
       case "artisan":
         return (
-          <div className="flex w-full  h-screen">
-            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full overflow-hidden">
+          <div className="flex w-full h-screen overflow-hidden">
+            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full ">
               <ArtisanSplash />
             </div>
-            <div className="w-1/2 overflow-y-scroll container mx-auto p-4 justify-center items-center flex flex-col">
+            <div className="w-1/2 container mx-auto p-4 justify-center items-center flex flex-col ">
               <ArtisanForm
                 registrationStep={parseInt(step ?? "1")}
                 onBack={() => setSelectedRole(null)}
@@ -47,11 +47,11 @@ export default function Role() {
         );
       case "vendor":
         return (
-          <div className="flex w-full h-screen">
-            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full overflow-hidden">
+          <div className="flex w-full h-screen overflow-hidden">
+            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full">
               <VendorSplash />
             </div>
-            <div className="w-1/2  overflow-y-scroll  container mx-auto p-4 justify-center items-center flex flex-col">
+            <div className="w-1/2 container mx-auto p-4 justify-center items-center flex flex-col">
               <VendorForm
                 registrationStep={parseInt(step ?? "1")}
                 onBack={() => setSelectedRole(null)}
@@ -61,11 +61,11 @@ export default function Role() {
         );
       case "buyer":
         return (
-          <div className="flex w-full">
-            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full overflow-hidden">
+          <div className="flex w-full h-screen overflow-hidden">
+            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full">
               <BuyerSplash />
             </div>
-            <div className="w-1/2  container mx-auto p-4 justify-center items-center flex flex-col">
+            <div className="w-1/2 container mx-auto p-4 justify-center items-center flex flex-col">
               <BuyerForm onBack={() => setSelectedRole(null)} />
             </div>
           </div>

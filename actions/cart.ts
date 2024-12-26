@@ -22,20 +22,32 @@ export const fetchCart = async () => {
 export const addOrUpdateCart = async (cart) => {
   const token = Cookies.get("accessToken")?.replaceAll('"', "");
   try {
-    const form = new FormData();
-    form.append("product_id", cart.product_id);
-    form.append("quantity", cart.quantity);
-    const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: form,
-    });
-    return response;
+    if (token) {
+      const form = new FormData();
+      form.append("product_id", cart.product_id);
+      form.append("quantity", cart.quantity);
+      const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+      return response;
+    } else {
+      const form = new FormData();
+      form.append("product_id", cart.product_id);
+      form.append("quantity", cart.quantity);
+      const response = await fetch(`${baseUrl}/general/cart/addToCart`, {
+        method: "POST",
+        body: form,
+      });
+      return response;
+    }
   } catch (error) {
     console.error("Failed to add items to cart:", error);
   }
+
 };
 
 export const removeCartItem = async (
