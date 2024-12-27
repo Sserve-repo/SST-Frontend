@@ -543,7 +543,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
             if (response.ok && response.status === 201) {
               toast.success(res.message);
               localStorage.removeItem("category");
-              localStorage.removeItem("subcategoy");
+              localStorage.removeItem("subcategory");
               handleNextStep();
             } else {
               formatErrors(res.data.errors, res);
@@ -1279,7 +1279,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             <div className="w-full">
                               <Input
                                 placeholder="Search for a place"
-                                className="w-[22em] md:w-[33em] lg-w-full h-14 outline-none border-2 rounded-2xl px-4"
+                                className="w-[20em] md:w-[33em] lg-w-full h-14 outline-none border-2 rounded-2xl px-4"
                                 style={{ boxSizing: "border-box" }}
                               />
                             </div>
