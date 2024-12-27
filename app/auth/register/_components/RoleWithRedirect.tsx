@@ -21,7 +21,7 @@ export default function Role() {
   };
 
   return (
-    <div className="container mx-auto p-4 justify-center w-full items-center flex flex-col h-screen overflow-y-auto">
+    <div className="container mx-auto p-4 justify-center w-full items-center flex flex-col sm:h-screen overflow-y-auto">
       <div className="w-full max-w-md h-full">
         <div className="flex justify-center items-center w-full mb-8 mt-4 pb-4">
           <div className="text-left">
@@ -34,7 +34,7 @@ export default function Role() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-3 w-full my-8">
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-6 sm:gap-3 w-full my-8">
           {(["artisan", "vendor", "buyer"] as const).map((role) => (
             <Link href={`/auth/register?role=${role}`} key={role}>
               <Card className="cursor-pointer hover:shadow-lg transition-all bg-white hover:bg-primary group">
