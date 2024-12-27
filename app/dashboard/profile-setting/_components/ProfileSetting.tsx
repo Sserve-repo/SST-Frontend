@@ -156,8 +156,8 @@ export default function ProfileSetting() {
   return (
     <div className="min-h-screen bg-gray-50 w-full">
       <div className="mx-auto px-4 py-6">
-        <div className="mb-6 flex flex-col gap-4 p-3 bg-white rounded-3xl border-2 border-gray-100 w-full  px-[8rem]">
-          <h2 className="text-2xl sm:text-3xl tracking-tight my-10">
+        <div className="mb-6 flex flex-col gap-4 p-3 bg-white rounded-3xl border-2 border-gray-100 w-full px-4 sm:px-8">
+          <h2 className="text-2xl sm:text-3xl tracking-tight my-10 text-center sm:text-left">
             Profile Settings
           </h2>
 
@@ -167,16 +167,16 @@ export default function ProfileSetting() {
               className="space-y-4 w-full"
             >
               <>
-                {/* Headings */}
-                <div className="flex gap-x-4 border shadow w-full p-8 rounded-lg">
+                {/* Profile Image and Username */}
+                <div className="flex gap-x-4 border shadow w-full p-8 rounded-lg flex-col sm:flex-row">
                   <Image
-                    className="h-20 w-20 rounded-full"
+                    className="h-20 w-20 rounded-full mb-4 sm:mb-0"
                     src={
                       currentUser?.user_photo ||
                       "/assets/images/tailor.png?height=300&width=400"
                     }
                     height={50}
-                    width={20}
+                    width={50}
                     alt="profile-photo"
                   />
                   <FormField
@@ -201,8 +201,9 @@ export default function ProfileSetting() {
                   />
                 </div>
 
+                {/* Settings Section */}
                 <div className="grid grid-cols-1 border shadow p-8 gap-y-5 rounded-lg">
-                  <h1 className="text-2xl sm:text-3xl  tracking-tight my-4 ">
+                  <h1 className="text-2xl sm:text-3xl tracking-tight my-4">
                     Settings
                   </h1>
 
@@ -236,7 +237,7 @@ export default function ProfileSetting() {
                             <div className="space-y-0.5">
                               <FormLabel>Two-factor Authentication</FormLabel>
                               <FormDescription>
-                                Enable 2FA for extra security{" "}
+                                Enable 2FA for extra security
                               </FormDescription>
                             </div>
                             <FormControl>
@@ -252,11 +253,12 @@ export default function ProfileSetting() {
                   </div>
                 </div>
 
+                {/* Personal Details Section */}
                 <div className="grid grid-cols-1 border shadow p-8 gap-y-5 rounded-lg">
-                  <h1 className="text-2xl sm:text-3xl tracking-tight my-4 ">
+                  <h1 className="text-2xl sm:text-3xl tracking-tight my-4">
                     Personal Details
                   </h1>
-                  <div className="flex items-center sm:flex-row flex-col w-full gap-3">
+                  <div className="flex flex-col sm:flex-row gap-4 w-full">
                     <FormField
                       control={form.control}
                       name="firstname"
@@ -340,7 +342,7 @@ export default function ProfileSetting() {
               </>
               <Button
                 type="submit"
-                className=" rounded-xl h-12 mt-4"
+                className="rounded-xl h-12 mt-4"
                 disabled={loading}
               >
                 Submit
