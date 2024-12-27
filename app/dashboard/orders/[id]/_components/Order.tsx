@@ -114,9 +114,9 @@ export default function OrdersPage() {
               </h2>
               <p className="text-sm text-gray-500">
                 {order && order.order_type === "product"
-                  ? `${order["product_items"].length} Products`
+                  ? `${order["product_items"]?.length} Products`
                   : order && order.order_type === "service"
-                  ? `${order["service_items"].length} Services`
+                  ? `${order["service_items"]?.length} Services`
                   : null}
                 • Order Placed in{" "}
                 {order?.created_at && convertTime(order?.created_at)}
