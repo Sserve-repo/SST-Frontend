@@ -268,7 +268,7 @@ export default function Header() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 overflow-hidden"
             onClick={handleOpenRole}
           >
             <motion.div
@@ -281,7 +281,7 @@ export default function Header() {
             >
               <button
                 onClick={handleOpenRole}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 mt-4 mr-2"
               >
                 <X className="h-5 w-5" />
               </button>

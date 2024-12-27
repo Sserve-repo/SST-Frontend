@@ -21,9 +21,9 @@ export default function Role() {
   };
 
   return (
-    <div className="container mx-auto p-4 justify-center w-full items-center flex flex-col">
-      <div className="w-full max-w-md">
-        <div className="flex justify-center items-center w-full mb-8">
+    <div className="container mx-auto p-4 justify-center w-full items-center flex flex-col h-screen overflow-y-auto">
+      <div className="w-full max-w-md h-full">
+        <div className="flex justify-center items-center w-full mb-8 mt-4 pb-4">
           <div className="text-left">
             <h1 className="text-3xl sm:text-[55px] font-bold text-primary">
               Join Us!
