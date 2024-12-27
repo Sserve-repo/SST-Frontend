@@ -110,7 +110,7 @@ export default function OrdersPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <h2 className="text-sm font-medium text-gray-600">
-                Order ID No.: {order && order.id}
+                Order ID No.:  {order && order.id}
               </h2>
               <p className="text-sm text-gray-500">
                 {order && order.order_type === "product"
@@ -219,7 +219,11 @@ export default function OrdersPage() {
                       >
                         {orderItem.status}
                       </span>
-                      <img className="ml-6" src="/assets/icons/info.svg" alt="info-icon"></img>
+                      <img
+                        className="ml-6"
+                        src="/assets/icons/info.svg"
+                        alt="info-icon"
+                      ></img>
                     </TableCell>
                   </TableRow>
                 ))}{" "}
