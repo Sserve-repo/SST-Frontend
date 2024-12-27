@@ -183,7 +183,7 @@ export default function OrdersPage() {
             <TableBody>
               {order &&
                 order.order_type === "product" &&
-                order["product_items"].map((orderItem, index) => (
+                order["product_items"]?.map((orderItem, index) => (
                   <TableRow
                     key={order.order_no}
                     className="cursor-pointer hover:bg-gray-50"
@@ -229,7 +229,7 @@ export default function OrdersPage() {
                 ))}{" "}
               {order &&
                 order.order_type === "service" &&
-                order["service_items"].map((orderItem, index) => (
+                order["service_items"]?.map((orderItem, index) => (
                   <TableRow
                     key={order.order_no}
                     className="cursor-pointer hover:bg-gray-50"
