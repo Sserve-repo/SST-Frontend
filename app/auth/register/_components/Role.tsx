@@ -34,10 +34,10 @@ export default function Role() {
       case "artisan":
         return (
           <div className="flex w-full h-screen overflow-hidden">
-            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full ">
+            <div className="hidden lg:block lg:w-1/2 h-full">
               <ArtisanSplash />
             </div>
-            <div className="w-1/2 container mx-auto p-4 justify-center items-center flex flex-col ">
+            <div className="w-full lg:w-1/2 container mx-auto p-4 flex justify-center items-center flex-col">
               <ArtisanForm
                 registrationStep={parseInt(step ?? "1")}
                 onBack={() => setSelectedRole(null)}
@@ -48,10 +48,10 @@ export default function Role() {
       case "vendor":
         return (
           <div className="flex w-full h-screen overflow-hidden">
-            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full">
+            <div className="hidden lg:block lg:w-1/2 h-full">
               <VendorSplash />
             </div>
-            <div className="w-1/2 container mx-auto p-4 justify-center items-center flex flex-col">
+            <div className="w-full lg:w-1/2 container mx-auto p-4 flex justify-center items-center flex-col">
               <VendorForm
                 registrationStep={parseInt(step ?? "1")}
                 onBack={() => setSelectedRole(null)}
@@ -62,10 +62,10 @@ export default function Role() {
       case "buyer":
         return (
           <div className="flex w-full h-screen overflow-hidden">
-            <div className="hidden w-1/2 lg:col-span-5 lg:block h-full">
+            <div className="hidden lg:block lg:w-1/2 h-full">
               <BuyerSplash />
             </div>
-            <div className="w-1/2 container mx-auto p-4 justify-center items-center flex flex-col">
+            <div className="w-full lg:w-1/2 container mx-auto p-4 flex justify-center items-center flex-col">
               <BuyerForm onBack={() => setSelectedRole(null)} />
             </div>
           </div>
@@ -92,18 +92,18 @@ export default function Role() {
       {selectedRole ? (
         renderForm()
       ) : (
-        <div className="flex w-full">
-          <div className="hidden  w-1/2 lg:col-span-5 lg:block h-full overflow-hidden">
+        <div className="flex flex-col lg:flex-row w-full">
+          <div className="hidden lg:block lg:w-1/2 h-full overflow-hidden">
             <Splash />
           </div>
-          <div className="w-1/2 container mx-auto p-4 justify-center  items-center flex flex-col">
-            <div className=" max-w-md">
+          <div className="w-full lg:w-1/2 container mx-auto p-4 flex justify-center items-center flex-col">
+            <div className="max-w-md w-full">
               <div className="flex justify-center items-center w-full">
                 <div className="text-left">
-                  <h1 className="text-5xl font-bold text-primary mb-2">
+                  <h1 className="text-3xl md:text-5xl font-bold text-primary mb-2">
                     Join Us!
                   </h1>
-                  <p className="text-lg font-medium text-gray-400">
+                  <p className="text-sm md:text-lg font-medium text-gray-400">
                     To begin this journey, tell us what type of account
                     you&apos;d be opening.
                   </p>
@@ -120,14 +120,14 @@ export default function Role() {
                       <div className="p-3 rounded-full border border-primary group-hover:border-white transition-colors">
                         {React.createElement(roleIcons[role], {
                           className:
-                            "text-2xl text-primary group-hover:text-white",
+                            "text-xl md:text-2xl text-primary group-hover:text-white",
                         })}
                       </div>
                       <div>
-                        <CardTitle className="capitalize text-lg text-gray-800 group-hover:text-white">
+                        <CardTitle className="capitalize text-base md:text-lg text-gray-800 group-hover:text-white">
                           {role}
                         </CardTitle>
-                        <CardDescription className="text-gray-700 text-sm group-hover:text-white">
+                        <CardDescription className="text-sm md:text-base text-gray-700 group-hover:text-white">
                           Lorem ipsum dolor sit amet consectetur. Nisl ut duis
                           mollis. {role}
                         </CardDescription>
@@ -136,7 +136,7 @@ export default function Role() {
                   </Card>
                 ))}
               </div>
-              <div className="flex items-center w-full text-gray-400 mt-4">
+              <div className="flex items-center w-full text-gray-400 mt-4 text-sm md:text-base">
                 Already have an account?{" "}
                 <a
                   href="/auth/login"
@@ -149,7 +149,6 @@ export default function Role() {
           </div>
         </div>
       )}
-      {/* </div> */}
     </Suspense>
   );
 }

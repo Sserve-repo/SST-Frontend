@@ -50,7 +50,7 @@ export function DashboardNav() {
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+  }, [router, isAuthenticated]);
 
   return (
     <>

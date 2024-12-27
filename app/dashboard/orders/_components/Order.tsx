@@ -23,6 +23,7 @@ import {
 import { MdReplay } from "react-icons/md";
 import { getOrderlist } from "@/actions/dashboard";
 import { useRouter } from "next/navigation";
+import { convertTime } from "@/lib/utils";
 
 type OrderType = {
   id: string;
@@ -119,7 +120,7 @@ export default function OrdersPage() {
                     <TableCell className="font-medium">
                       {order?.order_no}
                     </TableCell>
-                    <TableCell>{order?.created_at}</TableCell>
+                    <TableCell>{convertTime(order?.created_at)}</TableCell>
                     <TableCell>{order?.order_type}</TableCell>
                     <TableCell>{order?.cart_total}</TableCell>
                     <TableCell className="text-orange-400">

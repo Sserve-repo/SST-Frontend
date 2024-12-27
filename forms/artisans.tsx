@@ -1,5 +1,7 @@
 "use client";
 
+import { json } from "stream/consumers";
+
 export const userRegistrationPayload = (data: any) => {
   const requestPayload = new FormData();
   requestPayload.append("firstname", data.firstName);
@@ -43,13 +45,13 @@ export const serviceAvailabilityPayload = (data: any) => {
   const requestPayload = new FormData();
   const email = localStorage.getItem("email");
  
-  const formattedDates = data.availableDays.map((date) => {
+  const formattedDates = data?.availableDays.toString().split(",")?.map((date) => {
     const d = new Date(date);
     return d.toISOString().split("T")[0];
   });
 
   requestPayload.append("user_email", data.email || email?.replaceAll('"', ""));
-  requestPayload.append("available_dates", formattedDates);
+  requestPayload.append("available_dates", JSON.stringify(formattedDates));
   requestPayload.append("start_time", data.availableFrom);
   requestPayload.append("end_time", data.availableTo);
   requestPayload.append("longitude", data.longitude);

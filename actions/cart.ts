@@ -3,16 +3,21 @@ import Cookies from "js-cookie"
 export const fetchCart = async () => {
   try {
     const token = Cookies.get("accessToken");
-    if (!token) return;
+    if (!token) {
+      const response = await fetch(`${baseUrl}/general/cart/fetchCart`, {
+        method: "GET",
+      });
+      return response;
+    } else {
+      const response = await fetch(`${baseUrl}/general/cart/fetchCart`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const response = await fetch(`${baseUrl}/general/cart/fetchCart`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    return response;
+      return response;
+    }
   } catch (error) {
     console.error("Error fetching cart:", error);
   }
@@ -55,19 +60,28 @@ export const removeCartItem = async (
 ) => {
   try {
     const token = Cookies.get("accessToken");
-    if (!token) return;
+    if (!token) {
+      const response = await fetch(
+        `${baseUrl}/general/cart/destroyCart/${cartId}`,
+        {
+          method: "GET",
+        }
+      );
+      return response
+    } else {
+      const response = await fetch(
+        `${baseUrl}/general/cart/destroyCart/${cartId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const response = await fetch(
-      `${baseUrl}/general/cart/destroyCart/${cartId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+      return response
+    }
 
-    return response
   } catch (error) {
     console.error("Error removing from cart:", error);
   }
@@ -77,20 +91,30 @@ export const removeCartItem = async (
 export const clearCart = async (setCart: (cart: any) => void) => {
   try {
     const token = Cookies.get("accessToken");
-    if (!token) return;
-
-    const response = await fetch(`${baseUrl}/general/cart/clearCart`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      setCart([]);
+    if (!token) {
+      const response = await fetch(`${baseUrl}/general/cart/clearCart`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        setCart([]);
+      } else {
+        console.error("Failed to clear cart");
+      }
     } else {
-      console.error("Failed to clear cart");
+      const response = await fetch(`${baseUrl}/general/cart/clearCart`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setCart([]);
+      } else {
+        console.error("Failed to clear cart");
+      }
     }
+
   } catch (error) {
     console.error("Error clearing cart:", error);
   }

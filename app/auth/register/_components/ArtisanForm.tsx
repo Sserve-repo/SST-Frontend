@@ -132,6 +132,10 @@ type ArtisanFormProps = {
 export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [step, setStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
+  const [cordinates, setCordinates] = useState<{
+    lat: string;
+    lng: string;
+  } | null>(null);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [serviceImages, setServiceImages] = useState<string | null>(null);
   const [businessLicensePreview, setbusinessLicensePreview] = useState<
@@ -171,11 +175,13 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
     console.log("Formatted Dates:", dates);
   };
 
-  const handleOnPlacesChanged = () => {
+  const handleOnPlacesChanged = async () => {
     const address = addressRef.current.getPlaces();
     if (address.length > 0) {
-      getAddressGeoCode(address[0].formatted_address);
+      const cordinates = await getAddressGeoCode(address[0].formatted_address);
+      setCordinates(cordinates);
       setShopperAddress(address[0].formatted_address);
+      console.log("the address......", address, shopperAddress);
     }
   };
 
@@ -352,8 +358,8 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
         isValid = false;
       }
 
-      data.latitude = "";
-      data.longitude = "";
+      data.latitude = cordinates ? cordinates?.lat : "";
+      data.longitude = cordinates ? cordinates?.lng : "";
 
       if (!data.latitude || !data.longitude) {
         errors.shopAddress = "Error setting lat and long for selected location";
@@ -636,6 +642,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
       if (response.ok) {
         const cordinates = data.results[0].geometry.location;
         console.log("showing cordinates", cordinates);
+        return cordinates;
       }
     } catch (error) {
       console.log("error occured when getting cordinates", error);
@@ -712,7 +719,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
             </div>
           </div>
 
-          <div className="max-h-[calc(100vh-180px)] overflow-y-auto px-2">
+          <div className="max-h-[calc(100vh-180px)] overflow-y-auto px-6">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSubmit)}
@@ -723,14 +730,15 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     <>
                       {/* Headings */}
                       <div>
-                        <h1 className="text-[40px] font-semibold text-[#502266]">
+                        <h1 className="text-[28px] md:text-[40px] font-semibold text-[#502266] leading-tight">
                           Create Account
                         </h1>
-                        <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
+                        <p className="text-base md:text-lg font-normal text-[#b9b9b9] mb-[10px] pr-4 md:pr-[200px]">
                           For the purpose of industry regulation, your details
                           are required.
                         </p>
                       </div>
+
                       <div className="flex items-center sm:flex-row flex-col w-full gap-3">
                         <FormField
                           control={form.control}
@@ -1180,11 +1188,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                   </div>
                 )}
                 {step === 3 && (
-                  <div className="w-full flex flex-col ">
-                    <h2 className="text-[40px] font-semibold leading-[50px] text-[#502266]">
+                  <div className="w-full flex flex-col">
+                    <h2 className="text-2xl md:text-[40px] font-semibold leading-[30px] md:leading-[50px] text-[#502266]">
                       Set Service Areas & Availability
                     </h2>
-                    <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] pr-[200px]">
+                    <p className="text-base md:text-lg font-normal text-[#b9b9b9] mb-[10px] pr-4 md:pr-[200px]">
                       Specify the areas and times you&apos;re available to
                       provide services.
                     </p>
@@ -1259,8 +1267,11 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                     </div>
 
                     <>
+                      <FormLabel className="text-[#b9b9b9] text-base mb-3">
+                        Artisan Shop Address
+                      </FormLabel>
                       {isLoaded && (
-                        <div className="flex justify-center items-center w-full border">
+                        <div className="flex justify-start items-center w-full px-4">
                           <StandaloneSearchBox
                             onLoad={(ref) => (addressRef.current = ref)}
                             onPlacesChanged={handleOnPlacesChanged}
@@ -1268,7 +1279,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
                             <div className="w-full">
                               <Input
                                 placeholder="Search for a place"
-                                className="w-[38em] h-14 outline-none border-2 rounded-2xl px-4"
+                                className="w-[22em] md:w-[33em] lg-w-full h-14 outline-none border-2 rounded-2xl px-4"
                                 style={{ boxSizing: "border-box" }}
                               />
                             </div>

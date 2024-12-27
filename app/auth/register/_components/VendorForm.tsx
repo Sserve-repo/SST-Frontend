@@ -634,11 +634,11 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                     (!userVerified && !completedUserRegistration ? (
                       <>
                         <div>
-                          <div className="flex justify-start flex-col max-w-md mb-[30px] w-full">
-                            <h2 className="text-[40px] font-semibold text-[#502266] w-full">
+                          <div className="flex flex-col justify-start max-w-md mb-6 w-full px-4 md:px-0">
+                            <h2 className="text-2xl md:text-4xl font-semibold text-[#502266] w-full">
                               Create Account
                             </h2>
-                            <p className="w-full text-lg font-normal text-[#b9b9b9] mb-[10px] ">
+                            <p className="w-full text-sm md:text-lg font-normal text-[#b9b9b9] mt-2">
                               For the purpose of industry regulation, your
                               details are required.
                             </p>
@@ -840,14 +840,16 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   {step === 2 && (
                     <div className=" w-full flex flex-col gap-y-[30px]">
                       <div>
-                        <h2 className="text-[40px] font-semibold text-[#502266] leading-[50px]">
-                          <p>Set Your Shop Profile </p>& Preferences
+                        <h2 className="text-2xl md:text-4xl font-semibold text-[#502266] leading-[40px] md:leading-[50px]">
+                          <p className="mb-2">Set Your Shop Profile</p> &
+                          Preferences
                         </h2>
-                        <div className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
-                          <p> For the purpose of industry regulation,</p>
-                          <p> your details are required.</p>
+                        <div className="text-sm md:text-lg font-normal text-[#b9b9b9] text-left md:text-right">
+                          <p>For the purpose of industry regulation,</p>
+                          <p>your details are required.</p>
                         </div>
                       </div>
+
                       <FormField
                         control={form.control}
                         name="businessName"
@@ -1105,16 +1107,17 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   {step === 3 && (
                     <div className="w-full space-y-7">
                       <div>
-                        <h2 className="text-[40px] font-semibold text-[#502266]">
+                        <h2 className="text-2xl md:text-4xl font-semibold text-[#502266]">
                           Verify Your Identity
                         </h2>
-                        <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[70px]">
+                        <p className="text-sm md:text-lg font-normal text-[#b9b9b9] mb-4 md:pr-[70px]">
                           To verify your business, please upload 3-4 relevant
                           certifications. Some certifications are required,
                           while others are optional. This helps build trust and
                           credibility with your clients.
                         </p>
                       </div>
+
                       <FormField
                         control={form.control}
                         name="idType"
@@ -1219,14 +1222,15 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   {step === 4 && (
                     <div className="w-full flex flex-col gap-y-7">
                       <div>
-                        <div className="text-[40px] font-semibold text-[#502266] md:pr-[200px] leading-[50px]">
+                        <div className="text-2xl md:text-4xl font-semibold text-[#502266] leading-[40px]">
                           <p>Set Shipping & Return Policies</p>
                         </div>
-                        <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                        <p className="text-sm md:text-lg font-normal text-[#b9b9b9] mb-4 md:pr-[290px]">
                           Provide clear details about your shipping methods and
                           return policies.
                         </p>
                       </div>
+
                       <FormField
                         control={form.control}
                         name="shippingOption"
@@ -1366,10 +1370,10 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   {step === 5 && (
                     <div className=" flex flex-col w-full gap-y-7">
                       <div>
-                        <div className="text-[40px] font-semibold text-[#502266] leading-[50px] md:pr-[100px]">
-                          <p> Set Up Payment Preferences</p>
+                        <div className="text-2xl md:text-4xl font-semibold text-[#502266] leading-[40px]">
+                          <p>Set Up Payment Preferences</p>
                         </div>
-                        <p className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                        <p className="text-sm md:text-lg font-normal text-[#b9b9b9] mb-4 md:pr-[290px]">
                           Your payment details will be securely stored and
                           verified.
                         </p>
@@ -1463,14 +1467,15 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                   {step === 6 && (
                     <div className="flex flex-col w-full gap-y-7">
                       <div>
-                        <h2 className="text-[40px] font-semibold text-[#502266]">
+                        <h2 className="text-2xl md:text-4xl font-semibold text-[#502266]">
                           Set Up Billing
                         </h2>
-                        <div className="text-lg font-normal text-[#b9b9b9] md:pr-[290px]">
+                        <div className="text-sm md:text-lg font-normal text-[#b9b9b9] mb-4 md:pr-[290px]">
                           <p>We will securely store your billing fees.</p>
-                          <p> details for future platform</p>
+                          <p>Details for future platform.</p>
                         </div>
                       </div>
+
                       <FormField
                         control={form.control}
                         name="cardNumber"
@@ -1554,13 +1559,16 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
 
                   {step === 7 && (
                     <div className="w-full space-y-7 ">
-                      <h2 className="text-[40px] font-semibold text-[#502266]">
-                        Tell Us About Your Listing
-                      </h2>
-                      <p className="text-lg font-normal text-[#b9b9b9] mb-[10px] md:pr-[200px]">
-                        You can add up to 5 categories and customize each
-                        listing to match.
-                      </p>
+                      <div>
+                        <h2 className="text-2xl md:text-[40px] font-semibold text-[#502266] mt-4">
+                          Tell Us About Your Listing
+                        </h2>
+                        <p className="text-sm md:text-lg font-normal text-[#b9b9b9] mb-4 md:pr-[200px]">
+                          You can add up to 5 categories and customize each
+                          listing to match.
+                        </p>
+                      </div>
+
                       <FormField
                         control={form.control}
                         name="productName"

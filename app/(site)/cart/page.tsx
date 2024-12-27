@@ -11,10 +11,11 @@ import { fetchCart } from "@/actions/cart";
 const CartPage = () => {
   const { cart, setCartExt, removeFromCart, updateQuantity } = useCart();
   const [cartMetadata, setCartMetadata] = useState<any | null>(null);
+
   const handleFetchCart = useCallback(async () => {
     const response = await fetchCart();
+    const data = response && await response.json();
     if (response && response.ok) {
-      const data = await response.json();
       setCartExt(data.data["Cart Items"]);
       setCartMetadata(data.data);
     } else {
@@ -26,7 +27,7 @@ const CartPage = () => {
     handleFetchCart();
   }, [handleFetchCart]);
 
-  if (!cart) {
+  if (!cart || cart.length === 0) {
     return (
       <div className="container mx-auto flex justify-center items-center flex-col min-h-screen px-4 py-24 text-center">
         <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>

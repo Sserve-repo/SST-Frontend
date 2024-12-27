@@ -33,9 +33,10 @@ const ProductPage = () => {
   const router = useRouter();
 
   const categoryId = searchParams.get("categoryId");
+  const subCategoryId = searchParams.get("subCategoryId");
 
-  const handleFetchProduct = async (catId: number) => {
-    const response = await getProductByCategory(catId);
+  const handleFetchProduct = async (catId: number, subCat: any) => {
+    const response = await getProductByCategory(catId, subCat);
     if (response && response.ok) {
       const data = await response.json();
       setProducts(data.data["product_listing"]);
@@ -55,12 +56,14 @@ const ProductPage = () => {
   };
 
   useEffect(() => {
-    if (categoryId) {
-      handleFetchProduct(parseInt(categoryId));
+    if (categoryId && subCategoryId) {
+      handleFetchProduct(parseInt(categoryId), parseInt(subCategoryId));
+    } else if (categoryId) {
+      handleFetchProduct(parseInt(categoryId), "");
     } else {
       handleFetchProductList();
     }
-  }, [categoryId]);
+  }, [categoryId, subCategoryId]);
 
   // Derived sorting (avoiding infinite loop)
   const sortedProducts = React.useMemo(() => {

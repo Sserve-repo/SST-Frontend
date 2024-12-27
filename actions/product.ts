@@ -43,11 +43,10 @@ export const getProductMenu = async () => {
   }
 };
 
-export const getProductByCategory = async (catId: number) => {
+export const getProductByCategory = async (catId: number, subCat: any) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/products/getProductByCategorySub?limit=20&page=1&product_category=${catId}`
-    );
+      `${baseUrl}/general/products/getProductByCategorySub?limit=20&page=1&product_category=${catId}${subCat && `product_subcategory=${subCat}`}`);
     return response;
   } catch (error: any) {
     console.log("failed to fetch product menu", error);

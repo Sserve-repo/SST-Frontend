@@ -73,6 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logOut = () => {
     setAuth(false, null);
     Cookies.remove("accessToken");
+    localStorage.removeItem("email");
   };
 
   useEffect(() => {

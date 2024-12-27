@@ -21,6 +21,13 @@ import { getProductMenu } from "@/actions/product";
 import { getServicesMenu } from "@/actions/service";
 import Cookies from "js-cookie";
 import { useAuth } from "@/context/AuthContext";
+import { RiArrowDropDownLine } from "react-icons/ri";
+
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -126,14 +133,34 @@ export default function Header() {
                         >
                           <p className="font-bold mb-2">{category.name}</p>
                           {category["product_categories"].map((item, index) => (
-                            <Link
-                              key={index}
-                              href={`/products/?categoryId=${item.id}`}
-                              // href={`/products/?categoryId=${item["product_category_id"]}`}
-                              className="hover:underline mb-1"
-                            >
-                              {item.name}
-                            </Link>
+                            <div key={index} className="grid grid-cols-2">
+                              <Link
+                                key={index}
+                                href={`/products/?categoryId=${item.id}`}
+                                // href={`/products/?categoryId=${item["product_category_id"]}`}
+                                className="hover:underline mb-1"
+                              >
+                                {item.name}
+                              </Link>
+                              <HoverCard>
+                                <HoverCardTrigger>
+                                  <RiArrowDropDownLine className="hover: cursor-pointer text-2xl ml-8" />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="flex flex-col gap-y-2 ">
+                                  {item["product_category_items"].map(
+                                    (subItem, subItemIndex) => (
+                                      <Link
+                                        key={subItemIndex}
+                                        href={`/products/?categoryId=${item.id}&subCategoryId=${subItem.id}`}
+                                        className="hover:underline mb-1"
+                                      >
+                                        {subItem.name}
+                                      </Link>
+                                    )
+                                  )}
+                                </HoverCardContent>
+                              </HoverCard>
+                            </div>
                           ))}
                         </div>
                       ))}

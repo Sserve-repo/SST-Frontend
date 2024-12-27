@@ -29,6 +29,7 @@ import { OrderDetails } from "./order-details";
 import { MdReplay } from "react-icons/md";
 import { useParams } from "next/navigation";
 import { getOrderDetail } from "@/actions/dashboard";
+import { convertTime } from "@/lib/utils";
 
 type OrderItemsType = {
   id: string;
@@ -73,7 +74,7 @@ interface OrderType {
 
 const statusStyles = {
   success: "bg-emerald-50 text-emerald-700",
-  Processing: "bg-purple-50 text-purple-700",
+  processing: "bg-purple-50 text-purple-700",
   cancelled: "bg-red-50 text-red-700",
   "In Transit": "bg-blue-50 text-blue-700",
 };
@@ -112,7 +113,13 @@ export default function OrdersPage() {
                 Order ID No.: {order && order.id}
               </h2>
               <p className="text-sm text-gray-500">
-                4 Products • Order Placed in 17 Jan 2021 at 7:32 PM
+                {order && order.order_type === "product"
+                  ? `${order["product_items"].length} Products`
+                  : order && order.order_type === "service"
+                  ? `${order["service_items"].length} Services`
+                  : null}
+                • Order Placed in{" "}
+                {order?.created_at && convertTime(order?.created_at)}
               </p>
             </div>
             <div className="text-2xl font-semibold text-primary">
@@ -202,9 +209,9 @@ export default function OrdersPage() {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="flex justify-start items-center ">
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
+                        className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
                           statusStyles[
                             orderItem.status as keyof typeof statusStyles
                           ]
@@ -212,6 +219,7 @@ export default function OrdersPage() {
                       >
                         {orderItem.status}
                       </span>
+                      <img className="ml-6" src="/assets/icons/info.svg" alt="info-icon"></img>
                     </TableCell>
                   </TableRow>
                 ))}{" "}
