@@ -177,7 +177,7 @@ export default function OrdersPage() {
                 <TableHead>ADDRESS</TableHead>
                 <TableHead>CATEGORY</TableHead>
                 <TableHead>ACTION</TableHead>
-                <TableHead>STATUS</TableHead>
+                <TableHead>ORDER STATUS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -213,11 +213,11 @@ export default function OrdersPage() {
                       <span
                         className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
                           statusStyles[
-                            orderItem.status as keyof typeof statusStyles
+                            orderItem.order_status as keyof typeof statusStyles
                           ]
                         }`}
                       >
-                        {orderItem.status}
+                        {orderItem?.order_status}
                       </span>
                       <img
                         className="ml-6"
@@ -259,11 +259,11 @@ export default function OrdersPage() {
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
                           statusStyles[
-                            orderItem.status as keyof typeof statusStyles
+                            orderItem.order_status as keyof typeof statusStyles
                           ]
                         }`}
                       >
-                        {orderItem.status}
+                        {orderItem?.booking_status}
                       </span>
                       <img
                         className="ml-6"

@@ -60,7 +60,8 @@ export function StripePaymentForm({
         console.log("response....", data);
         setTimeout(() => {
           router.push("/");
-        }, 1200);
+        }, 3500);
+
       } else {
         setErrorMessage(`An error occured......,${data.data}`);
         setIsLoading(false);

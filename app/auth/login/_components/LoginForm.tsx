@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getUserDetails, loginUser, resendOtp } from "@/actions/auth";
 import { useAuth } from "@/context/AuthContext";
 
@@ -29,6 +29,8 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { setAuth } = useAuth();
+  const params = useSearchParams();
+  const redirect = params.get("redirect");
 
   const router = useRouter();
 
@@ -96,9 +98,7 @@ export default function LoginForm() {
           sameSite: "Strict",
           expires: 10 / 24,
         });
-        console.log("before calling setauth", response.data.user);
         setAuth(true, response.data.user || null);
-        console.log("after calling setauth", response.data.user);
 
         const {
           registration_status,
@@ -114,8 +114,13 @@ export default function LoginForm() {
             JSON.stringify(response.data.user.email)
           );
           toast.success("Login successful! Redirecting...");
-          router.push("/");
-          return;
+          if (redirect) {
+            router.push(`/${redirect}`);
+            return;
+          } else {
+            router.push("/");
+            return;
+          }
         }
         if (!verified_status || parseInt(verified_status) !== 1) {
           toast.info("Account not verified. Redirecting to verification...");

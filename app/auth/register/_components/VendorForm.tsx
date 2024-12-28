@@ -54,6 +54,8 @@ import {
 import { OtpForm } from "./OtpForm";
 import { otpPayload } from "@/forms/artisans";
 import { getProvinces } from "@/actions/provinces";
+import { useAuth } from "@/context/AuthContext";
+import Cookies from "js-cookie";
 
 type FormData = {
   // Step 1: Create Account
@@ -143,6 +145,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
   const [completedUserRegistration, setCompletedUserRegistration] =
     useState(false);
   const [loading, setLoading] = useState(false);
+  const { setAuth } = useAuth();
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -417,6 +420,14 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
             const response = await registerUser("vendor", payload);
             const res = await response?.json();
             if (response && response.ok && response.status === 201) {
+              Cookies.set("accessToken", res.token, {
+                path: "/",
+                secure: true,
+                sameSite: "Strict",
+                expires: 10 / 24,
+              });
+              setAuth(true, res.data.user || null);
+
               toast.success(res.message);
               setCompletedUserRegistration(true);
             } else {

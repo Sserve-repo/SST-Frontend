@@ -55,7 +55,7 @@ export function StripeServicePaymentForm({
 
         setTimeout(() => {
           router.push("/");
-        }, 1200);
+        }, 3500);
         
       } else {
         setErrorMessage(`An error occured......,${data.data}`);

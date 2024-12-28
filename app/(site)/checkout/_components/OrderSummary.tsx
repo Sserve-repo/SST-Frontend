@@ -3,14 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
-const OrderSummary = ({cartMetadata}) => {
+const OrderSummary = ({ cartMetadata }) => {
+  const { isAuthenticated } = useAuth();
   const { cart, totalPrice } = useCart();
   const [isCheckoutPage, setIsCheckoutPage] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    console.log(`${JSON.stringify(cart)}`);
     setIsCheckoutPage(window.location.pathname === "/checkout");
   }, [cart]);
 
@@ -42,13 +44,23 @@ const OrderSummary = ({cartMetadata}) => {
       {/* Shipping */}
       <div className="flex justify-between mb-2">
         <span>Shipping:</span>
-        <span>{cartMetadata && cartMetadata["Shipping Cost"] &&  cartMetadata["Shipping Cost"].toFixed(2) || "Free"} </span>
+        <span>
+          {(cartMetadata &&
+            cartMetadata["Shipping Cost"] &&
+            cartMetadata["Shipping Cost"].toFixed(2)) ||
+            "Free"}{" "}
+        </span>
       </div>
 
       {/* Tax */}
       <div className="flex justify-between mb-2">
         <span>Tax:</span>
-        <span>${cartMetadata && cartMetadata["Tax Rate"] && cartMetadata["Tax Rate"].toFixed(2)} </span>
+        <span>
+          $
+          {cartMetadata &&
+            cartMetadata["Tax Rate"] &&
+            cartMetadata["Tax Rate"].toFixed(2)}{" "}
+        </span>
       </div>
 
       {/* Grand Total */}
@@ -63,9 +75,18 @@ const OrderSummary = ({cartMetadata}) => {
       {isCheckoutPage ? (
         <></>
       ) : (
-        <Link href="/checkout">
-          <Button className="w-full mt-6">Proceed to Checkout</Button>
-        </Link>
+        <Button
+          onClick={() => {
+            if (!isAuthenticated) {
+              router.push("/auth/login?redirect=checkout");
+            } else {
+              router.push("/checkout");
+            }
+          }}
+          className="w-full mt-6"
+        >
+          Proceed to Checkout
+        </Button>
       )}
 
       {/* Promo Code Section */}

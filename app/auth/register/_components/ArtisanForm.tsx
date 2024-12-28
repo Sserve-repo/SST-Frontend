@@ -7,6 +7,8 @@ import "react-multi-date-picker/styles/colors/purple.css";
 import InputIcon from "react-multi-date-picker/components/input_icon";
 import ServiceCertifications from "./ServiceCertifications";
 import { StandaloneSearchBox, useJsApiLoader } from "@react-google-maps/api";
+import Cookies from "js-cookie";
+import { useAuth } from "@/context/AuthContext";
 
 import {
   Form,
@@ -152,6 +154,7 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
   const [serviceCategories, setServiceCategories] = useState<ProductCategory[]>(
     []
   );
+  const { setAuth } = useAuth();
   const [serviceCategoryItems, setServiceCategoryItems] = useState<
     ProductCategory[]
   >([]);
@@ -473,7 +476,6 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
 
   const handleSubmit: SubmitHandler<FormData> = async (data) => {
     const isValid = validateForm(data);
-    console.log("*****", data);
 
     if (isValid) {
       try {
@@ -484,7 +486,16 @@ export function ArtisanForm({ onBack, registrationStep }: ArtisanFormProps) {
             const response = await registerUser("artisan", payload);
             const res = await response?.json();
             if (response && response.ok && response.status === 201) {
+              Cookies.set("accessToken", res.token, {
+                path: "/",
+                secure: true,
+                sameSite: "Strict",
+                expires: 10 / 24,
+              });
+
+              setAuth(true, res.data.user || null);
               toast.success(res.message);
+
               setCompletedUserRegistration(true);
             } else {
               formatErrors(res.data.errors, res);

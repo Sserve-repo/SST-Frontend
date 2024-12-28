@@ -87,7 +87,8 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-emerald-600">
-              {overviewData?.pendingOrder || 0} Pending Transaction
+              {overviewData?.pendingOrder || overviewData?.pendingService || 0}{" "}
+              Pending Transaction
             </span>
           </div>
         </Card>
@@ -99,10 +100,14 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">
-                Delivered Products
+                {tab === "service"
+                  ? "Completed Service"
+                  : " Delivered Products"}
               </p>
               <h3 className="text-2xl font-semibold text-gray-900">
-                {overviewData?.completeOrder || 0}
+                {overviewData?.completeOrder ||
+                  overviewData?.completedService ||
+                  0}
               </h3>
             </div>
           </div>
@@ -115,7 +120,8 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-purple-600">
-              {overviewData?.orderInProgress || 0} Pending Order
+              {overviewData?.orderInProgress || 0}
+              {tab === "service" ? " Pending Service" : " Pending Order"}
             </span>
           </div>
         </Card>
@@ -127,11 +133,15 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">
-                Products In Transit
+                {tab === "service"
+                  ? "Unperformed Services"
+                  : "Products In Transit"}
               </p>
               <h3 className="text-2xl font-semibold text-gray-900">
                 {" "}
-                {overviewData?.orderInProgress || 0}
+                {overviewData?.orderInProgress ||
+                  overviewData?.serviceInProgress ||
+                  0}
               </h3>
             </div>
           </div>
@@ -144,7 +154,12 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-red-600">
-              {overviewData?.cancelleOrder || 0} Cancelled Products
+              {overviewData?.cancelleOrder ||
+                overviewData?.cancelledService ||
+                0}{" "}
+              {tab === "service"
+                ? " Cancelled Services"
+                : " Cancelled Products"}
             </span>
           </div>
         </Card>

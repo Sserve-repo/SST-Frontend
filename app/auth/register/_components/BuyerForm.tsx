@@ -22,6 +22,8 @@ import { userRegistrationPayload } from "@/forms/vendors";
 import { registerUser } from "@/actions/auth";
 import { creatOtp } from "@/actions/buyer";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import Cookies from "js-cookie";
 
 type FormData = {
   firstName: string;
@@ -44,6 +46,7 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
   const [success, setSuccess] = useState(false);
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { setAuth } = useAuth();
   const router = useRouter();
 
   const handleNextStep = () => {
@@ -131,7 +134,16 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
             const res = await response.json();
 
             if (response.ok && response.status === 201) {
+              Cookies.set("accessToken", res.token, {
+                path: "/",
+                secure: true,
+                sameSite: "Strict",
+                expires: 10 / 24,
+              });
+
+              setAuth(true, res.data.user || null);
               toast.success(res.message || "Account created successfully!");
+
               handleNextStep();
             } else {
               toast.error(res.message || "Error creating account.");

@@ -14,7 +14,7 @@ const CartPage = () => {
 
   const handleFetchCart = useCallback(async () => {
     const response = await fetchCart();
-    const data = response && await response.json();
+    const data = response && (await response.json());
     if (response && response.ok) {
       setCartExt(data.data["Cart Items"]);
       setCartMetadata(data.data);
@@ -27,7 +27,7 @@ const CartPage = () => {
     handleFetchCart();
   }, [handleFetchCart]);
 
-  if (!cart || cart.length === 0) {
+  if (!cart || cart?.length === 0) {
     return (
       <div className="container mx-auto flex justify-center items-center flex-col min-h-screen px-4 py-24 text-center">
         <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>
@@ -47,7 +47,7 @@ const CartPage = () => {
         <div className="md:col-span-2 lg:col-span-2 pr-0 lg:pr-4 mx-6">
           <h1 className="text-2xl font-bold mb-4 text-black">Your Cart</h1>
           {cart &&
-            cart.length > 0 &&
+            cart?.length > 0 &&
             cart.map((item) => (
               <div
                 key={item?.product_id}
