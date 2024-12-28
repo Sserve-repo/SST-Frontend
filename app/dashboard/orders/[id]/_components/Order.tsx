@@ -74,6 +74,7 @@ interface OrderType {
 
 const statusStyles = {
   success: "bg-emerald-50 text-emerald-700",
+  pending: "bg-purple-50 text-purple-700",
   processing: "bg-purple-50 text-purple-700",
   cancelled: "bg-red-50 text-red-700",
   "In Transit": "bg-blue-50 text-blue-700",
@@ -217,7 +218,10 @@ export default function OrdersPage() {
                           ]
                         }`}
                       >
-                        {orderItem?.order_status}
+                        {orderItem?.order_status
+                          ? orderItem.order_status.charAt(0).toUpperCase() +
+                            orderItem.order_status.slice(1)
+                          : ""}
                       </span>
                       <img
                         className="ml-6"
@@ -259,11 +263,14 @@ export default function OrdersPage() {
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${
                           statusStyles[
-                            orderItem.order_status as keyof typeof statusStyles
+                            orderItem.booking_status as keyof typeof statusStyles
                           ]
                         }`}
                       >
-                        {orderItem?.booking_status}
+                        {orderItem?.booking_status
+                          ? orderItem.booking_status.charAt(0).toUpperCase() +
+                            orderItem.booking_status.slice(1)
+                          : ""}
                       </span>
                       <img
                         className="ml-6"

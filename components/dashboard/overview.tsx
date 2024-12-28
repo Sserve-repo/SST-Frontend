@@ -120,7 +120,9 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
               className="rounded-full"
             />
             <span className="text-sm font-medium text-purple-600">
-              {overviewData?.orderInProgress || 0}
+              {overviewData?.orderInProgress ||
+                overviewData?.serviceInProgress ||
+                0}
               {tab === "service" ? " Pending Service" : " Pending Order"}
             </span>
           </div>
