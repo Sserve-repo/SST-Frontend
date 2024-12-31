@@ -15,7 +15,6 @@ import { OverviewProps } from "./overview";
 import { FaArrowRight } from "react-icons/fa6";
 import { convertTime } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export type TransactionType = {
   id: string;
