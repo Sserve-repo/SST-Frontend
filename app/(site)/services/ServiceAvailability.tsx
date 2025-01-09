@@ -6,7 +6,7 @@ import {
   Star,
   MapPin,
   Clock,
-  Calendar as CalendarIcon,
+  CalendarIcon,
   Clock10,
   Server,
 } from "lucide-react";
@@ -30,20 +30,6 @@ import { getServiceByCategory } from "@/actions/service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 
-type ServiceType =
-  | "plumbing"
-  | "electrical"
-  | "carpentry"
-  | "painting"
-  | "general";
-
-interface ScheduleRequest {
-  date?: Date;
-  time: string;
-  serviceType: ServiceType | null;
-  location: string | null;
-}
-
 interface ServiceProvider {
   id: string;
   user_id: string;
@@ -51,34 +37,39 @@ interface ServiceProvider {
   price: number;
   start_time: string;
   end_time: string;
-  location: string;
-  rating: number;
+  city: string;
   province: string;
   description: string;
   image: string;
-  service_category_items_name?: string;
-  service_category_name?: string;
+  service_category_items_name: string;
+  service_category_name: string;
+  service_duration: string;
+  rating?: number;
 }
 
-const serviceTypes: ServiceType[] = [
-  "plumbing",
-  "electrical",
-  "carpentry",
-  "painting",
-  "general",
+interface ScheduleRequest {
+  date?: Date;
+  time: string;
+  serviceType: string | null;
+  location: string | null;
+}
+
+// Updated to match the actual data structure from the API
+const serviceTypes = [
+  "Home Care",
+  "Cleaning",
+  "Maintenance",
+  "Repair",
+  "Installation",
 ];
 
 const serviceLocations = [
-  "New York",
-  "Los Angeles",
-  "Chicago",
-  "Houston",
-  "Phoenix",
-  "Philadelphia",
-  "San Antonio",
-  "San Diego",
-  "Dallas",
-  "San Jose",
+  "Alberta",
+  "British Columbia",
+  "Manitoba",
+  "New Brunswick",
+  "Ontario",
+  "Quebec",
 ];
 
 export default function ServiceAvailability() {
@@ -86,6 +77,10 @@ export default function ServiceAvailability() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
   const [services, setServices] = useState<ServiceProvider[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filteredServices, setFilteredServices] = useState<ServiceProvider[]>(
+    []
+  );
   const [scheduleRequest, setScheduleRequest] = useState<ScheduleRequest>({
     date: undefined,
     time: "",
@@ -93,39 +88,83 @@ export default function ServiceAvailability() {
     location: null,
   });
 
-  // const filteredProviders = mockServiceProviders.filter(
-  //   (provider) =>
-  //     (!scheduleRequest.serviceType ||
-  //       provider.serviceType === scheduleRequest.serviceType) &&
-  //     (!scheduleRequest.location ||
-  //       provider.location === scheduleRequest.location)
-  // );
-
   const handleScheduleChange = (field: keyof ScheduleRequest, value: any) => {
     setScheduleRequest((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSearch = () => {
-    console.log("Searching with:", scheduleRequest);
-  };
-
   const handleFetchService = async (catId: number) => {
-    const response = await getServiceByCategory(catId);
-    if (response && response.ok) {
-      const data = await response.json();
-      setServices(data.data["Services"]);
-    } else {
-      setServices([]);
+    setIsLoading(true);
+    try {
+      const response = await getServiceByCategory(catId);
+      if (response && response.ok) {
+        const data = await response.json();
+        setServices(data.data["Services"]);
+        setFilteredServices(data.data["Services"]);
+      } else {
+        setServices([]);
+        setFilteredServices([]);
+      }
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const convertTimeToMinutes = (timeString: string): number => {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    return hours * 60 + (minutes || 0);
+  };
+
+  const handleSearch = () => {
+    const filtered = services.filter((service) => {
+      // Service type matching
+      const matchesServiceType =
+        !scheduleRequest.serviceType ||
+        service.service_category_items_name?.toLowerCase() ===
+          scheduleRequest.serviceType.toLowerCase();
+
+      // Location matching
+      const matchesLocation =
+        !scheduleRequest.location ||
+        service.province === scheduleRequest.location;
+
+      // Time matching
+      const matchesTime =
+        !scheduleRequest.time ||
+        (() => {
+          const requestTime = convertTimeToMinutes(scheduleRequest.time);
+          const startTime = convertTimeToMinutes(service.start_time);
+          const endTime = convertTimeToMinutes(service.end_time);
+          return requestTime >= startTime && requestTime <= endTime;
+        })();
+
+      // Date matching - You might want to implement this based on your business logic
+      const matchesDate = !scheduleRequest.date || true;
+
+      return (
+        matchesServiceType && matchesLocation && matchesTime && matchesDate
+      );
+    });
+
+    setFilteredServices(filtered);
+  };
+
+  // Trigger search when filters change
+  useEffect(() => {
+    if (services.length > 0) {
+      handleSearch();
+    }
+  }, [scheduleRequest]);
+
+  // Initial data fetch
   useEffect(() => {
     if (categoryId) {
       handleFetchService(parseInt(categoryId));
     }
   }, [categoryId]);
 
-  const handleHireNow = async (serviceId) => {
+  const handleHireNow = (serviceId: string) => {
     router.push(`/booking/?serviceId=${serviceId}`);
   };
 
@@ -135,7 +174,7 @@ export default function ServiceAvailability() {
         <h2 className="text-3xl font-semibold my-4 text-primary">
           Check Service Availability
         </h2>
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 justify-center">
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Popover>
@@ -143,7 +182,6 @@ export default function ServiceAvailability() {
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left text-sm font-normal"
-                    id="date"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {scheduleRequest.date ? (
@@ -158,7 +196,6 @@ export default function ServiceAvailability() {
                     mode="single"
                     selected={scheduleRequest.date}
                     onSelect={(date) => handleScheduleChange("date", date)}
-                    // initialFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -168,9 +205,10 @@ export default function ServiceAvailability() {
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Select
+                value={scheduleRequest.time}
                 onValueChange={(value) => handleScheduleChange("time", value)}
               >
-                <SelectTrigger id="time">
+                <SelectTrigger>
                   <div className="flex items-center">
                     <Clock10 className="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select time" />
@@ -190,11 +228,12 @@ export default function ServiceAvailability() {
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Select
+                value={scheduleRequest.serviceType || ""}
                 onValueChange={(value) =>
-                  handleScheduleChange("serviceType", value as ServiceType)
+                  handleScheduleChange("serviceType", value)
                 }
               >
-                <SelectTrigger id="service-type" className="">
+                <SelectTrigger>
                   <div className="flex items-center">
                     <Server className="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select Service" />
@@ -203,7 +242,7 @@ export default function ServiceAvailability() {
                 <SelectContent>
                   {serviceTypes.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                      {type}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -214,11 +253,12 @@ export default function ServiceAvailability() {
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Select
+                value={scheduleRequest.location || ""}
                 onValueChange={(value) =>
                   handleScheduleChange("location", value)
                 }
               >
-                <SelectTrigger id="location" className="">
+                <SelectTrigger>
                   <div className="flex items-center">
                     <MapPin className="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Select location" />
@@ -246,8 +286,37 @@ export default function ServiceAvailability() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 w-full max-w-6xl">
-        {services && services.length > 0 ? (
-          services?.map((provider) => (
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, index) => (
+            <Card
+              key={`skeleton-${index}`}
+              className="overflow-hidden bg-gray-50"
+            >
+              <div className="flex flex-col md:flex-row animate-pulse">
+                <div className="p-6 flex-grow">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-[100px] h-[100px] rounded-md bg-gray-200" />
+                    <div className="space-y-3 flex-1">
+                      <div className="h-6 bg-gray-200 rounded w-3/4" />
+                      <div className="h-4 bg-gray-200 rounded w-full" />
+                      <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-6 bg-gray-200 rounded w-20" />
+                    <div className="h-6 bg-gray-200 rounded w-20" />
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-6 w-[200px] space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-10 bg-gray-200 rounded w-full mt-auto" />
+                </div>
+              </div>
+            </Card>
+          ))
+        ) : filteredServices.length > 0 ? (
+          filteredServices.map((provider) => (
             <Card key={provider.id} className="overflow-hidden bg-gray-50">
               <div className="flex flex-col md:flex-row">
                 <div className="p-6 flex-grow">
@@ -266,31 +335,31 @@ export default function ServiceAvailability() {
                       <p className="text-sm text-gray-600 mb-4">
                         {provider.description}
                       </p>
-                      <div className="flex ">
+                      <div className="flex gap-2">
                         <Badge variant="secondary" className="bg-[#FFDFC0]">
-                          {" "}
-                          {provider?.service_category_items_name}
+                          {provider.service_category_items_name}
                         </Badge>
                         <Badge variant="secondary" className="bg-[#FFDFC0]">
-                          {" "}
-                          {provider?.service_category_name}
+                          {provider.service_category_name}
                         </Badge>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-row gap-x-4 items-center justify-start ">
+                  <div className="flex flex-row gap-x-4 items-center justify-start">
                     <div className="flex items-center text-[#502266]">
                       <span className="font-semibold text-lg">
                         ${provider.price}
                       </span>
                     </div>
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                      <span className="ml-1">
-                        {provider?.rating?.toFixed(1)}
-                      </span>
-                    </div>
+                    {provider.rating && (
+                      <div className="flex items-center">
+                        <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                        <span className="ml-1">
+                          {provider.rating.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -298,14 +367,13 @@ export default function ServiceAvailability() {
                   <div className="flex items-center mb-4">
                     <Clock className="w-5 h-5 mr-2 text-gray-600" />
                     <span className="text-sm text-gray-700">
-                      Duration:{" "}
-                      {`${provider.start_time} -- ${provider.end_time}`} hrs
+                      Duration: {provider.service_duration} hrs
                     </span>
                   </div>
                   <div className="flex items-center mb-4">
                     <MapPin className="w-5 h-5 mr-2 text-gray-600" />
                     <span className="text-sm text-gray-700">
-                      {provider.province}
+                      {provider.city}, {provider.province}
                     </span>
                   </div>
                   <Button
