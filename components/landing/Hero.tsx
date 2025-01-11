@@ -94,7 +94,7 @@ export default function Hero() {
                           <h4 className="font-semibold text-black text-lg mb-2">
                             Products
                           </h4>
-                          {results.products.map((item) => (
+                          {results.products.map((item: any) => (
                             <p
                               key={item.title}
                               className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50"
@@ -109,7 +109,7 @@ export default function Hero() {
                           <h4 className="font-semibold text-black text-lg mb-2">
                             Services
                           </h4>
-                          {results.services.map((item) => (
+                          {results.services.map((item: any) => (
                             <p
                               key={item.title}
                               className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50"

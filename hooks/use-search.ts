@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { baseUrl } from "@/config/constant";
 import { SearchResults } from "@/types/search";
 
+interface QueryItem {
+    type: string;
+    [key: string]: any;
+}
+
 export function useSearch(initialQuery: string = "") {
     const [query, setQuery] = useState(initialQuery);
     const [results, setResults] = useState<SearchResults | null>(null);
@@ -34,7 +39,11 @@ export function useSearch(initialQuery: string = "") {
                 const data = await response.json();
 
                 // Transform response into the expected format
-                const groupedResults = {
+                const groupedResults: {
+                    suggestions: QueryItem[];
+                    products: QueryItem[];
+                    services: QueryItem[];
+                } = {
                     suggestions: [],
                     products: [],
                     services: [],
@@ -50,7 +59,7 @@ export function useSearch(initialQuery: string = "") {
                     }
                 });
 
-                setResults(groupedResults);
+                setResults(groupedResults as any);
             } catch (err) {
                 if (err instanceof Error && err.name === "AbortError") {
                     return;

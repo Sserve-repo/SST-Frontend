@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { pathOr } from "ramda";
 import React, { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { MdArrowBack } from "react-icons/md";
 import SectionProductHeader from "./SectionProductHeader";
 import { Button } from "@/components/ui/button";
@@ -124,11 +125,11 @@ const SingleProductPage = ({ params }: Props) => {
               </Button>
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((product) => (
-              <Link 
-                key={product.id} 
+            {relatedProducts.map((product: any) => (
+              <Link
+                key={product.id}
                 href={`/products/${product.id}`}
                 className="group"
               >
@@ -142,7 +143,9 @@ const SingleProductPage = ({ params }: Props) => {
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-medium line-clamp-2">{product.title}</h3>
+                    <h3 className="font-medium line-clamp-2">
+                      {product.title}
+                    </h3>
                     <p className="text-xs text-orange-400 mt-1">
                       {product.seller || "Business name"}
                     </p>
