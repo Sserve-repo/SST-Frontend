@@ -38,17 +38,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
+  // Fetch initial cart
   useEffect(() => {
     const fetchInitialCart = async () => {
       try {
         const response = await fetchCart();
         if (response && response.ok) {
           const data = await response.json();
-          if (data.data["Cart Items"].length > 0) {
-            setCart(data.data["Cart Items"]);
-          } else {
-            setCart([]);
-          }
+          // Ensure we're setting an empty array if no items
+          setCart(
+            data.data["Cart Items"]?.length > 0 ? data.data["Cart Items"] : []
+          );
         } else {
           console.error("Failed to fetch cart from server");
           setCart([]);
@@ -62,8 +62,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchInitialCart();
   }, []);
 
-  // Add item to cart
-  const addToCart = async (item: any) => {
+  // Add or update item in cart
+  const addToCart = async (item: CartItem) => {
     try {
       const response = await addOrUpdateCart({
         product_id: item.product_id,
@@ -71,27 +71,27 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       if (response && response.ok) {
-        const updatedCart = await response.json();
+        const updatedCartData = await response.json();
+        const updatedItem = updatedCartData.data.cart_item;
 
         setCart((prevCart) => {
-          const existingItem = prevCart.find(
+          // Find if item already exists in cart
+          const existingItemIndex = prevCart.findIndex(
             (cartItem) =>
-              cartItem.product_id ===
-              updatedCart.data.cart_item.product_listing_detail_id
+              cartItem.product_id === updatedItem.product_listing_detail_id
           );
 
-          if (existingItem) {
-            return prevCart.map((cartItem) =>
-              cartItem.product_id ===
-              updatedCart.data.cart_item.product_listing_detail_id
-                ? {
-                    ...cartItem,
-                    quantity: parseInt(updatedCart.data.cart_item.quantity),
-                  }
-                : cartItem
-            );
+          if (existingItemIndex !== -1) {
+            // Update existing item
+            const newCart = [...prevCart];
+            newCart[existingItemIndex] = {
+              ...newCart[existingItemIndex],
+              quantity: parseInt(updatedItem.quantity),
+            };
+            return newCart;
           } else {
-            return [...prevCart, updatedCart.data.cart_item];
+            // Add new item
+            return [...prevCart, updatedItem];
           }
         });
       } else {
@@ -119,25 +119,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Update item quantity
   const updateQuantity = async (id: number, quantity: number) => {
+    if (quantity < 1) return; // Prevent negative quantities
+
     try {
       const response = await addOrUpdateCart({
         product_id: id,
         quantity,
       });
-      if (response && response.ok) {
-        const updatedCart = await response.json();
 
-        setCart((prevCart) => {
-          return prevCart.map((item) =>
-            item.product_id ===
-            updatedCart.data.cart_item.product_listing_detail_id
+      if (response && response.ok) {
+        const updatedCartData = await response.json();
+        const updatedItem = updatedCartData.data.cart_item;
+
+        setCart((prevCart) =>
+          prevCart.map((item) =>
+            item.product_id === updatedItem.product_listing_detail_id
               ? {
                   ...item,
-                  quantity: parseInt(updatedCart.data.cart_item.quantity),
+                  quantity: parseInt(updatedItem.quantity),
                 }
               : item
-          );
-        });
+          )
+        );
       } else {
         console.error("Failed to update item quantity");
       }
@@ -151,19 +154,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     setCart([]);
   };
 
-  const setCartExt = async (cart) => {
-    setCart(cart);
+  // External cart update
+  const setCartExt = async (newCart: CartItem[]) => {
+    setCart(newCart || []);
   };
 
-  // Calculate total items and total price
-  const totalItems = cart?.reduce(
-    (total, item) => total + parseInt(`${item?.quantity}`),
-    0
-  );
-  const totalPrice = cart?.reduce(
-    (total, item) => total + parseFloat(item?.unit_price) * item?.quantity,
-    0
-  );
+  // Calculate totals with safe parsing
+  const totalItems = cart.reduce((total, item) => {
+    const quantity = parseInt(String(item?.quantity)) || 0;
+    return total + quantity;
+  }, 0);
+
+  const totalPrice = cart.reduce((total, item) => {
+    const price = parseFloat(String(item?.unit_price)) || 0;
+    const quantity = parseInt(String(item?.quantity)) || 0;
+    return total + price * quantity;
+  }, 0);
 
   return (
     <CartContext.Provider
