@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import {
-  Star,
-  MapPin,
-  Clock,
-  CalendarIcon,
-  Clock10,
-  Server,
-} from "lucide-react";
+import { Star, MapPin, Clock, CalendarIcon, Clock10, Server } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,9 +19,10 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 import { Calendar } from "@/components/ui/calendar";
-import { getServiceByCategory } from "@/actions/service";
+import { getServiceByCategory, getServicesMenu } from "@/actions/service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { baseUrl } from "@/config/constant";
 
 interface ServiceProvider {
   id: string;
@@ -47,21 +41,23 @@ interface ServiceProvider {
   rating?: number;
 }
 
+interface ServiceCategory {
+  id: number;
+  name: string;
+  service_category_items: {
+    id: number;
+    name: string;
+    service_category_id: number;
+  }[];
+}
+
 interface ScheduleRequest {
   date?: Date;
   time: string;
+  serviceCategory: string | null;
   serviceType: string | null;
   location: string | null;
 }
-
-// Updated to match the actual data structure from the API
-const serviceTypes = [
-  "Home Care",
-  "Cleaning",
-  "Maintenance",
-  "Repair",
-  "Installation",
-];
 
 const serviceLocations = [
   "Alberta",
@@ -76,20 +72,63 @@ export default function ServiceAvailability() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
+  const categoryName = searchParams.get("categoryName");
+  
   const [services, setServices] = useState<ServiceProvider[]>([]);
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  // const [serviceItems, setServiceItems] = useState<{ id: number; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filteredServices, setFilteredServices] = useState<ServiceProvider[]>(
-    []
-  );
+  const [filteredServices, setFilteredServices] = useState<ServiceProvider[]>([]);
+  
   const [scheduleRequest, setScheduleRequest] = useState<ScheduleRequest>({
     date: undefined,
     time: "",
+    serviceCategory: categoryName || null,
     serviceType: null,
     location: null,
   });
 
+  // Fetch service categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await getServicesMenu();
+        if (response && response.ok) {
+          const data = await response.json();
+          const categories = data.data["Service Category Menu"];
+          setCategories(categories);
+          
+          // If we have a categoryId, set the service items
+          if (categoryId) {
+            const category = categories.find(cat => cat.id === parseInt(categoryId));
+            if (category) {
+              // setServiceItems(category.service_category_items);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching service categories:", error);
+      }
+    };
+    fetchCategories();
+  }, [categoryId]);
+
   const handleScheduleChange = (field: keyof ScheduleRequest, value: any) => {
-    setScheduleRequest((prev) => ({ ...prev, [field]: value }));
+    setScheduleRequest(prev => {
+      const newRequest = { ...prev, [field]: value };
+      
+      // If changing service category, update URL and reset service type
+      if (field === 'serviceCategory') {
+        const category = categories.find(cat => cat.name === value);
+        if (category) {
+          router.push(`/services?categoryId=${category.id}&categoryName=${encodeURIComponent(value)}`);
+          // setServiceItems(category.service_category_items);
+          return { ...newRequest, serviceType: null };
+        }
+      }
+      
+      return newRequest;
+    });
   };
 
   const handleFetchService = async (catId: number) => {
@@ -111,6 +150,25 @@ export default function ServiceAvailability() {
     }
   };
 
+  const handleFetchAllServices = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${baseUrl}/general/services/getAllServices`);
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data.data["Services"]);
+        setFilteredServices(data.data["Services"]);
+      } else {
+        setServices([]);
+        setFilteredServices([]);
+      }
+    } catch (error) {
+      console.error("Error fetching all services:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const convertTimeToMinutes = (timeString: string): number => {
     const [hours, minutes] = timeString.split(":").map(Number);
     return hours * 60 + (minutes || 0);
@@ -118,11 +176,14 @@ export default function ServiceAvailability() {
 
   const handleSearch = () => {
     const filtered = services.filter((service) => {
-      // Service type matching
+      // Service category and type matching
+      const matchesServiceCategory =
+        !scheduleRequest.serviceCategory ||
+        service.service_category_name === scheduleRequest.serviceCategory;
+      
       const matchesServiceType =
         !scheduleRequest.serviceType ||
-        service.service_category_items_name?.toLowerCase() ===
-          scheduleRequest.serviceType.toLowerCase();
+        service.service_category_items_name === scheduleRequest.serviceType;
 
       // Location matching
       const matchesLocation =
@@ -139,11 +200,14 @@ export default function ServiceAvailability() {
           return requestTime >= startTime && requestTime <= endTime;
         })();
 
-      // Date matching - You might want to implement this based on your business logic
       const matchesDate = !scheduleRequest.date || true;
 
       return (
-        matchesServiceType && matchesLocation && matchesTime && matchesDate
+        matchesServiceCategory &&
+        matchesServiceType &&
+        matchesLocation &&
+        matchesTime &&
+        matchesDate
       );
     });
 
@@ -152,15 +216,17 @@ export default function ServiceAvailability() {
 
   // Trigger search when filters change
   useEffect(() => {
-    if (services.length > 0) {
+    if (services?.length > 0) {
       handleSearch();
     }
   }, [scheduleRequest]);
 
-  // Initial data fetch
+  // Initial data fetch when categoryId changes
   useEffect(() => {
     if (categoryId) {
       handleFetchService(parseInt(categoryId));
+    } else {
+      handleFetchAllServices();
     }
   }, [categoryId]);
 
@@ -169,12 +235,13 @@ export default function ServiceAvailability() {
   };
 
   return (
-    <div className="container flex justify-center items-center flex-col mx-auto p-4 max-w-7xl py-28 md:py-32">
+    <div className="container flex justify-start items-center flex-col min-h-screen mx-auto p-4 max-w-7xl py-28 md:py-32">
       <div className="mb-8 text-center">
         <h2 className="text-3xl font-semibold my-4 text-primary">
           Check Service Availability
         </h2>
         <div className="flex flex-wrap gap-4 justify-center">
+          {/* Date Selector */}
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Popover>
@@ -202,6 +269,7 @@ export default function ServiceAvailability() {
             </CardContent>
           </Card>
 
+          {/* Time Selector */}
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Select
@@ -225,24 +293,25 @@ export default function ServiceAvailability() {
             </CardContent>
           </Card>
 
-          <Card className="w-[220px]">
+          {/* Service Category Selector */}
+          <Card className="w-[280px]">
             <CardContent className="p-2">
               <Select
-                value={scheduleRequest.serviceType || ""}
+                value={scheduleRequest.serviceCategory || ""}
                 onValueChange={(value) =>
-                  handleScheduleChange("serviceType", value)
+                  handleScheduleChange("serviceCategory", value)
                 }
               >
                 <SelectTrigger>
                   <div className="flex items-center">
                     <Server className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Select Service" />
+                    <SelectValue placeholder="Select Category" />
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  {serviceTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -250,6 +319,34 @@ export default function ServiceAvailability() {
             </CardContent>
           </Card>
 
+          {/* Service Type Selector */}
+          {/* <Card className="w-[220px]">
+            <CardContent className="p-2">
+              <Select
+                value={scheduleRequest.serviceType || ""}
+                onValueChange={(value) =>
+                  handleScheduleChange("serviceType", value)
+                }
+                disabled={!scheduleRequest.serviceCategory}
+              >
+                <SelectTrigger>
+                  <div className="flex items-center">
+                    <Server className="mr-2 h-4 w-4" />
+                    <SelectValue placeholder="Select Service Type" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {serviceItems.map((item) => (
+                    <SelectItem key={item.id} value={item.name}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card> */}
+
+          {/* Location Selector */}
           <Card className="w-[220px]">
             <CardContent className="p-2">
               <Select
@@ -275,6 +372,7 @@ export default function ServiceAvailability() {
             </CardContent>
           </Card>
 
+          {/* Search Button */}
           <Card className="w-[220px]">
             <CardContent className="p-2 flex items-end">
               <Button className="w-full" onClick={handleSearch}>
@@ -285,6 +383,7 @@ export default function ServiceAvailability() {
         </div>
       </div>
 
+      {/* Service List */}
       <div className="grid grid-cols-1 gap-4 w-full max-w-6xl">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, index) => (
@@ -315,8 +414,8 @@ export default function ServiceAvailability() {
               </div>
             </Card>
           ))
-        ) : filteredServices.length > 0 ? (
-          filteredServices.map((provider) => (
+        ) : filteredServices?.length > 0 ? (
+          filteredServices?.map((provider) => (
             <Card key={provider.id} className="overflow-hidden bg-gray-50">
               <div className="flex flex-col md:flex-row">
                 <div className="p-6 flex-grow">
@@ -387,7 +486,7 @@ export default function ServiceAvailability() {
             </Card>
           ))
         ) : (
-          <div className="text-center mt-8 text-gray-600">
+          <div className="text-center mt-24 text-gray-600">
             <p>No service providers found matching your criteria.</p>
           </div>
         )}
@@ -395,3 +494,4 @@ export default function ServiceAvailability() {
     </div>
   );
 }
+
