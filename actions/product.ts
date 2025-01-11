@@ -30,6 +30,17 @@ export const getSingleProduct = async (id: number) => {
     console.log("failed to fetch product detail", error);
   }
 };
+export const getProductByCategorySub = async (params) => {
+  try {
+    const query = new URLSearchParams(params).toString();
+    const response = await fetch(
+      `${baseUrl}/general/products/getProductByCategorySub?${query}`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product detail", error);
+  }
+};
 
 export const getProductMenu = async () => {
   try {
