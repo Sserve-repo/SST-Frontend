@@ -6,7 +6,6 @@ import { Search, Loader2 } from "lucide-react";
 import Marquee from "react-fast-marquee";
 import { useAuth } from "@/context/AuthContext";
 import { useSearch } from "@/hooks/use-search";
-import { Product, SearchSuggestion, Service } from "@/types/search";
 
 export default function Hero() {
   const { currentUser } = useAuth();
@@ -44,7 +43,7 @@ export default function Hero() {
 
       {/* Main Content Section */}
       <div className="relative z-10 flex flex-col w-full min-h-[70vh]">
-        <div className="flex-grow container flex min-h-[70vh] item-center w-full mx-auto px-4 py-8 lg:pt-44 pt-36">
+        <div className="flex-grow container flex min-h-[70vh] items-center w-full mx-auto px-4 py-8 lg:pt-44 pt-36">
           {/* Text Content */}
           <div className="text-white max-w-5xl">
             <p className="text-xl md:text-2xl mb-4">
@@ -68,7 +67,7 @@ export default function Hero() {
                 aria-label="Search products and services"
               />
               <button
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center gap-x-4 bg-black rounded-lg text-white text-sm md:text-base h-10 md:h-12 sm:px-6 px-4"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center gap-x-4 bg-primary rounded-lg text-white text-sm md:text-base h-10 md:h-12 sm:px-6 px-4"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -81,7 +80,7 @@ export default function Hero() {
 
               {/* Search Results Dropdown */}
               {(query || isLoading || error) && (
-                <div className="absolute left-0 w-full mt-2 bg-white shadow-lg rounded-lg p-4 z-30 max-h-96 overflow-auto animate-fade-in">
+                <div className="absolute left-0 w-full mt-2 bg-white shadow rounded-lg p-4 z-50 max-h-72 overflow-auto animate-fade-in">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-4">
                       <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
@@ -90,12 +89,14 @@ export default function Hero() {
                     <p className="text-center text-red-500">{error}</p>
                   ) : results ? (
                     <>
-                      {results?.suggestions?.length > 0 && (
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold">Suggestions</h3>
-                          {results.suggestions.map((item: SearchSuggestion) => (
+                      {results.products.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-black text-lg mb-2">
+                            Products
+                          </h4>
+                          {results.products.map((item) => (
                             <p
-                              key={item.id}
+                              key={item.title}
                               className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50"
                             >
                               {item.title}
@@ -103,62 +104,27 @@ export default function Hero() {
                           ))}
                         </div>
                       )}
-
-                      {results?.products?.length > 0 && (
-                        <div className="mb-4">
-                          <h3 className="text-lg font-semibold">Products</h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            {results.products.map((product: Product) => (
-                              <a
-                                href={"#" + product.id}
-                                key={product.id}
-                                className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                              >
-                                <Image
-                                  src={product.image}
-                                  alt={product.name}
-                                  width={100}
-                                  height={100}
-                                  className="rounded-md  bg-slate-500 object-cover"
-                                />
-                                <p className="font-medium mt-2">
-                                  {product.name}
-                                </p>
-                                <p className="text-orange-500 font-semibold">
-                                  {product.price}
-                                </p>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {results?.services?.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-semibold">Services</h3>
-                          {results.services.map((service: Service) => (
-                            <div
-                              key={service.id}
-                              className="p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      {results.services.length > 0 && (
+                        <div className="mt-2">
+                          <h4 className="font-semibold text-black text-lg mb-2">
+                            Services
+                          </h4>
+                          {results.services.map((item) => (
+                            <p
+                              key={item.title}
+                              className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50"
                             >
-                              <p className="text-gray-700">{service.name}</p>
-                              <p className="text-sm text-gray-500">
-                                by {service.provider}
-                              </p>
-                            </div>
+                              {item.title}
+                            </p>
                           ))}
                         </div>
                       )}
-
-                      {!results.suggestions?.length &&
-                        !results.products?.length &&
-                        !results.services?.length && (
-                          <p className="text-center text-gray-500 py-4">
-                            No results found for "{query}"
-                          </p>
-                        )}
                     </>
-                  ) : null}
+                  ) : (
+                    <p className="text-center text-gray-500 py-4">
+                      No results found for &quot;{query}&quot;
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -198,15 +164,13 @@ export default function Hero() {
                 Services
               </p>
               <Marquee
-                direction="left"
                 pauseOnHover={true}
-                loop={0}
                 className="flex justify-center w-full items-center overflow-x-auto text-[1rem]"
               >
                 {[...services, ...services].map((item, index) => (
                   <div
                     key={index}
-                    className="bg-orange-100 p-2 mx-2 rounded-lg text-[#240F2E] whitespace-nowrap"
+                    className="bg-purple-300 p-2 mx-2 rounded-lg text-[#F9F9F9] whitespace-nowrap"
                   >
                     <p>{item}</p>
                   </div>
