@@ -19,6 +19,7 @@ import { formatErrors } from "@/config/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getUserDetails, loginUser, resendOtp } from "@/actions/auth";
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 type FormData = {
   email: string;
@@ -217,9 +218,9 @@ export default function LoginForm() {
             )}
           />
           <div className="w-full flex justify-end">
-            <Button variant="link" className="text-sm text-primary">
+            <Link type="button" href="/auth/forgot-password/" className="text-sm text-primary hover:underline">
               Forgot password?
-            </Button>
+            </Link>
           </div>
           <Button
             type="submit"
