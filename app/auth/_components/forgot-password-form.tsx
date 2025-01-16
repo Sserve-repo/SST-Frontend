@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { baseUrl } from "@/config/constant";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -33,13 +34,35 @@ export function ForgotPasswordForm() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       setLoading(true);
-      // TODO: Implement forgot password logic
-      console.log(data);
-      toast.success("Verification code sent to your email");
-      router.push("/auth/verify");
+
+      // Make the API call to send OTP
+      const response = await fetch(`${baseUrl}/auth/forgotPassword`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.status) {
+        toast.success(result.message); // Display success message
+
+        // Save email to localStorage
+        localStorage.setItem("user_email", data.email);
+
+        // Redirect to the verification page
+        router.push("/auth/verify");
+      } else {
+        // Handle API errors
+        toast.error(result.message || "Failed to send verification code");
+      }
     } catch (error) {
-      console.log({ error });
-      toast.error("Failed to send verification code");
+      console.error("API Error:", error);
+      toast.error("An error occurred while sending the verification code");
     } finally {
       setLoading(false);
     }
@@ -50,7 +73,7 @@ export function ForgotPasswordForm() {
       <div>
         <h1 className="text-4xl font-bold text-primary">Forget Password</h1>
         <p className="text-md text-gray-400 mt-2">
-          Enter your email for the verification process, we will send 4 digits
+          Enter your email for the verification process, we will send a 4-digit
           code to your email.
         </p>
       </div>
