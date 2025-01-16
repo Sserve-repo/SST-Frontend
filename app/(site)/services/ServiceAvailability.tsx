@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Star, MapPin, Clock, CalendarIcon, Clock10, Server } from 'lucide-react';
+import {
+  Star,
+  MapPin,
+  Clock,
+  CalendarIcon,
+  Clock10,
+  Server,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,27 +66,29 @@ interface ScheduleRequest {
   location: string | null;
 }
 
-const serviceLocations = [
-  "Alberta",
-  "British Columbia",
-  "Manitoba",
-  "New Brunswick",
-  "Ontario",
-  "Quebec",
-];
+// const serviceLocations = [
+//   "Alberta",
+//   "British Columbia",
+//   "Manitoba",
+//   "New Brunswick",
+//   "Ontario",
+//   "Quebec",
+// ];
 
 export default function ServiceAvailability() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
   const categoryName = searchParams.get("categoryName");
-  
+
   const [services, setServices] = useState<ServiceProvider[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   // const [serviceItems, setServiceItems] = useState<{ id: number; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filteredServices, setFilteredServices] = useState<ServiceProvider[]>([]);
-  
+  const [filteredServices, setFilteredServices] = useState<ServiceProvider[]>(
+    []
+  );
+
   const [scheduleRequest, setScheduleRequest] = useState<ScheduleRequest>({
     date: undefined,
     time: "",
@@ -87,6 +96,10 @@ export default function ServiceAvailability() {
     serviceType: null,
     location: null,
   });
+
+  const [provinces, setProvinces] = useState<
+    Array<{ id: number; name: string }>
+  >([]);
 
   // Fetch service categories on mount
   useEffect(() => {
@@ -97,10 +110,12 @@ export default function ServiceAvailability() {
           const data = await response.json();
           const categories = data.data["Service Category Menu"];
           setCategories(categories);
-          
+
           // If we have a categoryId, set the service items
           if (categoryId) {
-            const category = categories.find(cat => cat.id === parseInt(categoryId));
+            const category = categories.find(
+              (cat) => cat.id === parseInt(categoryId)
+            );
             if (category) {
               // setServiceItems(category.service_category_items);
             }
@@ -113,20 +128,42 @@ export default function ServiceAvailability() {
     fetchCategories();
   }, [categoryId]);
 
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const response = await fetch(
+          `${baseUrl}/general/province/getProvince`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data.data.Provinces)
+          setProvinces(data.data.Provinces);
+        }
+      } catch (error) {
+        console.error("Error fetching provinces:", error);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
   const handleScheduleChange = (field: keyof ScheduleRequest, value: any) => {
-    setScheduleRequest(prev => {
+    setScheduleRequest((prev) => {
       const newRequest = { ...prev, [field]: value };
-      
+
       // If changing service category, update URL and reset service type
-      if (field === 'serviceCategory') {
-        const category = categories.find(cat => cat.name === value);
+      if (field === "serviceCategory") {
+        const category = categories.find((cat) => cat.name === value);
         if (category) {
-          router.push(`/services?categoryId=${category.id}&categoryName=${encodeURIComponent(value)}`);
+          router.push(
+            `/services?categoryId=${
+              category.id
+            }&categoryName=${encodeURIComponent(value)}`
+          );
           // setServiceItems(category.service_category_items);
           return { ...newRequest, serviceType: null };
         }
       }
-      
+
       return newRequest;
     });
   };
@@ -153,7 +190,9 @@ export default function ServiceAvailability() {
   const handleFetchAllServices = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/general/services/getAllServices`);
+      const response = await fetch(
+        `${baseUrl}/general/services/getAllServices`
+      );
       if (response.ok) {
         const data = await response.json();
         setServices(data.data["Services"]);
@@ -175,23 +214,23 @@ export default function ServiceAvailability() {
   };
 
   const handleSearch = () => {
+    if (!services) return;
+
     const filtered = services.filter((service) => {
-      // Service category and type matching
-      const matchesServiceCategory =
+      // Service category matching
+      const categoryMatches =
         !scheduleRequest.serviceCategory ||
-        service.service_category_name === scheduleRequest.serviceCategory;
-      
-      const matchesServiceType =
-        !scheduleRequest.serviceType ||
-        service.service_category_items_name === scheduleRequest.serviceType;
+        service.service_category_name.toLowerCase() ===
+          scheduleRequest.serviceCategory.toLowerCase();
 
       // Location matching
-      const matchesLocation =
+      const locationMatches =
         !scheduleRequest.location ||
-        service.province === scheduleRequest.location;
+        service.province.toLowerCase() ===
+          scheduleRequest.location.toLowerCase();
 
-      // Time matching
-      const matchesTime =
+      // Time matching (only if time is selected)
+      const timeMatches =
         !scheduleRequest.time ||
         (() => {
           const requestTime = convertTimeToMinutes(scheduleRequest.time);
@@ -200,15 +239,10 @@ export default function ServiceAvailability() {
           return requestTime >= startTime && requestTime <= endTime;
         })();
 
-      const matchesDate = !scheduleRequest.date || true;
+      // Date matching (if implemented in the backend)
+      const dateMatches = !scheduleRequest.date || true; // Placeholder for date filtering
 
-      return (
-        matchesServiceCategory &&
-        matchesServiceType &&
-        matchesLocation &&
-        matchesTime &&
-        matchesDate
-      );
+      return categoryMatches && locationMatches && timeMatches && dateMatches;
     });
 
     setFilteredServices(filtered);
@@ -219,7 +253,7 @@ export default function ServiceAvailability() {
     if (services?.length > 0) {
       handleSearch();
     }
-  }, [scheduleRequest]);
+  }, [scheduleRequest, services]); // Add services to dependency array
 
   // Initial data fetch when categoryId changes
   useEffect(() => {
@@ -362,9 +396,9 @@ export default function ServiceAvailability() {
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  {serviceLocations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      {location}
+                  {provinces.map((province) => (
+                    <SelectItem key={province.id} value={province.name}>
+                      {province.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -421,7 +455,7 @@ export default function ServiceAvailability() {
                 <div className="p-6 flex-grow">
                   <div className="flex items-center space-x-4 mb-4">
                     <Image
-                      src={provider.image}
+                      src={provider.image || "/placeholder.svg"}
                       alt={`${provider.title}'s profile picture`}
                       width={100}
                       height={100}
@@ -494,4 +528,3 @@ export default function ServiceAvailability() {
     </div>
   );
 }
-
