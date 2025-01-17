@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,9 +25,14 @@ interface ResetPasswordFormData {
 export function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
   const router = useRouter();
 
-  const email = localStorage.getItem("user_email");
+  useEffect(() => {
+    // Access localStorage only after component mounts
+    const storedEmail = localStorage.getItem("user_email");
+    setEmail(storedEmail);
+  }, []);
 
   const form = useForm<ResetPasswordFormData>({
     defaultValues: {
@@ -37,6 +42,11 @@ export function ResetPasswordForm() {
   });
 
   const onSubmit = async (data: ResetPasswordFormData) => {
+    if (!email) {
+      toast.error("Email not found. Please try again");
+      return;
+    }
+
     if (data.password !== data.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -61,6 +71,12 @@ export function ResetPasswordForm() {
 
       if (response.ok && result.status) {
         toast.success(result.message);
+
+        // Clear the stored email after successful password reset
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("user_email");
+        }
+
         router.push("/auth/success");
       } else {
         toast.error(result.message || "Failed to reset password");
