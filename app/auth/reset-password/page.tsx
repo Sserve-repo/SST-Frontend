@@ -1,3 +1,5 @@
+"use client";
+
 import { AuthLayout } from "../_components/auth-layout";
 import { ResetPasswordForm } from "../_components/reset-password-form";
 
