@@ -35,7 +35,6 @@ export function ForgotPasswordForm() {
     try {
       setLoading(true);
 
-      // Make the API call to send OTP
       const response = await fetch(`${baseUrl}/auth/forgotPassword`, {
         method: "POST",
         headers: {
@@ -49,15 +48,15 @@ export function ForgotPasswordForm() {
       const result = await response.json();
 
       if (response.ok && result.status) {
-        toast.success(result.message); // Display success message
+        toast.success(result.message);
 
-        // Save email to localStorage
-        localStorage.setItem("user_email", data.email);
+        // Only set localStorage on the client side
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user_email", data.email);
+        }
 
-        // Redirect to the verification page
         router.push("/auth/verify");
       } else {
-        // Handle API errors
         toast.error(result.message || "Failed to send verification code");
       }
     } catch (error) {
