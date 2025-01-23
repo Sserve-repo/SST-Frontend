@@ -53,8 +53,6 @@ export default function ProfileSetting() {
     fetchUser();
   }, [fetchUser]);
 
-  
-
   const form = useForm<FormData>({
     defaultValues: {
       firstname: "",
@@ -175,14 +173,10 @@ export default function ProfileSetting() {
                   <div className="relative">
                     <Image
                       className="h-20 w-20 rounded-full mb-4 sm:mb-0 object-cover"
-                      src={
-                        typeof form.getValues("user_photo") === "string"
-                          ? form.getValues("user_photo") ||
-                            "/assets/images/tailor.png?height=300&width=400"
-                          : URL.createObjectURL(
-                              form.getValues("user_photo") as File
-                            )
-                      }
+                      src={`
+                        ${currentUser?.user_photo} ||
+                        "/assets/images/tailor.png?height=300&width=400"
+                      `}
                       height={80}
                       width={80}
                       alt="profile-photo"
