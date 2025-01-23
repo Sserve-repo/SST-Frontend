@@ -2,7 +2,7 @@
 
 export const profilePayload = (data: any) => {
   const requestPayload = new FormData();
-  console.log("ready data", data);
+
   const email_status =
     data.email_status === false ||
     data.email_status === 0 ||
@@ -17,6 +17,7 @@ export const profilePayload = (data: any) => {
       ? "0"
       : "1";
 
+  // Append all form fields
   requestPayload.append("firstname", data.firstname);
   requestPayload.append("lastname", data.lastname);
   requestPayload.append("email", data.email);
@@ -24,6 +25,11 @@ export const profilePayload = (data: any) => {
   requestPayload.append("address", data.address);
   requestPayload.append("email_status", email_status);
   requestPayload.append("twofa_status", twofa_status);
+
+  // Handle photo upload if it exists
+  // if (data.user_photo instanceof File) {
+  //   requestPayload.append("user_photo", data.user_photo);
+  // }
 
   return requestPayload;
 };
