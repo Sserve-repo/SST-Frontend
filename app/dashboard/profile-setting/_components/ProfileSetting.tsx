@@ -17,18 +17,19 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { profilePayload } from "@/forms/profile";
 import { baseUrl } from "@/config/constant";
 import { Switch } from "@/components/ui/switch";
 import { getLoggedInUserDetails } from "@/actions/auth";
 import { useAuth } from "@/context/AuthContext";
+import PasswordResetForm from "@/forms/password-reset-form";
 
 type FormData = {
   firstname: string;
   lastname: string;
   email: string;
-  user_photo: string;
+  user_photo: string | File;
   address: string;
   username: string;
   email_status: boolean;
@@ -51,6 +52,8 @@ export default function ProfileSetting() {
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
+
+  
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -169,16 +172,45 @@ export default function ProfileSetting() {
               <>
                 {/* Profile Image and Username */}
                 <div className="flex gap-x-4 border shadow w-full p-8 rounded-lg flex-col sm:flex-row">
-                  <Image
-                    className="h-20 w-20 rounded-full mb-4 sm:mb-0"
-                    src={
-                      currentUser?.user_photo ||
-                      "/assets/images/tailor.png?height=300&width=400"
-                    }
-                    height={50}
-                    width={50}
-                    alt="profile-photo"
-                  />
+                  <div className="relative">
+                    <Image
+                      className="h-20 w-20 rounded-full mb-4 sm:mb-0 object-cover"
+                      src={
+                        typeof form.getValues("user_photo") === "string"
+                          ? form.getValues("user_photo") ||
+                            "/assets/images/tailor.png?height=300&width=400"
+                          : URL.createObjectURL(
+                              form.getValues("user_photo") as File
+                            )
+                      }
+                      height={80}
+                      width={80}
+                      alt="profile-photo"
+                    />
+                    <Input
+                      type="file"
+                      className="hidden"
+                      id="photo-upload"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          form.setValue("user_photo", file);
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="absolute bottom-0 right-0 text-xs p-2 rounded-full"
+                      onClick={() =>
+                        document.getElementById("photo-upload")?.click()
+                      }
+                    >
+                      Edit
+                    </Button>
+                  </div>
                   <FormField
                     control={form.control}
                     name="username"
@@ -345,10 +377,13 @@ export default function ProfileSetting() {
                 className="rounded-xl h-12 mt-4"
                 disabled={loading}
               >
-                Submit
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
             </form>
           </Form>
+        </div>
+        <div className="mb-6 flex flex-col gap-4 p-3 bg-white rounded-3xl border-2 border-gray-100 w-full px-4 sm:px-8">
+          <PasswordResetForm />
         </div>
       </div>
     </div>
