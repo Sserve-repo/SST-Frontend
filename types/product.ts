@@ -1,0 +1,35 @@
+export interface Product {
+    id: number
+    user_id: number
+    title: string
+    price: string
+    stock_level: number
+    shipping_cost: string
+    product_category_id: number
+    product_category_items_id: number
+    description: string
+    image: string
+    created_at: string
+    updated_at: string
+}
+
+export interface ProductResponse {
+    product_listing: Product[]
+    current_page: number
+    per_page: number
+    total: number
+    last_page: number
+}
+
+export interface FilterParams {
+    page?: number
+    limit?: number
+    product_category?: string
+    product_subcategory?: string
+    min_price?: string
+    max_price?: string
+    min_shipping_cost?: string
+    max_shipping_cost?: string
+    sort_by?: "most_recent" | "low_to_high" | "high_to_low" | "newest"
+}
+
