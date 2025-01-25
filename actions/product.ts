@@ -2,7 +2,7 @@ import { baseUrl } from "../config/constant";
 
 export const getRegions = async () => {
   try {
-    const response = await fetch(`${baseUrl}/products/getProductRegion`);
+    const response = await fetch(`${baseUrl}/general/products/getProductRegion`);
     return response;
   } catch (error: any) {
     console.log("failed to fetch regions", error);
@@ -12,7 +12,7 @@ export const getRegions = async () => {
 export const getProductByRegions = async (id: number) => {
   try {
     const response = await fetch(
-      `${baseUrl}/products/getCategoryItemsByRegion/${id}`
+      `${baseUrl}/general/products/getCategoryItemsByRegion/${id}`
     );
     return response;
   } catch (error: any) {
