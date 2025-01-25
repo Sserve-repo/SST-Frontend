@@ -1,50 +1,133 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
-import { FilterIcon, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getProductByCategory, getProductList } from "@/actions/product";
-import {  Select,
+import { getProductMenu, getProductByCategorySub } from "@/actions/product";
+import {
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { FilterPopover } from "@/components/filter-popover";
+import type { MenuData } from "@/types/menu";
+import type { Product, FilterParams } from "@/types/product";
 
-type ProductsItem = {
-  id: number;
-  image: string;
-  title: string;
-  price: number;
-  category: any;
-  subcategory: any;
-};
+const ITEMS_PER_PAGE = 12;
 
-const ProductPage = () => {
-  const [products, setProducts] = useState<ProductsItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sortOption, setSortOption] = useState("Most Relevant");
+const sortOptions = {
+  "Most Relevant": "most_recent",
+  "Price: low to high": "low_to_high",
+  "Price: high to low": "high_to_low",
+  Newest: "newest",
+} as const;
+
+export default function ProductPage() {
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isMenuLoading, setIsMenuLoading] = React.useState(true);
+  const [menuData, setMenuData] = React.useState<MenuData | null>(null);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [totalPages, setTotalPages] = React.useState(1);
+  const [sortOption, setSortOption] =
+    React.useState<keyof typeof sortOptions>("Most Relevant");
+  const [filters, setFilters] = React.useState<FilterParams>({});
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const { addToCart } = useCart();
 
-  const handleAddToCart = async (product: ProductsItem) => {
+  // Fetch menu data
+  const fetchMenuData = async () => {
+    setIsMenuLoading(true);
+    try {
+      const response = await getProductMenu();
+      if (response && response.ok) {
+        const data = await response.json();
+        setMenuData(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching menu:", error);
+    } finally {
+      setIsMenuLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchMenuData();
+  }, []);
+
+  const fetchProducts = async (params: FilterParams) => {
+    setIsLoading(true);
+    try {
+      const response = await getProductByCategorySub({
+        limit: ITEMS_PER_PAGE,
+        page: currentPage,
+        sort_by: sortOptions[sortOption],
+        ...params,
+      });
+
+      if (response && response.ok) {
+        const data = (await response.json());
+        setProducts(data.data.product_listing);
+        setTotalPages(data.last_page);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    const categoryId = searchParams.get("categoryId");
+    const subCategoryId = searchParams.get("subCategoryId");
+
+    const params: FilterParams = {
+      ...filters,
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      sort_by: sortOptions[sortOption],
+    };
+
+    if (categoryId) {
+      params.product_category = categoryId;
+    }
+    if (subCategoryId) {
+      params.product_subcategory = subCategoryId;
+    }
+
+    fetchProducts(params);
+  }, [currentPage, sortOption, filters, searchParams]);
+
+  const handleAddToCart = async (product: Product) => {
     await addToCart({
       product_id: product.id,
       quantity: 1,
-      unit_price: product.price.toString(),
+      unit_price: product.price,
       title: product.title,
       image: product.image,
     });
   };
 
-  const handleProductClick = (product: ProductsItem) => {
+  const handleProductClick = (product: Product) => {
     router.push(
       `/products/${product.id}/?title=${product.title
         .replace(/\s+/g, "-")
@@ -52,56 +135,10 @@ const ProductPage = () => {
     );
   };
 
-  const categoryId = searchParams.get("categoryId");
-  const subCategoryId = searchParams.get("subCategoryId");
-
-  const handleFetchProduct = async (catId: number, subCat: any) => {
-    setIsLoading(true);
-    const response = await getProductByCategory(catId, subCat);
-    if (response && response.ok) {
-      const data = await response.json();
-      setProducts(data.data["product_listing"]);
-    } else {
-      setProducts([]);
-    }
-    setIsLoading(false);
+  const handleFilterChange = (newFilters: FilterParams) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
   };
-
-  const handleFetchProductList = async () => {
-    setIsLoading(true);
-    const response = await getProductList();
-    if (response && response.ok) {
-      const data = await response.json();
-      setProducts(data.data["product_listing"]);
-    } else {
-      setProducts([]);
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    if (categoryId && subCategoryId) {
-      handleFetchProduct(parseInt(categoryId), parseInt(subCategoryId));
-    } else if (categoryId) {
-      handleFetchProduct(parseInt(categoryId), "");
-    } else {
-      handleFetchProductList();
-    }
-  }, [categoryId, subCategoryId]);
-
-  const sortedProducts = React.useMemo(() => {
-    if (!products || products.length === 0) return [];
-
-    const sorted = [...products];
-    if (sortOption === "Price: low to high") {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (sortOption === "Price: high to low") {
-      sorted.sort((a, b) => b.price - a.price);
-    } else if (sortOption === "Newest") {
-      sorted.sort((a, b) => b.id - a.id);
-    }
-    return sorted;
-  }, [products, sortOption]);
 
   const SkeletonLoader = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -119,117 +156,145 @@ const ProductPage = () => {
   );
 
   return (
-    <>
-      <div className="min-h-screen bg-white justify-center flex">
-        {isLoading ? (
-          <div className="container mx-auto px-4 md:px-6 mt-32">
-            <SkeletonLoader />
-          </div>
-        ) : sortedProducts.length === 0 ? (
-          <div className="container w-full mx-auto flex justify-center items-center flex-col h-screen px-4 py-4 text-center">
-            <h1 className="text-2xl font-bold mb-4">No Products Found</h1>
-            <p className="mb-4">
-              Looks like the page you are looking for does not have any data yet.
-            </p>
-            <Link href="/products">
-              <Button>Continue</Button>
-            </Link>
-          </div>
-        ) : (
-          <section className="bg-white py-12 md:py-24 min-h-screen">
-            <div className="container mx-auto px-4 md:px-6">
-              <div className="flex flex-col sm:flex-row justify-between items-center mb-8 space-y-4 sm:space-y-0 mt-8">
-                <Button className="border-bg-[#502266] flex items-center border px-4 bg-transparent text-black hover:text-white hover:bg-[#502266]/90">
-                  <FilterIcon className="px-1" />
-                  Filter All
-                </Button>
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm">Sort By:</span>
-                  <Select
-                    onValueChange={(value) => setSortOption(value)}
-                    defaultValue="Most Relevant"
-                  >
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Please select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Most Relevant">Most Relevant</SelectItem>
-                      <SelectItem value="Price: low to high">
-                        Price: low to high
+    <div className="min-h-screen bg-white justify-center flex">
+      {isLoading ? (
+        <div className="container mx-auto px-4 md:px-6 mt-32">
+          <SkeletonLoader />
+        </div>
+      ) : !products || products.length === 0 ? (
+        <div className="container w-full mx-auto flex justify-center items-center flex-col h-screen px-4 py-4 text-center">
+          <h1 className="text-2xl font-bold mb-4">No Products Found</h1>
+          <p className="mb-4">
+            Looks like there are no products matching your criteria.
+          </p>
+          <Link href="/products">
+            <Button>View All Products</Button>
+          </Link>
+        </div>
+      ) : (
+        <section className="bg-white w-full py-12 md:py-24 min-h-screen">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 space-y-4 sm:space-y-0 mt-8">
+              <FilterPopover
+                menuData={menuData}
+                onFilterChange={handleFilterChange}
+                currentFilters={filters}
+                isLoading={isMenuLoading}
+              />
+              <div className="flex items-center space-x-4">
+                <span className="text-sm">Sort By:</span>
+                <Select
+                  value={sortOption}
+                  onValueChange={(value) =>
+                    setSortOption(value as keyof typeof sortOptions)
+                  }
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(sortOptions).map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
                       </SelectItem>
-                      <SelectItem value="Price: high to low">
-                        Price: high to low
-                      </SelectItem>
-                      <SelectItem value="Top Reviews">Top Reviews</SelectItem>
-                      <SelectItem value="Newest">Newest</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {sortedProducts.map((product, index) => (
-                    <Card key={index} className="overflow-hidden">
-                      <div
-                        className="relative h-48"
-                        onClick={() => handleProductClick(product)}
-                      >
-                        <Image
-                          src={product.image}
-                          alt={product.title}
-                          layout="fill"
-                          objectFit="cover"
-                          className="rounded-t-lg cursor-pointer"
-                        />
-                      </div>
-                      <CardContent className="bg-[#FF9F3F] p-4  h-full">
-                        <h3
-                          className="text-lg font-semibold text-black mb-2 cursor-pointer hover:underline"
-                          onClick={() => handleProductClick(product)}
-                        >
-                          {product.title}
-                        </h3>
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          <Badge
-                            variant="secondary"
-                            className="bg-[#f4c391] text-black"
-                          >
-                            {`${product.category.name}`}
-                          </Badge>
-                          <Badge
-                            variant="secondary"
-                            className="bg-[#f4c391] text-black"
-                          >
-                            {`${product.subcategory.name}`}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-white border border-white rounded-full px-3 py-1">
-                            ${product.price}
-                          </span>
-                          <Button
-                            variant="secondary"
-                            className="bg-white text-black hover:bg-white/90"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCart(product);
-                            }}
-                          >
-                            <Plus className="mr-2 h-4 w-4" /> Add to Cart
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </section>
-        )}
-      </div>
-    </>
-  );
-};
 
-export default ProductPage;
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <Card key={product.id} className="overflow-hidden">
+                    <div
+                      className="relative h-48"
+                      onClick={() => handleProductClick(product)}
+                    >
+                      <Image
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.title}
+                        layout="fill"
+                        objectFit="cover"
+                        className="rounded-t-lg cursor-pointer"
+                      />
+                    </div>
+                    <CardContent className="bg-[#FF9F3F] p-4 h-full">
+                      <h3
+                        className="text-lg font-semibold text-black mb-2 cursor-pointer hover:underline"
+                        onClick={() => handleProductClick(product)}
+                      >
+                        {product.title}
+                      </h3>
+                      <div className="flex justify-between items-center">
+                        <span className="text-white border border-white rounded-full px-3 py-1">
+                          ${Number.parseFloat(product.price).toFixed(2)}
+                        </span>
+                        <Button
+                          variant="secondary"
+                          className="bg-white text-black hover:bg-white/90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(product);
+                          }}
+                        >
+                          <Plus className="mr-2 h-4 w-4" /> Add to Cart
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        href="#"
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(1, prev - 1))
+                        }
+                        className={
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <PaginationItem key={i}>
+                        <PaginationLink
+                          href="#"
+                          onClick={() => setCurrentPage(i + 1)}
+                          isActive={currentPage === i + 1}
+                        >
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(totalPages, prev + 1)
+                          )
+                        }
+                        className={
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
