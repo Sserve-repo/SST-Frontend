@@ -1,32 +1,136 @@
 "use client";
-import { Wallet, ShoppingBag, History } from "lucide-react";
+
+import {
+  Wallet,
+  ShoppingBag,
+  History,
+  PenToolIcon as Tool,
+  Package,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import type { OverviewType } from "@/types/dashboard";
 
-export type OverviewProps = {
-  overview: any;
+interface OverviewProps {
+  overview: OverviewType | null;
   setTab: Dispatch<SetStateAction<string>>;
   tab: string;
   className?: string;
+}
+
+const getRoleBasedMetrics = (
+  role: string,
+  overview: OverviewType | null,
+  tab: string
+) => {
+  switch (role) {
+    case "2": // Shopper
+      return [
+        {
+          title: "Total Expenditure",
+          value: overview?.TotalExpenditure || "$0",
+          icon: <Wallet className="h-6 w-6 text-emerald-500" />,
+          bgColor: "bg-emerald-50",
+          subText: `${overview?.pendingOrder || 0} Pending Orders`,
+        },
+        {
+          title: "Orders Received",
+          value: overview?.completeOrder || "0",
+          icon: <Package className="h-6 w-6 text-purple-500" />,
+          bgColor: "bg-purple-50",
+          subText: `${overview?.orderInProgress || 0} In Transit`,
+        },
+        {
+          title: "Services Booked",
+          value: overview?.completedService || "0",
+          icon: <Tool className="h-6 w-6 text-orange-500" />,
+          bgColor: "bg-orange-50",
+          subText: `${overview?.pendingService || 0} Pending Services`,
+        },
+      ];
+    case "3": // Vendor
+      return [
+        {
+          title: "Total Sales",
+          value: overview?.TotalExpenditure || "$0",
+          icon: <Wallet className="h-6 w-6 text-emerald-500" />,
+          bgColor: "bg-emerald-50",
+          subText: `${overview?.pendingOrder || 0} Pending Orders`,
+        },
+        {
+          title:
+            tab === "products" ? "Products Delivered" : "Services Completed",
+          value:
+            tab === "products"
+              ? overview?.completeOrder
+              : overview?.completedService || "0",
+          icon: <ShoppingBag className="h-6 w-6 text-purple-500" />,
+          bgColor: "bg-purple-50",
+          subText: `${
+            tab === "products"
+              ? overview?.orderInProgress
+              : overview?.serviceInProgress || 0
+          } In Progress`,
+        },
+        {
+          title:
+            tab === "products" ? "Products In Transit" : "Services Pending",
+          value:
+            tab === "products"
+              ? overview?.orderInProgress
+              : overview?.pendingService || "0",
+          icon: <History className="h-6 w-6 text-orange-500" />,
+          bgColor: "bg-orange-50",
+          subText: `${
+            tab === "products"
+              ? overview?.cancelledOrder
+              : overview?.cancelledService || 0
+          } Cancelled`,
+        },
+      ];
+    case "4": // Artisan
+      return [
+        {
+          title: "Total Earnings",
+          value: overview?.TotalExpenditure || "$0",
+          icon: <Wallet className="h-6 w-6 text-emerald-500" />,
+          bgColor: "bg-emerald-50",
+          subText: `${overview?.pendingService || 0} Pending Services`,
+        },
+        {
+          title: "Services Completed",
+          value: overview?.completedService || "0",
+          icon: <Tool className="h-6 w-6 text-purple-500" />,
+          bgColor: "bg-purple-50",
+          subText: `${overview?.serviceInProgress || 0} In Progress`,
+        },
+        {
+          title: "Active Requests",
+          value: overview?.pendingService || "0",
+          icon: <History className="h-6 w-6 text-orange-500" />,
+          bgColor: "bg-orange-50",
+          subText: `${overview?.cancelledService || 0} Cancelled`,
+        },
+      ];
+    default:
+      return [];
+  }
 };
+
 export function Overview({ overview, tab, setTab }: OverviewProps) {
   const currentHour = new Date().getHours();
   const { currentUser } = useAuth();
-  const overviewData = overview;
 
   const getGreeting = () => {
-    if (currentHour < 12) {
-      return "Good morning";
-    } else if (currentHour < 18) {
-      return "Good afternoon";
-    } else {
-      return "Good evening";
-    }
+    if (currentHour < 12) return "Good morning";
+    if (currentHour < 18) return "Good afternoon";
+    return "Good evening";
   };
+
+  const metrics = getRoleBasedMetrics(currentUser?.user_type, overview, tab);
 
   return (
     <div className="flex-1 space-y-4 mt-2">
@@ -50,121 +154,47 @@ export function Overview({ overview, tab, setTab }: OverviewProps) {
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-2 mt-4 md:mt-0">
-          <Tabs defaultValue={tab} className="space-y-4 bg-white">
-            <TabsList className="flex space-x-4 bg-white p-1 rounded-lg border border-gray-200">
-              <TabsTrigger onClick={() => setTab("products")} value="products">
-                Products
-              </TabsTrigger>
-              <TabsTrigger onClick={() => setTab("service")} value="service">
-                Service
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+        {currentUser?.user_type === "3" && (
+          <div className="flex items-center space-x-2 mt-4 md:mt-0">
+            <Tabs defaultValue={tab} className="space-y-4 bg-white">
+              <TabsList className="flex space-x-4 bg-white p-1 rounded-lg border border-gray-200">
+                <TabsTrigger
+                  onClick={() => setTab("products")}
+                  value="products"
+                >
+                  Products
+                </TabsTrigger>
+                <TabsTrigger onClick={() => setTab("service")} value="service">
+                  Service
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="p-6 rounded-xl  border border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-4">
-              <Wallet className="h-6 w-6 text-emerald-500" />
+        {metrics.map((metric, index) => (
+          <Card key={index} className="p-6 rounded-xl border border-gray-200">
+            <div className="flex items-center gap-4">
+              <div className={`rounded-2xl ${metric.bgColor} p-4`}>
+                {metric.icon}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">
+                  {metric.title}
+                </p>
+                <h3 className="text-2xl font-semibold text-gray-900">
+                  {metric.value}
+                </h3>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                Total Expenditure
-              </p>
-              <h3 className="text-2xl font-semibold text-gray-900">
-                $ {overviewData?.TotalExpenditure || 0}
-              </h3>
+            <div className="mt-4 flex items-center gap-2">
+              <span className="text-sm font-medium text-emerald-600">
+                {metric.subText}
+              </span>
             </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2">
-            <Image
-              src="/assets/images/3dicons.png"
-              alt="Avatar"
-              width={28}
-              height={28}
-              className="rounded-full"
-            />
-            <span className="text-sm font-medium text-emerald-600">
-              {overviewData?.pendingOrder || overviewData?.pendingService || 0}{" "}
-              Pending Transaction
-            </span>
-          </div>
-        </Card>
-
-        <Card className="p-6 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="rounded-2xl bg-purple-50 p-4">
-              <ShoppingBag className="h-6 w-6 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                {tab === "service"
-                  ? "Completed Service"
-                  : " Delivered Products"}
-              </p>
-              <h3 className="text-2xl font-semibold text-gray-900">
-                {overviewData?.completeOrder ||
-                  overviewData?.completedService ||
-                  0}
-              </h3>
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2">
-            <Image
-              src="/assets/images/3dicons.png"
-              alt="Avatar"
-              width={28}
-              height={28}
-              className="rounded-full"
-            />
-            <span className="text-sm font-medium text-purple-600">
-              {overviewData?.orderInProgress ||
-                overviewData?.serviceInProgress ||
-                0}
-              {tab === "service" ? " Pending Service" : " Pending Order"}
-            </span>
-          </div>
-        </Card>
-
-        <Card className="p-6 rounded-xl border border-gray-200">
-          <div className="flex items-center gap-4">
-            <div className="rounded-2xl bg-orange-50 p-4">
-              <History className="h-6 w-6 text-orange-500" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">
-                {tab === "service"
-                  ? "Unperformed Services"
-                  : "Products In Transit"}
-              </p>
-              <h3 className="text-2xl font-semibold text-gray-900">
-                {" "}
-                {overviewData?.orderInProgress ||
-                  overviewData?.serviceInProgress ||
-                  0}
-              </h3>
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2">
-            <Image
-              src="/assets/images/3dicons.png"
-              alt="Avatar"
-              width={28}
-              height={28}
-              className="rounded-full"
-            />
-            <span className="text-sm font-medium text-red-600">
-              {overviewData?.cancelleOrder ||
-                overviewData?.cancelledService ||
-                0}{" "}
-              {tab === "service"
-                ? " Cancelled Services"
-                : " Cancelled Products"}
-            </span>
-          </div>
-        </Card>
+          </Card>
+        ))}
       </div>
     </div>
   );
