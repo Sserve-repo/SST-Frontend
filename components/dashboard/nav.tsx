@@ -6,7 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings, LogOut } from "lucide-react";
+import {
+  Settings,
+  LogOut,
+  ShoppingBag,
+  MessageSquare,
+  Tag,
+  PenToolIcon as Tool,
+} from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
 import { TbChartArcs } from "react-icons/tb";
@@ -14,24 +21,62 @@ import { HiOutlineArchive } from "react-icons/hi";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { useAuth } from "@/context/AuthContext";
 
-interface NavItem {
-  title: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
+const getNavItems = (userType: string) => {
+  const baseItems = [
+    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
+    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+  ];
 
-const navItems: NavItem[] = [
-  { title: "Overview", href: "/dashboard", icon: TbChartArcs },
-  { title: "Orders", href: "/dashboard/orders", icon: RiShoppingBag3Line },
-  { title: "Inbox", href: "/dashboard/inbox", icon: HiOutlineArchive },
-];
+  const vendorItems = [
+    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
+    { title: "Products", href: "/dashboard/products", icon: ShoppingBag },
+    {
+      title: "Orders Management",
+      href: "/dashboard/orders",
+      icon: RiShoppingBag3Line,
+    },
+    { title: "Discount Offers", href: "/dashboard/discounts", icon: Tag },
+    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+  ];
+
+  const artisanItems = [
+    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
+    { title: "Services", href: "/dashboard/services", icon: Tool },
+    {
+      title: "Service Requests",
+      href: "/dashboard/service-requests",
+      icon: HiOutlineArchive,
+    },
+    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+  ];
+
+  const shopperItems = [
+    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
+    { title: "My Orders", href: "/dashboard/my-orders", icon: ShoppingBag },
+    { title: "Saved Items", href: "/dashboard/saved", icon: HiOutlineArchive },
+    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+  ];
+
+  switch (userType) {
+    case "3": // Vendor
+      return [...vendorItems];
+    case "4": // Artisan
+      return [...artisanItems];
+    case "2": // Shopper
+      return [...shopperItems];
+    default:
+      return baseItems;
+  }
+};
 
 export function DashboardNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, logOut } = useAuth();
+  const { isAuthenticated, logOut, currentUser } = useAuth();
   const { isCollapsed, toggleSidebar } = useSidebarToggle();
   const [isMobile, setIsMobile] = useState(false);
+
+  const navItems = getNavItems(currentUser?.user_type);
 
   const handleLogOut = () => {
     logOut();
@@ -72,7 +117,6 @@ export function DashboardNav() {
         )}
       >
         <div className="flex h-full flex-col px-3">
-          {/* Logo Section */}
           <div className="flex items-center justify-start h-16">
             <Link href="/" className="flex items-center space-x-2">
               <Image
@@ -84,7 +128,6 @@ export function DashboardNav() {
             </Link>
           </div>
 
-          {/* Navigation Items */}
           <ScrollArea className="flex-1">
             {navItems.map((item) => (
               <Button
@@ -114,7 +157,6 @@ export function DashboardNav() {
             ))}
           </ScrollArea>
 
-          {/* Footer Section */}
           <div className="mt-auto space-y-2 border-t py-4">
             <Button
               variant="ghost"
@@ -133,7 +175,7 @@ export function DashboardNav() {
               </Link>
             </Button>
             <Button
-              onClick={() => handleLogOut()}
+              onClick={handleLogOut}
               variant="ghost"
               className="w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-red-600 hover:bg-red-50"
             >
