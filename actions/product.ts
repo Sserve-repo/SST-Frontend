@@ -1,4 +1,6 @@
+import { revalidatePath } from "next/cache";
 import { baseUrl } from "../config/constant";
+import { ProductFormData } from "@/types/product";
 
 export const getRegions = async () => {
   try {
@@ -65,6 +67,9 @@ export const getProductByCategory = async (catId: number, subCat: any) => {
 };
 
 
+// Dashboard Actions 
+
+
 export const getProductList = async () => {
   try {
     const response = await fetch(
@@ -75,3 +80,77 @@ export const getProductList = async () => {
     console.log("failed to fetch product menu", error);
   }
 };
+
+export async function createProduct(data: ProductFormData) {
+  try {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // In a real app, you would save to your database here
+    console.log("Creating product:", data)
+
+    revalidatePath("/dashboard/products")
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false, error: "Failed to create product" }
+  }
+}
+
+export async function updateProduct(id: string, data: ProductFormData) {
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log("Updating product:", id, data)
+
+    revalidatePath("/dashboard/products")
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false, error: "Failed to update product" }
+  }
+}
+
+export async function deleteProduct(id: string) {
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log("Deleting product:", id)
+
+    revalidatePath("/dashboard/products")
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false, error: "Failed to delete product" }
+  }
+}
+
+export async function getProducts() {
+  // Simulate API call
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  // Mock data
+  return {
+    totalProducts: "$15,891.05",
+    activeProducts: 120,
+    outOfStock: 25,
+    totalStockValue: "$5,000",
+    newProducts: "15 products",
+    outOfStockPercentage: "12%",
+    products: Array(13)
+      .fill(null)
+      .map((_, i) => ({
+        id: `prod-${i}`,
+        name: "Kuli-kuli",
+        dateAdded: "12/12/2023 12:04 PM",
+        price: 1222,
+        category: "Home decor",
+        stockLevel: "20 PCs in stock",
+        status: i % 3 === 0 ? "low-on-stock" : i % 3 === 1 ? "fully-stocked" : "out-of-stock",
+        views: "20.8k",
+        images: ["/placeholder.svg"],
+        description: "Sample product description",
+        shippingCost: 10,
+        hasDiscount: false,
+      })),
+  }
+}
+
