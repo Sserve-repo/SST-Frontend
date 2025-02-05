@@ -8,6 +8,22 @@ export interface Message {
     content: string
 }
 
+export interface Product {
+    id: string
+    name: string
+    category: string
+    subCategory?: string
+    price: number
+    shippingCost: number
+    stockLevel: number
+    description: string
+    images: string[]
+    status: "fully-stocked" | "low-on-stock" | "out-of-stock"
+    dateAdded: string
+    views: number
+    hasDiscount: boolean
+}
+
 export interface ChatMessage {
     id: string
     content: string
