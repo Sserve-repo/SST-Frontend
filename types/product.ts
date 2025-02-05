@@ -13,6 +13,18 @@ export interface Product {
     updated_at: string
 }
 
+export interface ProductFormData {
+    name: string
+    category: string
+    subCategory?: string
+    price: number
+    shippingCost: number
+    stockLevel: number
+    description: string
+    images: string[]
+    hasDiscount: boolean
+}
+
 export interface ProductResponse {
     product_listing: Product[]
     current_page: number
