@@ -100,10 +100,12 @@ export const getTableColumns = (userType: UserType): OrderTableColumn[] => {
     }
 }
 
-export const formatDate = (date: string): string => {
-    return format(new Date(date), "MMM dd, yyyy")
+export const formatDate = (date: string | null | undefined): string => {
+    if (!date) return "N/A" 
+    const parsedDate = new Date(date)
+    if (isNaN(parsedDate.getTime())) return "Invalid Date" 
+    return format(parsedDate, "MM, dd, yyyy")
 }
-
 export const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {
         style: "currency",
