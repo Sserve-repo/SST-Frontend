@@ -31,7 +31,7 @@ export default function DiscountDashboard() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-gray-500">Total Sales Increase</p>
-                  <p className="text-2xl font-bold">$250,000</p>
+                  <p className="text-2xl font-bold">$250,000</p> 
                   <div className="flex items-center text-sm text-orange-500">
                     <span>+$2,500</span>
                     <span className="ml-2">Revenue Impact</span>
@@ -97,7 +97,6 @@ export default function DiscountDashboard() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">
-                    <Checkbox />
                   </TableHead>
                   <TableHead>DISCOUNT NAME</TableHead>
                   <TableHead>DISCOUNT TYPE</TableHead>
