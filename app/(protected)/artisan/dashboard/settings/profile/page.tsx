@@ -10,10 +10,10 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ProfileImageUpload } from "@/app/(protected)/artisan/dashboard/components/settings/profile-image-upload"
-import { MultiSelect } from "@/app/(protected)/artisan/dashboard/components/settings/multi-select"
-import { SaveConfirmDialog } from "@/app/(protected)/artisan/dashboard/components/settings/save-confirm-dialog"
-import { useToast } from "@/components/ui/toast"
+import { ProfileImageUpload } from "@/components/settings/profile-image-upload"
+import { MultiSelect } from "@/components/settings/multi-select"
+import { SaveConfirmDialog } from "@/components/settings/save-confirm-dialog"
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
   personalDetails: z.object({
@@ -63,7 +63,7 @@ export default function ProfileSettingsPage() {
   // In a real app, this would be fetched from an API
   const defaultValues: z.infer<typeof formSchema> = {
     personalDetails: {
-      profileImage: "/placeholder.svg",
+      profileImage: "/assets/images/image-placeholder.png",
       firstName: "Sarah",
       lastName: "Johnson",
       email: "sarah@example.com",

@@ -62,7 +62,12 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body suppressHydrationWarning={true}>
-        <NextTopLoader color="hsl(281, 50%, 27%)" />
+        <NextTopLoader
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          color="hsl(281, 50%, 27%)"
+        />
         <Toaster position="top-right" richColors closeButton />
         <ThemeProvider attribute="class" enableSystem={false}>
           <AuthProvider>

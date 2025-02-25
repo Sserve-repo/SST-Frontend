@@ -146,7 +146,7 @@ export async function getProducts() {
         stockLevel: "20 PCs in stock",
         status: i % 3 === 0 ? "low-on-stock" : i % 3 === 1 ? "fully-stocked" : "out-of-stock",
         views: "20.8k",
-        images: ["/placeholder.svg"],
+        images: ["/assets/images/image-placeholder.png"],
         description: "Sample product description",
         shippingCost: 10,
         hasDiscount: false,

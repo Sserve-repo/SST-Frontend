@@ -12,7 +12,13 @@ import {
   ShoppingBag,
   MessageSquare,
   Tag,
-  PenToolIcon as Tool,
+  BriefcaseBusiness,
+  Calendar,
+  Star,
+  LineChart,
+  CalendarClock,
+  LayoutDashboard,
+  MessageSquareMore,
 } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
@@ -28,26 +34,86 @@ const getNavItems = (userType: string) => {
   ];
 
   const vendorItems = [
-    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
-    { title: "Products", href: "/dashboard/products", icon: ShoppingBag },
+    { title: "Overview", href: "/vendor/dashboard", icon: LayoutDashboard },
+    {
+      title: "Inventory Management",
+      href: "/vendor/dashboard/inventory",
+      icon: ShoppingBag,
+    },
     {
       title: "Orders Management",
-      href: "/dashboard/orders",
+      href: "/vendor/dashboard/orders",
       icon: RiShoppingBag3Line,
     },
-    { title: "Discount Offers", href: "/dashboard/discounts", icon: Tag },
-    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+    {
+      title: "Shipping & Fulfillment",
+      href: "/vendor/dashboard/shipping",
+      icon: RiShoppingBag3Line,
+    },
+    {
+      title: "Customer Reviews",
+      href: "/vendor/dashboard/reviews",
+      icon: Star,
+    },
+    {
+      title: "Analytics",
+      href: "/vendor/dashboard/analytics",
+      icon: LineChart,
+    },
+    {
+      title: "Promotions",
+      href: "/vendor/dashboard/promotions",
+      icon: Tag,
+    },
+    {
+      title: "Events",
+      href: "/vendor/dashboard/events",
+      icon: CalendarClock,
+    },
+    {
+      title: "Messages",
+      href: "/vendor/dashboard/messages",
+      icon: MessageSquareMore,
+    },
   ];
 
   const artisanItems = [
-    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
-    { title: "Services", href: "/dashboard/services", icon: Tool },
+    { title: "Overview", href: "/artisan/dashboard", icon: LayoutDashboard },
     {
-      title: "Service Requests",
-      href: "/dashboard/service-requests",
-      icon: HiOutlineArchive,
+      title: "Services",
+      href: "/artisan/dashboard/services",
+      icon: BriefcaseBusiness,
     },
-    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+    {
+      title: "Appointments",
+      href: "/artisan/dashboard/appointments",
+      icon: Calendar,
+    },
+    {
+      title: "Customer Reviews",
+      href: "/artisan/dashboard/reviews",
+      icon: Star,
+    },
+    {
+      title: "Analytics",
+      href: "/artisan/dashboard/analytics",
+      icon: LineChart,
+    },
+    {
+      title: "Promotions",
+      href: "/artisan/dashboard/promotions",
+      icon: Tag,
+    },
+    {
+      title: "Events",
+      href: "/artisan/dashboard/events",
+      icon: CalendarClock,
+    },
+    {
+      title: "Messages",
+      href: "/artisan/dashboard/messages",
+      icon: MessageSquareMore,
+    },
   ];
 
   const shopperItems = [
@@ -105,7 +171,7 @@ export function DashboardNav() {
           onClick={toggleSidebar}
         />
       )}
-      <nav
+      <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 bg-white transition-all duration-300 ease-in-out border-r",
           isCollapsed
@@ -189,7 +255,7 @@ export function DashboardNav() {
             </Button>
           </div>
         </div>
-      </nav>
+      </div>
     </>
   );
 }

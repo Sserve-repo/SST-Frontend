@@ -1,74 +1,17 @@
-"use client"
+import ServicesPage from '@/components/artisan/services/services-page'
+import React from 'react'
+import { Metadata } from "next";
 
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { ServiceTable } from "@/app/(protected)/artisan/dashboard/components/services/service-table"
-import { CreateServiceDialog } from "@/app/(protected)/artisan/dashboard/components/services/create-service-dialog"
-import { useState } from "react"
-import type { Service } from "@/types/services"
+export const metadata: Metadata = {
+  title: "Services | SphereServe",
+};
 
-export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: "1",
-      name: "Haircut & Styling",
-      description: "Professional haircut and styling service",
-      price: 50,
-      duration: 60,
-      images: ["/placeholder.svg"],
-      availability: {
-        monday: { start: "09:00", end: "17:00" },
-        wednesday: { start: "09:00", end: "17:00" },
-        friday: { start: "09:00", end: "17:00" },
-      },
-      status: "active",
-    },
-    {
-      id: "2",
-      name: "Hair Coloring",
-      description: "Professional hair coloring service",
-      price: 120,
-      duration: 120,
-      images: ["/placeholder.svg"],
-      availability: {
-        tuesday: { start: "09:00", end: "17:00" },
-        thursday: { start: "09:00", end: "17:00" },
-        saturday: { start: "09:00", end: "17:00" },
-      },
-      status: "inactive",
-    },
-  ])
-
-  const handleCreateService = (newService: Omit<Service, "id">) => {
-    const id = Math.random().toString(36).substr(2, 9)
-    setServices([...services, { ...newService, id }])
-  }
-
-  const handleUpdateService = (updatedService: Service) => {
-    setServices(services.map((service) => (service.id === updatedService.id ? updatedService : service)))
-  }
-
-  const handleDeleteService = (id: string) => {
-    setServices(services.filter((service) => service.id !== id))
-  }
-
+const Services = () => {
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#5D3A8B]">Manage Services</h1>
-          <p className="text-gray-500">Create and manage your service offerings</p>
-        </div>
-        <CreateServiceDialog onSubmit={handleCreateService}>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Service
-          </Button>
-        </CreateServiceDialog>
-      </div>
-
-      <ServiceTable services={services} onUpdate={handleUpdateService} onDelete={handleDeleteService} />
-    </div>
+    <>
+      <ServicesPage />
+    </>
   )
 }
 
+export default Services

@@ -73,7 +73,7 @@ export function ProductForm({
   const handleImageUpload = (index: number) => {
     // In a real app, you would handle file upload here
     const newImages = [...images];
-    newImages[index] = `/placeholder.svg?${Date.now()}`;
+    newImages[index] = `/assets/images/image-placeholder.png?${Date.now()}`;
     setImages(newImages);
     form.setValue("images", newImages);
   };
@@ -255,7 +255,7 @@ export function ProductForm({
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={images[index] || "/placeholder.svg"}
+                        src={images[index] || "/assets/images/image-placeholder.png"}
                         alt={`Product ${index + 1}`}
                         className="w-full h-full object-cover rounded-lg"
                       />

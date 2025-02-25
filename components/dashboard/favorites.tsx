@@ -5,12 +5,12 @@ import Image from "next/image";
 const favorites = [
   {
     category: "Leather Boots",
-    image: "/placeholder.svg",
+    image: "/assets/images/image-placeholder.png",
     price: "$50.00",
   },
   {
     category: "Leather Boots",
-    image: "/placeholder.svg",
+    image: "/assets/images/image-placeholder.png",
     price: "$50.00",
   },
 ];
