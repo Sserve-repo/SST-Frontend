@@ -94,7 +94,7 @@ export function ProductTable({
             <TableCell>
               <div className="flex items-center gap-3">
                 <Image
-                  src={product.images[0] || "/placeholder.svg"}
+                  src={product.images[0] || "/assets/images/image-placeholder.png"}
                   alt={product.name}
                   width={40}
                   height={40}

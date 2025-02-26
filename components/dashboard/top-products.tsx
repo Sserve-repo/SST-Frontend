@@ -13,7 +13,7 @@ interface TopProduct {
 const topProducts: TopProduct[] = Array(5).fill({
   name: "Kitchen Plumbing",
   orders: 600,
-  image: "/placeholder.svg",
+  image: "/assets/images/image-placeholder.png",
 });
 
 export function TopProducts() {
@@ -30,7 +30,7 @@ export function TopProducts() {
           <div key={i} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image
-                src={product.image || "/placeholder.svg"}
+                src={product.image || "/assets/images/image-placeholder.png"}
                 alt={product.name}
                 width={40}
                 height={40}

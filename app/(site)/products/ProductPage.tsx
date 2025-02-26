@@ -212,7 +212,7 @@ export default function ProductPage() {
                       onClick={() => handleProductClick(product)}
                     >
                       <Image
-                        src={product.image || "/placeholder.svg"}
+                        src={product.image || "/assets/images/image-placeholder.png"}
                         alt={product.title}
                         layout="fill"
                         objectFit="cover"

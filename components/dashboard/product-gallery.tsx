@@ -4,7 +4,7 @@ import Image from "next/image";
 const products = Array(10).fill({
   title: "Building Solutions Co.",
   rating: "4.7/5.0",
-  image: "/placeholder.svg",
+  image: "/assets/images/image-placeholder.png",
 });
 
 export function ProductGallery() {

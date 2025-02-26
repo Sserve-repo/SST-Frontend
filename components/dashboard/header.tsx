@@ -9,19 +9,47 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+// import { Input } from "@/components/ui/input";
+// import { Search } from "lucide-react";
 import { BsList } from "react-icons/bs";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { useAuth } from "@/context/AuthContext";
 import CartIcon from "../CartIcon";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
+import { Bell } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { useState } from "react";
 
 export function Header() {
   const { toggleSidebar } = useSidebarToggle();
   const { currentUser, logOut } = useAuth();
   const router = useRouter();
+    const [notifications, setNotifications] = useState([
+      {
+        id: 1,
+        title: "New Order #1234",
+        description: "Order received for Product A",
+        time: "2 mins ago",
+        read: false,
+      },
+      {
+        id: 2,
+        title: "Low Stock Alert",
+        description: "Product B is running low on stock",
+        time: "1 hour ago",
+        read: false,
+      },
+    ]);
+  
+    const unreadCount = notifications.filter((n) => !n.read).length;
+  
+  
+    const markAllRead = () => {
+      setNotifications(notifications.map((n) => ({ ...n, read: true })));
+    };
+  
 
   const getUserType = (user_type: string) => {
     return user_type === "3"
@@ -46,7 +74,7 @@ export function Header() {
           </button>
 
           {/* Search */}
-          <div className="flex-grow max-w-md mx-4 sm:block hidden">
+          {/* <div className="flex-grow max-w-md mx-4 sm:block hidden">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               <Input
@@ -54,7 +82,7 @@ export function Header() {
                 className="pl-10 py-2 border-2 border-gray-300 rounded-full text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Actions */}
@@ -63,6 +91,47 @@ export function Header() {
           <div className="relative">
             <CartIcon />
           </div>
+
+          <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="relative rounded-full">
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className="absolute -right-1 -top-1 h-4 w-4 p-0 text-xs flex items-center justify-center"
+                >
+                  {unreadCount}
+                </Badge>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel className="flex items-center justify-between">
+              Notifications
+              <Button variant="ghost" size="sm" onClick={markAllRead}>
+                Mark all read
+              </Button>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {notifications.map((notification) => (
+              <DropdownMenuItem
+                key={notification.id}
+                className="flex flex-col items-start gap-1 p-4"
+              >
+                <div className="flex w-full justify-between">
+                  <span className="font-medium">{notification.title}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {notification.time}
+                  </span>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {notification.description}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
           {/* User Menu */}
           <DropdownMenu>

@@ -5,19 +5,19 @@ import Image from "next/image";
 const products = [
   {
     category: "Leather Boots",
-    image: "/placeholder.svg",
+    image: "/assets/images/image-placeholder.png",
     price: "$40.00",
     supplier: "Reliable Supplier Inc",
   },
   {
     category: "Dinner Gowns",
-    image: "/placeholder.svg",
+    image: "/assets/images/image-placeholder.png",
     price: "$45.00",
     supplier: "Reliable Supplier Inc",
   },
   {
     category: "Leather Wallet",
-    image: "/placeholder.svg",
+    image: "/assets/images/image-placeholder.png",
     price: "$40.00",
     supplier: "Reliable Supplier Inc",
   },

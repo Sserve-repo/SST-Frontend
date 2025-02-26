@@ -455,7 +455,7 @@ export default function ServiceAvailability() {
                 <div className="p-6 flex-grow">
                   <div className="flex items-center space-x-4 mb-4">
                     <Image
-                      src={provider.image || "/placeholder.svg"}
+                      src={provider.image || "/assets/images/image-placeholder.png"}
                       alt={`${provider.title}'s profile picture`}
                       width={100}
                       height={100}
