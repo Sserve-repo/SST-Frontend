@@ -15,12 +15,12 @@ export interface Product {
     subCategory?: string
     price: number
     shippingCost: number
-    stockLevel: number
+    stockLevel: number| string
     description: string
     images: string[]
-    status: "fully-stocked" | "low-on-stock" | "out-of-stock"
+    status: "fully-stocked" | "low-on-stock" | "out-of-stock"| string
     dateAdded: string
-    views: number
+    views: number| string
     hasDiscount: boolean
 }
 

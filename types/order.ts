@@ -214,11 +214,12 @@ export interface BaseOrderMetrics {
     completedOrders: MetricDisplay
     pendingOrders: MetricDisplay
     cancelledOrders: MetricDisplay
+    totalCustomers: MetricDisplay
+    ordersInTransit: MetricDisplay
 }
-
 // Additional metrics for vendors
 export interface VendorMetrics extends BaseOrderMetrics {
-    totalCustomers: MetricDisplay
+    // totalCustomers: MetricDisplay
     totalEarnings: MetricDisplay
     averageOrderValue: MetricDisplay
 }

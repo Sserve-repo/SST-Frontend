@@ -17,13 +17,15 @@ export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       setLoading(true)
+      console.log(loading)
+
       // In a real application, you would upload these files to your storage
       // For this example, we'll create object URLs
       const urls = acceptedFiles.map((file) => URL.createObjectURL(file))
       onChange([...value, ...urls])
       setLoading(false)
     },
-    [value, onChange],
+    [value, onChange, loading],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

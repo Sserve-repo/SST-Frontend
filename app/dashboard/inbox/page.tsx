@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Metadata } from "next";
-import { Layout } from "./components/layout";
+import  Layout  from "./components/layout";
 import { MessagesList } from "./components/messages-list";
 
 export const metadata: Metadata = {

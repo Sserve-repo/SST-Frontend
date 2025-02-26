@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
   Star,
@@ -155,8 +155,7 @@ export default function ServiceAvailability() {
         const category = categories.find((cat) => cat.name === value);
         if (category) {
           router.push(
-            `/services?categoryId=${
-              category.id
+            `/services?categoryId=${category.id
             }&categoryName=${encodeURIComponent(value)}`
           );
           // setServiceItems(category.service_category_items);
@@ -213,7 +212,7 @@ export default function ServiceAvailability() {
     return hours * 60 + (minutes || 0);
   };
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (!services) return;
 
     const filtered = services.filter((service) => {
@@ -221,13 +220,13 @@ export default function ServiceAvailability() {
       const categoryMatches =
         !scheduleRequest.serviceCategory ||
         service.service_category_name.toLowerCase() ===
-          scheduleRequest.serviceCategory.toLowerCase();
+        scheduleRequest.serviceCategory.toLowerCase();
 
       // Location matching
       const locationMatches =
         !scheduleRequest.location ||
         service.province.toLowerCase() ===
-          scheduleRequest.location.toLowerCase();
+        scheduleRequest.location.toLowerCase();
 
       // Time matching (only if time is selected)
       const timeMatches =
@@ -246,14 +245,16 @@ export default function ServiceAvailability() {
     });
 
     setFilteredServices(filtered);
-  };
+  }, [services, scheduleRequest, setFilteredServices]); // ✅ Dependencies
+
+
 
   // Trigger search when filters change
   useEffect(() => {
     if (services?.length > 0) {
       handleSearch();
     }
-  }, [scheduleRequest, services]); // Add services to dependency array
+  }, [scheduleRequest, services, handleSearch]); // Add services to dependency array
 
   // Initial data fetch when categoryId changes
   useEffect(() => {

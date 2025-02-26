@@ -8,7 +8,7 @@ export type DayAvailability = {
   }
   
   export type Service = {
-    id: string
+    id?: string
     name: string
     description: string
     price: number

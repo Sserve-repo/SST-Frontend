@@ -1,5 +1,5 @@
 import { ChatView } from "../components/chat-view";
-import { Layout } from "../components/layout";
+import  Layout  from "../components/layout";
 
 const sampleMessages = [
   {

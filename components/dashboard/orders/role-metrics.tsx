@@ -10,7 +10,6 @@ interface RoleMetricsProps {
 
 export function RoleMetrics({
   metrics,
-  userType,
   isLoading,
 }: RoleMetricsProps) {
   if (!metrics) return null;

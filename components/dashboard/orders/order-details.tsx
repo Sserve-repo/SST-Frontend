@@ -13,7 +13,6 @@ export function OrderDetails({
   onClose,
   order,
   userType,
-  onStatusChange,
   onAcceptOrder,
   onRejectOrder,
   isLoading,
@@ -71,7 +70,7 @@ export function OrderDetails({
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Order Activity</h3>
               <div className="space-y-4">
-                {order.activities.map((activity, index) => (
+                {order.activities.map((activity: any, index) => (
                   <div key={index} className="flex items-start gap-4">
                     <div className="rounded-lg bg-purple-100 p-2">
                       <activity.icon className="h-5 w-5 text-purple-600" />

@@ -18,7 +18,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
     },
     {
       title: "Total Product Delivered",
-      value: metrics.totalDelivered.value,
+      value: metrics.totalDelivered,
       icon: <Package className="h-6 w-6 text-emerald-500" />,
       trend: metrics.totalDelivered.trend,
       trendText: metrics.totalDelivered.trendText,

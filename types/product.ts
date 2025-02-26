@@ -19,7 +19,7 @@ export interface ProductFormData {
     subCategory?: string
     price: number
     shippingCost: number
-    stockLevel: number
+    stockLevel: number| string
     description: string
     images: string[]
     hasDiscount: boolean

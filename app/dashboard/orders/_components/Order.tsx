@@ -35,6 +35,7 @@ export default function OrdersPage() {
 
   const handleFetchOrders = useCallback(async () => {
     if (!currentUser?.user_type) return;
+    console.log(isLoading)
 
     setIsLoading(true);
     try {
@@ -42,7 +43,7 @@ export default function OrdersPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Different mock data based on user role
-      const mockOrders: Order[] = Array.from({ length: 10 }, (_, i) => ({
+      const mockOrders: any[] = Array.from({ length: 10 }, (_, i) => ({
         id: `${i}`,
         orderNo: `ORD${96459761 + i}`,
         customerName: currentUser.user_type !== "2" ? "John Doe" : undefined,
@@ -58,10 +59,10 @@ export default function OrdersPage() {
           i % 4 === 0
             ? "pending"
             : i % 4 === 1
-            ? "delivered"
-            : i % 4 === 2
-            ? "in-transit"
-            : "cancelled",
+              ? "delivered"
+              : i % 4 === 2
+                ? "in-transit"
+                : "cancelled",
         shipping: 15.0,
         tax: 5.0,
         activities: [
@@ -76,10 +77,10 @@ export default function OrdersPage() {
         customOrderDetails:
           currentUser.user_type === "4" && i % 3 === 0
             ? {
-                specifications: "Custom design with intricate patterns",
-                timeline: "2 weeks",
-                materials: ["Wood", "Metal", "Glass"],
-              }
+              specifications: "Custom design with intricate patterns",
+              timeline: "2 weeks",
+              materials: ["Wood", "Metal", "Glass"],
+            }
             : undefined,
       }));
 
@@ -121,51 +122,51 @@ export default function OrdersPage() {
         },
         ...(currentUser?.user_type !== "2"
           ? {
-              totalCustomers: {
-                value: 2103,
-                trend: 4.3,
-                trendText: "vs. last month",
-                icon: Users,
-                label: "Total Customers",
-                color: { text: "text-blue-500", bg: "bg-blue-50" },
-              },
-              totalEarnings: {
-                value: "$15,891.05",
-                trend: 8.2,
-                trendText: "vs. last month",
-                icon: DollarSign,
-                label: "Total Earnings",
-                color: { text: "text-green-500", bg: "bg-green-50" },
-              },
-              averageOrderValue: {
-                value: "$105.94",
-                trend: 6.7,
-                trendText: "vs. last month",
-                icon: ShoppingCart,
-                label: "Average Order Value",
-                color: { text: "text-indigo-500", bg: "bg-indigo-50" },
-              },
-            }
+            totalCustomers: {
+              value: 2103,
+              trend: 4.3,
+              trendText: "vs. last month",
+              icon: Users,
+              label: "Total Customers",
+              color: { text: "text-blue-500", bg: "bg-blue-50" },
+            },
+            totalEarnings: {
+              value: "$15,891.05",
+              trend: 8.2,
+              trendText: "vs. last month",
+              icon: DollarSign,
+              label: "Total Earnings",
+              color: { text: "text-green-500", bg: "bg-green-50" },
+            },
+            averageOrderValue: {
+              value: "$105.94",
+              trend: 6.7,
+              trendText: "vs. last month",
+              icon: ShoppingCart,
+              label: "Average Order Value",
+              color: { text: "text-indigo-500", bg: "bg-indigo-50" },
+            },
+          }
           : {}),
         ...(currentUser?.user_type === "4"
           ? {
-              customOrdersReceived: {
-                value: 45,
-                trend: 15.7,
-                trendText: "vs. last month",
-                icon: Hammer,
-                label: "Custom Orders Received",
-                color: { text: "text-pink-500", bg: "bg-pink-50" },
-              },
-              customOrdersCompleted: {
-                value: 38,
-                trend: 12.3,
-                trendText: "vs. last month",
-                icon: Hammer,
-                label: "Custom Orders Completed",
-                color: { text: "text-cyan-500", bg: "bg-cyan-50" },
-              },
-            }
+            customOrdersReceived: {
+              value: 45,
+              trend: 15.7,
+              trendText: "vs. last month",
+              icon: Hammer,
+              label: "Custom Orders Received",
+              color: { text: "text-pink-500", bg: "bg-pink-50" },
+            },
+            customOrdersCompleted: {
+              value: 38,
+              trend: 12.3,
+              trendText: "vs. last month",
+              icon: Hammer,
+              label: "Custom Orders Completed",
+              color: { text: "text-cyan-500", bg: "bg-cyan-50" },
+            },
+          }
           : {}),
       });
     } catch (error) {
@@ -173,7 +174,7 @@ export default function OrdersPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentUser?.user_type]);
+  }, [currentUser?.user_type, isLoading]);
 
   useEffect(() => {
     handleFetchOrders();
@@ -217,8 +218,8 @@ export default function OrdersPage() {
           {currentUser.user_type === "2"
             ? "My Orders"
             : currentUser.user_type === "3"
-            ? "Orders Management"
-            : "Custom Orders"}
+              ? "Orders Management"
+              : "Custom Orders"}
         </h1>
       </div>
 

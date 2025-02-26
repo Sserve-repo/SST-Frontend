@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,7 @@ export default function ProductPage() {
     fetchMenuData();
   }, []);
 
-  const fetchProducts = async (params: FilterParams) => {
+  const fetchProducts = useCallback(async (params: FilterParams) => {
     setIsLoading(true);
     try {
       const response = await getProductByCategorySub({
@@ -81,9 +81,9 @@ export default function ProductPage() {
         sort_by: sortOptions[sortOption],
         ...params,
       });
-
+  
       if (response && response.ok) {
-        const data = (await response.json());
+        const data = await response.json();
         setProducts(data.data.product_listing);
         setTotalPages(data.last_page);
       }
@@ -94,7 +94,9 @@ export default function ProductPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sortOption, currentPage]); 
+  
+  
 
   React.useEffect(() => {
     const categoryId = searchParams.get("categoryId");
@@ -115,7 +117,7 @@ export default function ProductPage() {
     }
 
     fetchProducts(params);
-  }, [currentPage, sortOption, filters, searchParams]);
+  }, [currentPage, sortOption, filters, searchParams, fetchProducts]);
 
   const handleAddToCart = async (product: Product) => {
     await addToCart({

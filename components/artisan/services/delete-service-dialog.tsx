@@ -32,7 +32,7 @@ export function DeleteServiceDialog({ service, onOpenChange, onDelete }: DeleteS
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => onDelete(service.id)} className="bg-red-600 hover:bg-red-700">
+          <AlertDialogAction onClick={() => { if (service.id) return onDelete(service.id) }} className="bg-red-600 hover:bg-red-700">
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

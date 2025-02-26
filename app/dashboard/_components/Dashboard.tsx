@@ -8,7 +8,7 @@ import { RecentProducts } from "@/components/dashboard/recent-products";
 import { TopProducts } from "@/components/dashboard/top-products";
 import { TopCustomers } from "@/components/dashboard/top-customers";
 import { EarningsChart } from "@/components/dashboard/earnings-chart";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getServiceOverview, getProductOverview } from "@/actions/dashboard";
 import { useAuth } from "@/context/AuthContext";
 import type { OverviewType } from "@/types/dashboard";
@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const { currentUser } = useAuth();
   const currentHour = new Date().getHours();
 
-  const handleFetchOverview = async () => {
+  const handleFetchOverview = useCallback(async () => {
     let response;
 
     switch (currentUser?.user_type) {
@@ -44,7 +44,8 @@ export default function DashboardPage() {
       const data = await response.json();
       setOverviewData(data.data);
     }
-  };
+  }, [currentUser?.user_type, tab])
+
 
   const getGreeting = () => {
     if (currentHour < 12) return "Good morning";
@@ -54,7 +55,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     handleFetchOverview();
-  }, [currentUser?.user_type]);
+  }, [handleFetchOverview]);
 
   // Vendor Dashboard Layout
   if (currentUser?.user_type === "3") {
@@ -82,7 +83,7 @@ export default function DashboardPage() {
           </div>
           {currentUser?.user_type === "3" && (
             <div className="flex items-center space-x-2 mt-4 md:mt-0">
-              
+
             </div>
           )}
         </div>

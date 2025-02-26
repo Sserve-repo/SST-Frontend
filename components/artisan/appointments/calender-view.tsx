@@ -40,45 +40,47 @@ export function AppointmentCalendarView({ appointments, onUpdateAppointment }: A
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 className="rounded-md border-0"
-                components={{
-                  day: ({ date, ...props }) => {
-                    const dateString = date.toDateString()
-                    const dayAppointments = appointmentsByDate[dateString] || []
+                components={
+                  {
+                    day: ({ date, ...props }) => {
+                      const dateString = date.toDateString()
+                      const dayAppointments = appointmentsByDate[dateString] || []
 
-                    return (
-                      <div
-                        {...props}
-                        className={cn(
-                          "relative h-14 w-14 p-0 focus-within:relative focus-within:z-20 hover:bg-accent",
-                          props.className,
-                        )}
-                      >
-                        <time dateTime={date.toDateString()} className="absolute left-1 top-1">
-                          {date.getDate()}
-                        </time>
-                        {dayAppointments.length > 0 && (
-                          <div className="absolute bottom-1 left-1 right-1">
-                            <div className="flex flex-wrap gap-0.5">
-                              {dayAppointments.map((appointment) => (
-                                <button
-                                  key={appointment.id}
-                                  onClick={() => setSelectedAppointment(appointment)}
-                                  className={cn(
-                                    "h-1.5 w-1.5 rounded-full",
-                                    appointment.status === "confirmed" && "bg-green-500",
-                                    appointment.status === "pending" && "bg-yellow-500",
-                                    appointment.status === "canceled" && "bg-red-500",
-                                    appointment.status === "completed" && "bg-blue-500",
-                                  )}
-                                />
-                              ))}
+                      return (
+                        <div
+                          {...props}
+                          className={cn(
+                            "relative h-14 w-14 p-0 focus-within:relative focus-within:z-20 hover:bg-accent",
+                            props.className,
+                          )}
+                        >
+                          <time dateTime={date.toDateString()} className="absolute left-1 top-1">
+                            {date.getDate()}
+                          </time>
+                          {dayAppointments.length > 0 && (
+                            <div className="absolute bottom-1 left-1 right-1">
+                              <div className="flex flex-wrap gap-0.5">
+                                {dayAppointments.map((appointment) => (
+                                  <button
+                                    key={appointment.id}
+                                    onClick={() => setSelectedAppointment(appointment)}
+                                    className={cn(
+                                      "h-1.5 w-1.5 rounded-full",
+                                      appointment.status === "confirmed" && "bg-green-500",
+                                      appointment.status === "pending" && "bg-yellow-500",
+                                      appointment.status === "canceled" && "bg-red-500",
+                                      appointment.status === "completed" && "bg-blue-500",
+                                    )}
+                                  />
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  },
-                }}
+                          )}
+                        </div>
+                      )
+                    },
+                  } as any
+                }
               />
             </div>
             <div className="border-l p-4 w-full">
