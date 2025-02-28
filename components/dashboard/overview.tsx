@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { Dispatch, SetStateAction } from "react";
 import type { OverviewType } from "@/types/dashboard";
 
-interface OverviewProps {
+export interface OverviewProps {
   overview: OverviewType | null;
   setTab: Dispatch<SetStateAction<string>>;
   tab: string;
@@ -69,11 +69,10 @@ const getRoleBasedMetrics = (
               : overview?.completedService || "0",
           icon: <ShoppingBag className="h-6 w-6 text-purple-500" />,
           bgColor: "bg-purple-50",
-          subText: `${
-            tab === "products"
+          subText: `${tab === "products"
               ? overview?.orderInProgress
               : overview?.serviceInProgress || 0
-          } In Progress`,
+            } In Progress`,
         },
         {
           title:
@@ -84,11 +83,10 @@ const getRoleBasedMetrics = (
               : overview?.pendingService || "0",
           icon: <History className="h-6 w-6 text-orange-500" />,
           bgColor: "bg-orange-50",
-          subText: `${
-            tab === "products"
+          subText: `${tab === "products"
               ? overview?.cancelledOrder
               : overview?.cancelledService || 0
-          } Cancelled`,
+            } Cancelled`,
         },
       ];
     case "4": // Artisan

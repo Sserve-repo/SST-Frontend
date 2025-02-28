@@ -214,9 +214,9 @@ export interface BaseOrderMetrics {
     completedOrders: MetricDisplay
     pendingOrders: MetricDisplay
     cancelledOrders: MetricDisplay
-    totalCustomers: MetricDisplay
-    ordersInTransit: MetricDisplay
-    totalDelivered: MetricDisplay
+    totalCustomers?: MetricDisplay
+    ordersInTransit?: MetricDisplay
+    totalDelivered?: MetricDisplay
 
 }
 // Additional metrics for vendors
@@ -230,6 +230,7 @@ export interface VendorMetrics extends BaseOrderMetrics {
 export interface ArtisanMetrics extends VendorMetrics {
     customOrdersReceived: MetricDisplay
     customOrdersCompleted: MetricDisplay
+    // totalDelivered:
 }
 
 // Union type for all possible metrics

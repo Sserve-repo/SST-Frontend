@@ -32,7 +32,7 @@ export type TransactionType = {
 
 export function TransactionList({ className, overview }: OverviewProps) {
   const router = useRouter();
-  const transaction = overview?.Transaction;
+  const transaction = overview?.Transactions;
 
 
   return (
@@ -74,7 +74,7 @@ export function TransactionList({ className, overview }: OverviewProps) {
               </TableHeader>
               <TableBody>
                 {transaction &&
-                  transaction.map((transaction) => (
+                  transaction.map((transaction: any) => (
                     <TableRow
                       key={transaction.id}
                       onClick={() =>

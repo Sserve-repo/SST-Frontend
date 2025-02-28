@@ -10,26 +10,26 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
   const cards = [
     {
       title: "Total Customer",
-      value: metrics.totalCustomers.value,
+      value: metrics.totalCustomers ? metrics.totalCustomers.value : 0,
       icon: <Users className="h-6 w-6 text-purple-500" />,
-      trend: metrics.totalCustomers.trend,
-      trendText: metrics.totalCustomers.trendText,
+      trend: metrics.totalCustomers ? metrics.totalCustomers.trend : 0,
+      trendText: metrics.totalCustomers ? metrics.totalCustomers.trendText : '',
       iconBg: "bg-purple-50",
     },
     {
       title: "Total Product Delivered",
       value: metrics.totalDelivered,
       icon: <Package className="h-6 w-6 text-emerald-500" />,
-      trend: metrics.totalDelivered.trend,
-      trendText: metrics.totalDelivered.trendText,
+      trend: metrics.totalDelivered ? metrics.totalDelivered.trend : 0,
+      trendText: metrics.totalDelivered ? metrics.totalDelivered.trendText : '',
       iconBg: "bg-emerald-50",
     },
     {
       title: "Order In-Transit",
-      value: metrics.ordersInTransit.value,
+      value: metrics.ordersInTransit ? metrics.ordersInTransit.value : 0,
       icon: <Truck className="h-6 w-6 text-blue-500" />,
-      trend: metrics.ordersInTransit.trend,
-      trendText: metrics.ordersInTransit.trendText,
+      trend: metrics.ordersInTransit ? metrics.ordersInTransit.trend : 0,
+      trendText: metrics.ordersInTransit ? metrics.ordersInTransit.trendText : '',
       iconBg: "bg-blue-50",
     },
     {
@@ -55,9 +55,8 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
           </div>
           <div className="mt-4 flex items-center gap-2">
             <span
-              className={`text-sm font-medium ${
-                card.trend > 0 ? "text-emerald-600" : "text-red-600"
-              }`}
+              className={`text-sm font-medium ${card.trend > 0 ? "text-emerald-600" : "text-red-600"
+                }`}
             >
               {card.trend > 0 ? "+" : ""}
               {card.trend}%

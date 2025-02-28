@@ -28,7 +28,7 @@ export function EditPromotionDialog({
         <DialogHeader>
           <DialogTitle>Edit Promotion</DialogTitle>
         </DialogHeader>
-        <PromotionForm promotion={promotion} onSubmit={onSubmit} />
+        <PromotionForm promotion={promotion} onSubmit={onSubmit as any} />
       </DialogContent>
     </Dialog>
   );
