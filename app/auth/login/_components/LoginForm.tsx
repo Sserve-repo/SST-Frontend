@@ -93,7 +93,6 @@ export default function LoginForm() {
 
       const responseData = await response?.json();
       if (responseData?.status && responseData?.status_code === 200) {
-
         setAuth(true, responseData.data.user || null, responseData.token);
 
         const {
