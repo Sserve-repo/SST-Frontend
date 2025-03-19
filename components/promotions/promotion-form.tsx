@@ -51,14 +51,6 @@ interface PromotionFormProps {
   ) => void;
 }
 
-// Sample services - In a real app, this would come from an API
-const services = [
-  { id: "all", name: "All Services" },
-  { id: "1", name: "Haircut & Styling" },
-  { id: "2", name: "Hair Coloring" },
-  { id: "3", name: "Manicure" },
-  { id: "4", name: "Pedicure" },
-];
 
 export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -157,40 +149,6 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="serviceId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Apply to Service</FormLabel>
-              <Select
-                onValueChange={(value) => {
-                  const service = services.find((s) => s.id === value);
-                  if (service) {
-                    field.onChange(value);
-                    form.setValue("serviceName", service.name);
-                  }
-                }}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select service" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service.id} value={service.id}>
-                      {service.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="grid gap-4 md:grid-cols-2">
           <FormField

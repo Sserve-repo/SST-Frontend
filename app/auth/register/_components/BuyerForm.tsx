@@ -141,7 +141,7 @@ export function BuyerForm({ onBack }: BuyerFormProps) {
                 expires: 10 / 24,
               });
 
-              setAuth(true, res.data.user || null);
+              setAuth(true, res.data.user || null, res.token);
               toast.success(res.message || "Account created successfully!");
 
               handleNextStep();

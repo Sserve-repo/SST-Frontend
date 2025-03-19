@@ -181,7 +181,7 @@ export default function ProfileSetting() {
       const responseData = await response.json();
 
       if (response.ok || response.status === 200) {
-        setAuth(true, responseData.data["User Details"]);
+        setAuth(true, responseData.data["User Details"], responseData?.token);
         toast.success("Profile Updated Successfully");
         router.push("/dashboard");
       } else {

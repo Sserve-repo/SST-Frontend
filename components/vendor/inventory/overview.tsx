@@ -2,12 +2,12 @@
 
 import { Archive, Package, ShoppingBag, Tags } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect } from "react";
 
 const overviewCards = [
   {
     title: "Total Products",
     value: "2,345",
-    description: "+180 from last month",
     icon: Package,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
@@ -15,7 +15,6 @@ const overviewCards = [
   {
     title: "Published",
     value: "1,890",
-    description: "Active listings",
     icon: ShoppingBag,
     color: "text-green-500",
     bgColor: "bg-green-50",
@@ -23,7 +22,6 @@ const overviewCards = [
   {
     title: "Drafts",
     value: "455",
-    description: "Pending review",
     icon: Archive,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50",
@@ -31,7 +29,6 @@ const overviewCards = [
   {
     title: "Categories",
     value: "45",
-    description: "Across 6 departments",
     icon: Tags,
     color: "text-purple-500",
     bgColor: "bg-purple-50",
@@ -39,6 +36,12 @@ const overviewCards = [
 ];
 
 export function InventoryOverview() {
+  const handleInventoryAnalytics = async () => {}
+  ;
+
+  useEffect(() => {
+    handleInventoryAnalytics();
+  }, []);
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {overviewCards.map((card) => (
@@ -51,7 +54,6 @@ export function InventoryOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{card.value}</div>
-            <p className="text-xs text-muted-foreground">{card.description}</p>
           </CardContent>
         </Card>
       ))}

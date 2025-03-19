@@ -28,26 +28,28 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { getUserType } from "@/config/utils";
 
 export default function Header() {
   const [isModalOpen, setModalOpen] = useState(false);
   const [productsMenu, setProductsMenu] = useState<any[]>([]);
   const [servicesMenu, setServicesMenu] = useState<any[]>([]);
   const router = useRouter();
-  const { setAuth, isAuthenticated } = useAuth();
+  const { setAuth, isAuthenticated, currentUser } = useAuth();
 
   const handleOpenRole = () => {
     if (!isAuthenticated) {
       setModalOpen(!isModalOpen);
     } else {
-      router.push("/dashboard");
+      const type = getUserType(currentUser.user_type);
+      router.push(`/${type}/dashboard`);
     }
   };
 
   const handleAuth = () => {
     if (isAuthenticated) {
       Cookies.remove("accessToken");
-      setAuth(false, "");
+      setAuth(false, "", null);
     } else {
       router.push("/auth/login");
     }

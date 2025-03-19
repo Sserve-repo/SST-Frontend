@@ -11,13 +11,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Cookies from "js-cookie";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatErrors } from "@/config/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getUserDetails, loginUser, resendOtp } from "@/actions/auth";
+import { loginUser, resendOtp } from "@/actions/auth";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
@@ -88,32 +87,25 @@ export default function LoginForm() {
       requestPayload.append("password", data.password);
 
       const response = await loginUser(requestPayload);
-      if (response) {
-        const userRes = await getUserDetails(data.email);
-        localStorage.setItem("email", JSON.stringify(response.data.user.email));
+      if (!response?.ok) {
+        throw Error("Email or password incorrect");
+      }
 
-        // Set the cookie to expire in 10 hours
-        Cookies.set("accessToken", response.token, {
-          path: "/",
-          secure: true,
-          sameSite: "Strict",
-          expires: 10 / 24,
-        });
-        setAuth(true, response.data.user || null);
+      const responseData = await response?.json();
+      if (responseData?.status && responseData?.status_code === 200) {
+
+        setAuth(true, responseData.data.user || null, responseData.token);
 
         const {
           registration_status,
           is_completed,
           user_type,
           verified_status,
-        } = userRes.data["User Details"];
-        const type = getUserType(user_type);
+        } = responseData?.data?.user;
 
+        const type = getUserType(user_type);
+        console.log({ responseData });
         if (parseInt(is_completed) == 1) {
-          localStorage.setItem(
-            "email",
-            JSON.stringify(response.data.user.email)
-          );
           toast.success("Login successful! Redirecting...");
           if (redirect) {
             router.push(`/${redirect}`);
@@ -123,27 +115,39 @@ export default function LoginForm() {
             return;
           }
         }
-        if (!verified_status || parseInt(verified_status) !== 1) {
-          toast.info("Account not verified. Redirecting to verification...");
-          await resendOtp(data.email);
-          router.push(`/auth/register?role=${type}&&step=2`);
-        } else {
+
+        if (parseInt(is_completed) !== 1) {
+          if (!verified_status || parseInt(verified_status) !== 1) {
+            toast.info("Account not verified. Redirecting to verification...");
+            await resendOtp(data.email);
+            router.push(`/auth/register?role=${type}&&step=2`);
+            return;
+          }
+
           let step = parseInt(registration_status.replace("step", ""));
           step = step === 1 ? step + 1 : step + 1;
           router.push(`/auth/register?role=${type}&&step=${step}`);
+          return;
         }
-      } else {
-        if (response?.status_code === 404) {
-          const { message } = response;
+      }
+
+      if (!responseData?.status) {
+        if (responseData.data?.status_code === 404) {
+          const { message } = responseData.data;
           toast.error(message);
+          return;
         }
-        if (response?.status_code === 422) {
-          const { errors } = response.data;
+
+        if (responseData?.data?.status_code === 422) {
+          const { errors } = responseData.data;
           formatErrors(errors, form);
           toast.error("Please fix the form errors and try again.");
-        } else {
-          toast.error(response.message || "An unexpected error occurred.");
+          return;
         }
+
+        toast.error(
+          responseData?.data?.message || "An unexpected error occurred."
+        );
       }
     } catch (error: any) {
       console.error("Login failed", error);
@@ -218,7 +222,11 @@ export default function LoginForm() {
             )}
           />
           <div className="w-full flex justify-end">
-            <Link type="button" href="/auth/forgot-password/" className="text-sm text-primary hover:underline">
+            <Link
+              type="button"
+              href="/auth/forgot-password/"
+              className="text-sm text-primary hover:underline"
+            >
               Forgot password?
             </Link>
           </div>

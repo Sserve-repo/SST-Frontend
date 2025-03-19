@@ -48,7 +48,11 @@ export function ProductPreviewDialog({
           <div className="space-y-4">
             <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
               <img
-                src={product.images[currentImage] || "/placeholder.svg"}
+                src={
+                  product?.images[currentImage] ||
+                  product?.image ||
+                  "/placeholder.svg"
+                }
                 alt={product.name}
                 className="absolute h-full w-full object-cover"
               />
@@ -74,7 +78,7 @@ export function ProductPreviewDialog({
               )}
             </div>
             <div className="flex gap-2 overflow-auto py-1">
-              {product.images.map((image: string, index: number) => (
+              {Array(product?.images).map((image: string, index: number) => (
                 <button
                   key={index}
                   className={cn(
@@ -114,7 +118,7 @@ export function ProductPreviewDialog({
                 <div>
                   <div className="text-sm text-muted-foreground">Price</div>
                   <div className="text-2xl font-bold">
-                    ${product.price.toFixed(2)}
+                    {/* ${product?.price?.toFixed(2)} */}
                   </div>
                 </div>
                 <div className="space-y-1">
@@ -122,8 +126,8 @@ export function ProductPreviewDialog({
                     Stock Level
                   </div>
                   <div className="font-medium">
-                    {product.stock}{" "}
-                    {product.stock <= product.threshold && (
+                    {product?.stock}{" "}
+                    {product?.stock <= product.threshold && (
                       <Badge variant="destructive" className="ml-2">
                         Low Stock
                       </Badge>
@@ -133,7 +137,7 @@ export function ProductPreviewDialog({
                 <div className="space-y-1">
                   <div className="text-sm text-muted-foreground">Category</div>
                   <div className="font-medium">
-                    {product.category} / {product.subCategory}
+                    {product?.category} / {product.subCategory}
                   </div>
                 </div>
                 <div className="space-y-1">

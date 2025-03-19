@@ -6,8 +6,6 @@ import {
   DollarSign,
   ShoppingCart,
   Truck,
-  ArrowUp,
-  ArrowDown,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,17 +14,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useEffect } from "react";
+import { getVendorAnalytics } from "@/actions/dashboard/vendors";
 
 const stats = [
   {
     title: "Total Sales",
-    value: "$45,231",
+    value: "$46,231",
     change: "+20.1%",
     trend: "up",
     icon: TrendingUp,
     color: "text-green-500",
     bgColor: "bg-green-50",
-    description: "Compared to last month",
   },
   {
     title: "Active Listings",
@@ -36,7 +35,6 @@ const stats = [
     icon: Package,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
-    description: "Total active products",
   },
   {
     title: "Revenue",
@@ -46,7 +44,6 @@ const stats = [
     icon: DollarSign,
     color: "text-purple-500",
     bgColor: "bg-purple-50",
-    description: "Current month earnings",
   },
   {
     title: "Pending Orders",
@@ -56,7 +53,6 @@ const stats = [
     icon: ShoppingCart,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50",
-    description: "Awaiting processing",
   },
   {
     title: "Pending Shipments",
@@ -66,11 +62,28 @@ const stats = [
     icon: Truck,
     color: "text-red-500",
     bgColor: "bg-red-50",
-    description: "Ready to ship",
   },
 ];
 
 export function DashboardStats() {
+  // const [analytics, setAnalytics] = useState([]);
+
+  const handleFetchAnalytics = async () => {
+    try {
+      const response = await getVendorAnalytics();
+      if (!response?.ok) {
+        throw Error("Cannot fetch analytics data");
+      }
+      const data = await response.json();
+      console.log({ data });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchAnalytics();
+  }, []);
 
   return (
     <div>
@@ -90,25 +103,6 @@ export function DashboardStats() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{stat.value}</div>
-                    <div className="flex items-center text-xs">
-                      <span
-                        className={`flex items-center ${
-                          stat.trend === "up"
-                            ? "text-green-500"
-                            : "text-red-500"
-                        }`}
-                      >
-                        {stat.trend === "up" ? (
-                          <ArrowUp className="mr-1 h-3 w-3" />
-                        ) : (
-                          <ArrowDown className="mr-1 h-3 w-3" />
-                        )}
-                        {stat.change}
-                      </span>
-                      <span className="ml-2 text-muted-foreground">
-                        {stat.description}
-                      </span>
-                    </div>
                   </CardContent>
                 </Card>
               </TooltipTrigger>

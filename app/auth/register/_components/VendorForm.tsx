@@ -426,7 +426,7 @@ export function VendorForm({ onBack, registrationStep }: VendorFormProps) {
                 sameSite: "Strict",
                 expires: 10 / 24,
               });
-              setAuth(true, res.data.user || null);
+              setAuth(true, res.data.user || null, res?.token);
 
               toast.success(res.message);
               setCompletedUserRegistration(true);

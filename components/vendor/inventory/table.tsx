@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -43,6 +43,7 @@ import { EditProductDialog } from "./edit-product-dialog";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { ProductPreviewDialog } from "./product-preview-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInventoryItems } from "@/actions/dashboard/vendors";
 
 interface Product {
   id: string;
@@ -60,39 +61,6 @@ interface Product {
   shippingCost: number;
 }
 
-const data: Product[] = [
-  {
-    id: "1",
-    name: "Wireless Earbuds Pro",
-    sku: "WE-001",
-    category: "Electronics",
-    subCategory: "Audio",
-    price: 99.99,
-    stock: 5,
-    threshold: 10,
-    status: "published",
-    lastUpdated: "2024-02-24",
-    description: "Premium wireless earbuds with noise cancellation",
-    images: ["/placeholder.svg", "/placeholder.svg"],
-    shippingCost: 5.99,
-  },
-  {
-    id: "2",
-    name: "Smart Watch Elite",
-    sku: "SW-002",
-    category: "Electronics",
-    subCategory: "Wearables",
-    price: 199.99,
-    stock: 25,
-    threshold: 15,
-    status: "draft",
-    lastUpdated: "2024-02-23",
-    description: "Advanced smartwatch with health tracking",
-    images: ["/placeholder.svg"],
-    shippingCost: 7.99,
-  },
-];
-
 export function InventoryTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -101,6 +69,7 @@ export function InventoryTable() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+  const [inventoryItems, setInventoryItems] = useState<Product[] | []>([]);
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -193,8 +162,54 @@ export function InventoryTable() {
     },
   ];
 
+  const handleFetchInventoryItems = async () => {
+    try {
+      const response = await getInventoryItems();
+
+      if (!response?.ok) {
+        throw new Error("Cannot fetch analytics data");
+      }
+
+      const data = await response.json();
+      console.log({ data });
+
+      // Check if productListing exists
+      if (
+        !data?.data.productListing ||
+        !Array.isArray(data.data.productListing)
+      ) {
+        throw new Error("Invalid product listing data");
+      }
+
+      // Transform the fetched items properly
+      const transformedItems = data.data.productListing.map((item) => ({
+        id: item?.id || "N/A",
+        name: item?.title || "Unnamed Product",
+        sku: `SKU-${parseInt(item?.id) * 1000}` || "UNKNOWN-SKU",
+        category: item?.category?.name || "Misc",
+        subCategory: item?.subCategory?.name || "General",
+        price: item?.price || 0.0,
+        stock: item?.stock || 0,
+        threshold: item?.threshold || 5,
+        status: item?.status || "draft",
+        lastUpdated:
+          item?.lastUpdated || new Date().toISOString().split("T")[0],
+        description: item?.description || "No description available",
+        images: item.images?.length
+          ? item.images
+          : item.image || ["/placeholder.svg"],
+        image: item.image || ["/placeholder.svg"],
+        shippingCost: item?.shippingCost || 0.0,
+      }));
+
+      setInventoryItems(transformedItems);
+    } catch (error) {
+      console.error("Error fetching inventory items:", error);
+    }
+  };
+
   const table = useReactTable({
-    data,
+    data: inventoryItems,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -211,6 +226,11 @@ export function InventoryTable() {
       rowSelection,
     },
   });
+
+  useEffect(() => {
+    handleFetchInventoryItems();
+    console.log({ inventoryItems });
+  }, [inventoryItems]);
 
   return (
     <div className="space-y-4">

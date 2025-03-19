@@ -7,7 +7,6 @@ const overviewCards = [
   {
     title: "Total Orders",
     value: "1,234",
-    description: "+180 this month",
     icon: ShoppingCart,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
@@ -15,7 +14,6 @@ const overviewCards = [
   {
     title: "Total Revenue",
     value: "$45,231",
-    description: "+20.1% from last month",
     icon: DollarSign,
     color: "text-green-500",
     bgColor: "bg-green-50",
@@ -23,7 +21,6 @@ const overviewCards = [
   {
     title: "Pending Shipments",
     value: "23",
-    description: "12 awaiting processing",
     icon: Package,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50",
@@ -31,7 +28,6 @@ const overviewCards = [
   {
     title: "Average Order Value",
     value: "$123",
-    description: "+5% from last month",
     icon: TrendingUp,
     color: "text-purple-500",
     bgColor: "bg-purple-50",
@@ -51,7 +47,6 @@ export function OrdersOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{card.value}</div>
-            <p className="text-xs text-muted-foreground">{card.description}</p>
           </CardContent>
         </Card>
       ))}

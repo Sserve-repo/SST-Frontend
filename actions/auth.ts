@@ -1,17 +1,14 @@
 import { baseUrl } from "../config/constant";
 import Cookies from "js-cookie";
 
-
 export const isAuthenticated = async () => {
-  const token = Cookies.get("accessToken")
+  const token = Cookies.get("accessToken");
   try {
-    const response = await fetch(
-      `${baseUrl}/general/user/getUserDetails/`, {
+    const response = await fetch(`${baseUrl}/general/user/getUserDetails/`, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-    );
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data = await response.json();
     if (response.ok && response.status === 200) {
       return data;
@@ -40,12 +37,13 @@ export const getLoggedInUserDetails = async () => {
     const token = Cookies.get("accessToken");
     if (!token) return;
     const response = await fetch(
-      `${baseUrl}/shopper/dashboard/getUserProfile`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+      `${baseUrl}/shopper/dashboard/getUserProfile`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     const res = await response.json();
     if (response.ok && response.status === 200) {
@@ -77,13 +75,7 @@ export const loginUser = async (requestPayload: any) => {
       method: "POST",
       body: requestPayload,
     });
-    const data = await response.json()
-    if (response.ok) {
-      return data;
-    }
-    if (response.status === 404) {
-      console.error(data.message || "Invalid email or password.");
-    }
+    return response;
   } catch (error: any) {
     console.log("Login failed", error);
   }

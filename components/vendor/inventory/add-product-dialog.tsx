@@ -51,6 +51,15 @@ import { cn } from "@/lib/utils";
 //   "image/webp",
 // ];
 
+// Sample services - In a real app, this would come from an API
+const services = [
+  { id: "all", name: "All Services" },
+  { id: "1", name: "Haircut & Styling" },
+  { id: "2", name: "Hair Coloring" },
+  { id: "3", name: "Manicure" },
+  { id: "4", name: "Pedicure" },
+];
+
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Product name must be at least 2 characters.",
@@ -61,6 +70,11 @@ const formSchema = z.object({
   subCategory: z.string().min(1, {
     message: "Sub-category is required.",
   }),
+  serviceId: z.string().min(1, {
+    message: "Sub-category is required.",
+  }),
+  serviceName: z.string(),
+
   price: z.string().min(1, {
     message: "Price is required.",
   }),
@@ -94,6 +108,7 @@ export function AddProductDialog({
 }: AddProductDialogProps) {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [applyDiscount, setApplyDiscount] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -105,6 +120,7 @@ export function AddProductDialog({
       shippingCost: "",
       stock: "",
       description: "",
+      serviceName: "",
       applyDiscount: false,
       status: "draft",
     },
@@ -368,18 +384,57 @@ export function AddProductDialog({
                 name="applyDiscount"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Apply discount to this product</FormLabel>
-                    </div>
-                  </FormItem>
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                        setApplyDiscount(true);
+                      }}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Apply discount to this product</FormLabel>
+                  </div>
+                </FormItem>
+                
                 )}
               />
+
+              {applyDiscount && (
+                <FormField
+                  control={form.control}
+                  name="serviceId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        onValueChange={(value) => {
+                          const service = services.find((s) => s.id === value);
+                          if (service) {
+                            field.onChange(value);
+                            form.setValue("serviceName", service.name);
+                          }
+                        }}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select service" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {services.map((service) => (
+                            <SelectItem key={service.id} value={service.id}>
+                              {service.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
             <div className="flex items-center justify-end gap-4">
               <Button
