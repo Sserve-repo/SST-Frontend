@@ -17,7 +17,7 @@ export default function OrdersPage() {
           </Suspense>
         </div>
         <div className="md:col-span-3">
-          <SalesAnalytics />
+          <SalesAnalytics  analytics={{}} />
         </div>
       </div>
     </div>
