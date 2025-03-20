@@ -23,14 +23,6 @@ const revenueData = [
   { month: "Jun", revenue: 2390 },
 ];
 
-const topProducts = [
-  { name: "Wireless Earbuds", sales: 400 },
-  { name: "Smart Watch", sales: 300 },
-  { name: "Bluetooth Speaker", sales: 200 },
-  { name: "Phone Case", sales: 150 },
-  { name: "Charger", sales: 100 },
-];
-
 const orderTrends = [
   { date: "Mon", orders: 15 },
   { date: "Tue", orders: 20 },
@@ -41,8 +33,20 @@ const orderTrends = [
   { date: "Sun", orders: 28 },
 ];
 
-export function SalesAnalytics() {
+export function SalesAnalytics({ analytics }) {
+  console.log({ analytics });
+
   const [activeChart, setActiveChart] = useState("revenue");
+  const [trends] = useState<any>({
+    orderTrends: orderTrends,
+    topProducts: analytics?.Analytics?.topProducts?.map((item) => {
+      return {
+        name: item?.product_name,
+        sales: item?.total_sold,
+      };
+    }),
+    revenueData: revenueData,
+  });
 
   return (
     <Card>
@@ -58,7 +62,7 @@ export function SalesAnalytics() {
           </TabsList>
           <TabsContent value="revenue" className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData}>
+              <LineChart data={trends?.revenueData}>
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
@@ -73,7 +77,7 @@ export function SalesAnalytics() {
           </TabsContent>
           <TabsContent value="products" className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topProducts}>
+              <BarChart data={trends?.topProducts}>
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
@@ -83,7 +87,7 @@ export function SalesAnalytics() {
           </TabsContent>
           <TabsContent value="orders" className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={orderTrends}>
+              <LineChart data={trends?.orderTrends}>
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
