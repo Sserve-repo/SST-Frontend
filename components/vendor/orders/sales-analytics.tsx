@@ -14,39 +14,38 @@ import {
   YAxis,
 } from "recharts";
 
-const revenueData = [
-  { month: "Jan", revenue: 4000 },
-  { month: "Feb", revenue: 3000 },
-  { month: "Mar", revenue: 5000 },
-  { month: "Apr", revenue: 2780 },
-  { month: "May", revenue: 1890 },
-  { month: "Jun", revenue: 2390 },
-];
-
-const orderTrends = [
-  { date: "Mon", orders: 15 },
-  { date: "Tue", orders: 20 },
-  { date: "Wed", orders: 25 },
-  { date: "Thu", orders: 18 },
-  { date: "Fri", orders: 30 },
-  { date: "Sat", orders: 35 },
-  { date: "Sun", orders: 28 },
-];
-
 export function SalesAnalytics({ analytics }) {
-  console.log({ analytics });
-
   const [activeChart, setActiveChart] = useState("revenue");
-  const [trends] = useState<any>({
-    orderTrends: orderTrends,
-    topProducts: analytics?.Analytics?.topProducts?.map((item) => {
-      return {
-        name: item?.product_name,
-        sales: item?.total_sold,
-      };
-    }),
-    revenueData: revenueData,
-  });
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const revenueData = analytics?.revenueStats?.map((item) => ({
+    month: monthNames[item.month - 1],
+    revenue: parseFloat(item.total_revenue),
+  }));
+
+  const orderTrends = analytics?.orderTrends?.map((item) => ({
+    date: monthNames[item.month - 1],
+    orders: item.total_orders,
+  }));
+
+  const topProducts = analytics?.topProducts?.map((item) => ({
+    date: monthNames[item.month - 1],
+    name: item?.product_name,
+    sales: item?.total_sold,
+  }));
 
   return (
     <Card>
@@ -62,7 +61,7 @@ export function SalesAnalytics({ analytics }) {
           </TabsList>
           <TabsContent value="revenue" className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trends?.revenueData}>
+              <LineChart data={revenueData}>
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
@@ -77,7 +76,7 @@ export function SalesAnalytics({ analytics }) {
           </TabsContent>
           <TabsContent value="products" className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trends?.topProducts}>
+              <BarChart data={topProducts}>
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
@@ -87,7 +86,7 @@ export function SalesAnalytics({ analytics }) {
           </TabsContent>
           <TabsContent value="orders" className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trends?.orderTrends}>
+              <LineChart data={orderTrends}>
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />

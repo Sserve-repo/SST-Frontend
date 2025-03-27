@@ -37,102 +37,6 @@ export const getInventoryItems = async () => {
   }
 };
 
-
-
-export const getProductCategories = async () => {
-  try {
-    const response = await fetch(`${baseUrl}/general/products/getCategory`);
-    return response;
-  } catch (error: any) {
-    console.log("Form validation failed", error);
-  }
-};
-
-export const getProductCategoryItemsById = async (catId) => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/general/products/getCategoryItemsByProductCategoryId/${catId}`
-    );
-    return response;
-  } catch (error: any) {
-    console.log("Form validation failed", error);
-  }
-};
-
-export const getProductRegions = async () => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/general/products/getProductRegion`
-    );
-    return response;
-  } catch (error: any) {
-    console.log("Form validation failed", error);
-  }
-};
-
-export const createBusinessProfile = async (requestPayload: any) => {
-  try {
-    const response = await fetch(
-      `${baseUrl}/vendor/auth/registerBusinessDetails`,
-      {
-        method: "POST",
-        body: requestPayload,
-      }
-    );
-    return response;
-  } catch (error: any) {
-    console.log("Registration failed", error);
-  }
-};
-
-export const createVendorIdentity = async (requestPayload: any) => {
-  try {
-    const response = await fetch(`${baseUrl}/vendor/auth/vendorIdentity`, {
-      method: "POST",
-      body: requestPayload,
-    });
-    return response;
-  } catch (error: any) {
-    console.log("Vendor identity creation failed", error);
-  }
-};
-
-export const createShippingPolicy = async (requestPayload: any) => {
-  try {
-    const response = await fetch(`${baseUrl}/vendor/auth/shippingPolicy`, {
-      method: "POST",
-      body: requestPayload,
-    });
-    return response;
-  } catch (error: any) {
-    console.log("Vendor identity creation failed", error);
-  }
-};
-
-export const createPaymentPreference = async (requestPayload: any) => {
-  try {
-    const response = await fetch(`${baseUrl}/vendor/auth/paymentPreference`, {
-      method: "POST",
-      body: requestPayload,
-    });
-    return response;
-  } catch (error: any) {
-    console.log("Payment preference creation failed", error);
-  }
-};
-
-export const createBilling = async (requestPayload: any) => {
-  try {
-    const response = await fetch(`${baseUrl}/vendor/auth/billingDetail`, {
-      method: "POST",
-      body: requestPayload,
-    });
-    return response;
-  } catch (error: any) {
-    console.log("Vendor identity creation failed", error);
-  }
-};
-
 export const createProductListing = async (requestPayload: any) => {
   try {
     const response = await fetch(`${baseUrl}/vendor/auth/listingDetail`, {
@@ -145,14 +49,73 @@ export const createProductListing = async (requestPayload: any) => {
   }
 };
 
-export const creatOtp = async (requestPayload: any) => {
+export const getPromotions = async () => {
+  const token = Cookies.get("accessToken");
   try {
-    const response = await fetch(`${baseUrl}/vendor/auth/otpVerification`, {
-      method: "POST",
-      body: requestPayload,
+    const response = await fetch(`${baseUrl}/vendor/dashboard/discount/list`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return response;
   } catch (error: any) {
-    console.log("Otp verification creation failed", error);
+    console.log("Failed ro fetch promotions", error);
+  }
+};
+
+export const createPromotions = async (payload) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/discount/create`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Failed to create promotions", error);
+  }
+};
+
+export const deletePromotions = async (promotionId: any) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/discount/destroy/${promotionId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error  deleting promotions", error);
+  }
+};
+
+
+
+
+export const getOrders = async () => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(`${baseUrl}/vendor/dashboard/orderManagement/list
+`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  } catch (error: any) {
+    console.log("Failed ro fetch promotions", error);
   }
 };

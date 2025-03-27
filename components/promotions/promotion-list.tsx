@@ -63,14 +63,14 @@ export function PromotionList({
                         ? `${promotion.value}%`
                         : `$${promotion.value}`}
                     </p>
-                    <p className="text-sm">
+                    {/* <p className="text-sm">
                       <span className="font-medium">Service:</span>{" "}
                       {promotion.serviceName}
-                    </p>
+                    </p> */}
                     <p className="text-sm">
                       <span className="font-medium">Period:</span>{" "}
-                      {promotion.startDate.toLocaleDateString()} -{" "}
-                      {promotion.endDate.toLocaleDateString()}
+                      {new Date(promotion?.startDate).toLocaleDateString()} -{" "}
+                      {new Date(promotion?.endDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>

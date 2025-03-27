@@ -23,6 +23,7 @@ interface CreatePromotionDialogProps {
 export function CreatePromotionDialog({
   children,
   onSubmit,
+  
 }: CreatePromotionDialogProps) {
   const [open, setOpen] = useState(false);
 
