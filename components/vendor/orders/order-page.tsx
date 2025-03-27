@@ -21,9 +21,9 @@ export default function OrdersPage() {
       }
 
       const data = await response.json();
-      console.log({ data });
+      console.log({ data, orders });
       const { Analytics, Orders, ...Overview } = data.data;
-      setOrders;
+      setOrders(Orders)
       setAnalytics({ ...Analytics });
       setOverview({ ...Overview });
 
@@ -51,7 +51,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     handleFetchOrders();
-  }, []);
+  }, [handleFetchOrders]);
 
   return (
     <div className="space-y-6 p-4">

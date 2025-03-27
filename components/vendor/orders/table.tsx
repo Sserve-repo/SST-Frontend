@@ -146,6 +146,7 @@ export function OrdersTable({ orders }) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  console.log({ orders });
 
   const columns: ColumnDef<Order>[] = [
     {

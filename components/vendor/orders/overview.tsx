@@ -1,6 +1,6 @@
 "use client";
 
-import { DollarSign, Package, ShoppingCart, TrendingUp } from "lucide-react";
+import { DollarSign, Package, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function OrdersOverview({ overview }) {

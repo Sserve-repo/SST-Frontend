@@ -322,7 +322,6 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { Promotion } from "@/types/promotions";
-import { useEffect } from "react";
 
 const formSchema = z.object({
   code: z
