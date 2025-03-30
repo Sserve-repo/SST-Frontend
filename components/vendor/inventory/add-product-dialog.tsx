@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -42,23 +42,17 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  getProductCategories,
+  getProductCategoryItemsById,
+} from "@/actions/vendors";
+import { createProduct, getPromotions } from "@/actions/dashboard/vendors";
+import { Promotion } from "@/types/promotions";
 
-// const MAX_FILE_SIZE = 1024 * 1024 * 25; // 25MB
-// const ACCEPTED_IMAGE_TYPES = [
-//   "image/jpeg",
-//   "image/jpg",
-//   "image/png",
-//   "image/webp",
-// ];
-
-// Sample services - In a real app, this would come from an API
-const services = [
-  { id: "all", name: "All Services" },
-  { id: "1", name: "Haircut & Styling" },
-  { id: "2", name: "Hair Coloring" },
-  { id: "3", name: "Manicure" },
-  { id: "4", name: "Pedicure" },
-];
+type ProductCategory = {
+  id: string;
+  name: string;
+};
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -70,10 +64,9 @@ const formSchema = z.object({
   subCategory: z.string().min(1, {
     message: "Sub-category is required.",
   }),
-  serviceId: z.string().min(1, {
-    message: "Sub-category is required.",
+  discountId: z.string().min(1, {
+    message: "Discount Id is required.",
   }),
-  serviceName: z.string(),
 
   price: z.string().min(1, {
     message: "Price is required.",
@@ -94,13 +87,8 @@ const formSchema = z.object({
 interface AddProductDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  setInventoryItems: any;
 }
-
-const categories = {
-  electronics: ["Smartphones", "Laptops", "Accessories"],
-  clothing: ["Men", "Women", "Kids"],
-  home: ["Furniture", "Decor", "Kitchen"],
-};
 
 export function AddProductDialog({
   open,
@@ -109,6 +97,14 @@ export function AddProductDialog({
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [applyDiscount, setApplyDiscount] = useState(false);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>(
+    []
+  );
+  const [productCategoryItems, setProductCategoryItems] = useState<
+    ProductCategory[]
+  >([]);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -120,7 +116,7 @@ export function AddProductDialog({
       shippingCost: "",
       stock: "",
       description: "",
-      serviceName: "",
+      discountId: "",
       applyDiscount: false,
       status: "draft",
     },
@@ -142,15 +138,108 @@ export function AddProductDialog({
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // Add product logic here
-    console.log({ ...values, images });
-    onOpenChange(false);
-    form.reset();
-    setImages([]);
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      // formData.append("user_email", "");
+      formData.append("title", values.name);
+      formData.append("description", values.description);
+      formData.append("price", values.price);
+      formData.append("stock_level", values.stock);
+      formData.append("shipping_cost", values.shippingCost);
+      formData.append("product_category_id", values.category);
+      formData.append("product_category_items_id", values.subCategory);
+      formData.append("discount_id", values.discountId);
+
+      // Assuming images[0] and images[1] are File objects from an input element
+      images.map((image, index) => {
+        formData.append(`images[${index}]`, image.file as any);
+      });
+
+      const response = await createProduct(formData);
+      if (!response?.ok) {
+        setLoading(false);
+        throw Error("Error creating product");
+      }
+   
+      window.location.href = "/vendor/dashboard/inventory";
+      onOpenChange(false);
+      form.reset();
+      setImages([]);
+      setLoading(false);
+    } catch (error: any) {
+      throw Error("Internal server error occured: ", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const selectedCategory = form.watch("category");
+  const handleFetchProductCategory = async () => {
+    const response = await getProductCategories();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductCategories(data.data["Products Category"]);
+    }
+  };
+
+  const handlefetchProductCatItems = async (catId: string) => {
+    const response = await getProductCategoryItemsById(catId);
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductCategoryItems(data.data["Products Category Item By ID"]);
+    }
+  };
+
+  const handleFetchPromotions = async () => {
+    try {
+      const response = await getPromotions();
+      if (!response?.ok) {
+        throw Error("Error fetching promotions");
+      }
+
+      const data = await response.json();
+      console.log({ data });
+
+      const transformedPromotions = data?.data?.productDiscount.map(
+        (pd: {
+          id: any;
+          discount_name: string;
+          discount_type: string;
+          discount_value: any;
+          start_date: any;
+          end_date: any;
+          status: string;
+          usage_limit: any;
+          description: any;
+        }) => {
+          return {
+            id: pd.id,
+            code: pd?.discount_name?.toUpperCase(),
+            type: pd?.discount_type?.toLowerCase(),
+            value: pd.discount_value,
+            serviceName: pd.discount_name,
+            startDate: pd.start_date,
+            endDate: pd.end_date,
+            status: pd?.status?.toLowerCase(),
+            usageLimit: pd?.usage_limit,
+            usageCount: pd?.usage_limit,
+            description: pd.description,
+          };
+        }
+      );
+
+      setPromotions(transformedPromotions || []);
+    } catch (error) {
+      console.error("internal server error occured.", error);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchProductCategory();
+    handleFetchPromotions();
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -186,8 +275,12 @@ export function AddProductDialog({
                     <FormItem>
                       <FormLabel>Product Category</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          handlefetchProductCatItems(value);
+                        }}
+                        // defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -195,12 +288,17 @@ export function AddProductDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.keys(categories).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category.charAt(0).toUpperCase() +
-                                category.slice(1)}
-                            </SelectItem>
-                          ))}
+                          {productCategories.map((item, index) => {
+                            return (
+                              <SelectItem
+                                key={index}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
+                              >
+                                {item.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -223,17 +321,17 @@ export function AddProductDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {selectedCategory &&
-                            categories[
-                              selectedCategory as keyof typeof categories
-                            ].map((subCategory) => (
+                          {productCategoryItems.map((item, index) => {
+                            return (
                               <SelectItem
-                                key={subCategory}
-                                value={subCategory.toLowerCase()}
+                                key={index}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
                               >
-                                {subCategory}
+                                {item.name}
                               </SelectItem>
-                            ))}
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -384,37 +482,30 @@ export function AddProductDialog({
                 name="applyDiscount"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={(checked) => {
-                        field.onChange(checked);
-                        setApplyDiscount(true);
-                      }}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Apply discount to this product</FormLabel>
-                  </div>
-                </FormItem>
-                
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          setApplyDiscount(true);
+                        }}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Apply discount to this product</FormLabel>
+                    </div>
+                  </FormItem>
                 )}
               />
 
               {applyDiscount && (
                 <FormField
                   control={form.control}
-                  name="serviceId"
+                  name="discountId"
                   render={({ field }) => (
                     <FormItem>
                       <Select
-                        onValueChange={(value) => {
-                          const service = services.find((s) => s.id === value);
-                          if (service) {
-                            field.onChange(value);
-                            form.setValue("serviceName", service.name);
-                          }
-                        }}
+                        onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
@@ -423,9 +514,12 @@ export function AddProductDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {services.map((service) => (
-                            <SelectItem key={service.id} value={service.id}>
-                              {service.name}
+                          {promotions.map((promotion) => (
+                            <SelectItem
+                              key={promotion.id}
+                              value={promotion.id.toString()}
+                            >
+                              {promotion.code}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -502,7 +596,7 @@ export function AddProductDialog({
                 type="submit"
                 className="bg-purple-600 hover:bg-purple-700"
               >
-                Create Product
+                {loading ? "Submitting..." : "Create Product"}
               </Button>
             </div>
           </form>

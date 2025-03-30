@@ -14,7 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import type { OverviewType } from "@/types/dashboard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export default function DashboardPage() {
+export default function BuyerPage() {
   const [tab, setTab] = useState("products");
   const [overviewData, setOverviewData] = useState<OverviewType | null>(null);
   const { currentUser } = useAuth();

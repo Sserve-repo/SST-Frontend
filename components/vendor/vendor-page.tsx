@@ -18,6 +18,7 @@ import {
 
 export default function VendorPage() {
   const [analytics, setAnalytics] = useState<any>({});
+  const [statistics, setStatistics] = useState<any>([]);
 
   const handleFetchAnalytics = async () => {
     try {
@@ -64,7 +65,10 @@ export default function VendorPage() {
           bgColor: "bg-red-50",
         },
       ];
-      setAnalytics({ ...data.data, stats: transformedAnalytics });
+
+      const { Analytics } = data.data;
+      setStatistics(transformedAnalytics)
+      setAnalytics(Analytics);
     } catch (error) {
       console.log(error);
     }
@@ -79,7 +83,7 @@ export default function VendorPage() {
       <DashboardHeader />
       <Suspense fallback={<DashboardSkeleton />}>
         <div className="grid gap-6">
-          <DashboardStats analytics={analytics} />
+          <DashboardStats statistics={statistics} />
           <QuickActions />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-9">
             <div className="md:col-span-1 lg:col-span-6">

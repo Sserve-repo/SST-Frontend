@@ -37,11 +37,13 @@ const overviewCards = [
 
 export function InventoryOverview() {
   const handleInventoryAnalytics = async () => {}
-  ;
+
 
   useEffect(() => {
     handleInventoryAnalytics();
   }, []);
+
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {overviewCards.map((card) => (

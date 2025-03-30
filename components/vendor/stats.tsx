@@ -6,11 +6,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export function DashboardStats({ analytics }) {
+export function DashboardStats({ statistics }) {
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-        {analytics?.stats?.map((stat) => (
+        {statistics?.map((stat) => (
           <TooltipProvider key={stat.title}>
             <Tooltip>
               <TooltipTrigger asChild>

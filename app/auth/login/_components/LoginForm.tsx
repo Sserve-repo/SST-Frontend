@@ -92,62 +92,55 @@ export default function LoginForm() {
       }
 
       const responseData = await response?.json();
-      if (responseData?.status && responseData?.status_code === 200) {
-        setAuth(true, responseData.data.user || null, responseData.token);
+      console.log({ responseData });
+      setAuth(true, responseData.data?.user, responseData.token);
 
-        const {
-          registration_status,
-          is_completed,
-          user_type,
-          verified_status,
-        } = responseData?.data?.user;
+      const { registration_status, is_completed, user_type, verified_status } =
+        responseData?.data?.user;
 
-        const type = getUserType(user_type);
-        console.log({ responseData });
-        if (parseInt(is_completed) == 1) {
-          toast.success("Login successful! Redirecting...");
-          if (redirect) {
-            router.push(`/${redirect}`);
-            return;
-          } else {
-            router.push("/");
-            return;
-          }
-        }
-
-        if (parseInt(is_completed) !== 1) {
-          if (!verified_status || parseInt(verified_status) !== 1) {
-            toast.info("Account not verified. Redirecting to verification...");
-            await resendOtp(data.email);
-            router.push(`/auth/register?role=${type}&&step=2`);
-            return;
-          }
-
-          let step = parseInt(registration_status.replace("step", ""));
-          step = step === 1 ? step + 1 : step + 1;
-          router.push(`/auth/register?role=${type}&&step=${step}`);
+      const type = getUserType(user_type);
+      console.log({ responseData });
+      if (parseInt(is_completed) == 1) {
+        toast.success("Login successful! Redirecting...");
+        if (redirect) {
+          router.push(`/${redirect}`);
+          return;
+        } else {
+          router.push("/");
           return;
         }
       }
 
-      if (!responseData?.status) {
-        if (responseData.data?.status_code === 404) {
-          const { message } = responseData.data;
-          toast.error(message);
+      if (parseInt(is_completed) !== 1) {
+        if (!verified_status || parseInt(verified_status) !== 1) {
+          toast.info("Account not verified. Redirecting to verification...");
+          await resendOtp(data.email);
+          router.push(`/auth/register?role=${type}&&step=2`);
           return;
         }
 
-        if (responseData?.data?.status_code === 422) {
-          const { errors } = responseData.data;
-          formatErrors(errors, form);
-          toast.error("Please fix the form errors and try again.");
-          return;
-        }
-
-        toast.error(
-          responseData?.data?.message || "An unexpected error occurred."
-        );
+        let step = parseInt(registration_status.replace("step", ""));
+        step = step === 1 ? step + 1 : step + 1;
+        router.push(`/auth/register?role=${type}&&step=${step}`);
+        return;
       }
+
+      if (responseData?.status_code === 404) {
+        const { message } = responseData.data;
+        toast.error(message);
+        return;
+      }
+
+      if (responseData?.data?.status_code === 422) {
+        const { errors } = responseData.data;
+        formatErrors(errors, form);
+        toast.error("Please fix the form errors and try again.");
+        return;
+      }
+
+      toast.error(
+        responseData?.data?.message || "An unexpected error occurred."
+      );
     } catch (error: any) {
       console.error("Login failed", error);
       toast.error("Something went wrong. Please try again.");

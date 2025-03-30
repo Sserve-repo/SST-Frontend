@@ -51,7 +51,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     handleFetchOrders();
-  }, [handleFetchOrders]);
+  }, []);
 
   return (
     <div className="space-y-6 p-4">

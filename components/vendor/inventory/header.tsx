@@ -12,7 +12,7 @@ import {
 import { AddProductDialog } from "./add-product-dialog";
 import { ImportDialog } from "./import-dialog";
 
-export function InventoryHeader() {
+export function InventoryHeader({ setInventoryItems }) {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showImport, setShowImport] = useState(false);
 
@@ -60,6 +60,7 @@ export function InventoryHeader() {
       <AddProductDialog
         open={showAddProduct}
         onOpenChange={setShowAddProduct}
+        setInventoryItems={setInventoryItems}
       />
       <ImportDialog open={showImport} onOpenChange={setShowImport} />
     </div>

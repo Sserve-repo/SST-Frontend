@@ -32,8 +32,7 @@ export type TransactionType = {
 
 export function TransactionList({ className, overview }: OverviewProps) {
   const router = useRouter();
-  const transaction = overview?.Transactions;
-
+  const transaction = overview?.Transaction;
 
   return (
     <>
@@ -46,7 +45,7 @@ export function TransactionList({ className, overview }: OverviewProps) {
             <p>Recent Transaction Details</p>
             <MdOutlineArrowOutward
               className="ml-auto hover:cursor-pointer"
-              onClick={() => router.push(`/dashboard/orders/`)}
+              onClick={() => router.push(`/buyer/dashboard/orders/`)}
             />
           </CardTitle>
         </CardHeader>
@@ -74,7 +73,7 @@ export function TransactionList({ className, overview }: OverviewProps) {
               </TableHeader>
               <TableBody>
                 {transaction &&
-                  transaction.map((transaction: any) => (
+                  transaction.map((transaction) => (
                     <TableRow
                       key={transaction.id}
                       onClick={() =>

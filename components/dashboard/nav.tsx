@@ -29,7 +29,6 @@ import { useAuth } from "@/context/AuthContext";
 
 const getNavItems = (userType: string) => {
   const baseItems = [
-    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
     { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
   ];
 
@@ -107,10 +106,18 @@ const getNavItems = (userType: string) => {
   ];
 
   const shopperItems = [
-    { title: "Overview", href: "/dashboard", icon: TbChartArcs },
-    { title: "My Orders", href: "/dashboard/my-orders", icon: ShoppingBag },
-    { title: "Saved Items", href: "/dashboard/saved", icon: HiOutlineArchive },
-    { title: "Inbox", href: "/dashboard/inbox", icon: MessageSquare },
+    { title: "Overview", href: "/buyer/dashboard", icon: TbChartArcs },
+    {
+      title: "My Orders",
+      href: "/buyer/dashboard/orders",
+      icon: ShoppingBag,
+    },
+    {
+      title: "Saved Items",
+      href: "/buyer/dashboard/saved",
+      icon: HiOutlineArchive,
+    },
+    { title: "Inbox", href: "/buyer/dashboard/inbox", icon: MessageSquare },
   ];
 
   switch (userType) {
@@ -134,9 +141,9 @@ export function DashboardNav() {
 
   const navItems = getNavItems(currentUser?.user_type);
 
-  const handleLogOut = () => {
+  const handleLogOut =() => {
+    router.push("/");
     logOut();
-    router.push("/auth/login");
   };
 
   useEffect(() => {

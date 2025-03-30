@@ -37,10 +37,14 @@ export const getInventoryItems = async () => {
   }
 };
 
-export const createProductListing = async (requestPayload: any) => {
+export const createProduct = async (requestPayload: any) => {
+  const token = Cookies.get("accessToken");
   try {
-    const response = await fetch(`${baseUrl}/vendor/auth/listingDetail`, {
+    const response = await fetch(`${baseUrl}/vendor/dashboard/productListing/create`, {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: requestPayload,
     });
     return response;
@@ -119,3 +123,6 @@ export const getOrders = async () => {
     console.log("Failed ro fetch promotions", error);
   }
 };
+
+
+

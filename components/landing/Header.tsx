@@ -19,7 +19,6 @@ import CartIcon from "../CartIcon";
 import { useRouter } from "next/navigation";
 import { getProductMenu } from "@/actions/product";
 import { getServicesMenu } from "@/actions/service";
-import Cookies from "js-cookie";
 import { useAuth } from "@/context/AuthContext";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
@@ -35,7 +34,7 @@ export default function Header() {
   const [productsMenu, setProductsMenu] = useState<any[]>([]);
   const [servicesMenu, setServicesMenu] = useState<any[]>([]);
   const router = useRouter();
-  const { setAuth, isAuthenticated, currentUser } = useAuth();
+  const { isAuthenticated, currentUser, logOut } = useAuth();
 
   const handleOpenRole = () => {
     if (!isAuthenticated) {
@@ -47,9 +46,9 @@ export default function Header() {
   };
 
   const handleAuth = () => {
+    console.log({isAuthenticated})
     if (isAuthenticated) {
-      Cookies.remove("accessToken");
-      setAuth(false, "", null);
+      logOut();
     } else {
       router.push("/auth/login");
     }

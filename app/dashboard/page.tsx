@@ -1,9 +1,9 @@
-import DashboardPage from "./_components/Dashboard";
+import BuyerPage from "./_components/Dashboard";
 
 export const metadata = {
-  title: "Dashboard",
+  title: "Buyer | SphereServe",
 };
 
 export default function DashboardWrapper() {
-  return <DashboardPage />;
+  return <BuyerPage />;
 }
