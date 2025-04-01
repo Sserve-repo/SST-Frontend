@@ -10,6 +10,7 @@ import { getInventoryItems } from "@/actions/dashboard/vendors";
 
 export default function InventoryPage() {
   const [inventoryItems, setInventoryItems] = useState<Product[] | []>([]);
+  const [overview, setOverview] = useState({});
 
   const handleFetchInventoryItems = async () => {
     try {
@@ -50,6 +51,7 @@ export default function InventoryPage() {
       }));
 
       setInventoryItems(transformedItems);
+      setOverview(data?.data?.topOverview)
     } catch (error) {
       console.error("Error fetching inventory items:", error);
     }
@@ -65,7 +67,7 @@ export default function InventoryPage() {
       <InventoryHeader
         setInventoryItems={setInventoryItems}
       />
-      <InventoryOverview />
+      <InventoryOverview overview={overview}/>
       <Suspense fallback={<InventoryTableSkeleton />}>
         <InventoryTable inventoryItems={inventoryItems} />
       </Suspense>

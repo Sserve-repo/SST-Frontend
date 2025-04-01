@@ -54,35 +54,46 @@ type ProductCategory = {
   name: string;
 };
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Product name must be at least 2 characters.",
-  }),
-  category: z.string().min(1, {
-    message: "Category is required.",
-  }),
-  subCategory: z.string().min(1, {
-    message: "Sub-category is required.",
-  }),
-  discountId: z.string().min(1, {
-    message: "Discount Id is required.",
-  }),
+const formSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: "Product name must be at least 2 characters.",
+    }),
+    category: z.string().min(1, {
+      message: "Category is required.",
+    }),
+    subCategory: z.string().min(1, {
+      message: "Sub-category is required.",
+    }),
+    discountId: z.string().optional(),
 
-  price: z.string().min(1, {
-    message: "Price is required.",
-  }),
-  shippingCost: z.string().min(1, {
-    message: "Shipping cost is required.",
-  }),
-  stock: z.string().min(1, {
-    message: "Stock level is required.",
-  }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }),
-  applyDiscount: z.boolean().default(false),
-  status: z.enum(["draft", "published"]).default("draft"),
-});
+    price: z.string().min(1, {
+      message: "Price is required.",
+    }),
+    shippingCost: z.string().min(1, {
+      message: "Shipping cost is required.",
+    }),
+    stock: z.string().min(1, {
+      message: "Stock level is required.",
+    }),
+    description: z.string().min(10, {
+      message: "Description must be at least 10 characters.",
+    }),
+    applyDiscount: z.boolean().default(false),
+    status: z.enum(["draft", "published"]).default("draft"),
+  })
+  .refine(
+    (data) => {
+      if (data.applyDiscount && !data.discountId) {
+        return false; 
+      }
+      return true;
+    },
+    {
+      message: "Discount Id is required when Apply Discount is selected.",
+      path: ["discountId"],
+    }
+  );
 
 interface AddProductDialogProps {
   open: boolean;
@@ -151,7 +162,7 @@ export function AddProductDialog({
       formData.append("shipping_cost", values.shippingCost);
       formData.append("product_category_id", values.category);
       formData.append("product_category_items_id", values.subCategory);
-      formData.append("discount_id", values.discountId);
+      formData.append("discount_id", values?.discountId as any);
 
       // Assuming images[0] and images[1] are File objects from an input element
       images.map((image, index) => {
@@ -163,7 +174,7 @@ export function AddProductDialog({
         setLoading(false);
         throw Error("Error creating product");
       }
-   
+
       window.location.href = "/vendor/dashboard/inventory";
       onOpenChange(false);
       form.reset();
@@ -237,6 +248,7 @@ export function AddProductDialog({
   };
 
   useEffect(() => {
+    form.register("applyDiscount");
     handleFetchProductCategory();
     handleFetchPromotions();
   }, []);
@@ -487,7 +499,8 @@ export function AddProductDialog({
                         checked={field.value}
                         onCheckedChange={(checked) => {
                           field.onChange(checked);
-                          setApplyDiscount(true);
+                          form.setValue("applyDiscount", checked === true);
+                          setApplyDiscount(checked === true);
                         }}
                       />
                     </FormControl>

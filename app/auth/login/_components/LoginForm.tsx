@@ -99,14 +99,13 @@ export default function LoginForm() {
         responseData?.data?.user;
 
       const type = getUserType(user_type);
-      console.log({ responseData });
       if (parseInt(is_completed) == 1) {
         toast.success("Login successful! Redirecting...");
         if (redirect) {
           router.push(`/${redirect}`);
           return;
         } else {
-          router.push("/");
+          router.push(`/${type}/dashboard`);
           return;
         }
       }
