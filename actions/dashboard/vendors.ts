@@ -40,13 +40,16 @@ export const getInventoryItems = async () => {
 export const createProduct = async (requestPayload: any) => {
   const token = Cookies.get("accessToken");
   try {
-    const response = await fetch(`${baseUrl}/vendor/dashboard/productListing/create`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: requestPayload,
-    });
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/productListing/create`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: requestPayload,
+      }
+    );
     return response;
   } catch (error: any) {
     console.log("Vendor listing detail creation failed", error);
@@ -105,24 +108,39 @@ export const deletePromotions = async (promotionId: any) => {
   }
 };
 
-
-
-
 export const getOrders = async () => {
   const token = Cookies.get("accessToken");
   try {
-    const response = await fetch(`${baseUrl}/vendor/dashboard/orderManagement/list
-`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/orderManagement/list
+`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response;
   } catch (error: any) {
     console.log("Failed ro fetch promotions", error);
   }
 };
 
-
-
+export const getOrderDetails = async (id) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/orderManagement/getOrderItemsList/${id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Failed ro fetch promotions", error);
+  }
+};

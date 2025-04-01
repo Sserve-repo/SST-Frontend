@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -41,6 +41,8 @@ import {
 } from "@/components/ui/select";
 import { OrderPreviewSheet } from "./preview-sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDate } from "@/lib/order-utils";
+import { getOrderDetails } from "@/actions/dashboard/vendors";
 
 interface Order {
   id: string;
@@ -72,82 +74,39 @@ interface Order {
   trackingNumber?: string;
 }
 
-const data: Order[] = [
-  {
-    id: "1",
-    orderNumber: "ORD-2024-001",
-    customer: {
-      name: "John Doe",
-      email: "john@example.com",
-      avatar: "/placeholder.svg",
-    },
-    date: "2024-02-24",
-    total: 234.5,
-    status: "pending",
-    paymentStatus: "paid",
-    items: [
-      {
-        id: "1",
-        name: "Wireless Earbuds Pro",
-        price: 99.99,
-        quantity: 2,
-      },
-      {
-        id: "2",
-        name: "Smart Watch Elite",
-        price: 34.52,
-        quantity: 1,
-      },
-    ],
-    shippingAddress: {
-      line1: "123 Main St",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "USA",
-    },
-    shippingMethod: "Standard Shipping",
-  },
-  {
-    id: "2",
-    orderNumber: "ORD-2024-002",
-    customer: {
-      name: "Jane Smith",
-      email: "jane@example.com",
-      avatar: "/placeholder.svg",
-    },
-    date: "2024-02-23",
-    total: 129.99,
-    status: "shipped",
-    paymentStatus: "paid",
-    items: [
-      {
-        id: "3",
-        name: "Bluetooth Speaker",
-        price: 129.99,
-        quantity: 1,
-      },
-    ],
-    shippingAddress: {
-      line1: "456 Oak Ave",
-      city: "Los Angeles",
-      state: "CA",
-      zipCode: "90001",
-      country: "USA",
-    },
-    shippingMethod: "Express Shipping",
-    trackingNumber: "1Z999AA1234567890",
-  },
-];
-
 export function OrdersTable({ orders }) {
+  const transformedOrders = useMemo(() => {
+    return orders?.map((order) => ({
+      id: order?.id,
+      orderNumber: `ORD-${order?.order_no}`,
+      customer: {
+        name: `${order?.customer?.firstname} ${order?.customer?.lastname}`,
+        email: order?.email,
+        avatar: "/placeholder.svg",
+      },
+      date: order?.created_at,
+      total: order?.total,
+      status: order?.order_status || "pending",
+      paymentStatus: order?.status,
+      items: [],
+      shippingAddress: {
+        line1: "123 Main St",
+        city: "New York",
+        state: "NY",
+        zipCode: "10001",
+        country: "USA",
+      },
+      shippingMethod: "Standard Shipping",
+    }));
+  }, [orders]);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  console.log({ orders });
 
+  console.log({ orders });
   const columns: ColumnDef<Order>[] = [
     {
       accessorKey: "orderNumber",
@@ -155,7 +114,15 @@ export function OrdersTable({ orders }) {
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <div className="font-medium">{row.getValue("orderNumber")}</div>
-          <Badge variant="outline">{row.original.paymentStatus}</Badge>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "paymentStatus",
+      header: "Order Info",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <div className="font-medium">{row.getValue("paymentStatus")}</div>
         </div>
       ),
     },
@@ -167,18 +134,18 @@ export function OrdersTable({ orders }) {
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={customer.avatar} />
+              <AvatarImage src={customer?.avatar} />
               <AvatarFallback>
-                {customer.name
+                {customer?.name
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">{customer.name}</div>
+              <div className="font-medium">{customer?.name}</div>
               <div className="text-sm text-muted-foreground">
-                {customer.email}
+                {customer?.email}
               </div>
             </div>
           </div>
@@ -199,28 +166,11 @@ export function OrdersTable({ orders }) {
       },
     },
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "date",
+      header: "Date",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        return (
-          <Badge
-            variant={
-              status === "delivered"
-                ? "default"
-                : status === "shipped"
-                ? "secondary"
-                : status === "processing"
-                ? "outline"
-                : status === "cancelled"
-                ? "destructive"
-                : "outline"
-            }
-            className="capitalize"
-          >
-            {status}
-          </Badge>
-        );
+        const date = row.getValue("date") as string;
+        return <div className="font-medium">{formatDate(date)}</div>;
       },
     },
     {
@@ -270,7 +220,7 @@ export function OrdersTable({ orders }) {
   ];
 
   const table = useReactTable({
-    data,
+    data: transformedOrders,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -288,6 +238,46 @@ export function OrdersTable({ orders }) {
     },
   });
 
+  const handleFetchOrderDetail = async (id: number) => {
+    const response = await getOrderDetails(id);
+    if (!response?.ok) {
+      throw Error("Error fetching order detail");
+    }
+    const data = await response?.json();
+    console.log({ data });
+
+    const order = data.data["Order Details"];
+    setSelectedOrder({
+      id: order?.id,
+      orderNumber: `ORD-${order?.order_no}`,
+      customer: {
+        name: `${order?.customer?.firstname} ${order?.customer?.lastname}`,
+        email: order?.email,
+        avatar: "/placeholder.svg",
+      },
+      date: order?.created_at,
+      total: order?.total,
+      status: order?.order_status || "pending",
+      paymentStatus: order?.status,
+      items: order?.product_items?.map((item: any) => {
+        return {
+          id: item.id,
+          name: item.product_name,
+          price: item.unit_price,
+          quantity: item.quantity,
+        };
+      }),
+      shippingAddress: {
+        line1: order?.delivery_information?.address,
+        city: order?.delivery_information?.city,
+        zipCode: order?.delivery_information?.postal_code,
+        state: order?.delivery_information?.state || null,
+        country: order?.delivery_information?.country || null,
+      },
+      shippingMethod: "Standard Shipping",
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -303,24 +293,22 @@ export function OrdersTable({ orders }) {
         />
         <Select
           value={
-            (table.getColumn("status")?.getFilterValue() as string) ?? "all"
+            (table?.getColumn("paymentStatus")?.getFilterValue() as string) ??
+            "all"
           }
           onValueChange={(value) =>
             table
-              .getColumn("status")
+              ?.getColumn("paymentStatus")
               ?.setFilterValue(value === "all" ? "" : value)
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder="Filter by paymentStatus" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="shipped">Shipped</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -350,7 +338,9 @@ export function OrdersTable({ orders }) {
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => setSelectedOrder(row.original)}
+                  onClick={() =>
+                    handleFetchOrderDetail(parseInt(row.original.id))
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

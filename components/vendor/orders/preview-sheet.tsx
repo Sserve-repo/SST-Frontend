@@ -66,7 +66,7 @@ export function OrderPreviewSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-scroll">
         <SheetHeader>
           <SheetTitle>Order {order.orderNumber}</SheetTitle>
           <SheetDescription>
@@ -113,18 +113,18 @@ export function OrderPreviewSheet({
                   <div>
                     <div>{item.name}</div>
                     <div className="text-muted-foreground">
-                      Quantity: {item.quantity}
+                      Quantity: {item?.quantity}
                     </div>
                   </div>
                   <div className="font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ${(item?.price * item?.quantity)?.toFixed(2)}
                   </div>
                 </div>
               ))}
               <Separator />
               <div className="flex justify-between font-medium">
                 <div>Total</div>
-                <div>${order.total.toFixed(2)}</div>
+                <div>${order?.total && parseFloat(order?.total)?.toFixed(2)}</div>
               </div>
             </div>
           </div>
