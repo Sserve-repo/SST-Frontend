@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -42,6 +42,11 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { ProductCategory } from "@/types";
+import {
+  getProductCategories,
+  getProductCategoryItemsById,
+} from "@/actions/vendors";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -77,24 +82,35 @@ interface EditProductDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const categories = {
-  electronics: ["Smartphones", "Laptops", "Accessories", "Audio", "Wearables"],
-  clothing: ["Men", "Women", "Kids"],
-  home: ["Furniture", "Decor", "Kitchen"],
-};
-
 export function EditProductDialog({
   product,
   open,
   onOpenChange,
 }: EditProductDialogProps) {
-  const [images, setImages] = useState<{ file: File; preview: string }[]>(
-    product.images.map((url: string) => ({
-      file: new File([], "image"),
-      preview: url,
-    }))
+  console.log({ product });
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>(
+    []
   );
+  const [productCategoryItems, setProductCategoryItems] = useState<
+    ProductCategory[]
+  >([]);
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  const [images, setImages] = useState<{ file: File; preview: string }[]>(
+    Array.isArray(product?.images)
+      ? product.images.map((url: string) => ({
+          file: new File([], "image"), // placeholder file
+          preview: url,
+        }))
+      : typeof product?.images === "string"
+      ? [
+          {
+            file: new File([], "image"),
+            preview: product.images,
+          },
+        ]
+      : []
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -110,6 +126,22 @@ export function EditProductDialog({
       status: product.status,
     },
   });
+
+  const handleFetchProductCategory = async () => {
+    const response = await getProductCategories();
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductCategories(data.data["Products Category"]);
+    }
+  };
+
+  const handlefetchProductCatItems = async (catId: string) => {
+    const response = await getProductCategoryItemsById(catId);
+    if (response && response.ok) {
+      const data = await response.json();
+      setProductCategoryItems(data.data["Products Category Item By ID"]);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -133,7 +165,11 @@ export function EditProductDialog({
     onOpenChange(false);
   }
 
-  const selectedCategory = form.watch("category");
+  // const selectedCategory = form.watch("category");
+
+  useEffect(() => {
+    handleFetchProductCategory();
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -168,8 +204,12 @@ export function EditProductDialog({
                     <FormItem>
                       <FormLabel>Product Category</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          handlefetchProductCatItems(value);
+                        }}
+                        // defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -177,12 +217,17 @@ export function EditProductDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.keys(categories).map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category.charAt(0).toUpperCase() +
-                                category.slice(1)}
-                            </SelectItem>
-                          ))}
+                          {productCategories.map((item, index) => {
+                            return (
+                              <SelectItem
+                                key={index}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
+                              >
+                                {item.name}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -205,17 +250,17 @@ export function EditProductDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {selectedCategory &&
-                            categories[
-                              selectedCategory as keyof typeof categories
-                            ].map((subCategory) => (
+                          {productCategoryItems.map((item, index) => {
+                            return (
                               <SelectItem
-                                key={subCategory}
-                                value={subCategory.toLowerCase()}
+                                key={index}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
                               >
-                                {subCategory}
+                                {item.name}
                               </SelectItem>
-                            ))}
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />

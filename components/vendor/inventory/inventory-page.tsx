@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Suspense, useEffect, useState } from "react";
 import { InventoryHeader } from "./header";
@@ -39,19 +39,19 @@ export default function InventoryPage() {
         price: item?.price || 0.0,
         stock: item?.stock_level || 0,
         threshold: item?.threshold || 5,
-        status: item?.status || "draft",
+        status: item?.status == 0 ? "Pending" : "Approved",
         lastUpdated:
           item?.lastUpdated || new Date().toISOString().split("T")[0],
         description: item?.description || "No description available",
-        images: item.images?.length
-          ? item.images
+        images: item.product_images?.length
+          ? item.product_images
           : item.image || ["/placeholder.svg"],
         image: item.image || ["/placeholder.svg"],
         shippingCost: item?.shippingCost || 0.0,
       }));
 
       setInventoryItems(transformedItems);
-      setOverview(data?.data?.topOverview)
+      setOverview(data?.data?.topOverview);
     } catch (error) {
       console.error("Error fetching inventory items:", error);
     }
@@ -60,14 +60,12 @@ export default function InventoryPage() {
   useEffect(() => {
     handleFetchInventoryItems();
     console.log({ inventoryItems });
-  }, []);
+  }, [inventoryItems]);
 
   return (
     <div className="space-y-6 p-4">
-      <InventoryHeader
-        setInventoryItems={setInventoryItems}
-      />
-      <InventoryOverview overview={overview}/>
+      <InventoryHeader setInventoryItems={setInventoryItems} />
+      <InventoryOverview overview={overview} />
       <Suspense fallback={<InventoryTableSkeleton />}>
         <InventoryTable inventoryItems={inventoryItems} />
       </Suspense>

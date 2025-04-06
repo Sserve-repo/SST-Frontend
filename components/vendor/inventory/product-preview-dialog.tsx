@@ -89,7 +89,7 @@ export function ProductPreviewDialog({
                   onClick={() => setCurrentImage(index)}
                 >
                   <img
-                    src={image || "/placeholder.svg"}
+                    src={image[0] || "/placeholder.svg"}
                     alt={`${product.name} ${index + 1}`}
                     className="h-full w-full object-cover"
                   />
@@ -110,7 +110,7 @@ export function ProductPreviewDialog({
                   }
                   className="capitalize"
                 >
-                  {product.status}
+                  {product.status == 1? "Approved": "Pending"}
                 </Badge>
               </div>
               <Separator className="my-4" />

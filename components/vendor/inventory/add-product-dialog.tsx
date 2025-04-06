@@ -251,7 +251,7 @@ export function AddProductDialog({
     form.register("applyDiscount");
     handleFetchProductCategory();
     handleFetchPromotions();
-  }, []);
+  }, [form]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

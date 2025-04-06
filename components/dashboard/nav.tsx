@@ -45,11 +45,6 @@ const getNavItems = (userType: string) => {
       icon: RiShoppingBag3Line,
     },
     {
-      title: "Customer Reviews",
-      href: "/vendor/dashboard/reviews",
-      icon: Star,
-    },
-    {
       title: "Promotions",
       href: "/vendor/dashboard/promotions",
       icon: Tag,

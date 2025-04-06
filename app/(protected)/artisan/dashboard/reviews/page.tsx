@@ -1,6 +1,6 @@
-import ReviewsPage from "@/components/reviews/reviews-page";
 import React from "react";
 import { Metadata } from "next";
+import ServiceReviewsPage from "@/components/reviews/service-reviews";
 
 export const metadata: Metadata = {
   title: "Reviews | SphereServe",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const Reviews = () => {
   return (
     <>
-      <ReviewsPage />
+      <ServiceReviewsPage />
     </>
   );
 };

@@ -7,8 +7,7 @@ import { ReviewSort } from "@/components/reviews/sort";
 import type { Review } from "@/types/reviews";
 import { useToast } from "@/hooks/use-toast";
 
-export default function ReviewsPage({ product }) {
-  console.log(product);
+export default function ServiceReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([
     {
       id: "1",

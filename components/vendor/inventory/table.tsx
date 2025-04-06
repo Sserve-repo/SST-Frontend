@@ -13,7 +13,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,6 +48,7 @@ import { EditProductDialog } from "./edit-product-dialog";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { ProductPreviewDialog } from "./product-preview-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProductReviewsPreviewSheet } from "./product-review-preview-sheet";
 
 interface Product {
   id: string;
@@ -57,6 +63,7 @@ interface Product {
   lastUpdated: string;
   description: string;
   images: string[];
+  product_images: string[];
   shippingCost: number;
 }
 
@@ -68,6 +75,7 @@ export function InventoryTable({ inventoryItems }) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -120,10 +128,24 @@ export function InventoryTable({ inventoryItems }) {
       },
     },
     {
+      accessorKey: "reviews",
+      header: "Reviews",
+      cell: ({ row }) => {
+        return (
+          <div
+            className=" bg-primary text-white inline-flex justify-center text-center rounded-lg w-12"
+            onClick={() => setSelectedProduct(row.original as any)}
+          >
+            View
+          </div>
+        );
+      },
+    },
+    {
       id: "actions",
+      // header: "Actions",
       cell: ({ row }) => {
         const product = row.original;
-
         return (
           <div className="flex items-center justify-end gap-2">
             <Button
@@ -236,7 +258,6 @@ export function InventoryTable({ inventoryItems }) {
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => setPreviewProduct(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -304,6 +325,14 @@ export function InventoryTable({ inventoryItems }) {
           product={previewProduct}
           open={true}
           onOpenChange={() => setPreviewProduct(null)}
+        />
+      )}
+
+      {selectedProduct && (
+        <ProductReviewsPreviewSheet
+          product={selectedProduct}
+          open={true}
+          onOpenChange={() => setSelectedProduct(null)}
         />
       )}
     </div>

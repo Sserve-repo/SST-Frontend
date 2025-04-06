@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 
 interface SectionProductHeaderProps {
   slug: string;
@@ -53,6 +54,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const [review, setReview] = useState("");
 
   const handleQuantityChange = (change: number) => {
     setQuantity((prev) => Math.max(1, prev + change));
@@ -69,6 +71,10 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     toast.success(`Added ${quantity} ${productName} to cart`);
   };
 
+  const handleSubmitReview = async () => {
+    console.log({ review, rating: 2, userId: 1, productId: 1 });
+  };
+
   console.log(images);
   return (
     <>
@@ -81,18 +87,6 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
               <p className="text-base text-neutral-500">{description}</p>
             </div>
 
-            {/* Reviews and Stars */}
-            <div className="flex items-center gap-1">
-              <ReactStars
-                value={4.7}
-                isEdit={true}
-                size={15}
-                activeColors={["#FFCE50"]}
-              />
-              <span className="text-xs text-neutral-500">
-                ({reviews}k) Reviews
-              </span>
-            </div>
             <div className="flex items-baseline space-x-2">
               <span className="text-3xl font-bold">${price}</span>
               <span className="text-lg text-gray-500 line-through">
@@ -178,6 +172,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
           </div>
           <div className="md:mt-8 mt-16">
             <h2 className="text-2xl font-semibold mb-4">Customer Reviews</h2>
+
             <div className="flex items-center space-x-4 mb-6">
               <div className="flex-1">
                 <div className="flex items-center mb-2">
@@ -212,6 +207,8 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                 ))}
               </div>
             </div>
+
+            {/* Customer review list */}
             <div className="space-y-6">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="border-t pt-6">
@@ -245,6 +242,35 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                   </p>
                 </div>
               ))}
+            </div>
+
+            {/* Add Review */}
+            <div className="flex flex-col  gap-y-2 my-8">
+              <Textarea
+                placeholder="Add your review."
+                onChange={(e) => setReview(e.target.value)}
+              />
+              <div className="flex justify-between gap-y-2 mb-8">
+                <Button
+                  className="w-28"
+                  type="button"
+                  onClick={handleSubmitReview}
+                >
+                  Submit
+                </Button>
+                {/* Reviews and Stars */}
+                <div className="flex items-center gap-1">
+                  <ReactStars
+                    value={4.7}
+                    isEdit={true}
+                    size={22}
+                    activeColors={["#FFCE50"]}
+                  />
+                  <span className="text-xs text-neutral-500">
+                    ({reviews}k) Reviews
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

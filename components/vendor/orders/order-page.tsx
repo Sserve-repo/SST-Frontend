@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { OrdersHeader } from "./header";
 import { OrdersOverview } from "./overview";
 import { OrdersTable } from "./table";
@@ -13,7 +13,7 @@ export default function OrdersPage() {
   const [overview, setOverview] = useState({});
   const [analytics, setAnalytics] = useState({});
 
-  const handleFetchOrders = async () => {
+  const handleFetchOrders = useCallback(async () => {
     try {
       const response = await getOrders();
       if (!response?.ok) {
@@ -23,7 +23,7 @@ export default function OrdersPage() {
       const data = await response.json();
       console.log({ data, orders });
       const { Analytics, Orders, ...Overview } = data.data;
-      setOrders(Orders)
+      setOrders(Orders);
       setAnalytics({ ...Analytics });
       setOverview({ ...Overview });
 
@@ -47,11 +47,11 @@ export default function OrdersPage() {
     } catch (error) {
       console.error("internal server error occured.", error);
     }
-  };
+  }, [orders]);
 
   useEffect(() => {
     handleFetchOrders();
-  }, []);
+  }, [handleFetchOrders]);
 
   return (
     <div className="space-y-6 p-4">
