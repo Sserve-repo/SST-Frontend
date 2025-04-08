@@ -59,8 +59,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     handleFetchInventoryItems();
-    console.log({ inventoryItems });
-  }, [inventoryItems]);
+  }, []);
 
   return (
     <div className="space-y-6 p-4">

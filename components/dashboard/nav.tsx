@@ -74,16 +74,6 @@ const getNavItems = (userType: string) => {
       icon: Calendar,
     },
     {
-      title: "Customer Reviews",
-      href: "/artisan/dashboard/reviews",
-      icon: Star,
-    },
-    {
-      title: "Analytics",
-      href: "/artisan/dashboard/analytics",
-      icon: LineChart,
-    },
-    {
       title: "Promotions",
       href: "/artisan/dashboard/promotions",
       icon: Tag,

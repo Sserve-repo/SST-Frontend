@@ -10,6 +10,88 @@ import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { RatingCard } from "@/components/extras/RatingCard";
+import { useAuth } from "@/context/AuthContext";
+
+const reviewsData = [
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 2,
+  },
+
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 2,
+  },
+
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 5,
+  },
+
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 3,
+  },
+
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 4,
+  },
+];
+
+const reviewRepliesData = [
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 2,
+  },
+
+  {
+    id: "1",
+    avatar: "https://i.pravatar.cc/40?img=",
+    username: "User 1",
+    comment:
+      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
+    rating: 4,
+  },
+];
+
+type ReviewCardProps = {
+  avatar: string;
+  username: string;
+  rating?: number;
+  comment: string;
+  showRating?: boolean;
+};
+
+type ReplyFormProps = {
+  onChange: (val: string) => void;
+  onSubmit: () => void;
+};
 
 interface SectionProductHeaderProps {
   slug: string;
@@ -54,10 +136,38 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { currentUser } = useAuth();
   const [review, setReview] = useState("");
+  const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
+  const [replies, setReplies] = useState({
+    0: [{ text: "Reply 1" }],
+    1: [],
+    2: [],
+  });
+  // const [showReplyFormIndex, setShowReplyFormIndex] = useState(null);
+  const [currentReply, setCurrentReply] = useState("");
 
   const handleQuantityChange = (change: number) => {
     setQuantity((prev) => Math.max(1, prev + change));
+  };
+
+  const handleFetchReviewReplies = (id: number) => {
+    if (activeReplyIndex === id) {
+      setActiveReplyIndex(null); // Toggle off if already selected
+    } else {
+      setActiveReplyIndex(id);
+      // Optionally: fetch replies here
+    }
+  };
+
+  const handleSubmitReply = () => {
+    const payload = {
+      review,
+      userId: currentUser?.id,
+      commment: currentReply,
+      rating: 12,
+    };
+    console.log({ payload });
   };
 
   const handleAddToCart = () => {
@@ -208,70 +318,65 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
               </div>
             </div>
 
-            {/* Customer review list */}
             <div className="space-y-6">
-              {[...Array(3)].map((_, i) => (
+              {reviewsData.map((item, i) => (
                 <div key={i} className="border-t pt-6">
-                  <div className="flex items-center mb-2">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={`https://i.pravatar.cc/40?img=${i + 1}`}
-                      />
-                      <AvatarFallback>U{i + 1}</AvatarFallback>
-                    </Avatar>
-                    <div className="ml-4">
-                      <p className="font-semibold">User {i + 1}</p>
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, j) => (
-                          <Star
-                            key={j}
-                            className={`h-4 w-4 ${
-                              j < 4
-                                ? "text-yellow-400 fill-current"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                  <ReviewCard
+                    avatar={`${item.avatar}${i + 1}`}
+                    username={item.username}
+                    rating={item.rating}
+                    comment={item.comment}
+                  />
+
+                  <div className="flex gap-4 mt-2">
+                    <p
+                      onClick={() => handleFetchReviewReplies(i)}
+                      className="cursor-pointer text-sm text-blue-500"
+                    >
+                      {activeReplyIndex === i ? "Hide Replies" : "See Replies"}
+                    </p>
+                    {/* <p
+                      onClick={() => setShowReplyFormIndex(i)}
+                      className="cursor-pointer text-sm text-blue-500"
+                    >
+                      Add Reply
+                    </p> */}
                   </div>
-                  <p className="text-gray-600">
-                    This chair is amazing! It&apos;s comfortable for long work
-                    sessions and has great lumbar support. The adjustable
-                    features make it perfect for my home office setup.
-                  </p>
+
+                  {/* {showReplyFormIndex === i && (
+                    <ReplyForm
+                      onChange={(val) => setCurrentReply(val)}
+                      onSubmit={() => handleSubmitReply(i)}
+                    />
+                  )} */}
+
+                  {activeReplyIndex === i && (
+                    <div className="mt-4 ml-8 space-y-4">
+                      {replies[i]?.length ? (
+                        reviewRepliesData.map((reply, j) => (
+                          <ReviewCard
+                            key={j}
+                            avatar={`${reply.avatar}${j + 1}`}
+                            username={reply.username}
+                            comment={reply.comment}
+                            showRating={true}
+                          />
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-400">
+                          No replies yet. Be the first to reply.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
 
-            {/* Add Review */}
-            <div className="flex flex-col  gap-y-2 my-8">
-              <Textarea
-                placeholder="Add your review."
-                onChange={(e) => setReview(e.target.value)}
-              />
-              <div className="flex justify-between gap-y-2 mb-8">
-                <Button
-                  className="w-28"
-                  type="button"
-                  onClick={handleSubmitReview}
-                >
-                  Submit
-                </Button>
-                {/* Reviews and Stars */}
-                <div className="flex items-center gap-1">
-                  <ReactStars
-                    value={4.7}
-                    isEdit={true}
-                    size={22}
-                    activeColors={["#FFCE50"]}
-                  />
-                  <span className="text-xs text-neutral-500">
-                    ({reviews}k) Reviews
-                  </span>
-                </div>
-              </div>
-            </div>
+            <ReplyForm
+              onChange={(val) => setCurrentReply(val)}
+              onSubmit={() => handleSubmitReply()}
+            />
           </div>
         </div>
 
@@ -356,7 +461,6 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                 <AvatarImage
                   src={`https://i.pravatar.cc/48?u=${seller.name}`}
                 />
-                {/* <AvatarFallback>{seller?.name?.slice(0, 2)}</AvatarFallback> */}
               </Avatar>
               <div>
                 <p className="font-semibold text-lg hover:underline">
@@ -366,26 +470,60 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                   Owner of{" "}
                   <span className="text-primary">Triple Rock POP Cement </span>
                 </p>
-                {/* <div className="flex items-center">
-                  <HeartIcon className="h-4 w-4 text-orange-400 fill-current" />
-                  <span className="ml-1 text-sm text-gray-600">
-                    Followed
-                  </span>
-                </div> */}
                 <Button className="text-xs px-5 w-48 mt-1" variant={"outline"}>
                   Message Seller
                 </Button>
               </div>
             </div>
-            {/* <div className="mt-2 flex items-center text-sm text-gray-600">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>{seller.location}</span>
-            </div> */}
           </div>
         </div>
       </div>
     </>
   );
 };
+
+const ReviewCard = ({
+  avatar,
+  username,
+  rating,
+  comment,
+  showRating = true,
+}: ReviewCardProps) => (
+  <div className="flex flex-col items-start gap-4">
+    <div className="flex items-start gap-4">
+      <Avatar className="h-10 w-10">
+        <AvatarImage src={avatar} />
+        <AvatarFallback>{username[0]}</AvatarFallback>
+      </Avatar>
+      <div className="flex  flex-col">
+        <p className="font-semibold">{username}</p>
+        {showRating && <RatingCard rating={rating} />}
+      </div>
+    </div>
+    <p className="text-gray-600 mt-1 ">{comment}</p>
+  </div>
+);
+
+const ReplyForm = ({ onChange, onSubmit }: ReplyFormProps) => (
+  <div className="mt-8 flex-col space-y-2">
+    <Textarea
+      placeholder="Write a reply..."
+      onChange={(e) => onChange(e.target.value)}
+    />
+    {/* Reviews and Stars */}
+    <div className="flex items-center gap-1">
+      <span className="text-neutral-500"> Add your ratings</span>
+      <ReactStars
+        value={4.7}
+        isEdit={true}
+        size={15}
+        activeColors={["#FFCE50"]}
+      />
+    </div>
+    <Button className="mt-2" onClick={onSubmit}>
+      Submit
+    </Button>
+  </div>
+);
 
 export default SectionProductHeader;

@@ -22,6 +22,8 @@ import { DeleteServiceDialog } from "./delete-service-dialog";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import type { Service } from "@/types/services";
 import { Card } from "@/components/ui/card";
+import { ProductReviewsPreviewSheet } from "@/components/vendor/inventory/product-review-preview-sheet";
+import { Product } from "@/types";
 
 interface ServiceTableProps {
   services: Service[];
@@ -36,6 +38,7 @@ export function ServiceTable({
 }: ServiceTableProps) {
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   return (
     <>
@@ -46,8 +49,8 @@ export function ServiceTable({
               <TableHead>Service</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Duration</TableHead>
-              <TableHead>Availability</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Review</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -75,19 +78,6 @@ export function ServiceTable({
                 <TableCell>${service.price}</TableCell>
                 <TableCell>{service.duration} mins</TableCell>
                 <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {Object.keys(service.availability).map((day) => (
-                      <Badge
-                        key={day}
-                        variant="secondary"
-                        className="capitalize"
-                      >
-                        {day.slice(0, 3)}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
                   <Badge
                     variant={
                       service.status === "active" ? "default" : "secondary"
@@ -100,6 +90,11 @@ export function ServiceTable({
                   >
                     {service.status}
                   </Badge>
+                </TableCell>
+                <TableCell onClick={() => setSelectedProduct(service as any)}>
+                  <div className="cursor-pointer bg-primary text-white inline-flex justify-center text-center rounded-lg w-12">
+                    View
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -148,6 +143,14 @@ export function ServiceTable({
           setServiceToDelete(null);
         }}
       />
+
+      {selectedProduct && (
+        <ProductReviewsPreviewSheet
+          product={selectedProduct}
+          open={true}
+          onOpenChange={() => setSelectedProduct(null)}
+        />
+      )}
     </>
   );
 }

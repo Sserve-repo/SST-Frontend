@@ -1,4 +1,4 @@
-import PromotionsPage from "@/components/promotions/promotions-page";
+import PromotionsPage from "@/components/artisan/promotions/promotions-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
