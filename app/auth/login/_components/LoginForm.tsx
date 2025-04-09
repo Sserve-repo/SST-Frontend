@@ -48,6 +48,8 @@ export default function LoginForm() {
       ? "buyer"
       : user_type === "4"
       ? "artisan"
+      : user_type === "1"
+      ? "admin"
       : null;
   };
 
