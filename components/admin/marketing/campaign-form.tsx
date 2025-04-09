@@ -47,11 +47,11 @@ export function CampaignForm({ campaign, onSubmit }: CampaignFormProps) {
       startDate: new Date(),
       endDate: new Date(),
     },
-  })
+  } as any)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"

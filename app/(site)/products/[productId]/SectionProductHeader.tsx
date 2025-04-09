@@ -137,14 +137,13 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { currentUser } = useAuth();
-  const [review, setReview] = useState("");
   const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
+  const [review, setReview] = useState("");
   const [replies, setReplies] = useState({
     0: [{ text: "Reply 1" }],
     1: [],
     2: [],
   });
-  // const [showReplyFormIndex, setShowReplyFormIndex] = useState(null);
   const [currentReply, setCurrentReply] = useState("");
 
   const handleQuantityChange = (change: number) => {
@@ -167,6 +166,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
       commment: currentReply,
       rating: 12,
     };
+    handleSubmitReview()
     console.log({ payload });
   };
 
@@ -183,6 +183,8 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
 
   const handleSubmitReview = async () => {
     console.log({ review, rating: 2, userId: 1, productId: 1 });
+    setReplies(replies)
+    setReview(review)
   };
 
   console.log(images);

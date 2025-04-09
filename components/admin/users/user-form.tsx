@@ -32,7 +32,7 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
       role: "shopper",
       status: "active",
     },
-  })
+  } as any)
 
   return (
     <Form {...form}>

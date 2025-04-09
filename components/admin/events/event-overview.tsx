@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, MapPin, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Event } from "@/types/events/events"
+import type { Event } from "@/types/events"
 
 interface EventOverviewProps {
   event: Event

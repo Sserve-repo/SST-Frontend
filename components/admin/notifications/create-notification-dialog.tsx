@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { NotificationForm } from "./notification-form"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 interface CreateNotificationDialogProps {
   children: React.ReactNode

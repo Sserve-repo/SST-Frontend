@@ -14,8 +14,6 @@ import {
   Tag,
   BriefcaseBusiness,
   Calendar,
-  Star,
-  LineChart,
   CalendarClock,
   LayoutDashboard,
   MessageSquareMore,

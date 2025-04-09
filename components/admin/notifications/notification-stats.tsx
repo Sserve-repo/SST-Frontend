@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Bell, Clock, Send, Users } from "lucide-react"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 interface NotificationStatsProps {
   notifications: Notification[]

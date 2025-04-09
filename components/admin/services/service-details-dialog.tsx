@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Check, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Service } from "@/types/services/services"
+import type { Service } from "@/types/services"
 
 interface ServiceDetailsDialogProps {
   service: Service | null

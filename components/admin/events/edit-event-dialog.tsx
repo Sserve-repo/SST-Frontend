@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { EventForm } from "./event-form"
-import type { Event } from "@/types/events/events"
+import type { Event } from "@/types/events"
 
 interface EditEventDialogProps {
   event: Event | null

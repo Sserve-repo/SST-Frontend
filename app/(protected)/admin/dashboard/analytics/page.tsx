@@ -26,6 +26,9 @@ export default function AnalyticsPage() {
       totalOrders: 1234,
       totalUsers: 5678,
       averageOrderValue: 100.89,
+      totalBookings: 0,
+      averageRating: 0,
+      conversionRate: 0
     },
     revenue: {
       total: 124500,
@@ -45,10 +48,10 @@ export default function AnalyticsPage() {
     },
     services: [
       { name: "Hair Styling", revenue: 45000, orders: 450 },
-      { name: "Nail Care", revenue: 30000, orders: 300 },
+      { name: "Nail Car e", revenue: 30000, orders: 300 },
       { name: "Massage", revenue: 25000, orders: 250 },
       { name: "Makeup", revenue: 24500, orders: 234 },
-    ],
+    ] as any,
     engagement: {
       activeUsers: 2345,
       sessionDuration: "12m 30s",
@@ -94,8 +97,8 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <ServiceBreakdown services={analyticsData.services} />
-        <EngagementMetrics data={analyticsData.engagement} />
+        <ServiceBreakdown services={analyticsData.services as any} />
+        <EngagementMetrics data={analyticsData.engagement as any} />
       </div>
     </div>
   )

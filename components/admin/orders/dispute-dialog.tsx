@@ -10,10 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Order } from "@/types/orders/orders"
+// import type { Order } from "@/types/order"
 
 interface DisputeDialogProps {
-  order: Order | null
+  order: any | null
   onOpenChange: (open: boolean) => void
 }
 

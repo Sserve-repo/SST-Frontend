@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 interface DeleteNotificationDialogProps {
   notification: Notification | null

@@ -17,7 +17,7 @@ import { EditEventDialog } from "./edit-event-dialog"
 import { DeleteEventDialog } from "./delete-event-dialog"
 import { MoreHorizontal, Pencil, Trash2, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Event } from "@/types/events/events"
+import type { Event } from "@/types/events"
 
 interface EventTableProps {
   events: Event[]

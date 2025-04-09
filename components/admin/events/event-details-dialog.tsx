@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EventOverview } from "./event-overview"
 import { EventAttendees } from "./event-attendees"
-import type { Event } from "@/types/events/events"
+import type { Event } from "@/types/events"
 
 interface EventDetailsDialogProps {
   event: Event | null

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Clock, CheckCircle, AlertCircle, RefreshCcw } from "lucide-react"
-import type { Order } from "@/types/orders/orders"
+import type { Order } from "@/types/order"
 
 interface OrderStatsProps {
   orders: Order[]

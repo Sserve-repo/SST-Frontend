@@ -3,7 +3,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Users, Clock, Send } from "lucide-react"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 interface NotificationPreviewDialogProps {
   notification: Notification | null

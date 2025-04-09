@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import type { Service } from "@/types/services/services"
+import type { Service } from "@/types/services"
 
 interface DeleteServiceDialogProps {
   service: Service | null

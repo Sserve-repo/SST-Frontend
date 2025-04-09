@@ -17,7 +17,7 @@ import { ServiceDetailsDialog } from "./service-details-dialog"
 import { EditServiceDialog } from "./edit-service-dialog"
 import { DeleteServiceDialog } from "./delete-service-dialog"
 import { cn } from "@/lib/utils"
-import type { Service } from "@/types/services/services"
+import type { Service } from "@/types/services"
 
 interface ServiceTableProps {
   services: Service[]
@@ -34,7 +34,7 @@ export function ServiceTable({ services, selectedIds, onSelectedIdsChange }: Ser
     if (selectedIds.length === services.length) {
       onSelectedIdsChange([])
     } else {
-      onSelectedIdsChange(services.map((service) => service.id))
+      onSelectedIdsChange(services.map((service: any) => service.id))
     }
   }
 
@@ -65,7 +65,7 @@ export function ServiceTable({ services, selectedIds, onSelectedIdsChange }: Ser
             </TableRow>
           </TableHeader>
           <TableBody>
-            {services.map((service) => (
+            {services.map((service: any) => (
               <TableRow key={service.id}>
                 <TableCell>
                   <Checkbox checked={selectedIds.includes(service.id)} onCheckedChange={() => toggleOne(service.id)} />

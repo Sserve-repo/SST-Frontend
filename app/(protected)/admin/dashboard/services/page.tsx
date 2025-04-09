@@ -24,6 +24,8 @@ export default function ServicesPage() {
       featured: true,
       images: ["/placeholder.svg"],
       createdAt: "2024-02-01",
+      duration: 0,
+      availability: {}
     },
     {
       id: "2",
@@ -40,6 +42,8 @@ export default function ServicesPage() {
       featured: false,
       images: ["/placeholder.svg"],
       createdAt: "2024-02-15",
+      duration: 0,
+      availability: {}
     },
     {
       id: "3",
@@ -56,6 +60,8 @@ export default function ServicesPage() {
       featured: false,
       images: ["/placeholder.svg"],
       createdAt: "2024-02-10",
+      duration: 0,
+      availability: {}
     },
   ])
 

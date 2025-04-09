@@ -16,7 +16,7 @@ import { OrderDetailsDialog } from "./order-details-dialog"
 import { RefundDialog } from "./refund-dialog"
 import { DisputeDialog } from "./dispute-dialog"
 import { cn } from "@/lib/utils"
-import type { Order } from "@/types/orders/orders"
+import type { Order } from "@/types/order"
 
 interface OrderTableProps {
   orders: Order[]

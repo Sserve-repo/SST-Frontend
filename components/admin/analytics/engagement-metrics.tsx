@@ -1,9 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Clock, ArrowUpRight, RefreshCw } from "lucide-react"
-import type { EngagementData } from "@/types/analytics"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Clock, ArrowUpRight, RefreshCw } from "lucide-react";
+// import type { EngagementData } from "@/types/analytics"
 
+interface EngagementData {
+  activeUsers: string;
+  sessionDuration: string;
+  bounceRate: string;
+  returnRate: string;
+}
 interface EngagementMetricsProps {
-  data: EngagementData
+  data: EngagementData;
 }
 
 const metrics = [
@@ -35,7 +41,7 @@ const metrics = [
     color: "text-purple-600",
     bgColor: "bg-purple-100",
   },
-]
+];
 
 export function EngagementMetrics({ data }: EngagementMetricsProps) {
   return (
@@ -46,7 +52,10 @@ export function EngagementMetrics({ data }: EngagementMetricsProps) {
       <CardContent>
         <div className="grid gap-4 sm:grid-cols-2">
           {metrics.map((metric) => (
-            <div key={metric.title} className="flex items-center gap-4 rounded-lg border p-4">
+            <div
+              key={metric.title}
+              className="flex items-center gap-4 rounded-lg border p-4"
+            >
               <div className={`rounded-lg p-2 ${metric.bgColor}`}>
                 <metric.icon className={`h-4 w-4 ${metric.color}`} />
               </div>
@@ -59,6 +68,5 @@ export function EngagementMetrics({ data }: EngagementMetricsProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

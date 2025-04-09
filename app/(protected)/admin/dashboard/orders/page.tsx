@@ -4,10 +4,10 @@ import { useState } from "react"
 import { OrderFilters } from "@/components/admin/orders/order-filters"
 import { OrderTable } from "@/components/admin/orders/order-table"
 import { OrderStats } from "@/components/admin/orders/order-stats"
-import type { Order } from "@/types/orders/orders"
+// import type { Order } from "@/types/order"
 
 export default function OrdersPage() {
-  const [orders] = useState<Order[]>([
+  const [orders] = useState<any>([
     {
       id: "ORD001",
       customer: {

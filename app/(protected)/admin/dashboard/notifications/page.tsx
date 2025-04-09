@@ -7,7 +7,7 @@ import { NotificationStats } from "@/components/admin/notifications/notification
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus } from "lucide-react"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 export default function NotificationsPage() {
   const [notifications] = useState<Notification[]>([

@@ -15,8 +15,7 @@ export default function EventsPage() {
     {
       id: "1",
       title: "Advanced Hair Coloring Workshop",
-      description:
-        "Learn advanced techniques in hair coloring from industry experts. This workshop covers the latest trends and methods in hair coloring, including balayage, ombre, and creative color techniques.",
+      description: "Learn advanced techniques in hair coloring from industry experts. This workshop covers the latest trends and methods in hair coloring, including balayage, ombre, and creative color techniques.",
       shortDescription: "Master the art of advanced hair coloring techniques",
       date: new Date("2024-03-15T10:00:00"),
       duration: 180,
@@ -37,12 +36,21 @@ export default function EventsPage() {
       ],
       status: "upcoming",
       image: "/assets/images/image-placeholder.png",
+      endDate: new Date(),
+      type: "",
+      organizer: {
+        id: "",
+        name: "",
+        email: "",
+        avatar: ""
+      },
+      attendees: [],
+      createdAt: ""
     },
     {
       id: "2",
       title: "Business Growth Seminar",
-      description:
-        "A comprehensive seminar focused on growing your beauty business. Learn about marketing, client retention, pricing strategies, and business management specifically tailored for beauty professionals.",
+      description: "A comprehensive seminar focused on growing your beauty business. Learn about marketing, client retention, pricing strategies, and business management specifically tailored for beauty professionals.",
       shortDescription: "Essential strategies for beauty business success",
       date: new Date("2024-03-20T14:00:00"),
       duration: 120,
@@ -63,12 +71,21 @@ export default function EventsPage() {
       ],
       status: "upcoming",
       image: "/assets/images/image-placeholder.png",
+      endDate: new Date(),
+      type: "",
+      organizer: {
+        id: "",
+        name: "",
+        email: "",
+        avatar: ""
+      },
+      attendees: [],
+      createdAt: ""
     },
     {
       id: "3",
       title: "Natural Hair Care Workshop",
-      description:
-        "Explore natural hair care techniques and products. This hands-on workshop focuses on understanding different hair textures, natural treatments, and protective styling.",
+      description: "Explore natural hair care techniques and products. This hands-on workshop focuses on understanding different hair textures, natural treatments, and protective styling.",
       shortDescription: "Master natural hair care and styling",
       date: new Date("2024-04-05T11:00:00"),
       duration: 240,
@@ -89,6 +106,16 @@ export default function EventsPage() {
       ],
       status: "full",
       image: "/assets/images/image-placeholder.png",
+      endDate: new Date(),
+      type: "",
+      organizer: {
+        id: "",
+        name: "",
+        email: "",
+        avatar: ""
+      },
+      attendees: [],
+      createdAt: ""
     },
   ]);
 

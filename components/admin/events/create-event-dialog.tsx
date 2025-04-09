@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { EventForm } from "./event-form"
-import type { Event } from "@/types/events/events"
+import type { Event } from "@/types/events"
 
 interface CreateEventDialogProps {
   children: React.ReactNode

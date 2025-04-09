@@ -49,12 +49,12 @@ export function EventDetailsDialog({ event, onOpenChange, onRegister }: EventDet
             <div className="grid gap-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={event.instructor.image} />
-                  <AvatarFallback>{event.instructor.name[0]}</AvatarFallback>
+                  <AvatarImage src={event?.instructor?.image} />
+                  <AvatarFallback>{event.instructor?.name[0]}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">{event.instructor.name}</p>
-                  <p className="text-sm text-gray-500">{event.instructor.title}</p>
+                  <p className="font-medium">{event.instructor?.name}</p>
+                  <p className="text-sm text-gray-500">{event.instructor?.title}</p>
                 </div>
               </div>
 

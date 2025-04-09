@@ -1,25 +1,48 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
-import { cn } from "@/lib/utils"
-import type { Event } from "@/types/events/events"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import type { Event } from "@/types/events";
 
 const formSchema = z.object({
   title: z.string().min(2).max(100),
   description: z.string().min(10).max(500),
   type: z.enum(["workshop", "webinar", "meetup"]),
-  status: z.enum(["draft", "upcoming", "in_progress", "completed", "cancelled"]),
+  status: z.enum([
+    "draft",
+    "upcoming",
+    "in_progress",
+    "completed",
+    "cancelled",
+  ]),
   date: z.date(),
   endDate: z.date(),
   location: z.enum(["virtual", "in_person", "hybrid"]),
@@ -31,11 +54,11 @@ const formSchema = z.object({
     email: z.string().email(),
     avatar: z.string(),
   }),
-})
+});
 
 interface EventFormProps {
-  event?: Event
-  onSubmit: (data: Omit<Event, "id" | "attendees" | "createdAt">) => void
+  event?: Event;
+  onSubmit: (data: Omit<Event, "id" | "attendees" | "createdAt">) => void;
 }
 
 export function EventForm({ event, onSubmit }: EventFormProps) {
@@ -44,10 +67,15 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
     defaultValues: event || {
       title: "",
       description: "",
+      shortDescription: "",
       type: "workshop",
       status: "draft",
       date: new Date(),
       endDate: new Date(),
+      duration: 60,
+      registered: 0,
+      price: 0,
+      topics: [],
       location: "virtual",
       image: "",
       capacity: 100,
@@ -58,11 +86,11 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
         avatar: "/placeholder.svg",
       },
     },
-  })
+  } as any);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -84,7 +112,11 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter event description" className="min-h-[100px] resize-none" {...field} />
+                <Textarea
+                  placeholder="Enter event description"
+                  className="min-h-[100px] resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -98,7 +130,10 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Event Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
@@ -121,7 +156,10 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Location</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select location" />
@@ -151,9 +189,16 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
                     <FormControl>
                       <Button
                         variant="outline"
-                        className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
                       >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -163,7 +208,10 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date() || (form.watch("endDate") && date > form.watch("endDate"))}
+                      disabled={(date) =>
+                        date < new Date() ||
+                        (form.watch("endDate") && date > form.watch("endDate"))
+                      }
                       initialFocus
                     />
                   </PopoverContent>
@@ -184,9 +232,16 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
                     <FormControl>
                       <Button
                         variant="outline"
-                        className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
                       >
-                        {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
                         <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
@@ -196,7 +251,10 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date() || (form.watch("date") && date < form.watch("date"))}
+                      disabled={(date) =>
+                        date < new Date() ||
+                        (form.watch("date") && date < form.watch("date"))
+                      }
                       initialFocus
                     />
                   </PopoverContent>
@@ -241,10 +299,11 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
         />
 
         <div className="flex justify-end gap-4">
-          <Button type="submit">{event ? "Update Event" : "Create Event"}</Button>
+          <Button type="submit">
+            {event ? "Update Event" : "Create Event"}
+          </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }
-

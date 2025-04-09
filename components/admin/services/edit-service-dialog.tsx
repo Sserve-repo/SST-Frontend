@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ServiceForm } from "./service-form"
-import type { Service } from "@/types/services/services"
+import type { Service } from "@/types/services"
 
 interface EditServiceDialogProps {
   service: Service | null

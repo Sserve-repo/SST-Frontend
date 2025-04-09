@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { exportToCSV } from "@/lib/export";
 import type { DateRange } from "react-day-picker";
-import { AnalyticsData } from "@/types/analytics";
+// import { AnalyticsData } from "@/types/analytics";
 import { DateRangePicker } from "./date-range-picker";
 import { TrafficChart } from "./traffic-chart";
 import { ServiceAnalytics } from "./service-analytics";
@@ -22,7 +22,8 @@ export default function AnalyticsPage() {
   });
 
   // Sample analytics data - In a real app, this would come from an API
-  const analyticsData: AnalyticsData = {
+  // const analyticsData: AnalyticsData = {
+    const analyticsData: any = {
     overview: {
       totalBookings: 156,
       totalRevenue: 7840,

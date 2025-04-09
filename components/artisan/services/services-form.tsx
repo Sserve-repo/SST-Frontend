@@ -49,13 +49,33 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
       availability: {},
       status: "active",
     },
-  })
+  } as any)
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     if (service) {
-      onSubmit({ ...values, id: service.id })
+      onSubmit({
+        ...values, id: service.id,
+        category: "",
+        createdAt: "",
+        featured: false,
+        vendor: {
+          id: "",
+          name: "",
+          email: ""
+        }
+      })
     } else {
-      onSubmit(values)
+      onSubmit({
+        ...values,
+        category: "",
+        createdAt: "",
+        featured: false,
+        vendor: {
+          id: "",
+          name: "",
+          email: ""
+        }
+      })
     }
   }
 

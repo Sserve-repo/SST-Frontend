@@ -1,22 +1,32 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts"
-import type { ServiceData } from "@/types/analytics"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
+import type { ServiceData } from "@/types/analytics";
 
 interface ServiceBreakdownProps {
-  services: ServiceData[]
+  services: ServiceData[];
 }
 
-const COLORS = ["#5D3A8B", "#3B82F6", "#10B981", "#F59E0B"]
+const COLORS = ["#5D3A8B", "#3B82F6", "#10B981", "#F59E0B"];
 
 export function ServiceBreakdown({ services }: ServiceBreakdownProps) {
-  const total = services.reduce((sum, service) => sum + service.revenue, 0)
+  const total = services.reduce(
+    (sum, service: any) => ((sum + service.revenue) as number) || 0,
+    0
+  );
   const data = services.map((service) => ({
     name: service.name,
     value: service.revenue,
-    percentage: ((service.revenue / total) * 100).toFixed(1),
-  }))
+    percentage: ((service.revenue as number || 0 / total) * 100).toFixed(1),
+  }));
 
   return (
     <Card>
@@ -38,7 +48,10 @@ export function ServiceBreakdown({ services }: ServiceBreakdownProps) {
                 label={({ name, percentage }) => `${name} (${percentage}%)`}
               >
                 {data.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -54,6 +67,5 @@ export function ServiceBreakdown({ services }: ServiceBreakdownProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

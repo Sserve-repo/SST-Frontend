@@ -8,10 +8,10 @@ import { CreateCampaignDialog } from "@/components/admin/marketing/create-campai
 import { PerformanceCharts } from "@/components/admin/marketing/performance-charts"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import type { Campaign } from "@/types/marketing"
+// import type { Campaign } from "@/types/marketing"
 
 export default function MarketingPage() {
-  const [campaigns] = useState<Campaign[]>([
+  const [campaigns] = useState<any[]>([
     {
       id: "1",
       name: "Summer Sale 2024",

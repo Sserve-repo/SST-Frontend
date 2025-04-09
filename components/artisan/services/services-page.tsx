@@ -22,6 +22,14 @@ export default function ServicesPage() {
         friday: { start: "09:00", end: "17:00" },
       },
       status: "active",
+      category: "",
+      createdAt: "",
+      featured: false,
+      vendor: {
+        id: "",
+        name: "",
+        email: ""
+      }
     },
     {
       id: "2",
@@ -36,6 +44,14 @@ export default function ServicesPage() {
         saturday: { start: "09:00", end: "17:00" },
       },
       status: "inactive",
+      category: "",
+      createdAt: "",
+      featured: false,
+      vendor: {
+        id: "",
+        name: "",
+        email: ""
+      }
     },
   ]);
 

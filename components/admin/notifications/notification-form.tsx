@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 const formSchema = z.object({
   title: z.string().min(2).max(100),
@@ -51,11 +51,11 @@ export function NotificationForm({ notification, onSubmit }: NotificationFormPro
           targetAudience: [],
           scheduledFor: undefined,
         },
-  })
+  } as any)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"

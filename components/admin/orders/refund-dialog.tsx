@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import type { Order } from "@/types/orders/orders"
+import type { Order } from "@/types/order"
 import { useEffect } from "react" 
 
 interface RefundDialogProps {

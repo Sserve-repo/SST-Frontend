@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Users, Clock, CheckCircle } from "lucide-react"
-import type { Event } from "@/types/events/events"
+import type { Event } from "@/types/events"
 
 interface EventStatsProps {
   events: Event[]

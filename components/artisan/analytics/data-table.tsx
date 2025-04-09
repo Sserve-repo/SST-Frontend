@@ -24,7 +24,7 @@ export function DataTable({ data }: DataTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((service) => (
+        {data.map((service: any) => (
           <TableRow key={service.name}>
             <TableCell>{service.name}</TableCell>
             <TableCell className="text-right">{service.bookings}</TableCell>

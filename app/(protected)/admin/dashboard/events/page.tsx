@@ -1,24 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { EventTable } from "@/components/admin/events/event-table"
-import { EventStats } from "@/components/admin/events/event-stats"
-import { EventFilters } from "@/components/admin/events/event-filters"
-import { CreateEventDialog } from "@/components/admin/events/create-event-dialog"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import type { Event } from "@/types/events/events"
+import { useState } from "react";
+import { EventTable } from "@/components/admin/events/event-table";
+import { EventStats } from "@/components/admin/events/event-stats";
+import { EventFilters } from "@/components/admin/events/event-filters";
+import { CreateEventDialog } from "@/components/admin/events/create-event-dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Event } from "@/types/events";
 
 export default function EventsPage() {
   const [events] = useState<Event[]>([
     {
       id: "1",
       title: "Advanced Web Development Workshop",
-      description: "Learn the latest web development techniques and best practices.",
+      description:
+        "Learn the latest web development techniques and best practices.",
       type: "workshop",
       status: "upcoming",
-      date: "2024-03-15T14:00:00",
-      endDate: "2024-03-15T17:00:00",
+      date: new Date("2024-03-15T14:00:00"),
+      endDate: new Date("2024-03-15T17:00:00"),
       location: "virtual",
       image: "/placeholder.svg",
       capacity: 100,
@@ -45,6 +46,12 @@ export default function EventsPage() {
         },
       ],
       createdAt: "2024-02-01T10:00:00",
+      shortDescription: "",
+      duration: 0,
+      registered: 0,
+      price: 0,
+      instructor: undefined,
+      topics: [],
     },
     {
       id: "2",
@@ -52,8 +59,8 @@ export default function EventsPage() {
       description: "Master the art of digital marketing with industry experts.",
       type: "webinar",
       status: "in_progress",
-      date: "2024-02-26T15:00:00",
-      endDate: "2024-02-26T16:30:00",
+      date: new Date("2024-02-26T15:00:00"),
+      endDate: new Date("2024-02-26T16:30:00"),
       location: "virtual",
       image: "/placeholder.svg",
       capacity: 200,
@@ -73,15 +80,21 @@ export default function EventsPage() {
         },
       ],
       createdAt: "2024-02-10T09:00:00",
+      shortDescription: "",
+      duration: 0,
+      registered: 0,
+      price: 0,
+      topics: [],
     },
     {
       id: "3",
       title: "Community Meetup",
-      description: "Join us for our monthly community meetup and networking session.",
+      description:
+        "Join us for our monthly community meetup and networking session.",
       type: "meetup",
       status: "completed",
-      date: "2024-02-20T18:00:00",
-      endDate: "2024-02-20T20:00:00",
+      date: new Date("2024-02-20T18:00:00"),
+      endDate: new Date("2024-02-20T20:00:00"),
       location: "hybrid",
       image: "/placeholder.svg",
       capacity: 50,
@@ -108,14 +121,21 @@ export default function EventsPage() {
         },
       ],
       createdAt: "2024-02-05T11:00:00",
+      shortDescription: "",
+      duration: 0,
+      registered: 0,
+      price: 0,
+      topics: [],
     },
-  ])
+  ]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary sm:text-3xl">Event Management</h1>
+          <h1 className="text-2xl font-bold text-primary sm:text-3xl">
+            Event Management
+          </h1>
           <p className="text-muted-foreground">Create and manage your events</p>
         </div>
         <CreateEventDialog>
@@ -130,6 +150,5 @@ export default function EventsPage() {
       <EventFilters />
       <EventTable events={events} />
     </div>
-  )
+  );
 }
-

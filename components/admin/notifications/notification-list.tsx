@@ -16,7 +16,7 @@ import { DeleteNotificationDialog } from "./delete-notification-dialog"
 import { NotificationPreviewDialog } from "./notification-preview-dialog"
 import { Clock, Eye, MoreHorizontal, Pencil, Send, Trash2, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Notification } from "@/types/notifications/notifications"
+import type { Notification } from "@/types/notifications"
 
 interface NotificationListProps {
   notifications: Notification[]
