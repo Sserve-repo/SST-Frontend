@@ -19,6 +19,11 @@ import {
   CalendarClock,
   LayoutDashboard,
   MessageSquareMore,
+  Users,
+  Package,
+  LifeBuoy,
+  Megaphone,
+  BarChart2,
 } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
@@ -104,6 +109,50 @@ const getNavItems = (userType: string) => {
     },
     { title: "Inbox", href: "/buyer/dashboard/inbox", icon: MessageSquare },
   ];
+  const adminItems = [
+    { title: "Overview", href: "/admin/dashboard", icon: TbChartArcs },
+    {
+      title: "User Management",
+      href: "/admin/dashboard/users",
+      icon: Users,
+    },
+    {
+      title: "Products & Services",
+      href: "/admin/dashboard/services",
+      icon: Package,
+    },
+    {
+      title: "Bookings & Orders",
+      href: "/admin/dashboard/orders",
+      icon: Calendar,
+    },
+    {
+      title: "Notifications",
+      href: "/admin/dashboard/notifications",
+      icon: Calendar,
+    },
+    {
+      title: "Support",
+      href: "/admin/dashboard/support",
+      icon: LifeBuoy,
+    },
+    {
+      title: "Marketing",
+      href: "/admin/dashboard/marketing",
+      icon: Megaphone,
+    },
+    {
+      title: "Analytics",
+      href: "/admin/dashboard/analytics",
+      icon: BarChart2,
+    },
+    {
+      title: "Events",
+      href: "/admin/dashboard/events",
+      icon: CalendarClock,
+    },
+    // { title: "Inbox", href: "/buyer/dashboard/inbox", icon: MessageSquare },
+  ];
 
   switch (userType) {
     case "3": // Vendor
@@ -112,6 +161,8 @@ const getNavItems = (userType: string) => {
       return [...artisanItems];
     case "2": // Shopper
       return [...shopperItems];
+    case "1": // Admin
+      return [...adminItems];
     default:
       return baseItems;
   }
@@ -126,7 +177,7 @@ export function DashboardNav() {
 
   const navItems = getNavItems(currentUser?.user_type);
 
-  const handleLogOut =() => {
+  const handleLogOut = () => {
     router.push("/");
     logOut();
   };
