@@ -104,7 +104,7 @@ export default function ProfileSettingsPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#5D3A8B]">Profile Settings</h1>
+        <h1 className="text-2xl font-bold text-primary">Profile Settings</h1>
         <p className="text-gray-500">Manage your personal and business information</p>
       </div>
 
