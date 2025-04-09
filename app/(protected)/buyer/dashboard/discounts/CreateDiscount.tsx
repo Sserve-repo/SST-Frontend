@@ -98,7 +98,7 @@ export function CreateDiscount() {
         <DialogContent className="sm:max-w-[400px]">
           <div className="grid gap-6 py-4 text-center">
             <div className="mx-auto rounded-full bg-purple-100 p-3">
-              <Tag className="h-6 w-6 text-[#5D3A8B]" />
+              <Tag className="h-6 w-6 text-primary" />
             </div>
             <div className="space-y-2">
               <h2 className="text-xl font-semibold">Are you sure you want to create this discount?</h2>
