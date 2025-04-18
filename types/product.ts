@@ -45,3 +45,23 @@ export interface FilterParams {
     sort_by?: "most_recent" | "low_to_high" | "high_to_low" | "newest"
 }
 
+
+
+
+export type IProduct = {
+  id?: string;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  images: string[];
+  status: "active" | "inactive" | "approved" | "pending" |"rejected";
+  category: string;
+  createdAt: string | Date
+  featured: boolean
+  vendor: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};

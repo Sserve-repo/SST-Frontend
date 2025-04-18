@@ -110,23 +110,28 @@ const getNavItems = (userType: string) => {
   const adminItems = [
     { title: "Overview", href: "/admin/dashboard", icon: TbChartArcs },
     {
-      title: "User Management",
-      href: "/admin/dashboard/users",
+      title: "RBAC",
+      href: "/admin/dashboard/rbac",
       icon: Users,
     },
     {
-      title: "Products & Services",
-      href: "/admin/dashboard/services",
+      title: "Products Approval",
+      href: "/admin/dashboard/product-approval-list",
       icon: Package,
     },
     {
-      title: "Bookings & Orders",
-      href: "/admin/dashboard/orders",
+      title: "Services Approval",
+      href: "/admin/dashboard/service-approval-list",
+      icon: Package,
+    },
+    {
+      title: "Manage Bookings",
+      href: "/admin/dashboard/bookings",
       icon: Calendar,
     },
     {
-      title: "Notifications",
-      href: "/admin/dashboard/notifications",
+      title: "Manage Orders",
+      href: "/admin/dashboard/orders",
       icon: Calendar,
     },
     {
@@ -135,13 +140,13 @@ const getNavItems = (userType: string) => {
       icon: LifeBuoy,
     },
     {
-      title: "Marketing",
-      href: "/admin/dashboard/marketing",
-      icon: Megaphone,
-    },
-    {
       title: "Analytics",
       href: "/admin/dashboard/analytics",
+      icon: BarChart2,
+    },
+    {
+      title: "Payouts",
+      href: "/admin/dashboard/payouts",
       icon: BarChart2,
     },
     {

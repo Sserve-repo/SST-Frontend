@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const { toast } = useToast(); // ✅ Now `toast` works properly
+  const { toast } = useToast();
 
   // In a real app, this would be fetched from an API
   const [events, setEvents] = useState<Event[]>([

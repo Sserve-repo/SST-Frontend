@@ -58,7 +58,7 @@ export function ServiceTable({ services, selectedIds, onSelectedIdsChange }: Ser
               <TableHead>Service</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead>Vendor</TableHead>
+              <TableHead>Artisan</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="text-right">Actions</TableHead>

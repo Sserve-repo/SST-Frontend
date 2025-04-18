@@ -68,7 +68,7 @@ export default function ServicesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Products & Services</h1>
+        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Services</h1>
         <p className="text-muted-foreground">Manage and monitor all service listings</p>
       </div>
 
