@@ -56,6 +56,60 @@ export const createProduct = async (requestPayload: any) => {
   }
 };
 
+export async function getCustomerReviews(productId: number) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/productListing/getReviews/${productId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
+export async function getCustomerReviewsReply(productId: number, reviewId: number) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/productListing/getReviewsReply/${productId}/${reviewId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
+export async function replyCustomerReview(payload: any, reviewId: number) {
+  try {
+    const token = Cookies.get("accessToken");
+    if (!token) {
+      throw new Error("No access token found");
+    }
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/productListing/postReplyReviews/${reviewId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
 export const getPromotions = async () => {
   const token = Cookies.get("accessToken");
   try {

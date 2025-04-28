@@ -1,24 +1,48 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-const data = [
-  { name: "Jan", revenue: 4000 },
-  { name: "Feb", revenue: 3000 },
-  { name: "Mar", revenue: 5000 },
-  { name: "Apr", revenue: 2780 },
-  { name: "May", revenue: 1890 },
-  { name: "Jun", revenue: 2390 },
-  { name: "Jul", revenue: 1390 },
-  { name: "Aug", revenue: 4090 },
-]
 
-const earningStats = [
-  { label: "Total Revenue", value: "$12,450" },
-  { label: "Pending Payments", value: "$2,100" },
-  { label: "Completed Payouts", value: "$10,350" },
-]
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-export function EarningsSummary() {
+export function EarningsSummary({ analytics }) {
+  const revenueData = analytics?.statistics?.revenueStats?.map((item) => ({
+    month: monthNames[item.month - 1],
+    revenue: parseFloat(item.total_revenue),
+  }));
+
+  const earningStats = [
+    { label: "Total Revenue", value: `$${analytics?.earnings?.totalRevenue}` },
+    {
+      label: "Pending Payments",
+      value: `$${analytics?.earnings?.pendingPayments}`,
+    },
+    {
+      label: "Completed Payouts",
+      value: `$${analytics?.earnings?.completedPayouts}`,
+    },
+  ];
+
   return (
     <Card className="border-gray-100">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -36,7 +60,7 @@ export function EarningsSummary() {
           </div>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+              <LineChart data={revenueData}>
                 <CartesianGrid strokeDasharray="4 4" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -48,7 +72,7 @@ export function EarningsSummary() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default EarningsSummary
+export default EarningsSummary;

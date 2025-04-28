@@ -25,14 +25,14 @@ import {
   Filter
 } from "lucide-react";
 import UserFormDialog from "./UserFormDialog";
-import DeleteConfirmDialog from "../common/DeleteConfirmDialog";
 import AssignRolesDialog from "./AssignRolesDialog";
-import { User } from "@/types/rbac";
+import { IUser } from "@/types/rbac";
+import DeleteConfirmDialog from "../delete-confirm-dialog";
 
 interface UsersListProps {
-  users: User[];
-  onAddUser: (user: Omit<User, "id">) => void;
-  onUpdateUser: (user: User) => void;
+  users: IUser[];
+  onAddUser: (user: Omit<IUser, "id">) => void;
+  onUpdateUser: (user: IUser) => void;
   onDeleteUser: (id: string) => void;
   onAssignRoles: (userId: string, roleIds: string[]) => void;
 }
@@ -48,19 +48,19 @@ const UsersList: React.FC<UsersListProps> = ({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [assignRolesDialogOpen, setAssignRolesDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: IUser) => {
     setSelectedUser(user);
     setEditDialogOpen(true);
   };
 
-  const handleDelete = (user: User) => {
+  const handleDelete = (user: IUser) => {
     setSelectedUser(user);
     setDeleteDialogOpen(true);
   };
 
-  const handleAssignRoles = (user: User) => {
+  const handleAssignRoles = (user: IUser) => {
     setSelectedUser(user);
     setAssignRolesDialogOpen(true);
   };

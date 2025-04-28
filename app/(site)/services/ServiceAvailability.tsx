@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 import { Calendar } from "@/components/ui/calendar";
-import { getServiceByCategory, getServicesMenu } from "@/actions/service";
+import { getServiceBySubCategory, getServicesMenu } from "@/actions/service";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { baseUrl } from "@/config/constant";
@@ -131,12 +131,10 @@ export default function ServiceAvailability() {
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
-        const response = await fetch(
-          `${baseUrl}/general/province/getProvince`
-        );
+        const response = await fetch(`${baseUrl}/general/province/getProvince`);
         if (response.ok) {
           const data = await response.json();
-          console.log(data.data.Provinces)
+          console.log(data.data.Provinces);
           setProvinces(data.data.Provinces);
         }
       } catch (error) {
@@ -154,11 +152,7 @@ export default function ServiceAvailability() {
       if (field === "serviceCategory") {
         const category = categories.find((cat) => cat.name === value);
         if (category) {
-          router.push(
-            `/services?categoryId=${category.id
-            }&categoryName=${encodeURIComponent(value)}`
-          );
-          // setServiceItems(category.service_category_items);
+          router.push(`/services?categoryId=${category.id}`);
           return { ...newRequest, serviceType: null };
         }
       }
@@ -170,7 +164,7 @@ export default function ServiceAvailability() {
   const handleFetchService = async (catId: number) => {
     setIsLoading(true);
     try {
-      const response = await getServiceByCategory(catId);
+      const response = await getServiceBySubCategory(catId);
       if (response && response.ok) {
         const data = await response.json();
         setServices(data.data["Services"]);
@@ -181,27 +175,6 @@ export default function ServiceAvailability() {
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFetchAllServices = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `${baseUrl}/general/services/getAllServices`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setServices(data.data["Services"]);
-        setFilteredServices(data.data["Services"]);
-      } else {
-        setServices([]);
-        setFilteredServices([]);
-      }
-    } catch (error) {
-      console.error("Error fetching all services:", error);
     } finally {
       setIsLoading(false);
     }
@@ -220,13 +193,13 @@ export default function ServiceAvailability() {
       const categoryMatches =
         !scheduleRequest.serviceCategory ||
         service.service_category_name.toLowerCase() ===
-        scheduleRequest.serviceCategory.toLowerCase();
+          scheduleRequest.serviceCategory.toLowerCase();
 
       // Location matching
       const locationMatches =
         !scheduleRequest.location ||
         service.province.toLowerCase() ===
-        scheduleRequest.location.toLowerCase();
+          scheduleRequest.location.toLowerCase();
 
       // Time matching (only if time is selected)
       const timeMatches =
@@ -247,8 +220,6 @@ export default function ServiceAvailability() {
     setFilteredServices(filtered);
   }, [services, scheduleRequest, setFilteredServices]); // ✅ Dependencies
 
-
-
   // Trigger search when filters change
   useEffect(() => {
     if (services?.length > 0) {
@@ -260,8 +231,6 @@ export default function ServiceAvailability() {
   useEffect(() => {
     if (categoryId) {
       handleFetchService(parseInt(categoryId));
-    } else {
-      handleFetchAllServices();
     }
   }, [categoryId]);
 
@@ -456,7 +425,9 @@ export default function ServiceAvailability() {
                 <div className="p-6 flex-grow">
                   <div className="flex items-center space-x-4 mb-4">
                     <Image
-                      src={provider.image || "/assets/images/image-placeholder.png"}
+                      src={
+                        provider.image || "/assets/images/image-placeholder.png"
+                      }
                       alt={`${provider.title}'s profile picture`}
                       width={100}
                       height={100}

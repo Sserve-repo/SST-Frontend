@@ -43,9 +43,18 @@ export const getServicesMenu = async () => {
 //   }
 // };
 
+export const getServiceBySubCategory = async (catId: number) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getServicesBySubCategory/${catId}      }`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch service category", error);
+  }
+};
 
 export const getServiceByCategory = async (catId: number) => {
-  
   try {
     const response = await fetch(
       `${baseUrl}/general/services/getServicesByCategory/${catId}`
@@ -56,16 +65,16 @@ export const getServiceByCategory = async (catId: number) => {
   }
 };
 
-
 export const getServiceDetail = async (id) => {
   const token = Cookies.get("accessToken");
   try {
     const response = await fetch(
-      `${baseUrl}/general/checkout/getAvailableDatesAndTimes/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+      `${baseUrl}/general/checkout/getAvailableDatesAndTimes/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    }
     );
     return response;
   } catch (error: any) {

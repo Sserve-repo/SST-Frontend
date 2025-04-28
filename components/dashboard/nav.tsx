@@ -20,7 +20,6 @@ import {
   Users,
   Package,
   LifeBuoy,
-  Megaphone,
   BarChart2,
 } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";

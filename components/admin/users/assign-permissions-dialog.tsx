@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Role, Permission } from "@/types/rbac";
+import { Role } from "@/types/rbac";
 import { useMockData } from "@/hooks/useMockData";
 import { Search } from "lucide-react";
 
@@ -32,9 +32,9 @@ const AssignPermissionsDialog: React.FC<AssignPermissionsDialogProps> = ({
   );
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPermissions = permissions.filter((permission) =>
-    permission.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredPermissions = permissions.filter((permission) =>
+  //   permission.name.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
   const handleTogglePermission = (permissionId: string) => {
     setSelectedPermissions((prev) =>

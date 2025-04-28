@@ -111,7 +111,7 @@ export default function Header() {
                             (item, index) => (
                               <Link
                                 key={index}
-                                href={`/services/?categoryId=${item.id}&categoryName=${item.name}`}
+                                href={`/services/?categoryId=${item.id}`}
                                 className="hover:underline mb-1"
                               >
                                 {item.name}
@@ -138,7 +138,6 @@ export default function Header() {
                               <Link
                                 key={index}
                                 href={`/products/?categoryId=${item.id}`}
-                                // href={`/products/?categoryId=${item["product_category_id"]}`}
                                 className="hover:underline mb-1"
                               >
                                 {item.name}

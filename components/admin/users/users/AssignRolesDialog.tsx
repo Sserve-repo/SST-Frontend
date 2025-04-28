@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User, Role } from "@/types/rbac";
+import { IUser, } from "@/types/rbac";
 import { useMockData } from "@/hooks/useMockData";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ import { X } from "lucide-react";
 interface AssignRolesDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User;
+  user: IUser;
   onAssign: (roleIds: string[]) => void;
 }
 

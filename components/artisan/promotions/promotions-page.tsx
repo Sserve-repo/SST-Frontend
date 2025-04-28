@@ -11,7 +11,7 @@ import {
   createPromotions,
   deletePromotions,
   getPromotions,
-} from "@/actions/dashboard/vendors";
+} from "@/actions/dashboard/artisans";
 
 export default function PromotionsPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
@@ -26,13 +26,12 @@ export default function PromotionsPage() {
       const data = await response.json();
       // console.log({ data });
 
-      const transformedPromotions = data?.data?.productDiscount.map((pd) => {
+      const transformedPromotions = data?.data?.ServiceDiscount.map((pd) => {
         return {
           id: pd.id,
           code: pd?.discount_name?.toUpperCase(),
           type: pd?.discount_type?.toLowerCase(),
           value: pd.discount_value,
-          serviceName: pd.discount_name,
           startDate: pd.start_date,
           endDate: pd.end_date,
           status: pd?.status?.toLowerCase(),
@@ -77,7 +76,7 @@ export default function PromotionsPage() {
 
       const formData = new FormData();
 
-      formData.append("discount_name", promotion.serviceName);
+      formData.append("discount_name", promotion.code);
       formData.append("discount_type", promotion.type);
       formData.append("discount_value", String(promotion.value));
       formData.append(

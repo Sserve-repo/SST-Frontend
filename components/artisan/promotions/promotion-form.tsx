@@ -39,7 +39,6 @@ const formSchema = z.object({
     .max(20, "Code must be less than 20 characters"),
   type: z.enum(["percentage", "fixed"]),
   value: z.coerce.number().min(0, "Value must be positive"),
-  serviceName: z.string().min(1, "Service name is required"),
   startDate: z.date({
     required_error: "Start date is required",
   }),
@@ -67,7 +66,6 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
       code: promotion?.code || "",
       type: promotion?.type || "percentage",
       value: promotion?.value || 0,
-      serviceName: promotion?.serviceName || "",
       startDate: promotion?.startDate || new Date(),
       endDate:
         promotion?.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default to 7 days from now
@@ -162,20 +160,6 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="serviceName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Service Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Premium Package" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="grid gap-4 md:grid-cols-2">
           <FormField

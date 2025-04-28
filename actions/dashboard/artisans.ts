@@ -1,11 +1,11 @@
 import { baseUrl } from "../../config/constant";
 import Cookies from "js-cookie";
 
-export const getVendorAnalytics = async () => {
+export const getArtisanAnalytics = async () => {
   const token = Cookies.get("accessToken");
   try {
     const response = await fetch(
-      `${baseUrl}/artisan/dashboard/productOverview`,
+      `${baseUrl}/artisan/dashboard/serviceOverview`,
       {
         method: "GET",
         headers: {
@@ -19,11 +19,11 @@ export const getVendorAnalytics = async () => {
   }
 };
 
-export const getInventoryItems = async () => {
+export const getserviceListings = async () => {
   const token = Cookies.get("accessToken");
   try {
     const response = await fetch(
-      `${baseUrl}/artisan/dashboard/productListing/list`,
+      `${baseUrl}/artisan/dashboard/serviceListing/list`,
       {
         method: "GET",
         headers: {
@@ -33,26 +33,27 @@ export const getInventoryItems = async () => {
     );
     return response;
   } catch (error: any) {
-    console.log("Form validation failed", error);
+    console.log("Error fetching service listing", error);
   }
 };
 
-export const createProduct = async (requestPayload: any) => {
+export const getAppointments = async (date: string | null) => {
   const token = Cookies.get("accessToken");
+  console.log({ date });
   try {
     const response = await fetch(
-      `${baseUrl}/artisan/dashboard/productListing/create`,
+      `${baseUrl}/artisan/dashboard/serviceBooking/list${
+        date ? `?bookedDate=${date}` : ""
+      }`,
       {
-        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: requestPayload,
       }
     );
     return response;
   } catch (error: any) {
-    console.log("Vendor listing detail creation failed", error);
+    console.log("Error fetching appointment listing failed", error);
   }
 };
 
@@ -144,3 +145,60 @@ export const getOrderDetails = async (id) => {
     console.log("Failed ro fetch promotions", error);
   }
 };
+
+export async function getCustomerReviews(serviceId: number) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceListing/getReviews/${serviceId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
+export async function getCustomerReviewsReply(
+  productId: number,
+  reviewId: number
+) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceListing/getReviewsReply/${productId}/${reviewId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
+export async function replyCustomerReview(payload: any, reviewId: number) {
+  try {
+    const token = Cookies.get("accessToken");
+    if (!token) {
+      throw new Error("No access token found");
+    }
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceListing/postReplyReviews/${reviewId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}

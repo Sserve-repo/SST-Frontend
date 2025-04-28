@@ -1,21 +1,33 @@
-"use client"
+"use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { AppointmentDetailsDialog } from "./details-dialog"
-import { useState } from "react"
-import { Eye } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { Appointment } from "@/types/appointments"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { AppointmentDetailsDialog } from "./details-dialog";
+import { useState } from "react";
+import { Eye } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Appointment } from "@/types/appointments";
 
 interface AppointmentListViewProps {
-  appointments: Appointment[]
-  onUpdateAppointment: (appointment: Appointment) => void
+  appointments: Appointment[];
+  onUpdateAppointment: (appointment: Appointment) => void;
 }
 
-export function AppointmentListView({ appointments, onUpdateAppointment }: AppointmentListViewProps) {
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+export function AppointmentListView({
+  appointments,
+  onUpdateAppointment,
+}: AppointmentListViewProps) {
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
+  console.log({ appointments });
 
   return (
     <>
@@ -32,23 +44,29 @@ export function AppointmentListView({ appointments, onUpdateAppointment }: Appoi
             </TableRow>
           </TableHeader>
           <TableBody>
-            {appointments.map((appointment) => (
+            {appointments?.map((appointment) => (
               <TableRow key={appointment.id}>
                 <TableCell>
                   <div>
                     <p className="font-medium">{appointment.customerName}</p>
-                    <p className="text-sm text-gray-500">{appointment.customerEmail}</p>
+                    <p className="text-sm text-gray-500">
+                      {appointment.customerEmail}
+                    </p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div>
                     <p className="font-medium">{appointment.service.name}</p>
-                    <p className="text-sm text-gray-500">${appointment.service.price}</p>
+                    <p className="text-sm text-gray-500">
+                      ${appointment.service.price}
+                    </p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div>
-                    <p className="font-medium">{appointment.date.toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {appointment.date.toLocaleDateString()}
+                    </p>
                     <p className="text-sm text-gray-500">
                       {appointment.date.toLocaleTimeString([], {
                         hour: "2-digit",
@@ -61,10 +79,14 @@ export function AppointmentListView({ appointments, onUpdateAppointment }: Appoi
                   <Badge
                     variant="secondary"
                     className={cn(
-                      appointment.status === "confirmed" && "bg-green-100 text-green-700",
-                      appointment.status === "pending" && "bg-yellow-100 text-yellow-700",
-                      appointment.status === "canceled" && "bg-red-100 text-red-700",
-                      appointment.status === "completed" && "bg-blue-100 text-blue-700",
+                      appointment.status === "confirmed" &&
+                        "bg-green-100 text-green-700",
+                      appointment.status === "pending" &&
+                        "bg-yellow-100 text-yellow-700",
+                      appointment.status === "canceled" &&
+                        "bg-red-100 text-red-700",
+                      appointment.status === "completed" &&
+                        "bg-blue-100 text-blue-700"
                     )}
                   >
                     {appointment.status}
@@ -74,16 +96,23 @@ export function AppointmentListView({ appointments, onUpdateAppointment }: Appoi
                   <Badge
                     variant="secondary"
                     className={cn(
-                      appointment.paymentStatus === "paid" && "bg-green-100 text-green-700",
-                      appointment.paymentStatus === "pending" && "bg-yellow-100 text-yellow-700",
-                      appointment.paymentStatus === "refunded" && "bg-red-100 text-red-700",
+                      appointment.paymentStatus === "paid" &&
+                        "bg-green-100 text-green-700",
+                      appointment.paymentStatus === "pending" &&
+                        "bg-yellow-100 text-yellow-700",
+                      appointment.paymentStatus === "refunded" &&
+                        "bg-red-100 text-red-700"
                     )}
                   >
                     {appointment.paymentStatus}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedAppointment(appointment)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedAppointment(appointment)}
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     View
                   </Button>
@@ -98,11 +127,10 @@ export function AppointmentListView({ appointments, onUpdateAppointment }: Appoi
         appointment={selectedAppointment}
         onOpenChange={(open) => !open && setSelectedAppointment(null)}
         onUpdate={(updatedAppointment) => {
-          onUpdateAppointment(updatedAppointment)
-          setSelectedAppointment(null)
+          onUpdateAppointment(updatedAppointment);
+          setSelectedAppointment(null);
         }}
       />
     </>
-  )
+  );
 }
-

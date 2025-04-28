@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { User } from "@/types/rbac";
+import { IUser } from "@/types/rbac";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -36,13 +36,13 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-type UserData = Required<Pick<User, "name" | "email" | "status">>;
+type IUserData = Required<Pick<IUser, "name" | "email" | "status">>;
 
 interface UserFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user?: User;
-  onSubmit: (data: Omit<User, "id" | "roles">) => void;
+  user?: IUser;
+  onSubmit: (data: Omit<IUser, "id" | "roles">) => void;
 }
 
 const UserFormDialog: React.FC<UserFormDialogProps> = ({
@@ -60,7 +60,7 @@ const UserFormDialog: React.FC<UserFormDialogProps> = ({
 
   const handleSubmit = (data: FormValues) => {
     // Ensure all required fields are present
-    const userData: UserData = {
+    const userData: IUserData = {
       name: data.name,
       email: data.email,
       status: data.status

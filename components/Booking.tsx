@@ -58,7 +58,7 @@ export default function BookingForm() {
 
       setFormData((prev) => ({
         ...prev,
-        listingId: data.data["Service Details"].id || "",
+        listingId: data.data["Service Details"]?.id || "",
       }));
     }
   }, [setFormData]);
@@ -144,7 +144,7 @@ export default function BookingForm() {
 
               <p className="my-4">
                 <span className="font-bold">Artisan Shop Address:</span>
-                {`${service && service["Service Details"].booking_details!}`}
+                {`${service && service["Service Details"]?.booking_details}`}
               </p>
 
               {formData.homeService ? (

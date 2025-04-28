@@ -4,56 +4,55 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ServiceTable } from "@/components/artisan/services/service-table";
 import { CreateServiceDialog } from "@/components/artisan/services/create-service-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Service } from "@/types/services";
+import { getserviceListings } from "@/actions/dashboard/artisans";
 
 export default function ServicesPage() {
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: "1",
-      name: "Haircut & Styling",
-      description: "Professional haircut and styling service",
-      price: 50,
-      duration: 60,
-      images: ["/assets/images/image-placeholder.png"],
-      availability: {
-        monday: { start: "09:00", end: "17:00" },
-        wednesday: { start: "09:00", end: "17:00" },
-        friday: { start: "09:00", end: "17:00" },
-      },
-      status: "active",
-      category: "",
-      createdAt: "",
-      featured: false,
-      vendor: {
-        id: "",
-        name: "",
-        email: ""
+  const [services, setServices] = useState<Service[]>([]);
+
+  const handleFetchServiceListings = async () => {
+    try {
+      const response = await getserviceListings();
+      if (!response?.ok) {
+        throw Error("Cannot fetch analytics data");
       }
-    },
-    {
-      id: "2",
-      name: "Hair Coloring",
-      description: "Professional hair coloring service",
-      price: 120,
-      duration: 120,
-      images: ["/assets/images/image-placeholder.png"],
-      availability: {
-        tuesday: { start: "09:00", end: "17:00" },
-        thursday: { start: "09:00", end: "17:00" },
-        saturday: { start: "09:00", end: "17:00" },
-      },
-      status: "inactive",
-      category: "",
-      createdAt: "",
-      featured: false,
-      vendor: {
-        id: "",
-        name: "",
-        email: ""
-      }
-    },
-  ]);
+      const data = await response.json();
+
+      const { serviceListing } = data.data;
+      const transformedServiceList = serviceListing?.map((item) => {
+        return {
+          id: item?.id,
+          name: item?.title,
+          description: item?.description,
+          price: item?.price,
+          duration: item?.service_duration,
+          images: [item?.image],
+          availability: {
+            monday: { start: "09:00", end: "17:00" },
+            wednesday: { start: "09:00", end: "17:00" },
+            friday: { start: "09:00", end: "17:00" },
+          },
+          status: item?.status === 1 ? "active" : "disabled",
+          category: "",
+          createdAt: "",
+          featured: false,
+          vendor: {
+            id: "",
+            name: "",
+            email: "",
+          },
+        };
+      });
+      setServices(transformedServiceList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleFetchServiceListings();
+  }, []);
 
   const handleCreateService = (newService: Omit<Service, "id">) => {
     const id = Math.random().toString(36).substr(2, 9);

@@ -1,6 +1,6 @@
 "use client";
 import type { FC } from "react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactStars from "react-rating-star-with-type";
 import { Button } from "@/components/ui/button";
 import ImageShowCase from "@/components/ImageShowCase";
@@ -11,74 +11,11 @@ import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { RatingCard } from "@/components/extras/RatingCard";
-import { useAuth } from "@/context/AuthContext";
-
-const reviewsData = [
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 2,
-  },
-
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 2,
-  },
-
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 5,
-  },
-
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 3,
-  },
-
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 4,
-  },
-];
-
-const reviewRepliesData = [
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 2,
-  },
-
-  {
-    id: "1",
-    avatar: "https://i.pravatar.cc/40?img=",
-    username: "User 1",
-    comment:
-      " This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. This chair is amazing! It&apos;s comfortable for long work sessions and has great lumbar support. ",
-    rating: 4,
-  },
-];
+import {
+  addProductReview,
+  getProductReviews,
+  getProductReviewsReplies,
+} from "@/actions/product";
 
 type ReviewCardProps = {
   avatar: string;
@@ -89,8 +26,10 @@ type ReviewCardProps = {
 };
 
 type ReplyFormProps = {
-  onChange: (val: string) => void;
+  // onChange: (val: string) => void;
   onSubmit: () => void;
+  formData: any;
+  setFormData: (data: any) => void;
 };
 
 interface SectionProductHeaderProps {
@@ -106,7 +45,7 @@ interface SectionProductHeaderProps {
   images: string[];
   features: string[];
   specifications: {
-    [key: string]: string | string[]; // Specifications as key-value pairs
+    [key: string]: string | string[];
   };
   seller: {
     name: string;
@@ -118,6 +57,15 @@ interface SectionProductHeaderProps {
   estimatedDelivery: string;
   returnPolicy: string;
 }
+
+type ReviewData = {
+  id: string;
+  avatar: string;
+  username: string;
+  productId?: number;
+  comment: string;
+  rating: number;
+};
 
 const SectionProductHeader: FC<SectionProductHeaderProps> = ({
   // slug,
@@ -136,38 +84,73 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
-  const { currentUser } = useAuth();
   const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
-  const [review, setReview] = useState("");
+  const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
+  const [reviewRepliesData, setReviewRepliesData] = useState<ReviewData>({
+    id: "",
+    username: "Vendor",
+    productId: id,
+    comment: "",
+    rating: 0,
+    avatar: "https://i.pravatar.cc/40?img=1",
+  });
+
+  const [formData, setFormData] = useState<{
+    review: string;
+    rating: number;
+  }>({ review: "", rating: 0 });
+
   const [replies, setReplies] = useState({
     0: [{ text: "Reply 1" }],
     1: [],
     2: [],
   });
-  const [currentReply, setCurrentReply] = useState("");
 
   const handleQuantityChange = (change: number) => {
     setQuantity((prev) => Math.max(1, prev + change));
   };
 
-  const handleFetchReviewReplies = (id: number) => {
-    if (activeReplyIndex === id) {
-      setActiveReplyIndex(null); // Toggle off if already selected
-    } else {
-      setActiveReplyIndex(id);
-      // Optionally: fetch replies here
-    }
-  };
+  const handleSubmitReply = async () => {
+    try {
+      if (!formData.review) {
+        toast.error("Please enter a review");
+        return;
+      }
+      if (formData.rating === 0) {
+        toast.error("Please select a rating");
+        return;
+      }
 
-  const handleSubmitReply = () => {
-    const payload = {
-      review,
-      userId: currentUser?.id,
-      commment: currentReply,
-      rating: 12,
-    };
-    handleSubmitReview()
-    console.log({ payload });
+      const form = new FormData();
+      form.append("comment", formData.review);
+      form.append("rating", formData.rating.toString());
+
+      const response = await addProductReview(form, id);
+      const data = await response?.json();
+      if (data?.status === true) {
+        const rev = data.data.reviews;
+        setFormData({ review: "", rating: 0 });
+        setActiveReplyIndex(null);
+
+        setReplies(replies);
+        setReviewsData((prev) => [
+          {
+            id: rev?.id,
+            avatar: data?.data?.user?.avatar,
+            username: data?.data?.user.username || "Anonymous",
+            comment: rev?.comment,
+            rating: rev?.rating,
+          },
+          ...prev,
+        ]);
+        toast.success("Review added successfully");
+      } else {
+        toast.error("Failed to add review");
+      }
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      toast.error("Failed to submit reply");
+    }
   };
 
   const handleAddToCart = () => {
@@ -181,13 +164,57 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     toast.success(`Added ${quantity} ${productName} to cart`);
   };
 
-  const handleSubmitReview = async () => {
-    console.log({ review, rating: 2, userId: 1, productId: 1 });
-    setReplies(replies)
-    setReview(review)
+  const handleFetchReview = async (productId: number) => {
+    try {
+      const response = await getProductReviews(productId);
+      const data = await response?.json();
+
+      const transformedData = data?.data?.reviews?.map((item: any) => {
+        return {
+          id: item.id,
+          username: item.customer_name,
+          comment: item.comment,
+          rating: item.rating,
+          avatar: item.customer_photo,
+        };
+      });
+      setReviewsData(transformedData);
+
+      console.log({ reviewData: transformedData });
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
   };
 
-  console.log(images);
+  const handleFetchReviewReplies = async (
+    productId: number,
+    reviewId: number
+  ) => {
+    try {
+      if (activeReplyIndex === reviewId) {
+        setActiveReplyIndex(null);
+      } else {
+        setActiveReplyIndex(reviewId);
+
+        // Optionally: fetch replies here
+        const response = await getProductReviewsReplies(productId, reviewId);
+        const data = await response?.json();
+
+        setReviewRepliesData((prev) => ({
+          ...prev,
+          comment: data?.data?.reviews?.comment,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching review replies:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!id) return;
+    handleFetchReview(id);
+  }, [id]);
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 space-y-10 md:space-y-0">
@@ -321,63 +348,55 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
             </div>
 
             <div className="space-y-6">
-              {reviewsData.map((item, i) => (
-                <div key={i} className="border-t pt-6">
-                  <ReviewCard
-                    avatar={`${item.avatar}${i + 1}`}
-                    username={item.username}
-                    rating={item.rating}
-                    comment={item.comment}
-                  />
-
-                  <div className="flex gap-4 mt-2">
-                    <p
-                      onClick={() => handleFetchReviewReplies(i)}
-                      className="cursor-pointer text-sm text-blue-500"
-                    >
-                      {activeReplyIndex === i ? "Hide Replies" : "See Replies"}
-                    </p>
-                    {/* <p
-                      onClick={() => setShowReplyFormIndex(i)}
-                      className="cursor-pointer text-sm text-blue-500"
-                    >
-                      Add Reply
-                    </p> */}
-                  </div>
-
-                  {/* {showReplyFormIndex === i && (
-                    <ReplyForm
-                      onChange={(val) => setCurrentReply(val)}
-                      onSubmit={() => handleSubmitReply(i)}
+              {reviewsData?.length > 0 ? (
+                reviewsData?.map((item: any, i) => (
+                  <div key={i} className="border-t pt-6">
+                    <ReviewCard
+                      avatar={item?.avatar}
+                      username={item?.username}
+                      rating={item?.rating}
+                      comment={item?.comment}
                     />
-                  )} */}
 
-                  {activeReplyIndex === i && (
-                    <div className="mt-4 ml-8 space-y-4">
-                      {replies[i]?.length ? (
-                        reviewRepliesData.map((reply, j) => (
+                    <div className="flex gap-4 mt-2">
+                      <p
+                        onClick={() => handleFetchReviewReplies(id, item?.id)}
+                        className="cursor-pointer text-sm text-blue-500"
+                      >
+                        {activeReplyIndex === parseInt(item?.id)
+                          ? "Hide Replies"
+                          : "See Replies"}
+                      </p>
+                    </div>
+
+                    {activeReplyIndex === parseInt(item?.id) && (
+                      <div className="mt-4 ml-8 space-y-4">
+                        {reviewRepliesData && reviewRepliesData.comment ? (
                           <ReviewCard
-                            key={j}
-                            avatar={`${reply.avatar}${j + 1}`}
-                            username={reply.username}
-                            comment={reply.comment}
+                            // key={j}
+                            avatar={reviewRepliesData.avatar}
+                            username={reviewRepliesData.username}
+                            comment={reviewRepliesData.comment}
                             showRating={true}
                           />
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-400">
-                          No replies yet. Be the first to reply.
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+                        ) : (
+                          <p className="text-sm text-gray-400">
+                            No replies yet. Be the first to reply.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p>No Reviews</p>
+              )}
             </div>
 
             <ReplyForm
-              onChange={(val) => setCurrentReply(val)}
               onSubmit={() => handleSubmitReply()}
+              setFormData={setFormData}
+              formData={formData}
             />
           </div>
         </div>
@@ -495,7 +514,7 @@ const ReviewCard = ({
     <div className="flex items-start gap-4">
       <Avatar className="h-10 w-10">
         <AvatarImage src={avatar} />
-        <AvatarFallback>{username[0]}</AvatarFallback>
+        <AvatarFallback>{username && username[0]}</AvatarFallback>
       </Avatar>
       <div className="flex  flex-col">
         <p className="font-semibold">{username}</p>
@@ -506,17 +525,24 @@ const ReviewCard = ({
   </div>
 );
 
-const ReplyForm = ({ onChange, onSubmit }: ReplyFormProps) => (
+const ReplyForm = ({
+  // onChange,
+  onSubmit,
+  formData,
+  setFormData,
+}: ReplyFormProps) => (
   <div className="mt-8 flex-col space-y-2">
     <Textarea
       placeholder="Write a reply..."
-      onChange={(e) => onChange(e.target.value)}
+      value={formData.review}
+      onChange={(e) => setFormData({ ...formData, review: e.target.value })}
     />
     {/* Reviews and Stars */}
     <div className="flex items-center gap-1">
       <span className="text-neutral-500"> Add your ratings</span>
       <ReactStars
-        value={4.7}
+        value={formData.rating}
+        onChange={(val) => setFormData({ ...formData, rating: val })}
         isEdit={true}
         size={15}
         activeColors={["#FFCE50"]}

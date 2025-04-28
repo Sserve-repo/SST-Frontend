@@ -1,24 +1,24 @@
 "use client";
 
-import ProductReviewsPage from "@/components/reviews/product-reviews-page";
+import ServiceReviewsPage from "@/components/reviews/service-review-page";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 
-interface ProductReviewsPreviewSheetProps {
-  product: any;
+interface ServiceReviewsPreviewSheetProps {
+  service: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ProductReviewsPreviewSheet({
-  product,
+export function ServiceReviewsPreviewSheet({
+  service,
   open,
   onOpenChange,
-}: ProductReviewsPreviewSheetProps) {
+}: ServiceReviewsPreviewSheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-xl overflow-y-scroll">
         <div className="mt-6 space-y-6">
-          <ProductReviewsPage product={product} />
+          <ServiceReviewsPage service={service} />
         </div>
       </SheetContent>
     </Sheet>

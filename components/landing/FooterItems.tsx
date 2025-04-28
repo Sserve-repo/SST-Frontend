@@ -43,7 +43,7 @@ const FooterItems = () => {
       title: "Services",
       items: servicesMenu.map((service) => ({
         title: service.name,
-        url: `/services/?categoryId=${service.id}&categoryName=${service.name}`,
+        url: `/services/?categoryId=${service.id}`,
       })),
     },
     {

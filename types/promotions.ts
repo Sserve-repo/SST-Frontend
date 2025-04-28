@@ -6,7 +6,6 @@ export interface Promotion {
   code: string;
   type: PromotionType;
   value: number;
-  serviceName: string;
   startDate: Date ;
   endDate: Date ;
   status: PromotionStatus;

@@ -16,6 +16,7 @@ import {
   Truck,
 } from "lucide-react";
 
+
 export default function VendorPage() {
   const [analytics, setAnalytics] = useState<any>({});
   const [statistics, setStatistics] = useState<any>([]);
@@ -67,7 +68,7 @@ export default function VendorPage() {
       ];
 
       const { Analytics } = data.data;
-      setStatistics(transformedAnalytics)
+      setStatistics(transformedAnalytics);
       setAnalytics(Analytics);
     } catch (error) {
       console.log(error);
