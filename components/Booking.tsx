@@ -46,7 +46,7 @@ export default function BookingForm() {
   const { formData, setFormData, handleInputChange } = usePaymentProvider();
   const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
   const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
-  const [reviewFormData, setReviewFormData] = useState<{
+  const [reviewFormData] = useState<{
     review: string;
     rating: number;
   }>({ review: "", rating: 0 });
@@ -63,7 +63,7 @@ export default function BookingForm() {
     1: [],
     2: [],
   });
-  const rating = 4.5; // Example rating
+  const rating = 4.5; 
 
   const handleGetProvinces = useCallback(async () => {
     const response = await getProvinces();
