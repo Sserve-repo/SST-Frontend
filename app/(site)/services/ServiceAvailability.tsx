@@ -240,18 +240,6 @@ export default function ServiceAvailability() {
     }
   };
 
-  // This is fixed to fetch services on component load
-  // useEffect(() => {
-  //   if (subCategory) {
-  //     const parsedSubCategory = parseInt(subCategory, 10);
-  //     setScheduleRequest((prev) => ({
-  //       ...prev,
-  //       serviceSubCategoryId: parsedSubCategory,
-  //     }));
-  //   }
-
-  //   fetchServices();
-  // }, []);
 
   useEffect(() => {
     if (subCategory) {

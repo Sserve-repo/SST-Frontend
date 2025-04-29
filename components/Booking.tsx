@@ -6,13 +6,17 @@ import { Elements } from "@stripe/react-stripe-js";
 import { createServicePaymentIntent } from "@/actions/checkout";
 import { getProvinces } from "@/actions/provinces";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 import "react-datepicker/dist/react-datepicker.css";
 import { getServiceDetail } from "@/actions/service";
 import Cookies from "js-cookie";
 import { StripeServicePaymentForm } from "./StripeServicePaymentForm";
 import BookingOrderSummary from "@/app/(site)/booking/BookingOrderSummary";
 import { usePaymentProvider } from "@/context/PaymentContext ";
+import { ReplyForm, ReviewCard } from "./reviews/utils";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import { addProductReview, getProductReviewsReplies } from "@/actions/product";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -20,6 +24,15 @@ const stripePromise = loadStripe(
 
 type Service = {
   "Service Details": any;
+};
+
+type ReviewData = {
+  id: string;
+  avatar: string;
+  username: string;
+  productId?: number;
+  comment: string;
+  rating: number;
 };
 
 export default function BookingForm() {
@@ -31,6 +44,26 @@ export default function BookingForm() {
   const [checkoutData, setCheckoutData] = useState({});
   const [provinces, setProvinces] = useState([]);
   const { formData, setFormData, handleInputChange } = usePaymentProvider();
+  const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
+  const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
+  const [reviewFormData, setReviewFormData] = useState<{
+    review: string;
+    rating: number;
+  }>({ review: "", rating: 0 });
+  const [reviewRepliesData, setReviewRepliesData] = useState<ReviewData>({
+    id: "",
+    username: "Vendor",
+    productId: 1,
+    comment: "",
+    rating: 0,
+    avatar: "https://i.pravatar.cc/40?img=1",
+  });
+  const [replies, setReplies] = useState({
+    0: [{ text: "Reply 1" }],
+    1: [],
+    2: [],
+  });
+  const rating = 4.5; // Example rating
 
   const handleGetProvinces = useCallback(async () => {
     const response = await getProvinces();
@@ -39,6 +72,73 @@ export default function BookingForm() {
       setProvinces(data.data["Provinces"]);
     }
   }, []);
+
+  const handleSubmitReply = async () => {
+    try {
+      if (!reviewFormData.review) {
+        toast.error("Please enter a review");
+        return;
+      }
+      if (reviewFormData.rating === 0) {
+        toast.error("Please select a rating");
+        return;
+      }
+
+      const form = new FormData();
+      form.append("comment", reviewFormData.review);
+      form.append("rating", reviewFormData.rating.toString());
+
+      const response = await addProductReview(form, 2);
+      const data = await response?.json();
+      if (data?.status === true) {
+        const rev = data.data.reviews;
+        setFormData({ review: "", rating: 0 });
+        setActiveReplyIndex(null);
+
+        setReplies(replies);
+        setReviewsData((prev) => [
+          {
+            id: rev?.id,
+            avatar: data?.data?.user?.avatar,
+            username: data?.data?.user.username || "Anonymous",
+            comment: rev?.comment,
+            rating: rev?.rating,
+          },
+          ...prev,
+        ]);
+        toast.success("Review added successfully");
+      } else {
+        toast.error("Failed to add review");
+      }
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      toast.error("Failed to submit reply");
+    }
+  };
+
+  const handleFetchReviewReplies = async (
+    productId: number,
+    reviewId: number
+  ) => {
+    try {
+      if (activeReplyIndex === reviewId) {
+        setActiveReplyIndex(null);
+      } else {
+        setActiveReplyIndex(reviewId);
+
+        // Optionally: fetch replies here
+        const response = await getProductReviewsReplies(productId, reviewId);
+        const data = await response?.json();
+
+        setReviewRepliesData((prev) => ({
+          ...prev,
+          comment: data?.data?.reviews?.comment,
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching review replies:", error);
+    }
+  };
 
   const createStripePaymentIntent = useCallback(async () => {
     const response = await createServicePaymentIntent(serviceId!);
@@ -49,19 +149,22 @@ export default function BookingForm() {
     }
   }, [serviceId]);
 
-  const fetchServiceDetail = useCallback(async (id) => {
-    const response = await getServiceDetail(id);
-    if (response && response.ok) {
-      const data = await response.json();
-      setService(data.data);
-      setCheckoutData(data.data);
+  const fetchServiceDetail = useCallback(
+    async (id) => {
+      const response = await getServiceDetail(id);
+      if (response && response.ok) {
+        const data = await response.json();
+        setService(data.data);
+        setCheckoutData(data.data);
 
-      setFormData((prev) => ({
-        ...prev,
-        listingId: data.data["Service Details"]?.id || "",
-      }));
-    }
-  }, [setFormData]);
+        setFormData((prev) => ({
+          ...prev,
+          listingId: data.data["Service Details"]?.id || "",
+        }));
+      }
+    },
+    [setFormData]
+  );
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -286,6 +389,95 @@ export default function BookingForm() {
                   <p>Loading paywall...</p>
                 </div>
               )}
+            </div>
+
+            <div className="md:mt-8 mt-16">
+              <h2 className="text-2xl font-semibold mb-4">Customer Reviews</h2>
+
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="flex-1">
+                  <div className="flex items-center mb-2">
+                    <span className="text-3xl font-bold mr-2">{rating}</span>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i < Math.floor(rating)
+                              ? "text-yellow-400 fill-current"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">Based on {6} reviews</p>
+                </div>
+                <div className="flex-1">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <div key={star} className="flex items-center">
+                      <span className="text-sm text-gray-600 w-2">{star}</span>
+                      <Star className="h-4 w-4 text-yellow-400 fill-current mx-1" />
+                      <Progress
+                        value={Math.random() * 100}
+                        className="h-2 flex-1"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {reviewsData?.length > 0 ? (
+                  reviewsData?.map((item: any, i) => (
+                    <div key={i} className="border-t pt-6">
+                      <ReviewCard
+                        avatar={item?.avatar}
+                        username={item?.username}
+                        rating={item?.rating}
+                        comment={item?.comment}
+                      />
+
+                      <div className="flex gap-4 mt-2">
+                        <p
+                          onClick={() => handleFetchReviewReplies(2, item?.id)}
+                          className="cursor-pointer text-sm text-blue-500"
+                        >
+                          {activeReplyIndex === parseInt(item?.id)
+                            ? "Hide Replies"
+                            : "See Replies"}
+                        </p>
+                      </div>
+
+                      {activeReplyIndex === parseInt(item?.id) && (
+                        <div className="mt-4 ml-8 space-y-4">
+                          {reviewRepliesData && reviewRepliesData.comment ? (
+                            <ReviewCard
+                              // key={j}
+                              avatar={reviewRepliesData.avatar}
+                              username={reviewRepliesData.username}
+                              comment={reviewRepliesData.comment}
+                              showRating={true}
+                            />
+                          ) : (
+                            <p className="text-sm text-gray-400">
+                              No replies yet. Be the first to reply.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p>No Reviews</p>
+                )}
+              </div>
+
+              <ReplyForm
+                onSubmit={() => handleSubmitReply()}
+                setFormData={setFormData}
+                formData={formData}
+              />
             </div>
           </div>
 
