@@ -7,29 +7,41 @@ import {
   MapPin,
   Clock,
   CalendarIcon,
-  Clock10,
   Server,
+  Search,
+  ChevronRight,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import Image from "next/image";
 import { Calendar } from "@/components/ui/calendar";
-import { getServiceBySubCategory, getServicesMenu } from "@/actions/service";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 import { baseUrl } from "@/config/constant";
+import { getServicesMenu } from "@/actions/service";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface ServiceProvider {
   id: string;
@@ -58,45 +70,74 @@ interface ServiceCategory {
   }[];
 }
 
-interface ScheduleRequest {
-  date?: Date;
-  time: string;
-  serviceCategory: string | null;
-  serviceType: string | null;
-  location: string | null;
+interface PaginatedResponse {
+  current_page: number;
+  data: ServiceProvider[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: {
+    url: string | null;
+    label: string;
+    active: boolean;
+  }[];
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
 }
 
-// const serviceLocations = [
-//   "Alberta",
-//   "British Columbia",
-//   "Manitoba",
-//   "New Brunswick",
-//   "Ontario",
-//   "Quebec",
-// ];
+interface ScheduleRequest {
+  date?: Date;
+  serviceCategory: string | null;
+  serviceCategoryId: number | null;
+  serviceSubCategoryId: number | null;
+  serviceType: string | null;
+  location: string | null;
+  locationId: number | null;
+  searchQuery: string;
+  page: number;
+}
 
 export default function ServiceAvailability() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const categoryId = searchParams.get("categoryId");
-  const categoryName = searchParams.get("categoryName");
-
-  const [services, setServices] = useState<ServiceProvider[]>([]);
+  const subCategory = searchParams.get("categoryId");
+  // const [services, setServices] = useState<ServiceProvider[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  // const [serviceItems, setServiceItems] = useState<{ id: number; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filteredServices, setFilteredServices] = useState<ServiceProvider[]>(
     []
   );
 
-  const [scheduleRequest, setScheduleRequest] = useState<ScheduleRequest>({
-    date: undefined,
-    time: "",
-    serviceCategory: categoryName || null,
-    serviceType: null,
-    location: null,
+  const [paginationData, setPaginationData] = useState<{
+    currentPage: number;
+    lastPage: number;
+    total: number;
+  }>({
+    currentPage: 1,
+    lastPage: 1,
+    total: 0,
   });
 
+  const [scheduleRequest, setScheduleRequest] = useState<ScheduleRequest>({
+    date: undefined,
+    serviceCategory: null,
+    serviceCategoryId: null,
+    serviceSubCategoryId: null,
+    serviceType: null,
+    location: null,
+    locationId: null,
+    searchQuery: "",
+    page: 1,
+  });
+
+  // For searchable dropdowns
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openLocation, setOpenLocation] = useState(false);
   const [provinces, setProvinces] = useState<
     Array<{ id: number; name: string }>
   >([]);
@@ -106,27 +147,17 @@ export default function ServiceAvailability() {
     const fetchCategories = async () => {
       try {
         const response = await getServicesMenu();
-        if (response && response.ok) {
+        if (response?.ok) {
           const data = await response.json();
           const categories = data.data["Service Category Menu"];
           setCategories(categories);
-
-          // If we have a categoryId, set the service items
-          if (categoryId) {
-            const category = categories.find(
-              (cat) => cat.id === parseInt(categoryId)
-            );
-            if (category) {
-              // setServiceItems(category.service_category_items);
-            }
-          }
         }
       } catch (error) {
         console.error("Error fetching service categories:", error);
       }
     };
     fetchCategories();
-  }, [categoryId]);
+  }, []);
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -134,7 +165,6 @@ export default function ServiceAvailability() {
         const response = await fetch(`${baseUrl}/general/province/getProvince`);
         if (response.ok) {
           const data = await response.json();
-          console.log(data.data.Provinces);
           setProvinces(data.data.Provinces);
         }
       } catch (error) {
@@ -145,32 +175,62 @@ export default function ServiceAvailability() {
   }, []);
 
   const handleScheduleChange = (field: keyof ScheduleRequest, value: any) => {
-    setScheduleRequest((prev) => {
-      const newRequest = { ...prev, [field]: value };
-
-      // If changing service category, update URL and reset service type
-      if (field === "serviceCategory") {
-        const category = categories.find((cat) => cat.name === value);
-        if (category) {
-          router.push(`/services?categoryId=${category.id}`);
-          return { ...newRequest, serviceType: null };
-        }
-      }
-
-      return newRequest;
-    });
+    setScheduleRequest((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFetchService = async (catId: number) => {
+  const fetchServices = async (page = 1) => {
     setIsLoading(true);
     try {
-      const response = await getServiceBySubCategory(catId);
-      if (response && response.ok) {
+      // Build query params for the API call
+      const params = new URLSearchParams();
+
+      if (scheduleRequest.serviceSubCategoryId) {
+        params.append(
+          "sub_service_category",
+          scheduleRequest.serviceSubCategoryId.toString()
+        );
+      }
+
+      if (scheduleRequest.serviceCategoryId) {
+        params.append(
+          "service_category",
+          scheduleRequest.serviceCategoryId.toString()
+        );
+      }
+
+      if (scheduleRequest.locationId) {
+        params.append("province", scheduleRequest.locationId.toString());
+      }
+
+      if (scheduleRequest.date) {
+        params.append("date", format(scheduleRequest.date, "yyyy-MM-dd"));
+      }
+
+      if (scheduleRequest.serviceCategoryId) {
+        params.delete("sub_service_category");
+      }
+      
+      params.append("page", page.toString());
+      
+      const url = `${baseUrl}/general/services/getServicesByCategory?${params.toString()}`;
+      console.log({ url });
+
+      const response = await fetch(url);
+      if (response.ok) {
         const data = await response.json();
-        setServices(data.data["Services"]);
-        setFilteredServices(data.data["Services"]);
+        const servicesData = data.data.Services as PaginatedResponse;
+
+        // setServices(servicesData?.data);
+        setFilteredServices(servicesData?.data);
+
+        // Update pagination data
+        setPaginationData({
+          currentPage: servicesData.current_page,
+          lastPage: servicesData.last_page,
+          total: servicesData.total,
+        });
       } else {
-        setServices([]);
+        // setServices([]);
         setFilteredServices([]);
       }
     } catch (error) {
@@ -180,321 +240,424 @@ export default function ServiceAvailability() {
     }
   };
 
-  const convertTimeToMinutes = (timeString: string): number => {
-    const [hours, minutes] = timeString.split(":").map(Number);
-    return hours * 60 + (minutes || 0);
-  };
+  // This is fixed to fetch services on component load
+  // useEffect(() => {
+  //   if (subCategory) {
+  //     const parsedSubCategory = parseInt(subCategory, 10);
+  //     setScheduleRequest((prev) => ({
+  //       ...prev,
+  //       serviceSubCategoryId: parsedSubCategory,
+  //     }));
+  //   }
+
+  //   fetchServices();
+  // }, []);
+
+  useEffect(() => {
+    if (subCategory) {
+      const parsedSubCategory = parseInt(subCategory, 10);
+      setScheduleRequest((prev) => ({
+        ...prev,
+        serviceSubCategoryId: parsedSubCategory,
+      }));
+    }
+  }, [subCategory]);
+
+  useEffect(() => {
+    if (scheduleRequest.serviceSubCategoryId !== null) {
+      fetchServices();
+    }
+  }, [scheduleRequest.serviceSubCategoryId]);
 
   const handleSearch = useCallback(() => {
-    if (!services) return;
+    // Reset to page 1 when performing a new search
+    setScheduleRequest((prev) => ({ ...prev, page: 1 }));
+    fetchServices(1);
+  }, [scheduleRequest]);
 
-    const filtered = services.filter((service) => {
-      // Service category matching
-      const categoryMatches =
-        !scheduleRequest.serviceCategory ||
-        service.service_category_name.toLowerCase() ===
-          scheduleRequest.serviceCategory.toLowerCase();
+  const handlePageChange = (page: number) => {
+    setScheduleRequest((prev) => ({ ...prev, page }));
+    fetchServices(page);
+  };
 
-      // Location matching
-      const locationMatches =
-        !scheduleRequest.location ||
-        service.province.toLowerCase() ===
-          scheduleRequest.location.toLowerCase();
-
-      // Time matching (only if time is selected)
-      const timeMatches =
-        !scheduleRequest.time ||
-        (() => {
-          const requestTime = convertTimeToMinutes(scheduleRequest.time);
-          const startTime = convertTimeToMinutes(service.start_time);
-          const endTime = convertTimeToMinutes(service.end_time);
-          return requestTime >= startTime && requestTime <= endTime;
-        })();
-
-      // Date matching (if implemented in the backend)
-      const dateMatches = !scheduleRequest.date || true; // Placeholder for date filtering
-
-      return categoryMatches && locationMatches && timeMatches && dateMatches;
-    });
-
-    setFilteredServices(filtered);
-  }, [services, scheduleRequest, setFilteredServices]); // ✅ Dependencies
-
-  // Trigger search when filters change
-  useEffect(() => {
-    if (services?.length > 0) {
-      handleSearch();
-    }
-  }, [scheduleRequest, services, handleSearch]); // Add services to dependency array
-
-  // Initial data fetch when categoryId changes
-  useEffect(() => {
-    if (categoryId) {
-      handleFetchService(parseInt(categoryId));
-    }
-  }, [categoryId]);
-
-  const handleHireNow = (serviceId: string) => {
+  const handleBookNow = (serviceId: string) => {
     router.push(`/booking/?serviceId=${serviceId}`);
   };
 
   return (
-    <div className="container flex justify-start items-center flex-col min-h-screen mx-auto p-4 max-w-7xl py-28 md:py-32">
-      <div className="mb-8 text-center">
-        <h2 className="text-3xl font-semibold my-4 text-primary">
+    <div className="container flex justify-start items-center flex-col min-h-screen mx-auto p-4 max-w-7xl py-12">
+      <div className="w-full mb-8">
+        <h2 className="text-3xl font-semibold my-4 text-center text-primary">
           Check Service Availability
         </h2>
-        <div className="flex flex-wrap gap-4 justify-center">
-          {/* Date Selector */}
-          <Card className="w-[220px]">
-            <CardContent className="p-2">
+
+        {/* Enhanced Search Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex flex-col space-y-4">
+            {/* Text search input */}
+            <div className="w-full">
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
+                <Input
+                  type="text"
+                  placeholder="Search by title, description, service type..."
+                  className="pl-10 w-full"
+                  value={scheduleRequest.searchQuery}
+                  onChange={(e) =>
+                    handleScheduleChange("searchQuery", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Date Selector */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left text-sm font-normal"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !scheduleRequest.date && "text-muted-foreground"
+                    )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {scheduleRequest.date ? (
-                      format(scheduleRequest.date, "PP")
+                      format(scheduleRequest.date, "PPP")
                     ) : (
-                      <span>Pick a date</span>
+                      <span>Select date</span>
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={scheduleRequest.date}
                     onSelect={(date) => handleScheduleChange("date", date)}
+                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
-            </CardContent>
-          </Card>
 
-          {/* Time Selector */}
-          <Card className="w-[220px]">
-            <CardContent className="p-2">
-              <Select
-                value={scheduleRequest.time}
-                onValueChange={(value) => handleScheduleChange("time", value)}
-              >
-                <SelectTrigger>
-                  <div className="flex items-center">
-                    <Clock10 className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Select time" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }, (_, i) => i + 9).map((hour) => (
-                    <SelectItem key={hour} value={`${hour}:00`}>
-                      {`${hour}:00`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          {/* Service Category Selector */}
-          <Card className="w-[280px]">
-            <CardContent className="p-2">
-              <Select
-                value={scheduleRequest.serviceCategory || ""}
-                onValueChange={(value) =>
-                  handleScheduleChange("serviceCategory", value)
-                }
-              >
-                <SelectTrigger>
-                  <div className="flex items-center">
-                    <Server className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Select Category" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          {/* Service Type Selector */}
-          {/* <Card className="w-[220px]">
-            <CardContent className="p-2">
-              <Select
-                value={scheduleRequest.serviceType || ""}
-                onValueChange={(value) =>
-                  handleScheduleChange("serviceType", value)
-                }
-                disabled={!scheduleRequest.serviceCategory}
-              >
-                <SelectTrigger>
-                  <div className="flex items-center">
-                    <Server className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Select Service Type" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {serviceItems.map((item) => (
-                    <SelectItem key={item.id} value={item.name}>
-                      {item.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card> */}
-
-          {/* Location Selector */}
-          <Card className="w-[220px]">
-            <CardContent className="p-2">
-              <Select
-                value={scheduleRequest.location || ""}
-                onValueChange={(value) =>
-                  handleScheduleChange("location", value)
-                }
-              >
-                <SelectTrigger>
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Select location" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {provinces.map((province) => (
-                    <SelectItem key={province.id} value={province.name}>
-                      {province.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-
-          {/* Search Button */}
-          <Card className="w-[220px]">
-            <CardContent className="p-2 flex items-end">
-              <Button className="w-full" onClick={handleSearch}>
-                Check Availability
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Service List */}
-      <div className="grid grid-cols-1 gap-4 w-full max-w-6xl">
-        {isLoading ? (
-          Array.from({ length: 3 }).map((_, index) => (
-            <Card
-              key={`skeleton-${index}`}
-              className="overflow-hidden bg-gray-50"
-            >
-              <div className="flex flex-col md:flex-row animate-pulse">
-                <div className="p-6 flex-grow">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-[100px] h-[100px] rounded-md bg-gray-200" />
-                    <div className="space-y-3 flex-1">
-                      <div className="h-6 bg-gray-200 rounded w-3/4" />
-                      <div className="h-4 bg-gray-200 rounded w-full" />
-                      <div className="h-4 bg-gray-200 rounded w-1/2" />
+              {/* Searchable Service Category Selector */}
+              <Popover open={openCategory} onOpenChange={setOpenCategory}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openCategory}
+                    className="w-full justify-between"
+                  >
+                    <div className="flex items-center">
+                      <Server className="mr-2 h-4 w-4" />
+                      {scheduleRequest.serviceCategory || "Select category"}
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="h-6 bg-gray-200 rounded w-20" />
-                    <div className="h-6 bg-gray-200 rounded w-20" />
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-6 w-[200px] space-y-4">
-                  <div className="h-4 bg-gray-200 rounded w-full" />
-                  <div className="h-4 bg-gray-200 rounded w-full" />
-                  <div className="h-10 bg-gray-200 rounded w-full mt-auto" />
-                </div>
-              </div>
-            </Card>
-          ))
-        ) : filteredServices?.length > 0 ? (
-          filteredServices?.map((provider) => (
-            <Card key={provider.id} className="overflow-hidden bg-gray-50">
-              <div className="flex flex-col md:flex-row">
-                <div className="p-6 flex-grow">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <Image
-                      src={
-                        provider.image || "/assets/images/image-placeholder.png"
-                      }
-                      alt={`${provider.title}'s profile picture`}
-                      width={100}
-                      height={100}
-                      className="rounded-md bg-gray-300"
-                    />
-                    <div>
-                      <h3 className="text-[2rem] text-[#502266] font-semibold">
-                        {provider.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-4">
-                        {provider.description}
-                      </p>
-                      <div className="flex gap-2">
-                        <Badge variant="secondary" className="bg-[#FFDFC0]">
-                          {provider.service_category_items_name}
-                        </Badge>
-                        <Badge variant="secondary" className="bg-[#FFDFC0]">
-                          {provider.service_category_name}
-                        </Badge>
+                    <ChevronRight className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search categories..." />
+                    <CommandEmpty>No category found.</CommandEmpty>
+                    <CommandGroup className="max-h-[200px] overflow-y-auto">
+                      {categories.map((category) => (
+                        <CommandItem
+                          key={category.id}
+                          value={category.name}
+                          onSelect={() => {
+                            handleScheduleChange(
+                              "serviceCategory",
+                              category.name
+                            );
+                            handleScheduleChange(
+                              "serviceCategoryId",
+                              category.id
+                            );
+                            setOpenCategory(false);
+                          }}
+                        >
+                          {category.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              {/* Searchable Location Selector */}
+              <Popover open={openLocation} onOpenChange={setOpenLocation}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openLocation}
+                    className="w-full justify-between"
+                  >
+                    <div className="flex items-center">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      {scheduleRequest.location || "Select location"}
+                    </div>
+                    <ChevronRight className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0">
+                  <Command>
+                    <CommandInput placeholder="Search locations..." />
+                    <CommandEmpty>No location found.</CommandEmpty>
+                    <CommandGroup className="max-h-[200px] overflow-y-auto">
+                      {provinces.map((province) => (
+                        <CommandItem
+                          key={province.id}
+                          value={province.name}
+                          onSelect={() => {
+                            handleScheduleChange("location", province.name);
+                            handleScheduleChange("locationId", province.id);
+                            setOpenLocation(false);
+                          }}
+                        >
+                          {province.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Search Button */}
+            <div className="flex justify-end mt-2">
+              <Button
+                onClick={handleSearch}
+                className="w-full md:w-auto"
+                size="lg"
+              >
+                Search Services
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Service List */}
+        <div className="grid grid-cols-1 gap-6 w-full">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <Card
+                key={`skeleton-${index}`}
+                className="overflow-hidden border border-gray-200"
+              >
+                <div className="flex flex-col md:flex-row animate-pulse">
+                  <div className="p-6 flex-grow">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <div className="w-[100px] h-[100px] rounded-md bg-gray-200" />
+                      <div className="space-y-3 flex-1">
+                        <div className="h-6 bg-gray-200 rounded w-3/4" />
+                        <div className="h-4 bg-gray-200 rounded w-full" />
+                        <div className="h-4 bg-gray-200 rounded w-1/2" />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-row gap-x-4 items-center justify-start">
-                    <div className="flex items-center text-[#502266]">
-                      <span className="font-semibold text-lg">
-                        ${provider.price}
-                      </span>
+                    <div className="flex gap-2">
+                      <div className="h-6 bg-gray-200 rounded w-20" />
+                      <div className="h-6 bg-gray-200 rounded w-20" />
                     </div>
-                    {provider.rating && (
+                  </div>
+                  <div className="bg-gray-50 p-6 w-[200px] space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-full" />
+                    <div className="h-4 bg-gray-200 rounded w-full" />
+                    <div className="h-10 bg-gray-200 rounded w-full mt-auto" />
+                  </div>
+                </div>
+              </Card>
+            ))
+          ) : filteredServices?.length > 0 ? (
+            filteredServices?.map((provider) => (
+              <Card
+                key={provider.id}
+                className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              >
+                <div className="flex flex-col md:flex-row">
+                  <div className="p-6 flex-grow">
+                    <div className="flex flex-col md:flex-row md:items-start gap-4">
+                      <div className="w-[100px] h-[100px] rounded-md bg-gray-100 flex-shrink-0 overflow-hidden">
+                        <img
+                          src={provider.image || "/placeholder.svg"}
+                          alt={provider.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-semibold text-primary">
+                          {provider.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-2 mb-3 line-clamp-2">
+                          {provider.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary" className="bg-accent/50">
+                            {provider.service_category_items_name}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-accent/50">
+                            {provider.service_category_name}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-row gap-x-4 items-center mt-4">
                       <div className="flex items-center">
-                        <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                        <span className="ml-1">
-                          {provider.rating.toFixed(1)}
+                        <span className="font-semibold text-lg text-primary">
+                          ${provider.price}
                         </span>
                       </div>
-                    )}
+                      {provider.rating && (
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                          <span className="ml-1 text-sm">
+                            {provider.rating.toFixed(1)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="bg-gray-50 p-6 flex flex-col justify-between">
-                  <div className="flex items-center mb-4">
-                    <Clock className="w-5 h-5 mr-2 text-gray-600" />
-                    <span className="text-sm text-gray-700">
-                      Duration: {provider.service_duration} hrs
-                    </span>
+                  <div className="bg-muted/30 p-6 flex flex-col justify-between md:w-[200px]">
+                    <div>
+                      <div className="flex items-center mb-3">
+                        <Clock className="w-4 h-4 mr-2 text-gray-600" />
+                        <span className="text-sm">
+                          {provider.service_duration} hrs
+                        </span>
+                      </div>
+                      <div className="flex items-center mb-4">
+                        <MapPin className="w-4 h-4 mr-2 text-gray-600" />
+                        <span className="text-sm truncate">
+                          {provider.city}, {provider.province}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      className="mt-auto"
+                      onClick={() => handleBookNow(provider.id)}
+                    >
+                      Book Now
+                    </Button>
                   </div>
-                  <div className="flex items-center mb-4">
-                    <MapPin className="w-5 h-5 mr-2 text-gray-600" />
-                    <span className="text-sm text-gray-700">
-                      {provider.city}, {provider.province}
-                    </span>
-                  </div>
-                  <Button
-                    className="mt-auto text-white"
-                    onClick={() => handleHireNow(provider.id)}
-                  >
-                    Book Now
-                  </Button>
                 </div>
-              </div>
-            </Card>
-          ))
-        ) : (
-          <div className="text-center mt-24 text-gray-600">
-            <p>No service providers found matching your criteria.</p>
-          </div>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-12 bg-muted/20 rounded-lg">
+              <h3 className="text-xl font-medium text-gray-700 mb-2">
+                No services found
+              </h3>
+              <p className="text-gray-500">
+                Try adjusting your search criteria
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination component */}
+        {filteredServices?.length > 0 && (
+          <Pagination className="mt-8">
+            <PaginationContent>
+              {paginationData?.currentPage > 1 && (
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      handlePageChange(paginationData?.currentPage - 1)
+                    }
+                    href="#"
+                  />
+                </PaginationItem>
+              )}
+
+              {/* First page */}
+              {paginationData?.lastPage > 1 && (
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    isActive={paginationData?.currentPage === 1}
+                    onClick={() => handlePageChange(1)}
+                  >
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+
+              {/* Ellipsis for many pages */}
+              {paginationData?.currentPage > 3 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+
+              {/* Pages around current page */}
+              {paginationData?.lastPage > 1 &&
+                Array.from(
+                  { length: Math.min(3, paginationData?.lastPage) },
+                  (_, i) => {
+                    const pageNum = Math.max(
+                      2,
+                      Math.min(
+                        paginationData?.currentPage - 1 + i,
+                        paginationData?.lastPage - 1
+                      )
+                    );
+                    // Only show if it's not the first or last page
+                    if (pageNum > 1 && pageNum < paginationData?.lastPage) {
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            href="#"
+                            isActive={pageNum === paginationData?.currentPage}
+                            onClick={() => handlePageChange(pageNum)}
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  }
+                ).filter(Boolean)}
+
+              {/* Ellipsis for many pages */}
+              {paginationData.currentPage < paginationData.lastPage - 2 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+
+              {/* Last page */}
+              {paginationData.lastPage > 1 && (
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    isActive={
+                      paginationData.currentPage === paginationData.lastPage
+                    }
+                    onClick={() => handlePageChange(paginationData.lastPage)}
+                  >
+                    {paginationData.lastPage}
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+
+              {paginationData.currentPage < paginationData.lastPage && (
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      handlePageChange(paginationData.currentPage + 1)
+                    }
+                    href="#"
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
         )}
       </div>
     </div>

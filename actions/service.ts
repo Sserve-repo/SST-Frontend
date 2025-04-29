@@ -43,11 +43,13 @@ export const getServicesMenu = async () => {
 //   }
 // };
 
-export const getServiceBySubCategory = async (catId: number) => {
+export const getServiceBySubCategory = async (subCategory: number | null) => {
   try {
-    const response = await fetch(
-      `${baseUrl}/general/services/getServicesBySubCategory/${catId}      }`
-    );
+    const url = subCategory
+      ? `${baseUrl}/general/services/getServicesByCategory?sub_service_category=${subCategory}`
+      : `${baseUrl}/general/services/getServicesByCategory`;
+
+    const response = await fetch(url);
     return response;
   } catch (error: any) {
     console.log("failed to fetch service category", error);
