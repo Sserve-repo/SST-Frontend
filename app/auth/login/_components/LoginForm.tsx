@@ -107,6 +107,12 @@ export default function LoginForm() {
           router.push(`/${redirect}`);
           return;
         } else {
+          toast.success("Login successful! Redirecting...");
+          if (type === "buyer") {
+            router.push(`/`);
+            return;
+          }
+
           router.push(`/${type}/dashboard`);
           return;
         }

@@ -10,6 +10,7 @@ import {
   Server,
   Search,
   ChevronRight,
+  Bolt,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -209,9 +210,9 @@ export default function ServiceAvailability() {
       if (scheduleRequest.serviceCategoryId) {
         params.delete("sub_service_category");
       }
-      
+
       params.append("page", page.toString());
-      
+
       const url = `${baseUrl}/general/services/getServicesByCategory?${params.toString()}`;
       console.log({ url });
 
@@ -240,7 +241,6 @@ export default function ServiceAvailability() {
     }
   };
 
-
   useEffect(() => {
     if (subCategory) {
       const parsedSubCategory = parseInt(subCategory, 10);
@@ -262,6 +262,22 @@ export default function ServiceAvailability() {
     setScheduleRequest((prev) => ({ ...prev, page: 1 }));
     fetchServices(1);
   }, [scheduleRequest]);
+
+  const handleReset = useCallback(() => {
+    // Reset to page 1 when performing a new search
+    setScheduleRequest({
+      date: undefined,
+      serviceCategory: null,
+      serviceCategoryId: null,
+      serviceSubCategoryId: null,
+      serviceType: null,
+      location: null,
+      locationId: null,
+      searchQuery: "",
+      page: 1,
+    });
+    fetchServices(1);
+  }, []);
 
   const handlePageChange = (page: number) => {
     setScheduleRequest((prev) => ({ ...prev, page }));
@@ -416,13 +432,22 @@ export default function ServiceAvailability() {
             </div>
 
             {/* Search Button */}
-            <div className="flex justify-end mt-2">
+            <div className="flex justify-end mt-2 space-x-3">
+              <Button
+                onClick={handleReset}
+                className="w-full md:w-auto"
+                size="lg"
+              >
+                <Bolt />
+                Reset
+              </Button>
+
               <Button
                 onClick={handleSearch}
                 className="w-full md:w-auto"
                 size="lg"
               >
-                Search Services
+                Search
               </Button>
             </div>
           </div>

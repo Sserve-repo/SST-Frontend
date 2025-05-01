@@ -22,7 +22,6 @@ import { DeleteServiceDialog } from "./delete-service-dialog";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import type { Service } from "@/types/services";
 import { Card } from "@/components/ui/card";
-import { Product } from "@/types";
 import { ServiceReviewsPreviewSheet } from "./service-review-preview-sheet";
 
 interface ServiceTableProps {
@@ -39,50 +38,7 @@ export function ServiceTable({
   console.log({ services });
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
-  const [selectedService, setSelectedService] = useState<Product | null>(null);
-
-  //   const handleFetchServiceListings = async () => {
-  //     try {
-  //       const response = await getserviceListings();
-  //       if (!response?.ok) {
-  //         throw Error("Cannot fetch analytics data");
-  //       }
-  //       const data = await response.json();
-
-  //       const { serviceListing } = data.data;
-  //       const transformedServiceList = serviceListing?.map((item) => {
-  //         return {
-  //           id: item?.id,
-  //           name: item?.title,
-  //           description: item?.description,
-  //           price: item?.price,
-  //           duration: item?.service_duration,
-  //           images: [item?.image],
-  //           availability: {
-  //             monday: { start: "09:00", end: "17:00" },
-  //             wednesday: { start: "09:00", end: "17:00" },
-  //             friday: { start: "09:00", end: "17:00" },
-  //           },
-  //           status: item?.status === 1 ? "active" : "disabled",
-  //           category: "",
-  //           createdAt: "",
-  //           featured: false,
-  //           vendor: {
-  //             id: "",
-  //             name: "",
-  //             email: "",
-  //           },
-  //         };
-  //       });
-  //       setServices(transformedServiceList);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-
-  // useEffect(() => {}, [
-
-  // ]);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   return (
     <>

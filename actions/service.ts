@@ -83,3 +83,60 @@ export const getServiceDetail = async (id) => {
     console.log("failed to fetch featured artisan", error);
   }
 };
+
+export async function addServiceReview(payload: any, serviceId: number) {
+  try {
+    const token = Cookies.get("accessToken");
+    if (!token) {
+      throw new Error("No access token found");
+    }
+    const response = await fetch(
+      `${baseUrl}/general/services/addReviews/${serviceId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
+export async function getServiceReviews(serviceId: number) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getreviews/${serviceId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}
+
+export async function getServiceReviewsReplies(
+  serviceId: number,
+  reviewId: number
+) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getReviewsReply/${serviceId}/${reviewId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch product menu", error);
+  }
+}

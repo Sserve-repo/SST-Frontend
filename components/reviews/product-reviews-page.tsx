@@ -11,7 +11,7 @@ import {
 } from "@/actions/dashboard/vendors";
 import { ProductReviewList } from "./product-list";
 
-export default function ServiceReviewsPage({ product }) {
+export default function ProductReviewsPage({ product }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewOverview, setReviewOverview] = useState<ReviewOverview>({
     averageRating: 0,
