@@ -15,11 +15,12 @@ export type Service = {
   duration: number;
   images: string[];
   availability: ServiceAvailability;
-  status: "active" | "inactive" | "approved" | "pending" |"rejected";
+  homeService?: boolean,
+  status?: "active" | "inactive" | "approved" | "pending" |"rejected";
   category: string;
   createdAt: string | Date
   featured: boolean
-  vendor: {
+  vendor?: {
     id: string;
     name: string;
     email: string;

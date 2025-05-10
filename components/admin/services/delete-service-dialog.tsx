@@ -1,5 +1,6 @@
 "use client"
 
+import { deleteServiceListing } from "@/actions/dashboard/artisans"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,9 +21,8 @@ interface DeleteServiceDialogProps {
 export function DeleteServiceDialog({ service, onOpenChange }: DeleteServiceDialogProps) {
   if (!service) return null
 
-  const handleDelete = () => {
-    // Handle service deletion here
-    console.log("Deleting service:", service.id)
+  const handleDelete = async() => {
+    await deleteServiceListing(service.id)
     onOpenChange(false)
   }
 

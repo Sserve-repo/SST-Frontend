@@ -25,6 +25,7 @@ import { useState } from "react";
 export function Header() {
   const { toggleSidebar } = useSidebarToggle();
   const { currentUser, logOut } = useAuth();
+  console.log({currentUser})
   const router = useRouter();
     const [notifications, setNotifications] = useState([
       {

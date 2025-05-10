@@ -1,6 +1,41 @@
 import { baseUrl } from "../../config/constant";
 import Cookies from "js-cookie";
 
+export const createServiceListing = async (requestPayload: any) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceListing/create`,
+      {
+        method: "POST",
+        body: requestPayload,
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Vendor listing detail creation failed", error);
+  }
+};
+
+export const deleteServiceListing = async (serviceId) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceListing/destroy/${serviceId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Vendor listing detail creation failed", error);
+  }
+};
+
 export const getArtisanAnalytics = async () => {
   const token = Cookies.get("accessToken");
   try {

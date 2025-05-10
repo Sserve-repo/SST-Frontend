@@ -1,19 +1,27 @@
-"use client"
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Check, X } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { Service } from "@/types/services"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Service } from "@/types/services";
 
 interface ServiceDetailsDialogProps {
-  service: Service | null
-  onOpenChange: (open: boolean) => void
+  service: Service | null;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function ServiceDetailsDialog({ service, onOpenChange }: ServiceDetailsDialogProps) {
-  if (!service) return null
+export function ServiceDetailsDialog({
+  service,
+  onOpenChange,
+}: ServiceDetailsDialogProps) {
+  if (!service) return null;
 
   return (
     <Dialog open={!!service} onOpenChange={onOpenChange}>
@@ -36,9 +44,11 @@ export function ServiceDetailsDialog({ service, onOpenChange }: ServiceDetailsDi
               <Badge
                 variant="secondary"
                 className={cn(
-                  service.status === "approved" && "bg-green-100 text-green-600",
-                  service.status === "pending" && "bg-yellow-100 text-yellow-600",
-                  service.status === "rejected" && "bg-red-100 text-red-600",
+                  service.status === "approved" &&
+                    "bg-green-100 text-green-600",
+                  service.status === "pending" &&
+                    "bg-yellow-100 text-yellow-600",
+                  service.status === "rejected" && "bg-red-100 text-red-600"
                 )}
               >
                 {service.status}
@@ -56,14 +66,18 @@ export function ServiceDetailsDialog({ service, onOpenChange }: ServiceDetailsDi
               <span className="font-medium">Price</span>
               <span>${service.price}</span>
             </div>
-            <div className="flex justify-between border-b py-2">
-              <span className="font-medium">Vendor</span>
-              <span>{service.vendor.name}</span>
-            </div>
-            <div className="flex justify-between border-b py-2">
-              <span className="font-medium">Vendor Email</span>
-              <span>{service.vendor.email}</span>
-            </div>
+            {service.vendor && (
+              <>
+                <div className="flex justify-between border-b py-2">
+                  <span className="font-medium">Vendor</span>
+                  <span>{service?.vendor.name}</span>
+                </div>
+                <div className="flex justify-between border-b py-2">
+                  <span className="font-medium">Vendor Email</span>
+                  <span>{service?.vendor.email}</span>
+                </div>
+              </>
+            )}
             <div className="flex justify-between border-b py-2">
               <span className="font-medium">Created Date</span>
               <span>{new Date(service.createdAt).toLocaleDateString()}</span>
@@ -89,6 +103,5 @@ export function ServiceDetailsDialog({ service, onOpenChange }: ServiceDetailsDi
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

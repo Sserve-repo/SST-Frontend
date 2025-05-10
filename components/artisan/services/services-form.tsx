@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,27 +28,28 @@ import type { Service } from "@/types/services";
 import DatePicker from "react-multi-date-picker";
 import InputIcon from "react-multi-date-picker/components/input_icon";
 import type { Value } from "react-multi-date-picker";
+import { Switch } from "@/components/ui/switch";
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
   description: z.string().min(10).max(500),
   price: z.number().min(0),
+  homeService: z.boolean().default(false),
   duration: z.number().min(15).max(480),
-  images: z.array(z.string()).min(1),
-  availableFrom: z.array(z.string()),
-  availableTo: z.array(z.string()),
+  images: z.array(z.any()).min(1),
+  availableFrom: z.string().min(2),
+  availableTo: z.string().min(2),
   availability: z.record(
     z.object({
       start: z.string(),
       end: z.string(),
     })
   ),
-  status: z.enum(["active", "inactive"]),
 });
 
 interface ServiceFormProps {
   service?: Service;
-  onSubmit: (data: Service | Omit<Service, "id">) => void;
+  onSubmit: (data: any | Omit<Service, "id">) => void;
 }
 
 export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
@@ -62,15 +64,20 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
       description: "",
       price: 0,
       duration: 60,
+      homeService: false,
       images: [],
       availability: {},
       availableFrom: "",
       availableTo: "",
-      status: "active",
     },
   } as any);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    const formattedDates = selectedDates?.map((date: any) =>
+      date?.format("YYYY-MM-DD")
+    );
+    console.log("Formatted Dates:", formattedDates);
+
     if (service) {
       onSubmit({
         ...values,
@@ -78,16 +85,28 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
         category: "",
         createdAt: "",
         featured: false,
-        vendor: {
-          id: "",
-          name: "",
-          email: "",
-        },
+        title: values.name,
+        description: values.description,
+        start_time: values.availableFrom,
+        end_time: values.availableTo,
+        available_dates: formattedDates,
+        service_duration: values.duration,
+        home_service_availability: values.homeService,
       });
     } else {
+      // console.log({
+      //   title: values.name,
+      //   description: values.description,
+      //   start_time: values.availableFrom,
+      //   end_time: values.availableTo,
+      //   available_dates: formattedDates,
+      //   service_duration: values.duration,
+      //   home_service_availability: values.homeService,
+      // });
       onSubmit({
         ...values,
         category: "",
+        status: "inactive",
         createdAt: "",
         featured: false,
         vendor: {
@@ -95,13 +114,15 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
           name: "",
           email: "",
         },
+        title: values.name,
+        description: values.description,
+        start_time: values.availableFrom,
+        end_time: values.availableTo,
+        available_dates: formattedDates,
+        service_duration: values.duration,
+        home_service_availability: values.homeService,
       });
     }
-  };
-
-  const handleDateChange = (dates) => {
-    setSelectedDates(dates);
-    console.log("Formatted Dates:", dates);
   };
 
   return (
@@ -117,6 +138,7 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
                 <ImageUpload
                   value={field.value}
                   onChange={field.onChange}
+                  // onChangeFiles
                   onRemove={(url) =>
                     field.onChange(field.value.filter((val) => val !== url))
                   }
@@ -218,7 +240,7 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
                 value={selectedDates}
                 // format="MMMM DD YYYY"
                 onChange={(dates) => {
-                  handleDateChange(dates);
+                  setSelectedDates(dates);
                 }}
                 className="purple"
               />
@@ -226,11 +248,6 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
             </FormItem>
           )}
         />
-
-        <div className="flex flex-row space-x-2">
-          {selectedDates &&
-            selectedDates.map((item, index) => <p key={index}>{item?.toLocaleString()}</p>)}
-        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -273,22 +290,21 @@ export function ServiceForm({ service, onSubmit }: ServiceFormProps) {
 
         <FormField
           control={form.control}
-          name="status"
+          name="homeService"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Home Service</FormLabel>
+                <FormDescription>
+                  Do you want to offer home service to customers.
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

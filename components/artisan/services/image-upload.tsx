@@ -6,27 +6,28 @@ import { Button } from "@/components/ui/button"
 import { ImagePlus, X } from "lucide-react"
 
 interface ImageUploadProps {
-  value: string[]
-  onChange: (value: string[]) => void
-  onRemove: (value: string) => void
+  value: File[]
+  onChange: (value: File[]) => void
+  onRemove: (file: File) => void
 }
 
 export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
   const [loading, setLoading] = useState(false)
+  console.log({loading})
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       setLoading(true)
-      console.log(loading)
-
-      // In a real application, you would upload these files to your storage
-      // For this example, we'll create object URLs
-      const urls = acceptedFiles.map((file) => URL.createObjectURL(file))
-      onChange([...value, ...urls])
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+      const filteredFiles = acceptedFiles.filter(file =>
+        allowedTypes.includes(file.type)
+      )
+      onChange([...value, ...filteredFiles])
       setLoading(false)
     },
-    [value, onChange, loading],
+    [value, onChange]
   )
+  
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -54,15 +55,19 @@ export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
 
       {value.length > 0 && (
         <div className="grid grid-cols-3 gap-4">
-          {value.map((url) => (
-            <div key={url} className="relative group">
-              <img src={url || "/assets/images/image-placeholder.png"} alt="Service" className="h-24 w-full rounded-md object-cover" />
+          {value.map((file) => (
+            <div key={file.name} className="relative group">
+              <img
+                src={URL.createObjectURL(file)} // ✅ preview
+                alt="Service"
+                className="h-24 w-full rounded-md object-cover"
+                />
               <Button
                 type="button"
                 variant="destructive"
                 size="icon"
                 className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition"
-                onClick={() => onRemove(url)}
+                onClick={() => onRemove(file)}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -73,4 +78,3 @@ export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
     </div>
   )
 }
-
