@@ -26,6 +26,7 @@ import type {
   Message,
   MessageAttachment,
 } from "@/types/messages";
+import { useAuth } from "@/context/AuthContext";
 
 interface MessageThreadProps {
   conversation: Conversation;
@@ -48,6 +49,10 @@ export function MessageThread({
   const [attachments, setAttachments] = useState<MessageAttachment[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { currentUser } = useAuth();
+
+  // Add a ref to track if we've already marked this conversation as read
+  const markedAsReadRef = useRef(false);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,10 +60,17 @@ export function MessageThread({
 
   useEffect(() => {
     scrollToBottom();
-    if (conversation.unreadCount > 0) {
+    // Only mark as read once per conversation
+    if (conversation.unreadCount > 0 && !markedAsReadRef.current) {
+      markedAsReadRef.current = true;
       onMarkAsRead();
     }
-  }, [conversation.unreadCount, onMarkAsRead, scrollToBottom]);
+  }, [conversation.id, conversation.unreadCount, onMarkAsRead, scrollToBottom]); // Added conversation.id to dependencies
+
+  // Reset the marked as read status when conversation changes
+  useEffect(() => {
+    markedAsReadRef.current = false;
+  }, [conversation.id]);
 
   const handleSend = () => {
     if (newMessage.trim() || attachments.length > 0) {
@@ -133,13 +145,13 @@ export function MessageThread({
           <div
             key={message.id}
             className={`flex gap-4 ${
-              message.senderId === "a1" ? "flex-row-reverse" : ""
+              message.senderId === currentUser.id ? "flex-row-reverse" : ""
             }`}
           >
             <Avatar className="h-8 w-8">
               <AvatarImage
                 src={
-                  message.senderId === "a1"
+                  message.senderId === currentUser.id
                     ? "/assets/images/image-placeholder.png"
                     : conversation.customer.avatar
                 }
@@ -155,7 +167,7 @@ export function MessageThread({
             </Avatar>
             <div
               className={`rounded-lg p-4 max-w-[70%] space-y-2 ${
-                message.senderId === "a1"
+                message.senderId === currentUser.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted"
               }`}
@@ -164,7 +176,9 @@ export function MessageThread({
                 <div key={attachment.id} className="rounded-md overflow-hidden">
                   {attachment.type === "image" ? (
                     <img
-                      src={attachment.url || "/assets/images/image-placeholder.png"}
+                      src={
+                        attachment.url || "/assets/images/image-placeholder.png"
+                      }
                       alt={attachment.name}
                       className="max-w-full h-auto"
                     />
@@ -207,7 +221,9 @@ export function MessageThread({
               >
                 {attachment.type === "image" ? (
                   <img
-                    src={attachment.url || "/assets/images/image-placeholder.png"}
+                    src={
+                      attachment.url || "/assets/images/image-placeholder.png"
+                    }
                     alt={attachment.name}
                     className="h-20 w-20 object-cover"
                   />

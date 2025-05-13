@@ -28,7 +28,7 @@ import {
 import { OrderDetails } from "./order-details";
 import { MdReplay } from "react-icons/md";
 import { useParams } from "next/navigation";
-import { getOrderDetail } from "@/actions/dashboard";
+import { getOrderDetail } from "@/actions/dashboard/buyer";
 import { convertTime } from "@/lib/utils";
 
 type OrderItemsType = {

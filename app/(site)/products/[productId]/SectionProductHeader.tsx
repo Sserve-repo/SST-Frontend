@@ -15,10 +15,12 @@ import {
   getProductReviewsReplies,
 } from "@/actions/product";
 import { ReplyForm, ReviewCard } from "@/components/reviews/utils";
+import { createMessage } from "@/actions/dashboard/vendors";
 
 interface SectionProductHeaderProps {
   slug: string;
   id: number;
+  userId: number;
   productName: string;
   description: string;
   price: number;
@@ -54,6 +56,7 @@ type ReviewData = {
 const SectionProductHeader: FC<SectionProductHeaderProps> = ({
   // slug,
   id,
+  userId,
   productName,
   description,
   price,
@@ -70,6 +73,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
   const { addToCart } = useCart();
   const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
   const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
+  const [message, setMessage] = useState("");
   const [reviewRepliesData, setReviewRepliesData] = useState<ReviewData>({
     id: "",
     username: "Vendor",
@@ -127,6 +131,32 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
           },
           ...prev,
         ]);
+        toast.success("Review added successfully");
+      } else {
+        toast.error("Failed to add review");
+      }
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      toast.error("Failed to submit reply");
+    }
+  };
+
+  const handleMessageSeller = async (e) => {
+    e.preventDefault();
+    try {
+      if (!message) {
+        toast.error("Please enter a message");
+        return;
+      }
+
+      const form = new FormData();
+      form.append("recipient_id", userId.toString());
+      form.append("message", message);
+
+      const response = await createMessage(form);
+      const data = await response?.json();
+      if (data?.status === true) {
+        setMessage("");
         toast.success("Review added successfully");
       } else {
         toast.error("Failed to add review");
@@ -283,6 +313,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                     </span>
                   </p>
 
+                  <textarea></textarea>
                   <Button
                     className="text-xs px-5 w-48 mt-1"
                     variant={"outline"}
@@ -475,9 +506,20 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                   Owner of{" "}
                   <span className="text-primary">Triple Rock POP Cement </span>
                 </p>
-                <Button className="text-xs px-5 w-48 mt-1" variant={"outline"}>
-                  Message Seller
-                </Button>
+
+                <div className="grid grid-col-1">
+                  <textarea
+                    className="border rounded-lg text-xs h-16"
+                    onChange={(e) => setMessage(e.target.value)}
+                  ></textarea>
+                  <Button
+                  onClick={handleMessageSeller}
+                    className="text-xs px-5 w-48 mt-1"
+                    variant={"outline"}
+                  >
+                    Message Seller
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

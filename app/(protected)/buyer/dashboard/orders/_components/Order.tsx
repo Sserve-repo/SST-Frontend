@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MdReplay } from "react-icons/md";
-import { getOrderlist } from "@/actions/dashboard";
+import { getOrderlist } from "@/actions/dashboard/buyer";
 import { useRouter } from "next/navigation";
 import { convertTime } from "@/lib/utils";
 

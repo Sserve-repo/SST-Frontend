@@ -72,7 +72,10 @@ export async function getCustomerReviews(productId: number) {
   }
 }
 
-export async function getCustomerReviewsReply(productId: number, reviewId: number) {
+export async function getCustomerReviewsReply(
+  productId: number,
+  reviewId: number
+) {
   try {
     const response = await fetch(
       `${baseUrl}/vendor/dashboard/productListing/getReviewsReply/${productId}/${reviewId}`,
@@ -196,5 +199,81 @@ export const getOrderDetails = async (id) => {
     return response;
   } catch (error: any) {
     console.log("Failed ro fetch promotions", error);
+  }
+};
+
+// messages
+
+export const createMessage = async (payload) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/chat/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Failed to create promotions", error);
+  }
+};
+
+export const deleteMessage = async (messageId: any) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/chat/delete/${messageId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error  deleting promotions", error);
+  }
+};
+
+export const fetchLastConversations = async () => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/chat/getLastMessages
+`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error  fetching  last messages", error);
+  }
+};
+
+export const fetchConversations = async (consersationId) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/chat/getFullConversation/${consersationId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error  fetching  last messages", error);
   }
 };

@@ -7,7 +7,10 @@ import {
 } from "@/components/dashboard/transaction-listing";
 import { Messages } from "@/components/dashboard/message";
 import { useEffect, useState } from "react";
-import { getServiceOverview, getProductOverview } from "@/actions/dashboard";
+import {
+  getServiceOverview,
+  getProductOverview,
+} from "@/actions/dashboard/buyer";
 
 type OverviewType = {
   Transactions: TransactionType[];

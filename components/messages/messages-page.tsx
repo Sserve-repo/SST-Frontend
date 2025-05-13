@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageList } from "@/components/messages/message-list";
 import { MessageThread } from "@/components/messages/message-thread";
 import { MessageSearch } from "@/components/messages/message-search";
@@ -12,111 +12,113 @@ import type {
   MessageFilter,
   MessageAttachment,
 } from "@/types/messages";
+import {
+  createMessage,
+  fetchConversations,
+  fetchLastConversations,
+} from "@/actions/dashboard/vendors";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { currentUser } = useAuth();
   const [activeFilter, setActiveFilter] = useState<MessageFilter>("all");
 
-  // In a real app, this would be fetched from an API
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: "1",
-      customer: {
-        id: "c1",
-        name: "Sarah Johnson",
-        avatar: "/assets/images/image-placeholder.png",
-        email: "sarah@example.com",
-      },
-      lastMessage: {
-        id: "m1",
-        content: "Hi, I'd like to reschedule my appointment for next week.",
-        timestamp: new Date("2025-02-20T10:30:00"),
-        senderId: "c1",
-        read: false,
-      },
-      unreadCount: 1,
-      status: "active",
-    },
-    {
-      id: "2",
-      customer: {
-        id: "c2",
-        name: "Michael Brown",
-        avatar: "/assets/images/image-placeholder.png",
-        email: "michael@example.com",
-      },
-      lastMessage: {
-        id: "m2",
-        content: "Thank you for the great service!",
-        timestamp: new Date("2025-02-19T15:45:00"),
-        senderId: "c2",
-        read: true,
-      },
-      unreadCount: 0,
-      status: "active",
-    },
-    {
-      id: "3",
-      customer: {
-        id: "c3",
-        name: "Emily Davis",
-        avatar: "/assets/images/image-placeholder.png",
-        email: "emily@example.com",
-      },
-      lastMessage: {
-        id: "m3",
-        content: "Looking forward to my appointment tomorrow!",
-        timestamp: new Date("2025-02-18T09:15:00"),
-        senderId: "a1",
-        read: true,
-      },
-      unreadCount: 0,
-      status: "archived",
-    },
-  ]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [messages, setMessages] = useState<Record<string, Message[]>>({});
 
-  // In a real app, this would be fetched from an API
-  const [messages, setMessages] = useState<Record<string, Message[]>>({
-    "1": [
-      {
-        id: "m1",
-        content: "Hi, I'd like to reschedule my appointment for next week.",
-        timestamp: new Date("2025-02-20T10:30:00"),
-        senderId: "c1",
-        read: false,
-      },
-    ],
-    "2": [
-      {
-        id: "m2",
-        content: "Thank you for the great service!",
-        timestamp: new Date("2025-02-19T15:45:00"),
-        senderId: "c2",
-        read: true,
-      },
-      {
-        id: "m2-reply",
-        content: "You're welcome! Looking forward to seeing you again.",
-        timestamp: new Date("2025-02-19T16:00:00"),
-        senderId: "a1",
-        read: true,
-      },
-    ],
-    "3": [
-      {
-        id: "m3",
-        content: "Looking forward to my appointment tomorrow!",
-        timestamp: new Date("2025-02-18T09:15:00"),
-        senderId: "a1",
-        read: true,
-      },
-    ],
-  });
+  const handleFetchLastConversations = useCallback(async () => {
+    try {
+      const response = await fetchLastConversations();
 
-  const handleSendMessage = (
+      if (!response?.ok) {
+        const errorData = await response?.json();
+        console.error("Failed to create service:", errorData);
+        throw new Error("Service creation failed");
+      }
+
+      const waitedResponse = await response.json();
+      const data = waitedResponse.data.all;
+      console.log({ data });
+
+      const transformedConversations = data.map((conversation) => ({
+        id: conversation?.parent_message_id,
+        customer: {
+          id: conversation?.recipient?.id,
+          name: conversation?.recipient?.name,
+          avatar:
+            conversation?.recipient?.image_url ||
+            "/assets/images/image-placeholder.png",
+          email: conversation?.recipient?.name || "sarah@example.com",
+        },
+        lastMessage: {
+          id: "m1",
+          content: conversation?.last_message,
+          timestamp: new Date(conversation.time_ago),
+          senderId: conversation?.sender?.id,
+          read: false,
+        },
+        unreadCount: 1,
+        status: "active",
+      }));
+
+      setConversations(transformedConversations);
+    } catch (error) {
+      console.error("Error creating service:", error);
+      // Optionally show user-friendly feedback
+    }
+  }, []); // Removed conversations dependency which caused infinite loop
+
+  const handleFetchConversations = useCallback(async () => {
+    if (!selectedConversation?.id) return;
+
+    try {
+      const response = await fetchConversations(selectedConversation?.id);
+
+      if (!response?.ok) {
+        const errorData = await response?.json();
+        console.error("Failed to fetch conversations:", errorData);
+        throw new Error("Fetching conversations failed");
+      }
+
+      const waitedResponse = await response.json();
+      const data = waitedResponse.data;
+      console.log({ data });
+
+      // Only update if we have data and it's an array
+      if (data && Array.isArray(data.messages)) {
+        setMessages((prev) => {
+          // Check if we already have this conversation's messages
+          // const existingMessages = prev[selectedConversation.id] || [];
+
+          // Only update if we have new data
+          if (data.messages.length > 0) {
+            return {
+              ...prev,
+              [selectedConversation.id]: data.messages.map((msg) => ({
+                id: msg.id || Math.random().toString(36).substr(2, 9),
+                content: msg.message || "",
+                timestamp: new Date(msg.time_ago || Date.now()),
+                senderId: msg.sender || "",
+                read: !!msg.is_read,
+                attachments: msg.attachments,
+              })),
+            };
+          }
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+    }
+  }, [selectedConversation?.id]);
+
+  const handleSendMessage = async (
     conversationId: string,
+    recipientId: string,
     content: string,
     attachments?: MessageAttachment[]
   ) => {
@@ -124,10 +126,12 @@ export default function MessagesPage() {
       id: Math.random().toString(36).substr(2, 9),
       content,
       timestamp: new Date(),
-      senderId: "a1", // artisan ID
+      senderId: currentUser?.id, // artisan ID
       read: true,
       attachments,
     };
+
+    console.log({ conversationId, recipientId });
 
     setMessages((prev) => ({
       ...prev,
@@ -144,12 +148,27 @@ export default function MessagesPage() {
           : conv
       )
     );
+
+    try {
+      const form = new FormData();
+      form.append("recipient_id", recipientId.toString());
+      form.append("message", content);
+
+      const response = await createMessage(form);
+      const data = await response?.json();
+      if (data?.status !== true) {
+        toast.error("Failed to add review");
+      }
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      // toast.error("Failed to submit reply");
+    }
   };
 
   const handleMarkAsRead = (conversationId: string) => {
     setMessages((prev) => ({
       ...prev,
-      [conversationId]: prev[conversationId].map((message) => ({
+      [conversationId]: prev[conversationId]?.map((message) => ({
         ...message,
         read: true,
       })),
@@ -198,6 +217,27 @@ export default function MessagesPage() {
     return matchesSearch && matchesFilter;
   });
 
+  useEffect(() => {
+    handleFetchLastConversations();
+  }, []); // This runs only once on component mount
+
+  // Using a ref to track if we've already fetched for this conversation
+  const fetchedConversationsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (
+      selectedConversation?.id &&
+      !fetchedConversationsRef.current.has(selectedConversation.id)
+    ) {
+      console.log(
+        "Fetching conversation details for:",
+        selectedConversation.id
+      );
+      fetchedConversationsRef.current.add(selectedConversation.id);
+      handleFetchConversations();
+    }
+  }, [selectedConversation?.id, handleFetchConversations]);
+
   return (
     <>
       <div className="">
@@ -232,6 +272,7 @@ export default function MessagesPage() {
                 onSendMessage={(content, attachments) =>
                   handleSendMessage(
                     selectedConversation.id,
+                    selectedConversation.customer.id,
                     content,
                     attachments
                   )

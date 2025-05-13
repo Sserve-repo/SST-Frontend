@@ -9,7 +9,7 @@ import { TopProducts } from "@/components/dashboard/top-products";
 import { TopCustomers } from "@/components/dashboard/top-customers";
 import { EarningsChart } from "@/components/dashboard/earnings-chart";
 import { useCallback, useEffect, useState } from "react";
-import { getServiceOverview, getProductOverview } from "@/actions/dashboard";
+import { getServiceOverview, getProductOverview } from "@/actions/dashboard/buyer";
 import { useAuth } from "@/context/AuthContext";
 import type { OverviewType } from "@/types/dashboard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

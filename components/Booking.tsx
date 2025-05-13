@@ -194,7 +194,7 @@ export default function BookingForm() {
 
         setFormData((prev) => ({
           ...prev,
-          listingId: data.data["Service Details"]?.id || "",
+          listingId: data?.data["Service Details"]?.id || "",
         }));
       }
     },

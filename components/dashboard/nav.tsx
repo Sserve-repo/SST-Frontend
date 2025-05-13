@@ -104,7 +104,7 @@ const getNavItems = (userType: string) => {
       href: "/buyer/dashboard/saved",
       icon: HiOutlineArchive,
     },
-    { title: "Inbox", href: "/buyer/dashboard/inbox", icon: MessageSquare },
+    { title: "Messages", href: "/buyer/dashboard/messages", icon: MessageSquare },
   ];
   const adminItems = [
     { title: "Overview", href: "/admin/dashboard", icon: TbChartArcs },

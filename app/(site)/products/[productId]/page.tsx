@@ -97,6 +97,7 @@ const SingleProductPage = ({ params }: Props) => {
       <div className="mb-24">
         <SectionProductHeader
           id={pathOr("", ["id"], selectedProduct)}
+          userId={pathOr("", ["user_id"], selectedProduct)}
           images={pathOr([], ["images"], selectedProduct)}
           productName={pathOr("", ["title"], selectedProduct)}
           price={pathOr(0, ["price"], selectedProduct)}
