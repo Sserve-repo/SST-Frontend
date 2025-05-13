@@ -157,9 +157,9 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
       const data = await response?.json();
       if (data?.status === true) {
         setMessage("");
-        toast.success("Review added successfully");
+        toast.success("Message added successfully");
       } else {
-        toast.error("Failed to add review");
+        toast.error("Failed to add Message");
       }
     } catch (error) {
       console.error("Error submitting reply:", error);
@@ -354,7 +354,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                     <span className="text-sm text-gray-600 w-2">{star}</span>
                     <Star className="h-4 w-4 text-yellow-400 fill-current mx-1" />
                     <Progress
-                      value={Math.random() * 100}
+                      value={rating * 100}
                       className="h-2 flex-1"
                     />
                   </div>
@@ -504,20 +504,21 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                 </p>
                 <p className="text-xs text-primary/70">
                   Owner of{" "}
-                  <span className="text-primary">Triple Rock POP Cement </span>
+                  <span className="text-primary font-semibold" >{productName} </span>
                 </p>
 
                 <div className="grid grid-col-1">
                   <textarea
-                    className="border rounded-lg text-xs h-16"
+                  placeholder="Enter your messsage here"
+                    className=" border-2 border-black rounded-lg text-xs h-16 p-2 "
                     onChange={(e) => setMessage(e.target.value)}
                   ></textarea>
                   <Button
                   onClick={handleMessageSeller}
-                    className="text-xs px-5 w-48 mt-1"
+                    className="text-xs px-5 w-48 mt-1 bg-primary text-white"
                     variant={"outline"}
                   >
-                    Message Seller
+                    Send
                   </Button>
                 </div>
               </div>
