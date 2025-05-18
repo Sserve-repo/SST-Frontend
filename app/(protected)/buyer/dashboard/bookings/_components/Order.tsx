@@ -100,16 +100,16 @@ export default function OrdersPage() {
           <Table className="min-w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>S/N</TableHead>
                 <TableHead className="w-[200px]">ORDER ID</TableHead>
                 <TableHead>DATE</TableHead>
+                <TableHead>ORDER TYPE</TableHead>
                 <TableHead>TOTAL</TableHead>
                 <TableHead>ACTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {orderData &&
-                orderData.map((order, index) => (
+                orderData.map((order) => (
                   <TableRow
                     key={order?.order_no}
                     className="cursor-pointer hover:bg-gray-50"
@@ -117,11 +117,11 @@ export default function OrdersPage() {
                       router.push(`/dashboard/orders/${order?.id}`)
                     }
                   >
-                    <TableCell className="font-medium">{index +1}</TableCell>
                     <TableCell className="font-medium">
                       {order?.order_no}
                     </TableCell>
                     <TableCell>{convertTime(order?.created_at)}</TableCell>
+                    <TableCell>{order?.order_type}</TableCell>
                     <TableCell>{order?.cart_total}</TableCell>
                     <TableCell className="text-orange-400">
                       <div className="flex gap-x-2">

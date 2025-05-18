@@ -106,6 +106,7 @@ export const formatDate = (date: string | null | undefined): string => {
     if (isNaN(parsedDate.getTime())) return "Invalid Date" 
     return format(parsedDate, "MM, dd, yyyy")
 }
+
 export const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {
         style: "currency",

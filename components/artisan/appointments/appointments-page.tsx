@@ -9,8 +9,21 @@ import { CalendarDays, List } from "lucide-react";
 import type { Appointment } from "@/types/appointments";
 import { getAppointments } from "@/actions/dashboard/artisans";
 
+// const statusStyles = {
+//   success: "bg-emerald-50 text-emerald-700",
+//   pending: "bg-purple-50 text-purple-700",
+//   processing: "bg-purple-50 text-purple-700",
+//   cancelled: "bg-red-50 text-red-700",
+//   "In Transit": "bg-blue-50 text-blue-700",
+// };
+
+// const paymentStatusStyles = {
+//   success: "bg-green-100 text-green-600",
+//   pending: "bg-yellow-100 text-yellow-600",
+// };
+
 export default function AppointmentsPage() {
-  const [view, setView] = useState<"calendar" | "list">("calendar");
+  const [view, setView] = useState<"calendar" | "list">("list");
   const [selectedStatus, setSelectedStatus] = useState<string[]>(["all"]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
 
@@ -18,31 +31,40 @@ export default function AppointmentsPage() {
     try {
       const response = await getAppointments(null);
       if (!response?.ok) {
-        throw Error("Cannot fetch analytics data");
+        throw Error("Cannot fetch appointments data");
       }
       const data = await response.json();
 
-      const { bookings } = data.data;
-      const transformedAppointmentList = bookings?.map((item) => {
+      const bookings = data.data;
+      const transformedAppointmentList = bookings.orders?.map((item) => {
         return {
-          id: "1",
+          id: item.id,
           customerName: `${item?.customer?.firstname} ${item?.customer?.lastname}`,
           customerEmail: item?.customer?.email,
           customerPhone: item?.customer?.phone || "",
           service: {
             id: item?.service_detail?.id,
-            name: item?.service_detail?.name,
+            name: item?.service_detail?.title,
+            serviceCategory: {
+              name: item.service_detail?.service_category?.name
+            },
             price: item?.price,
-            duration: 60,
+            // duration: 60,
           },
           date: new Date(`${item?.booked_date}T${item?.booked_time}:00`),
-          status: "confirmed",
-          paymentStatus: "paid",
+          status: item.booking_status,
+          paymentStatus: item.status,
           notes: "Regular customer, prefers shorter sessions",
+          order: {
+            id: item.order.id,
+            orderNo: item.order.order_no,
+            total: item.order.total,
+            vendorTax: item.order.vendor_tax,
+            cartTotal: item.order.cart_total,
+          },
         };
       });
       setAppointments(transformedAppointmentList);
-      console.log({ data, bookings });
     } catch (error) {
       console.log(error);
     }
@@ -95,11 +117,7 @@ export default function AppointmentsPage() {
             Manage your upcoming appointments and booking requests
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
-          <AppointmentFilters
-            selectedStatus={selectedStatus}
-            onStatusChange={handleStatusChange}
-          />
+        <div className="flex flex-wrap items-center gap-4 flex-col">
           <div className="flex items-center gap-2">
             <div className="bg-gray-100 rounded-lg p-1">
               <Button
@@ -127,16 +145,23 @@ export default function AppointmentsPage() {
         </div>
       </div>
 
-      {view === "calendar" ? (
-        <AppointmentCalendarView
-          onUpdateAppointment={handleUpdateAppointment}
+      <>
+        <AppointmentFilters
+          selectedStatus={selectedStatus}
+          onStatusChange={handleStatusChange}
         />
-      ) : (
-        <AppointmentListView
-          appointments={filteredAppointments}
-          onUpdateAppointment={handleUpdateAppointment}
-        />
-      )}
+
+        {view === "calendar" ? (
+          <AppointmentCalendarView
+            onUpdateAppointment={handleUpdateAppointment}
+          />
+        ) : (
+          <AppointmentListView
+            appointments={filteredAppointments}
+            onUpdateAppointment={handleUpdateAppointment}
+          />
+        )}
+      </>
     </div>
   );
 }

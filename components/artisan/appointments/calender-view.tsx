@@ -39,11 +39,15 @@ export function AppointmentCalendarView({
       setError(null);
       const formattedDate = format(date, "yyyy-MM-dd");
       const response = await getAppointments(formattedDate);
-      if (!response?.ok) throw new Error("Cannot fetch appointments");
-      const data = await response.json();
-      const { bookings } = data.data;
+      if (!response?.ok) {
+        setAppointments([]);
+        console.log("Cannot fetch appointments");
+      }
 
-      const transformedAppointments = bookings?.map((item: any) => ({
+      const data = await response?.json();
+      const bookings = data.data;
+
+      const transformedAppointments = bookings?.orders?.map((item: any) => ({
         id: item?.id ?? crypto.randomUUID(),
         customerName: `${item?.customer?.firstname ?? ""} ${
           item?.customer?.lastname ?? ""

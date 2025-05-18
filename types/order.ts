@@ -268,3 +268,38 @@ export function isArtisanMetrics(
     "customOrdersReceived" in metrics && "customOrdersCompleted" in metrics
   );
 }
+
+
+export type OrderDetail = {
+  id: number | string;
+  orderNo: string;
+  userId: number | string;
+  artisanId: number | string;
+  serviceListingDetailId: number | string;
+  currency: string;
+  price: number;
+  bookedDate: string; // or Date if you're using Date objects
+  bookedTime: string;
+  bookedTimeTo: string;
+  bookingStatus: string;
+  status: string;
+  createdAt: string; // or Date
+  updatedAt: string; // or Date
+  serviceListingName: string;
+  serviceCategory: string;
+  serviceSubcategory: string;
+  order: {
+    id: number | string;
+    title: string;
+    serviceCategoryId: number | string;
+    total: number;
+    vendorTax: number;
+    shippingCost: number;
+    cartTotal: number;
+    orderType: string;
+    status: string;
+    createdAt: string; // or Date
+    updatedAt: string; // or Date
+  };
+  activities?: any,
+};

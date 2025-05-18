@@ -1,11 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar } from "@/components/ui/calendar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,65 +26,71 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { cn } from "@/lib/utils"
-import type { Appointment } from "@/types/appointments"
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+import type { Appointment } from "@/types/appointments";
 
 interface AppointmentDetailsDialogProps {
-  appointment: Appointment | null
-  onOpenChange: (open: boolean) => void
-  onUpdate: (appointment: Appointment) => void
+  appointment: Appointment | null;
+  onOpenChange: (open: boolean) => void;
+  onUpdate: (appointment: Appointment) => void;
 }
 
-export function AppointmentDetailsDialog({ appointment, onOpenChange, onUpdate }: AppointmentDetailsDialogProps) {
-  const [showReschedule, setShowReschedule] = useState(false)
-  const [showCancel, setShowCancel] = useState(false)
-  const [newDate, setNewDate] = useState<Date | undefined>()
-  const [newTime, setNewTime] = useState<string>("")
+export function AppointmentDetailsDialog({
+  appointment,
+  onOpenChange,
+  onUpdate,
+}: AppointmentDetailsDialogProps) {
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [showCancel, setShowCancel] = useState(false);
+  const [newDate, setNewDate] = useState<Date | undefined>();
+  const [newTime, setNewTime] = useState<string>("");
 
-  if (!appointment) return null
+  if (!appointment) return null;
 
   const handleStatusUpdate = (newStatus: Appointment["status"]) => {
     onUpdate({
       ...appointment,
       status: newStatus,
-    })
-  }
+    });
+  };
 
   const handleReschedule = () => {
-    if (!newDate || !newTime) return
+    if (!newDate || !newTime) return;
 
-    const [hours, minutes] = newTime.split(":")
-    const updatedDate = new Date(newDate)
-    updatedDate.setHours(Number.parseInt(hours), Number.parseInt(minutes))
+    const [hours, minutes] = newTime.split(":");
+    const updatedDate = new Date(newDate);
+    updatedDate.setHours(Number.parseInt(hours), Number.parseInt(minutes));
 
     onUpdate({
       ...appointment,
       date: updatedDate,
-    })
-    setShowReschedule(false)
-  }
+    });
+    setShowReschedule(false);
+  };
 
   const handleCancel = () => {
     onUpdate({
       ...appointment,
       status: "canceled",
-    })
-    setShowCancel(false)
-  }
+    });
+    setShowCancel(false);
+  };
 
   const timeSlots = Array.from({ length: 24 * 2 }).map((_, i) => {
-    const hour = Math.floor(i / 2)
-    const minute = i % 2 === 0 ? "00" : "30"
-    return `${hour.toString().padStart(2, "0")}:${minute}`
-  })
+    const hour = Math.floor(i / 2);
+    const minute = i % 2 === 0 ? "00" : "30";
+    return `${hour.toString().padStart(2, "0")}:${minute}`;
+  });
 
   return (
     <>
       <Dialog open={!!appointment} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle className="text-primary text-2xl">Appointment Details</DialogTitle>
+            <DialogTitle className="text-primary text-2xl">
+              Appointment Details
+            </DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-6">
@@ -83,28 +100,54 @@ export function AppointmentDetailsDialog({ appointment, onOpenChange, onUpdate }
                 <Badge
                   variant="secondary"
                   className={cn(
-                    appointment.status === "confirmed" && "bg-green-100 text-green-700",
-                    appointment.status === "pending" && "bg-yellow-100 text-yellow-700",
-                    appointment.status === "canceled" && "bg-red-100 text-red-700",
-                    appointment.status === "completed" && "bg-blue-100 text-blue-700",
+                    appointment.status === "confirmed" &&
+                      "bg-green-100 text-green-700",
+                    appointment.status === "pending" &&
+                      "bg-yellow-100 text-yellow-700",
+                    appointment.status === "canceled" &&
+                      "bg-red-100 text-red-700",
+                    appointment.status === "completed" &&
+                      "bg-blue-100 text-blue-700"
                   )}
                 >
-                  {appointment.status}
+                  {appointment.status.charAt(0).toUpperCase() +
+                    appointment.status.slice(1)}
                 </Badge>
               </div>
               <div className="grid gap-1">
-                <p className="text-sm font-medium">{appointment.customerName}</p>
-                <p className="text-sm text-gray-500">{appointment.customerEmail}</p>
-                <p className="text-sm text-gray-500">{appointment.customerPhone}</p>
+                <p className="text-sm font-medium">
+                  {appointment.customerName}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {appointment.customerEmail}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {appointment.customerPhone}
+                </p>
               </div>
             </div>
 
             <div className="grid gap-2">
               <h3 className="font-semibold">Service Details</h3>
-              <div className="grid gap-1">
-                <p className="text-sm font-medium">{appointment.service.name}</p>
-                <p className="text-sm text-gray-500">Duration: {appointment.service.duration} minutes</p>
-                <p className="text-sm text-gray-500">Price: ${appointment.service.price}</p>
+              <div className="grid gap-1  text-gray-500">
+                <p className="text-sm font-medium ">
+                  Name:{" "}
+                  {appointment.service.name.charAt(0).toUpperCase() +
+                    appointment.service.name.slice(1)}
+                </p>
+                <p className="text-sm font-medium mb-3">
+                  Category:{" "}
+                  {appointment.service?.serviceCategory?.name
+                    .charAt(0)
+                    .toUpperCase() +
+                    appointment.service?.serviceCategory?.name.slice(1)}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Duration: {appointment.service.duration} minutes
+                </p>
+                <p className="text-sm text-gray-500">
+                  Price: ${appointment.service.price}
+                </p>
               </div>
             </div>
 
@@ -127,24 +170,42 @@ export function AppointmentDetailsDialog({ appointment, onOpenChange, onUpdate }
             )}
 
             <div className="flex justify-end gap-2">
-              {appointment.status === "pending" && (
-                <Button variant="default" onClick={() => handleStatusUpdate("confirmed")}>
-                  Approve
-                </Button>
-              )}
+            
               {["pending", "confirmed"].includes(appointment.status) && (
                 <>
-                  <Button variant="outline" onClick={() => setShowReschedule(true)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowReschedule(true)}
+                  >
                     Reschedule
                   </Button>
-                  <Button variant="destructive" onClick={() => setShowCancel(true)}>
-                    Cancel
+                  <Button
+                    variant="default"
+                    onClick={() => setShowCancel(true)}
+                  >
+                    In Progress
                   </Button>
+                  {/* <Button variant="destructive" onClick={() => setShowCancel(true)}>
+                    Cancel
+                  </Button> */}
                 </>
               )}
               {appointment.status === "confirmed" && (
-                <Button variant="default" onClick={() => handleStatusUpdate("completed")}>
+                <Button
+                  variant="default"
+                  onClick={() => handleStatusUpdate("completed")}
+                >
                   Mark as Completed
+                </Button>
+              )}
+
+                {appointment.status === "pending" && (
+                <Button
+                  // variant="default"
+                  className="bg-green-600"
+                  onClick={() => handleStatusUpdate("confirmed")}
+                >
+                  Completed
                 </Button>
               )}
             </div>
@@ -158,7 +219,12 @@ export function AppointmentDetailsDialog({ appointment, onOpenChange, onUpdate }
             <DialogTitle>Reschedule Appointment</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4">
-            <Calendar mode="single" selected={newDate} onSelect={setNewDate} className="rounded-md border" />
+            <Calendar
+              mode="single"
+              selected={newDate}
+              onSelect={setNewDate}
+              className="rounded-md border"
+            />
             <Select value={newTime} onValueChange={setNewTime}>
               <SelectTrigger>
                 <SelectValue placeholder="Select time" />
@@ -172,7 +238,10 @@ export function AppointmentDetailsDialog({ appointment, onOpenChange, onUpdate }
               </SelectContent>
             </Select>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowReschedule(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowReschedule(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={handleReschedule}>Confirm Reschedule</Button>
@@ -186,18 +255,21 @@ export function AppointmentDetailsDialog({ appointment, onOpenChange, onUpdate }
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to cancel this appointment? This action cannot be undone.
+              Are you sure you want to cancel this appointment? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>No, keep appointment</AlertDialogCancel>
-            <AlertDialogAction onClick={handleCancel} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleCancel}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Yes, cancel appointment
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }
-

@@ -12,8 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AppointmentDetailsDialog } from "./details-dialog";
 import { useState } from "react";
-import { Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, convertTime } from "@/lib/utils";
 import type { Appointment } from "@/types/appointments";
 
 interface AppointmentListViewProps {
@@ -35,17 +34,21 @@ export function AppointmentListView({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>S/N</TableHead>
+              <TableHead>Order No</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Service</TableHead>
-              <TableHead>Date & Time</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Payment</TableHead>
+              <TableHead>Booking Date</TableHead>
+              <TableHead>Booking Status</TableHead>
+              <TableHead>Payment Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {appointments?.map((appointment) => (
+            {appointments?.map((appointment, index) => (
               <TableRow key={appointment.id}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{appointment.order.orderNo}</TableCell>
                 <TableCell>
                   <div>
                     <p className="font-medium">{appointment.customerName}</p>
@@ -65,13 +68,7 @@ export function AppointmentListView({
                 <TableCell>
                   <div>
                     <p className="font-medium">
-                      {appointment.date.toLocaleDateString()}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {appointment.date.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {convertTime(appointment.date as any)}
                     </p>
                   </div>
                 </TableCell>
@@ -89,14 +86,15 @@ export function AppointmentListView({
                         "bg-blue-100 text-blue-700"
                     )}
                   >
-                    {appointment.status}
+                    {appointment.status.charAt(0).toUpperCase() +
+                      appointment.status.slice(1)}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge
                     variant="secondary"
                     className={cn(
-                      appointment.paymentStatus === "paid" &&
+                      appointment.paymentStatus === "success" &&
                         "bg-green-100 text-green-700",
                       appointment.paymentStatus === "pending" &&
                         "bg-yellow-100 text-yellow-700",
@@ -104,7 +102,8 @@ export function AppointmentListView({
                         "bg-red-100 text-red-700"
                     )}
                   >
-                    {appointment.paymentStatus}
+                    {appointment.paymentStatus.charAt(0).toUpperCase() +
+                      appointment.paymentStatus.slice(1)}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -113,7 +112,6 @@ export function AppointmentListView({
                     size="sm"
                     onClick={() => setSelectedAppointment(appointment)}
                   >
-                    <Eye className="h-4 w-4 mr-2" />
                     View
                   </Button>
                 </TableCell>
@@ -121,6 +119,19 @@ export function AppointmentListView({
             ))}
           </TableBody>
         </Table>
+
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-4 gap-4">
+          <p className="text-sm text-gray-500">Showing 1-09 of 78</p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              Previous
+            </Button>
+            <Button variant="outline" size="sm">
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
 
       <AppointmentDetailsDialog

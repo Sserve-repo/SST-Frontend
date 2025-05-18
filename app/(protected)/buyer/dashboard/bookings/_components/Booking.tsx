@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   Truck,
 } from "lucide-react";
-
+import { FaArrowRight } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -26,46 +26,56 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { OrderDetails } from "./order-details";
-import { useParams } from "next/navigation";
-import { getOrderDetail } from "@/actions/dashboard/buyer";
+import {
+  getBookingDetail,
+  getBookinglist,
+} from "@/actions/dashboard/buyer";
 import { convertTime } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { FaArrowRight } from "react-icons/fa6";
+import { formatCurrency } from "@/lib/order-utils";
+import { BookingDetails } from "./booking-details";
+import { OrderDetail } from "@/types/order";
 
-interface OrderType {
-  id: string;
-  orderNo: string;
-  userId: string;
-  total: string;
-  vendorTax: string;
-  shippingCost: string;
-  cartTotal: string;
-  status: string;
-  createdAt: string;
-  orderType: string;
-  updatedAt: string;
-  productItems: OrderItemsType[];
-}
-
-type OrderItemsType = {
-  id: string;
-  orderId: string;
-  userId: string;
-  vendorId: string;
-  listingId: string;
-  productName: string;
-  vendorName: string;
-  quantity: string;
+type OrderType = {
+  id: number;
+  orderNo: number;
+  userId: number;
+  artisanId: number;
+  serviceListingDetailId: number;
   currency: string;
-  unitPrice: string;
-  totalAmount: string;
-  orderStatus: string;
-  orderType: string;
+  price: number;
+  bookedDate: string;
+  bookedTime: string;
+  bookedTimeTo: string;
+  bookingStatus: string;
   status: string;
   createdAt: string;
   updatedAt: string;
+  serviceDetail: {
+    id: number;
+    title: string;
+    serviceCategoryId: number;
+    serviceCategory: {
+      id: number;
+      name: string;
+    };
+  };
+  artisan: {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  order: {
+    id: number;
+    orderNo: string;
+    total: string;
+    vendorTax: string;
+    cartTotal: string;
+  };
 };
+
+type OrderTypes = OrderType[];
 
 const statusStyles = {
   success: "bg-emerald-50 text-emerald-700",
@@ -76,70 +86,121 @@ const statusStyles = {
 };
 
 const paymentStatusStyles = {
-  paid: "bg-green-100 text-green-600",
+  success: "bg-green-100 text-green-600",
   pending: "bg-yellow-100 text-yellow-600",
 };
 
-export default function OrdersPage() {
-  const [order, setOrder] = useState<OrderType | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<OrderItemsType | null>(
+export default function BookingsPage() {
+  const [orderData, setOrderData] = useState<OrderTypes | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<OrderDetail | null>(
     null
   );
-  const { id } = useParams();
 
-  const handleFetchOrders = async (id) => {
-    const response = await getOrderDetail(id);
-    if (response && response.ok) {
-      const data = await response.json();
-      console.log({ data });
+  const handleFetchBookings = async () => {
+    const response = await getBookinglist();
+    const data = await response?.json();
 
-      const result = data.data["Order Details"];
-      const transformedData: OrderType = {
-        id: result.id,
-        orderNo: result.order_no,
-        userId: result.user_id,
-        total: result.total,
-        vendorTax: result.vendor_tax,
-        shippingCost: result.shipping_cost,
-        cartTotal: result.cart_total,
-        status: result.status,
-        createdAt: result.created_at,
-        updatedAt: result.updated_at,
-        orderType: result.order_type || "",
-        productItems: result["product_items"].map((product: any) => ({
-          id: product.id,
-          orderId: product.order_id,
-          userId: product.user_id,
-          vendorId: product.vendor_id,
-          listingId: product.listing_id,
-          productName: product.product_name,
-          vendorName: product.vendor_name,
-          quantity: product.quantity,
-          currency: product.currency,
-          unitPrice: product.unit_price,
-          totalAmount: product.total_amount,
-          orderStatus: product.order_status,
-          orderType: product.order_type || "",
-          status: product.status,
-          createdAt: product.created_at,
-          updatedAt: product.updated_at,
-        })),
-      };
-      setOrder(transformedData);
+    if (!response?.ok) {
     }
+
+    const orders = data.data["orders"];
+    const transformedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNo: order.order_id,
+      userId: order.user_id,
+      artisanId: order.artisan_id,
+      serviceListingDetailId: order.service_listing_detail_id,
+      currency: order.currency,
+      price: order.price,
+      bookedDate: order.booked_date,
+      bookedTime: order.booked_time,
+      bookedTimeTo: order.booked_time_to,
+      bookingStatus: order.booking_status,
+      status: order.status,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      serviceDetail: {
+        id: order.service_detail.id,
+        title: order.service_detail.title,
+        serviceCategoryId: order.service_detail.service_category_id,
+        serviceCategory: {
+          id: order.service_detail.service_category.id,
+          name: order.service_detail.service_category.name,
+        },
+      },
+      artisan: {
+        id: order.artisan.id,
+        firstName: order.artisan.firstname,
+        lastName: order.artisan.lastname,
+        email: order.artisan.email,
+      },
+      order: {
+        id: order.order.id,
+        orderNo: order.order.order_no,
+        total: order.order.total,
+        vendorTax: order.order.vendor_tax,
+        cartTotal: order.order.cart_total,
+      },
+    }));
+    setOrderData(transformedOrders);
+  };
+
+  const handleFetchBookingDetail = async (id) => {
+    const response = await getBookingDetail(id);
+    const data = await response?.json();
+    console.log({ data });
+
+    if (!response?.ok) {
+    }
+
+    const order = data.data;
+    const transformedBookings = {
+      id: order.id,
+      orderNo: order.order_no,
+      userId: order.user_id,
+      artisanId: order.artisan_id,
+      serviceListingDetailId: order.service_listing_detail_id,
+      currency: order.currency,
+      price: order.price,
+      bookedDate: order.booked_date,
+      bookedTime: order.booked_time,
+      bookedTimeTo: order.booked_time_to,
+      bookingStatus: order.booking_status,
+      status: order.status,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      serviceListingName: order.service_listing_name,
+      serviceCategory: order.service_category,
+      serviceSubcategory: order.service_subcategory,
+      order: {
+        id: order.order.id,
+        title: order.order.title,
+        serviceCategoryId: order.order.service_category_id,
+        total: order.order.total,
+        vendorTax: order.order.vendor_tax,
+        shippingCost: order.order.shipping_cost,
+        cartTotal: order.order.cart_total,
+        orderType: order.order.order_type,
+        status: order.order.status,
+        createdAt: order.order.created_at,
+        updatedAt: order.order.updated_at,
+      },
+    };
+    setSelectedBooking(transformedBookings);
   };
 
   useEffect(() => {
-    handleFetchOrders(id);
-  }, [id]);
+    handleFetchBookings();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto px-4 py-6">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight py-4">
-          Orders History
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          Bookings
         </h2>
 
+        {/* Filters */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center py-4">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -190,9 +251,8 @@ export default function OrdersPage() {
               <TableRow>
                 <TableHead>S/N</TableHead>
                 <TableHead>Order No</TableHead>
-                <TableHead>Vendor</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Qty</TableHead>
+                <TableHead>Artisan</TableHead>
+                <TableHead>Service</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Order Date</TableHead>
                 <TableHead>Payment Status</TableHead>
@@ -201,25 +261,27 @@ export default function OrdersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {order &&
-                order.productItems?.map((orderItem, index) => (
+              {orderData &&
+                orderData.map((order, index) => (
                   <TableRow
-                    key={order.orderNo}
+                    key={order?.orderNo}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() =>
-                      setSelectedOrder(order["productItems"][index])
-                    }
+                    onClick={() => handleFetchBookingDetail(order.id)}
                   >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{order.orderNo}</TableCell>
-                    <TableCell>{orderItem?.productName}</TableCell>
-                    <TableCell>{orderItem?.vendorName}</TableCell>
-                    <TableCell>{orderItem?.quantity}</TableCell>
-                    <TableCell>${orderItem?.totalAmount}</TableCell>
-                    <TableCell>
-                      {convertTime(order.createdAt) ||
-                        convertTime(order.createdAt)}
+                    <TableCell className="font-medium">{index + 1}</TableCell>
+                    <TableCell className="font-medium">
+                      {order?.order.id}
                     </TableCell>
+                    <TableCell className="font-medium">
+                      {order?.artisan.firstName} {order?.artisan.lastName}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {order?.serviceDetail?.title}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(order?.order.total as any)}
+                    </TableCell>
+                    <TableCell>{convertTime(order?.createdAt)}</TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
@@ -228,32 +290,28 @@ export default function OrdersPage() {
                           ]
                         }`}
                       >
-                        {order.status.charAt(0).toUpperCase() +
-                          order.status.slice(1)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="flex justify-start items-center ">
-                      <span
-                        className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
-                          statusStyles[
-                            orderItem.orderStatus as keyof typeof statusStyles
-                          ]
-                        }`}
-                      >
-                        {orderItem?.orderStatus
-                          ? orderItem.orderStatus.charAt(0).toUpperCase() +
-                            orderItem.orderStatus.slice(1)
-                          : ""}
+                        {order?.status.charAt(0).toUpperCase() +
+                          order?.status.slice(1)}
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div
-                        className="flex justify-center items-center  space-x-2 text-orange-400"
-                        onClick={() =>
-                          setSelectedOrder(order["productItems"][index])
-                        }
+                      <span
+                        className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
+                          statusStyles[
+                            order.bookingStatus as keyof typeof statusStyles
+                          ]
+                        }`}
                       >
-                        <p>View Details</p>
+                        {order.bookingStatus.charAt(0).toUpperCase() +
+                          order.bookingStatus.slice(1)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-orange-400">
+                      <div
+                        className="flex gap-x-2"
+                        onClick={() => handleFetchBookingDetail(order.id)}
+                      >
+                        View Details
                         <FaArrowRight />
                       </div>
                     </TableCell>
@@ -276,19 +334,13 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* Order Details Sheet */}
-        {selectedOrder && (
-          <OrderDetails
-            isOpen={!!selectedOrder}
-            onClose={() => setSelectedOrder(null)}
+        {/* Booking Details Sheet */}
+        {selectedBooking && (
+          <BookingDetails
+            isOpen={!!selectedBooking}
+            onClose={() => setSelectedBooking(null)}
             order={{
-              ...selectedOrder,
-              shipping_cost: order?.shippingCost || "0.00",
-              vendor_tax: order?.vendorTax || "0.00",
-              cart_total: order?.cartTotal || "0.00",
-              total: order?.total || "0.00",
-              order_type: order?.orderType,
-
+              ...selectedBooking,
               activities: [
                 {
                   message:

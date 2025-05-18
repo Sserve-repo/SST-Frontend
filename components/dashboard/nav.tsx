@@ -95,8 +95,13 @@ const getNavItems = (userType: string) => {
   const shopperItems = [
     { title: "Overview", href: "/buyer/dashboard", icon: TbChartArcs },
     {
-      title: "My Orders",
+      title: "Orders",
       href: "/buyer/dashboard/orders",
+      icon: ShoppingBag,
+    },
+    {
+      title: "Bookings",
+      href: "/buyer/dashboard/bookings",
       icon: ShoppingBag,
     },
     {
