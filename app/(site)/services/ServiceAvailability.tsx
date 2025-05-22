@@ -244,10 +244,15 @@ export default function ServiceAvailability() {
   useEffect(() => {
     if (subCategory) {
       const parsedSubCategory = parseInt(subCategory, 10);
-      setScheduleRequest((prev) => ({
-        ...prev,
-        serviceSubCategoryId: parsedSubCategory,
-      }));
+      // setScheduleRequest((prev) => ({
+      //   ...prev,
+      //   serviceSubCategoryId: parsedSubCategory,
+      //   serviceCategory: null,
+      //   serviceCategoryId: null,
+      // }));
+      setScheduleRequest({serviceSubCategoryId: parsedSubCategory} as any);
+
+      fetchServices(1);
     }
   }, [subCategory]);
 

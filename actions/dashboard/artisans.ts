@@ -92,6 +92,61 @@ export const getAppointments = async (date: string | null) => {
   }
 };
 
+export const bookingCompleteHandler = async (bookingId) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceBooking/markAsCompleted/${bookingId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error fetching appointment listing failed", error);
+  }
+};
+
+export const bookingInprogressHandler = async (bookingId) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceBooking/approve/${bookingId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error fetching appointment listing failed", error);
+  }
+};
+
+export const rescheduleBookingHandler = async (bookingId, payload) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const response = await fetch(
+      `${baseUrl}/artisan/dashboard/serviceBooking/reschedule/${bookingId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: payload,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Error fetching appointment listing failed", error);
+  }
+};
+
 export const getPromotions = async () => {
   const token = Cookies.get("accessToken");
   try {

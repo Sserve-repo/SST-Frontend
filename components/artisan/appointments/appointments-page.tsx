@@ -7,25 +7,26 @@ import { AppointmentListView } from "@/components/artisan/appointments/list-view
 import { AppointmentFilters } from "@/components/artisan/appointments/filters";
 import { CalendarDays, List } from "lucide-react";
 import type { Appointment } from "@/types/appointments";
-import { getAppointments } from "@/actions/dashboard/artisans";
-
-// const statusStyles = {
-//   success: "bg-emerald-50 text-emerald-700",
-//   pending: "bg-purple-50 text-purple-700",
-//   processing: "bg-purple-50 text-purple-700",
-//   cancelled: "bg-red-50 text-red-700",
-//   "In Transit": "bg-blue-50 text-blue-700",
-// };
-
-// const paymentStatusStyles = {
-//   success: "bg-green-100 text-green-600",
-//   pending: "bg-yellow-100 text-yellow-600",
-// };
+import {
+  bookingCompleteHandler,
+  bookingInprogressHandler,
+  getAppointments,
+  rescheduleBookingHandler,
+} from "@/actions/dashboard/artisans";
 
 export default function AppointmentsPage() {
   const [view, setView] = useState<"calendar" | "list">("list");
   const [selectedStatus, setSelectedStatus] = useState<string[]>(["all"]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  const getStatus = (status: string) => {
+    console.log({ status });
+    if (status === "completed") return "completed";
+    if (status === "inprogress") return "inprogress";
+    if (status === "pending") return "pending";
+    if (status === "cancelled") return "cancelled";
+    if (status === "rescheduled") return "rescheduled";
+  };
 
   const handleFetchServiceListings = async () => {
     try {
@@ -46,13 +47,13 @@ export default function AppointmentsPage() {
             id: item?.service_detail?.id,
             name: item?.service_detail?.title,
             serviceCategory: {
-              name: item.service_detail?.service_category?.name
+              name: item.service_detail?.service_category?.name,
             },
             price: item?.price,
             // duration: 60,
           },
           date: new Date(`${item?.booked_date}T${item?.booked_time}:00`),
-          status: item.booking_status,
+          status: getStatus(item.booking_status),
           paymentStatus: item.status,
           notes: "Regular customer, prefers shorter sessions",
           order: {
@@ -78,14 +79,51 @@ export default function AppointmentsPage() {
     setSelectedStatus(status);
   };
 
-  const handleUpdateAppointment = (updatedAppointment: Appointment) => {
-    setAppointments(
-      appointments.map((appointment) =>
-        appointment.id === updatedAppointment.id
-          ? updatedAppointment
-          : appointment
-      )
-    );
+  const handleUpdateAppointment = async (updatedAppointment: Appointment) => {
+    const { id, event, date } = updatedAppointment;
+
+    const handleError = () => {
+      throw new Error("Cannot fetch appointments data");
+    };
+
+    try {
+      let response: Response | null = null;
+
+      switch (event) {
+        case "completed":
+          response = (await bookingCompleteHandler(id)) ?? null;
+          break;
+        case "approve":
+          response = (await bookingInprogressHandler(id)) ?? null;
+          break;
+        case "reschedule":
+          response =
+            (await rescheduleBookingHandler(id, {
+              booked_date: date.toLocaleDateString("en-CA"),
+              booked_time: date.toLocaleTimeString("en-CA", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            })) ?? null;
+          break;
+        default:
+          console.warn("Unknown event type:", event);
+          return;
+      }
+
+      if (!response?.ok) handleError();
+
+      // Optionally consume the response JSON if needed
+      // const data = await response.json();
+
+      setAppointments((prev) =>
+        prev.map((appointment) =>
+          appointment.id === id ? updatedAppointment : appointment
+        )
+      );
+    } catch (error) {
+      console.error("Appointment update failed:", error);
+    }
   };
 
   const filteredAppointments = appointments?.filter((appointment) => {

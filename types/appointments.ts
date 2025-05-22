@@ -1,5 +1,6 @@
 export type AppointmentStatus =
   | "pending"
+  | "inprogress"
   | "confirmed"
   | "completed"
   | "canceled";
@@ -32,4 +33,5 @@ export interface Appointment {
     vendorTax: string;
     cartTotal: string;
   };
+  event?:string
 }

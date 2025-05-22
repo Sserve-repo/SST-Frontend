@@ -17,16 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/appointments";
 
@@ -42,7 +42,6 @@ export function AppointmentDetailsDialog({
   onUpdate,
 }: AppointmentDetailsDialogProps) {
   const [showReschedule, setShowReschedule] = useState(false);
-  const [showCancel, setShowCancel] = useState(false);
   const [newDate, setNewDate] = useState<Date | undefined>();
   const [newTime, setNewTime] = useState<string>("");
 
@@ -52,6 +51,7 @@ export function AppointmentDetailsDialog({
     onUpdate({
       ...appointment,
       status: newStatus,
+      event: "completed",
     });
   };
 
@@ -65,16 +65,18 @@ export function AppointmentDetailsDialog({
     onUpdate({
       ...appointment,
       date: updatedDate,
+      event: "reschedule",
     });
     setShowReschedule(false);
   };
 
-  const handleCancel = () => {
+  const handleApproveBooking = (event) => {
     onUpdate({
       ...appointment,
       status: "canceled",
+      event,
     });
-    setShowCancel(false);
+    // setShowCancel(false);
   };
 
   const timeSlots = Array.from({ length: 24 * 2 }).map((_, i) => {
@@ -170,7 +172,6 @@ export function AppointmentDetailsDialog({
             )}
 
             <div className="flex justify-end gap-2">
-            
               {["pending", "confirmed"].includes(appointment.status) && (
                 <>
                   <Button
@@ -181,31 +182,20 @@ export function AppointmentDetailsDialog({
                   </Button>
                   <Button
                     variant="default"
-                    onClick={() => setShowCancel(true)}
+                    onClick={() => handleApproveBooking("approve")}
                   >
                     In Progress
                   </Button>
-                  {/* <Button variant="destructive" onClick={() => setShowCancel(true)}>
-                    Cancel
-                  </Button> */}
                 </>
               )}
-              {appointment.status === "confirmed" && (
-                <Button
-                  variant="default"
-                  onClick={() => handleStatusUpdate("completed")}
-                >
-                  Mark as Completed
-                </Button>
-              )}
 
-                {appointment.status === "pending" && (
+              {appointment.status === "inprogress" && (
                 <Button
                   // variant="default"
                   className="bg-green-600"
-                  onClick={() => handleStatusUpdate("confirmed")}
+                  onClick={() => handleStatusUpdate("completed")}
                 >
-                  Completed
+                  Mark as Completed
                 </Button>
               )}
             </div>
@@ -250,7 +240,7 @@ export function AppointmentDetailsDialog({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showCancel} onOpenChange={setShowCancel}>
+      {/* <AlertDialog open={showCancel} onOpenChange={setShowCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
@@ -269,7 +259,7 @@ export function AppointmentDetailsDialog({
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </>
   );
 }
