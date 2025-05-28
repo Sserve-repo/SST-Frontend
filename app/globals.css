@@ -139,6 +139,16 @@
   }
 }
 
+.DialogOverlay {
+  @apply fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4;
+}
+
+.DialogContent {
+  @apply relative bg-background border shadow-lg duration-200 max-h-[90vh] overflow-y-auto rounded-xl;
+  @apply w-full max-w-[95%] sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl;
+  @apply p-6 gap-4 grid;
+}
+
 @keyframes scroll {
   0% {
     transform: translateX(0);
@@ -171,8 +181,6 @@
   overflow: hidden;
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -181,12 +189,6 @@
     @apply bg-background text-foreground;
   }
 }
-
-
-
-
-
-
 
 @layer base {
   * {

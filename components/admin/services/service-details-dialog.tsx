@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,6 +29,9 @@ export function ServiceDetailsDialog({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Service Details</DialogTitle>
+          <DialogDescription>
+            Review the service details and take action if needed.
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6">
           <div className="aspect-video overflow-hidden rounded-lg">

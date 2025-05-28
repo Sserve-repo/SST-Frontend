@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteServiceListing } from "@/actions/dashboard/artisans";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,7 @@ import type { Service } from "@/types/services";
 interface DeleteServiceDialogProps {
   service: Service | null;
   onOpenChange: (open: boolean) => void;
-  onDelete: (id: string) => void;
+  onDelete: (serviceId: string) => void;
 }
 
 export function DeleteServiceDialog({
@@ -24,32 +24,49 @@ export function DeleteServiceDialog({
   onOpenChange,
   onDelete,
 }: DeleteServiceDialogProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   if (!service) return null;
 
   const handleDelete = async () => {
-    console.log("entering here.....");
-    await deleteServiceListing(service.id);
-    onDelete(service.id as string)
-    onOpenChange(false)
+    setIsDeleting(true);
+    try {
+      await onDelete(service.id);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting service:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (!isDeleting) {
+      onOpenChange(false);
+    }
   };
 
   return (
     <AlertDialog open={!!service} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Delete Service</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the service &quot;{service.name}&quot;.
-            This action cannot be undone.
+            Are you sure you want to delete &quot;{service.name}&quot;? This
+            action cannot be undone and will permanently remove the service from
+            the platform.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={handleCancel} disabled={isDeleting}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
             className="bg-red-600 hover:bg-red-700"
+            disabled={isDeleting}
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete Service"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

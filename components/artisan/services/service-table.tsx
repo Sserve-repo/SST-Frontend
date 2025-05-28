@@ -17,12 +17,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EditServiceDialog } from "./edit-services-dialog";
 import { DeleteServiceDialog } from "./delete-service-dialog";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import type { Service } from "@/types/services";
 import { Card } from "@/components/ui/card";
 import { ServiceReviewsPreviewSheet } from "./service-review-preview-sheet";
+import { EditServicesDialog } from "./edit-services-dialog";
 
 interface ServiceTableProps {
   services: Service[];
@@ -35,10 +35,52 @@ export function ServiceTable({
   onUpdate,
   onDelete,
 }: ServiceTableProps) {
-  console.log({ services });
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isReviewSheetOpen, setIsReviewSheetOpen] = useState(false);
+
+  const handleEditClick = (service: Service) => {
+    setServiceToEdit(service);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteClick = (service: Service) => {
+    setServiceToDelete(service);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleViewReviews = (service: Service) => {
+    setSelectedService(service);
+    setIsReviewSheetOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setIsEditDialogOpen(false);
+    setTimeout(() => setServiceToEdit(null), 150); // Delay to prevent flash
+  };
+
+  const handleDeleteDialogClose = () => {
+    setIsDeleteDialogOpen(false);
+    setTimeout(() => setServiceToDelete(null), 150);
+  };
+
+  const handleReviewSheetClose = () => {
+    setIsReviewSheetOpen(false);
+    setTimeout(() => setSelectedService(null), 150);
+  };
+
+  const handleServiceUpdate = (updatedService: Service) => {
+    onUpdate(updatedService);
+    handleEditDialogClose();
+  };
+
+  const handleServiceDelete = (id: string) => {
+    onDelete(id);
+    handleDeleteDialogClose();
+  };
 
   return (
     <>
@@ -61,15 +103,20 @@ export function ServiceTable({
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        service.images[0] ||
-                        "/assets/images/image-placeholder.png"
+                        service.images?.[0] ||
+                        "/placeholder.svg?height=40&width=40" ||
+                        "/placeholder.svg"
                       }
                       alt={service.name}
                       className="h-10 w-10 rounded-md object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg?height=40&width=40";
+                      }}
                     />
                     <div>
                       <div className="font-medium">{service.name}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 truncate max-w-[200px]">
                         {service.description}
                       </div>
                     </div>
@@ -84,35 +131,41 @@ export function ServiceTable({
                     }
                     className={
                       service.status === "active"
-                        ? "bg-green-500"
-                        : "bg-red-200"
+                        ? "bg-green-500 hover:bg-green-600"
+                        : "bg-red-200 text-red-800"
                     }
                   >
                     {service.status}
                   </Badge>
                 </TableCell>
-                <TableCell onClick={() => setSelectedService(service as any)}>
-                  <div className="cursor-pointer bg-primary text-white inline-flex justify-center text-center rounded-lg w-12">
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewReviews(service)}
+                    className="text-primary hover:bg-primary/10"
+                  >
                     View
-                  </div>
+                  </Button>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => setServiceToEdit(service)}
+                        onClick={() => handleEditClick(service)}
                       >
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={() => setServiceToDelete(service)}
+                        className="text-red-600 focus:text-red-600"
+                        onClick={() => handleDeleteClick(service)}
                       >
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
@@ -126,29 +179,26 @@ export function ServiceTable({
         </Table>
       </Card>
 
-      <EditServiceDialog
-        service={serviceToEdit}
-        onOpenChange={(open) => !open && setServiceToEdit(null)}
-        onSubmit={(updatedService) => {
-          onUpdate(updatedService);
-          setServiceToEdit(null);
-        }}
+      {/* Edit Dialog */}
+      <EditServicesDialog
+        service={isEditDialogOpen ? serviceToEdit : null}
+        onOpenChange={handleEditDialogClose}
+        onUpdate={handleServiceUpdate}
       />
 
+      {/* Delete Dialog */}
       <DeleteServiceDialog
-        service={serviceToDelete}
-        onOpenChange={(open) => !open && setServiceToDelete(null)}
-        onDelete={(id) => {
-          onDelete(id);
-          setServiceToDelete(null);
-        }}
+        service={isDeleteDialogOpen ? serviceToDelete : null}
+        onOpenChange={handleDeleteDialogClose}
+        onDelete={handleServiceDelete}
       />
 
+      {/* Review Sheet */}
       {selectedService && (
         <ServiceReviewsPreviewSheet
           service={selectedService}
-          open={true}
-          onOpenChange={() => setSelectedService(null)}
+          open={isReviewSheetOpen}
+          onOpenChange={handleReviewSheetClose}
         />
       )}
     </>

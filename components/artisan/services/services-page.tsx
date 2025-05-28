@@ -57,32 +57,6 @@ export default function ServicesPage() {
     handleFetchServiceListings();
   }, []);
 
-  //   {
-  //     "status": true,
-  //     "status_code": 201,
-  //     "message": "Service Listing Created Successfully",
-  //     "data": {
-  //         "listingDetail": {
-  //             "user_id": 7,
-  //             "title": "Plumbing",
-  //             "service_category_id": 4,
-  //             "service_category_items_id": 12,
-  //             "price": "371",
-  //             "service_duration": 60.5,
-  //             "description": "knfkn knknfknv fknkf knf",
-  //             "image": "https:\/\/res.cloudinary.com\/dhb04asqy\/image\/upload\/v1746860527\/service_image\/ibizghd6nhhj0dqemptk.jpg",
-  //             "available_dates": null,
-  //             "start_time": "08:01",
-  //             "end_time": "00:05",
-  //             "home_service_availability": "true",
-  //             "updated_at": "2025-05-10T07:02:09.000000Z",
-  //             "created_at": "2025-05-10T07:02:09.000000Z",
-  //             "id": 14
-  //         }
-  //     },
-  //     "token": null,
-  //     "debug": null
-  // }
   const handleCreateService = async (newService: Omit<any, "id">) => {
     try {
       const form = new FormData();

@@ -8,15 +8,15 @@ export type ServiceAvailability = {
 };
 
 export type Service = {
-  id?: string;
+  id: string | undefined;
   name: string;
   description: string;
   price: number;
   duration: number;
   images: string[];
-  availability: ServiceAvailability;
+  availability: string;
   homeService?: boolean,
-  status?: "active" | "inactive" | "approved" | "pending" |"rejected";
+  status?: string; // e.g., "pending", "approved", "rejected"
   category: string;
   createdAt: string | Date
   featured: boolean
