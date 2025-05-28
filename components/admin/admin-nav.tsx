@@ -16,6 +16,11 @@ const menuItems = [
     icon: Users,
     href: "/admin/users",
   },
+   {
+    title: "Artisan, Vendors & Shoppers Management",
+    icon: Users,
+    href: "/admin/app-users",
+  },
   {
     title: "Services & Products",
     icon: Package,

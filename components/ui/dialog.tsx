@@ -139,6 +139,7 @@ const DialogOverlay = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
+  console.log(props, ref)
   // This is handled by React Modal's overlay, but kept for API compatibility
   return null;
 });
@@ -172,7 +173,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
     ref
   ) => {
     const { open, onOpenChange } = useDialogContext();
-
+    
     // Lock body scroll when modal is open
     React.useEffect(() => {
       if (open) {

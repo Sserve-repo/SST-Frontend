@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, Store, Scissors, DollarSign, ShoppingCart } from "lucide-react"
+import { Users, Store, Scissors, DollarSign } from "lucide-react"
 
 const stats = [
   {
@@ -37,21 +37,12 @@ const stats = [
     icon: DollarSign,
     color: "text-yellow-600",
     bgColor: "bg-yellow-100",
-  },
-  {
-    title: "Pending Orders",
-    value: "45",
-    change: "-5%",
-    changeType: "decrease",
-    icon: ShoppingCart,
-    color: "text-red-600",
-    bgColor: "bg-red-100",
-  },
+  }
 ]
 
 export function StatsOverview() {
   return (
-    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-5">
+    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
       {stats.map((stat) => (
         <Card key={stat.title} className="relative overflow-hidden">
           <CardContent className="p-4">

@@ -9,10 +9,9 @@ import {
 } from "@/components/ui/card";
 import { StatsOverview } from "@/components/admin/stats-overview";
 import { RevenueChart } from "@/components/admin/revenue-chart";
-import { UserGrowthChart } from "@/components/admin/user-growth-chart";
 import { TopServices } from "@/components/admin/top-services";
-import { RecentActivity } from "@/components/admin/recent-activity";
 import { QuickActions } from "@/components/admin/quick-actions";
+import { TopProducts } from "@/components/admin/top-products";
 
 export default function AdminDashboard() {
   return (
@@ -29,6 +28,7 @@ export default function AdminDashboard() {
       <StatsOverview />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        {/* Revenue Overview spans 4 of 7 columns on large screens */}
         <Card className="md:col-span-2 lg:col-span-4">
           <CardHeader>
             <CardTitle>Revenue Overview</CardTitle>
@@ -41,34 +41,15 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
+        {/* Quick Actions spans 3 of 7 columns on large screens */}
         <Card className="md:col-span-2 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>User Growth</CardTitle>
-            <CardDescription>New user registrations over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <UserGrowthChart />
-          </CardContent>
+          <QuickActions />
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="md:col-span-2 lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest actions across the platform
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RecentActivity />
-          </CardContent>
-        </Card>
-
-        <div className="space-y-6 md:col-span-2 lg:col-span-3">
-          <QuickActions />
-          <TopServices />
-        </div>
+      <div className=" grid gap-6 md:grid-cols-2 md:col-span-2 lg:col-span-3 justify-between py-4">
+        <TopProducts />
+        <TopServices />
       </div>
     </div>
   );

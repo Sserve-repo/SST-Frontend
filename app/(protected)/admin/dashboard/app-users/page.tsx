@@ -61,10 +61,10 @@ export default function UsersPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary sm:text-3xl">
-            User Management
+            Vendor, Artisan and Shoppers Management
           </h1>
           <p className="text-muted-foreground">
-            Manage and monitor user accounts
+            Manage and monitor vendor, artisan and shoppers accounts
           </p>
         </div>
         <CreateUserDialog>

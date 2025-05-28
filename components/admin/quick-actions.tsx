@@ -4,8 +4,8 @@ import { Bell, Calendar, CheckSquare } from "lucide-react"
 
 const actions = [
   {
-    title: "Create Notification",
-    description: "Send updates to users",
+    title: "Create User",
+    description: "create new users",
     icon: Bell,
     color: "text-primary",
     bgColor: "bg-[#5D3A8B]/10",
@@ -18,8 +18,8 @@ const actions = [
     bgColor: "bg-blue-100",
   },
   {
-    title: "Approve Products",
-    description: "Review pending items",
+    title: "View Payouts",
+    description: "manage vendor's & artisan's payout",
     icon: CheckSquare,
     color: "text-green-600",
     bgColor: "bg-green-100",

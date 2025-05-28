@@ -20,7 +20,6 @@ import {
   Users,
   Package,
   LifeBuoy,
-  BarChart2,
 } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
@@ -139,26 +138,15 @@ const getNavItems = (userType: string) => {
       icon: Calendar,
     },
     {
-      title: "Support",
-      href: "/admin/dashboard/support",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Analytics",
-      href: "/admin/dashboard/analytics",
-      icon: BarChart2,
-    },
-    {
       title: "Payouts",
       href: "/admin/dashboard/payouts",
-      icon: BarChart2,
+      icon: LifeBuoy,
     },
     {
       title: "Events",
       href: "/admin/dashboard/events",
       icon: CalendarClock,
     },
-    // { title: "Inbox", href: "/buyer/dashboard/inbox", icon: MessageSquare },
   ];
 
   switch (userType) {

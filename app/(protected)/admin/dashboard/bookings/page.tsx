@@ -87,7 +87,7 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Orders</h1>
+        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Bookings</h1>
         <p className="text-muted-foreground">Manage customer orders and service bookings</p>
       </div>
 

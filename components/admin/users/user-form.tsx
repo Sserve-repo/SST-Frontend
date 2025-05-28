@@ -1,50 +1,79 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { User } from "@/types/users"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { User } from "@/types/users";
 
 const formSchema = z.object({
-  name: z.string().min(2).max(50),
+  firstName: z.string().min(2).max(50),
+  lastName: z.string().min(2).max(50),
   email: z.string().email(),
   phone: z.string().min(10).max(15),
   role: z.enum(["shopper", "vendor", "artisan", "admin"]),
   status: z.enum(["active", "banned", "pending"]),
-})
+});
 
 interface UserFormProps {
-  user?: User
-  onSubmit: (data: Omit<User, "id" | "joinedDate" | "lastActive">) => void
+  user?: User;
+  onSubmit: (data: Omit<User, "id" | "joinedDate" | "lastActive">) => void;
 }
 
 export function UserForm({ user, onSubmit }: UserFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: user || {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       role: "shopper",
       status: "active",
     },
-  } as any)
+  } as any);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="name"
+          name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>FirstName</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>LastName</FormLabel>
+              <FormControl>
+                <Input placeholder="Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,7 +115,10 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>User Role</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
@@ -110,7 +142,10 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Account Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
@@ -133,6 +168,5 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
         </div>
       </form>
     </Form>
-  )
+  );
 }
-
