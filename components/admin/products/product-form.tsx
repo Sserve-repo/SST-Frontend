@@ -35,6 +35,7 @@ const formSchema = z.object({
 interface ProductFormProps {
   product?: IProduct;
   onSubmit: (data: Partial<IProduct>) => void;
+  isLoading?: boolean;
 }
 
 const categories = [
@@ -164,7 +165,7 @@ export function ProductForm({ product, onSubmit }: ProductFormProps) {
         />
 
         <div className="flex justify-end">
-          <Button type="submit">
+          <Button type="submit" disabled={form.formState.isSubmitting} className="w-full sm:w-auto">
             {product ? "Update Product" : "Create Product"}
           </Button>
         </div>
