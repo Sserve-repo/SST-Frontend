@@ -1,48 +1,89 @@
-"use client"
+"use client";
 
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
-const categories = ["All Categories", "Beauty", "Wellness", "Home Services", "Professional", "Education", "Events"]
+interface ServiceFiltersProps {
+  onFiltersChange: (filters: {
+    category: string;
+    status: string;
+    search: string;
+  }) => void;
+}
 
-export function ServiceFilters() {
+export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
+  const [filters, setFilters] = useState({
+    category: "",
+    status: "",
+    search: "",
+  });
+
+  const handleFilterChange = (key: string, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFiltersChange(newFilters);
+  };
+
+  const clearFilters = () => {
+    const clearedFilters = { category: "", status: "", search: "" };
+    setFilters(clearedFilters);
+    onFiltersChange(clearedFilters);
+  };
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
       <div className="relative flex-1">
         <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search services..." className="pl-8 sm:max-w-[300px]" />
+        <Input
+          placeholder="Search services..."
+          value={filters.search}
+          onChange={(e) => handleFilterChange("search", e.target.value)}
+          className="pl-8 sm:max-w-[300px]"
+        />
       </div>
       <div className="flex gap-4">
-        <Select defaultValue="all">
+        <Select
+          value={filters.category}
+          onValueChange={(value) => handleFilterChange("category", value)}
+        >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select category" />
+            <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category.toLowerCase()}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectGroup>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="beauty">Beauty & Wellness</SelectItem>
+            <SelectItem value="fitness">Fitness</SelectItem>
+            <SelectItem value="home">Home Services</SelectItem>
+            <SelectItem value="automotive">Automotive</SelectItem>
           </SelectContent>
         </Select>
-        <Select defaultValue="all">
+        <Select
+          value={filters.status}
+          onValueChange={(value) => handleFilterChange("status", value)}
+        >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select status" />
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectGroup>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
           </SelectContent>
         </Select>
+        <Button variant="outline" onClick={clearFilters}>
+          Clear
+        </Button>
       </div>
     </div>
-  )
+  );
 }
-
