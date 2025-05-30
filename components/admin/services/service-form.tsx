@@ -22,6 +22,7 @@ const formSchema = z.object({
 interface ServiceFormProps {
   service?: Service
   onSubmit: (data: Partial<Service>) => void
+  isLoading?: boolean
 }
 
 const categories = ["Beauty", "Wellness", "Home Services", "Professional", "Education", "Events"]
