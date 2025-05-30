@@ -19,7 +19,7 @@ import {
   MessageSquareMore,
   Users,
   Package,
-  LifeBuoy,
+  Users2Icon,
 } from "lucide-react";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
@@ -108,15 +108,15 @@ const getNavItems = (userType: string) => {
       href: "/buyer/dashboard/saved",
       icon: HiOutlineArchive,
     },
-    { title: "Messages", href: "/buyer/dashboard/messages", icon: MessageSquare },
+    {
+      title: "Messages",
+      href: "/buyer/dashboard/messages",
+      icon: MessageSquare,
+    },
   ];
   const adminItems = [
     { title: "Overview", href: "/admin/dashboard", icon: TbChartArcs },
-    {
-      title: "RBAC",
-      href: "/admin/dashboard/rbac",
-      icon: Users,
-    },
+
     {
       title: "Products Approval",
       href: "/admin/dashboard/product-approval-list",
@@ -138,9 +138,14 @@ const getNavItems = (userType: string) => {
       icon: Calendar,
     },
     {
-      title: "Payouts",
-      href: "/admin/dashboard/payouts",
-      icon: LifeBuoy,
+      title: "User Management",
+      href: "/admin/dashboard/users",
+      icon: Users2Icon,
+    },
+    {
+      title: "Roles & Permissions",
+      href: "/admin/dashboard/roles",
+      icon: Users,
     },
     {
       title: "Events",
