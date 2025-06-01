@@ -77,7 +77,9 @@ export default function ServiceApprovalPage() {
             images: service.image ? [service.image] : ["/placeholder.svg"],
             createdAt: service.created_at,
             duration: Number.parseInt(service.service_duration) || 0,
-            availability: service.available_dates || [],
+            availability: Array.isArray(service.available_dates)
+              ? service.available_dates.join(", ")
+              : service.available_dates || "",
             homeService: Boolean(service.home_service_availability),
           })
         );

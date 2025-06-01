@@ -32,7 +32,7 @@ export function DeleteUserDialog({ user, onOpenChange }: DeleteUserDialogProps) 
         <AlertDialogHeader>
           <AlertDialogTitle>Delete User Account</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete {user.name}&apos;s account? This action cannot be undone and will
+            Are you sure you want to delete {user.firstName}&apos;s account? This action cannot be undone and will
             permanently remove all their data from the system.
           </AlertDialogDescription>
         </AlertDialogHeader>

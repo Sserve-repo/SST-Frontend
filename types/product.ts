@@ -54,7 +54,7 @@ export type IProduct = {
   description: string;
   price: number;
   duration: number;
-  images: string[];
+  images: string[] | File[];
   status: "active" | "inactive" | "approved" | "pending" |"rejected";
   category: string;
   createdAt: string | Date

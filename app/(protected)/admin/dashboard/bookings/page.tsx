@@ -34,7 +34,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { BookingFilters } from "@/components/admin/bookings/booking-filters";
+// import { BookingFilters } from "@/components/admin/bookings/booking-filters";
 
 interface BookingTableItem {
   id: string;
@@ -116,6 +116,7 @@ export default function BookingsPage() {
         }));
         setBookings(formattedBookings);
       }
+      setFilters((prev)=>({...prev}))
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch bookings");
@@ -126,7 +127,7 @@ export default function BookingsPage() {
 
   useEffect(() => {
     fetchBookings();
-  }, [filters]);
+  }, [filters,fetchBookings]);
 
   const handleBookingAction = async (
     id: string,

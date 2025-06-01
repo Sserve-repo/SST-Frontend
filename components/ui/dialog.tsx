@@ -139,7 +139,7 @@ const DialogOverlay = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  console.log(props, ref)
+  console.log(props, ref, className)
   // This is handled by React Modal's overlay, but kept for API compatibility
   return null;
 });
@@ -160,14 +160,14 @@ interface DialogContentProps {
 const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
   (
     {
-      className,
+      // className,
       children,
       hideCloseButton = false,
       onOpenAutoFocus,
       onCloseAutoFocus,
-      onEscapeKeyDown,
-      onPointerDownOutside,
-      onInteractOutside,
+      // onEscapeKeyDown,
+      // onPointerDownOutside,
+      // onInteractOutside,
       ...props
     },
     ref

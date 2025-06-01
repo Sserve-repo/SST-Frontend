@@ -15,7 +15,7 @@ import type { Service } from "@/types/services";
 
 interface CreateServiceDialogProps {
   children: React.ReactNode;
-  onSubmit: (service: Omit<Service, "id">) => void;
+  onSubmit: (service: Omit<Service, "id">) => void | Promise<void>;
 }
 
 export function CreateServiceDialog({
@@ -25,13 +25,20 @@ export function CreateServiceDialog({
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (data: Omit<Service, "id">) => {
+  const handleSubmit = async (data: Partial<Service>) => {
     setIsSubmitting(true);
     try {
-      await onSubmit(data);
+      // Validate that all required fields except "id" are present
+      const { id, ...rest } = data;
+      if (!rest.name || !rest.description || !rest.duration || !rest.price) {
+        console.log({ id });
+        throw new Error("All fields are required.");
+      }
+      // Type assertion since we've checked required fields
+      await onSubmit(rest as Omit<Service, "id">);
       setOpen(false);
     } catch (error) {
-      console.error("Error creating service:", error);
+      console.error("Error creating service :", error);
     } finally {
       setIsSubmitting(false);
     }

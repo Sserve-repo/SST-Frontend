@@ -44,7 +44,7 @@ export function EditProductDialog({
       // Handle images if they're files
       if (data.images && data.images.length > 0) {
         data.images.forEach((image, index) => {
-          if (image instanceof File) {
+          if (image && typeof image === "object" && image instanceof File) {
             formData.append(`images[${index}]`, image);
           }
         });

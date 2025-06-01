@@ -105,13 +105,13 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
 
           <div className="mt-8">
             <Dialog>
-              <DialogTrigger className="w-full border">
+              <DialogTrigger asChild>
                 {order.order_type === "service" &&
                   (order.booking_status === "pending" ||
                     order.booking_status === "inprogress") && (
                     <Button
                       onClick={() => handleCancelOrder()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
+                      className="h-14 text-[24px] w-full bg-[#EA0234] border "
                     >
                       Cancel Order
                     </Button>
@@ -121,7 +121,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
                   order.booking_status === "cancelled" && (
                     <Button
                       onClick={() => handleRequestRefund()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
+                      className="h-14 text-[24px] w-full bg-[#EA0234] border"
                     >
                       Request Refund
                     </Button>
@@ -132,7 +132,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
                     order.order_status === "intransit") && (
                     <Button
                       onClick={() => handleCancelOrder()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
+                      className="h-14 text-[24px] w-full bg-[#EA0234] border "
                     >
                       Cancel Order
                     </Button>
@@ -142,7 +142,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
                   order.order_status === "cancelled" && (
                     <Button
                       onClick={() => handleRequestRefund()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
+                      className="h-14 text-[24px]  bg-[#EA0234] border w-full"
                     >
                       Request Refund
                     </Button>

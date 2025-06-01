@@ -25,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { getOrders, type Order } from "@/actions/admin/order-api";
-import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 // import { OrderFilters } from "@/components/admin/orders/order-filters";
@@ -66,7 +65,6 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { toast } = useToast();
 
   const fetchOrders = async () => {
     try {
@@ -103,6 +101,7 @@ export default function OrdersPage() {
           createdAt: new Date(order.created_at).toLocaleDateString(),
         }));
         setOrders(formattedOrders);
+        setFilters((prev)=>({...prev}))
       }
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -114,7 +113,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, [filters]);
+  }, [filters, fetchOrders]);
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {

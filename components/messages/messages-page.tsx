@@ -219,7 +219,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     handleFetchLastConversations();
-  }, []); // This runs only once on component mount
+  }, [handleFetchLastConversations]); // This runs only once on component mount
 
   // Using a ref to track if we've already fetched for this conversation
   const fetchedConversationsRef = useRef<Set<string>>(new Set());

@@ -31,7 +31,11 @@ export function DeleteServiceDialog({
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await onDelete(service.id);
+      if (service.id) {
+        onDelete(service.id);
+      } else {
+        throw new Error("Service ID is undefined.");
+      }
       onOpenChange(false);
     } catch (error) {
       console.error("Error deleting service:", error);

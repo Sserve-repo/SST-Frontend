@@ -101,12 +101,12 @@ export function BookingDetails({
 
           <div className="mt-8">
             <Dialog>
-              <DialogTrigger className="w-full border">
+              <DialogTrigger asChild>
                 {order.order.orderType === "service" &&
                   order.bookingStatus === "cancelled" && (
                     <Button
                       onClick={() => handleRequestRefund()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
+                      className="h-14 text-[24px] bg-[#EA0234] border w-full"
                     >
                       Request Refund
                     </Button>

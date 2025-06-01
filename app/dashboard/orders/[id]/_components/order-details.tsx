@@ -105,48 +105,50 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
 
           <div className="mt-8">
             <Dialog>
-              <DialogTrigger className="w-full border">
-                {order.order_type === "service" &&
-                  (order.booking_status === "pending" ||
-                    order.booking_status === "inprogress") && (
-                    <Button
-                      onClick={() => handleCancelOrder()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
-                    >
-                      Cancel Order
-                    </Button>
-                  )}
+              <DialogTrigger asChild>
+                <>
+                  {order.order_type === "service" &&
+                    (order.booking_status === "pending" ||
+                      order.booking_status === "inprogress") && (
+                      <Button
+                        onClick={() => handleCancelOrder()}
+                        className="h-14 text-[24px] w-full bg-[#EA0234] border"
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
 
-                {order.order_type === "service" &&
-                  order.booking_status === "cancelled" && (
-                    <Button
-                      onClick={() => handleRequestRefund()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
-                    >
-                      Request Refund
-                    </Button>
-                  )}
+                  {order.order_type === "service" &&
+                    order.booking_status === "cancelled" && (
+                      <Button
+                        onClick={() => handleRequestRefund()}
+                        className="h-14 text-[24px] w-full bg-[#EA0234] border"
+                      >
+                        Request Refund
+                      </Button>
+                    )}
 
-                {order.order_type === "product" &&
-                  (order.order_status === "pending" ||
-                    order.order_status === "intransit") && (
-                    <Button
-                      onClick={() => handleCancelOrder()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
-                    >
-                      Cancel Order
-                    </Button>
-                  )}
+                  {order.order_type === "product" &&
+                    (order.order_status === "pending" ||
+                      order.order_status === "intransit") && (
+                      <Button
+                        onClick={() => handleCancelOrder()}
+                        className="h-14 text-[24px] w-full bg-[#EA0234] border"
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
 
-                {order.order_type === "product" &&
-                  order.order_status === "cancelled" && (
-                    <Button
-                      onClick={() => handleRequestRefund()}
-                      className="h-14 text-[24px] w-full bg-[#EA0234]"
-                    >
-                      Request Refund
-                    </Button>
-                  )}
+                  {order.order_type === "product" &&
+                    order.order_status === "cancelled" && (
+                      <Button
+                        onClick={() => handleRequestRefund()}
+                        className="h-14 text-[24px] w-full bg-[#EA0234] border"
+                      >
+                        Request Refund
+                      </Button>
+                    )}
+                </>
               </DialogTrigger>
               {dialog && (
                 <DialogContent className="flex flex-col justify-center items-center">

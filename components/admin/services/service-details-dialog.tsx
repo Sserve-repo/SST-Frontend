@@ -76,7 +76,13 @@ export function ServiceDetailsDialog({
         <div className="grid gap-6">
           <div className="aspect-video overflow-hidden rounded-lg bg-muted">
             <img
-              src={service.images[0] || "/placeholder.svg"}
+              src={
+                typeof service.images[0] === "string"
+                  ? service.images[0]
+                  : service.images[0] instanceof File
+                  ? URL.createObjectURL(service.images[0])
+                  : "/placeholder.svg"
+              }
               alt={service.name}
               className="h-full w-full object-cover"
               onError={(e) => {

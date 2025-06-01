@@ -172,7 +172,11 @@ export function ServiceTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img
-                        src={service.images[0] || "/placeholder.svg"}
+                        src={
+                          typeof service.images[0] === "string"
+                            ? service.images[0]
+                            : "/placeholder.svg"
+                        }
                         alt={service.name}
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {

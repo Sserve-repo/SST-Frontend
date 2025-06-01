@@ -111,7 +111,7 @@ export default function ServicesPage() {
         },
       };
 
-      setServices((prev) => [...prev, transformedResponse as Service]);
+      setServices((prev) => [...prev, transformedResponse as unknown as Service]);
     } catch (error) {
       console.error("Error creating service:", error);
       // Optionally show user-friendly feedback

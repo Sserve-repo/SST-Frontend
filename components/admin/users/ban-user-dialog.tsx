@@ -36,8 +36,8 @@ export function BanUserDialog({ user, onOpenChange }: BanUserDialogProps) {
           <AlertDialogTitle>{isBanned ? "Unban User Account" : "Ban User Account"}</AlertDialogTitle>
           <AlertDialogDescription>
             {isBanned
-              ? `Are you sure you want to unban ${user.name}'s account? They will regain access to all platform features.`
-              : `Are you sure you want to ban ${user.name}'s account? They will lose access to all platform features until unbanned.`}
+              ? `Are you sure you want to unban ${user.firstName}'s account? They will regain access to all platform features.`
+              : `Are you sure you want to ban ${user.firstName}'s account? They will lose access to all platform features until unbanned.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

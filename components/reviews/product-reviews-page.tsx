@@ -130,7 +130,7 @@ export default function ProductReviewsPage({ product }) {
 
   useEffect(() => {
     handleFetchReview();
-  }, []);
+  }, [handleFetchReview]);
 
   return (
     <div className="p-6 space-y-6">

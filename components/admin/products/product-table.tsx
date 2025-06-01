@@ -171,7 +171,7 @@ export function ProductTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img
-                        src={product.images[0] || "/placeholder.svg"}
+                        src={typeof product.images[0] === "string" ? product.images[0] : "/placeholder.svg"}
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
                       />

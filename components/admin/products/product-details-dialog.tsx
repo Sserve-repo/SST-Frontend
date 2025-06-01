@@ -72,7 +72,13 @@ export function ProductDetailsDialog({
         <div className="grid gap-6">
           <div className="aspect-video overflow-hidden rounded-lg bg-muted">
             <img
-              src={product.images[0] || "/placeholder.svg"}
+              src={
+                typeof product.images[0] === "string"
+                  ? product.images[0]
+                  : product.images[0] instanceof File
+                  ? URL.createObjectURL(product.images[0])
+                  : "/placeholder.svg"
+              }
               alt={product.name}
               className="h-full w-full object-cover"
               onError={(e) => {

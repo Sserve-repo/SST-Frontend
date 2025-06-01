@@ -46,7 +46,7 @@ export function EditServiceDialog({
       // Handle images if they're files
       if (data.images && data.images.length > 0) {
         data.images.forEach((image, index) => {
-          if (image instanceof File) {
+          if (typeof window !== "undefined" && typeof File !== "undefined" && image instanceof File) {
             formData.append(`images[${index}]`, image);
           }
         });

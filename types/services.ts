@@ -13,8 +13,9 @@ export type Service = {
   description: string;
   price: number;
   duration: number;
-  images: string[];
+  images: string[] | File[];
   availability: string;
+  location?: string;
   homeService?: boolean,
   status?: string; // e.g., "pending", "approved", "rejected"
   category: string;
