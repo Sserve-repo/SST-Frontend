@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ import { useRouter } from "next/navigation";
 import { getOrders, type Order } from "@/actions/admin/order-api";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
-// import { OrderFilters } from "@/components/admin/orders/order-filters";
 
 interface OrderTableItem {
   id: string;
@@ -66,7 +65,7 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -77,9 +76,7 @@ export default function OrdersPage() {
         search: filters.search || undefined,
       });
 
-      if (apiError) {
-        throw new Error(apiError);
-      }
+      if (apiError) throw new Error(apiError);
 
       if (data) {
         setStats({
@@ -93,15 +90,15 @@ export default function OrdersPage() {
         const formattedOrders = data.Orders.map((order: Order) => ({
           id: order.id.toString(),
           orderNo: order.order_no,
-          customer: "Customer", // API doesn't provide customer name in list response
+          customer: "Customer",
           items: order.product_items.length,
           total: `$${order.total}`,
           status: order.status,
           orderType: order.order_type,
           createdAt: new Date(order.created_at).toLocaleDateString(),
         }));
+
         setOrders(formattedOrders);
-        setFilters((prev)=>({...prev}))
       }
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -109,11 +106,11 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetchOrders();
-  }, [filters, fetchOrders]);
+  }, [fetchOrders]);
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
@@ -184,26 +181,14 @@ export default function OrdersPage() {
       id: "actions",
       cell: ({ row }) => {
         const order = row.original;
-
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() =>
-                  router.push(`/admin/dashboard/orders/${order.id}`)
-                }
-              >
-                <Eye className="mr-2 h-4 w-4" /> View Details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            onClick={() => router.push(`/admin/dashboard/orders/${order.id}`)}
+          >
+            <Eye className="mr-2 h-4 w-4" /> View Details
+          </Button>
         );
       },
     },

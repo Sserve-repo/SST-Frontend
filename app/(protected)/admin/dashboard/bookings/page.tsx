@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
@@ -20,10 +21,10 @@ import {
   Clock,
   Calendar,
   DollarSign,
+  Filter,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import {
   getBookings,
   cancelBooking,
@@ -34,7 +35,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
-// import { BookingFilters } from "@/components/admin/bookings/booking-filters";
+import { BookingFilters } from "@/components/admin/bookings/booking-filters";
 
 interface BookingTableItem {
   id: string;
@@ -58,6 +59,10 @@ interface BookingStats {
 }
 
 export default function BookingsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { toast } = useToast();
+
   const [bookings, setBookings] = useState<BookingTableItem[]>([]);
   const [stats, setStats] = useState<BookingStats>({
     total: 0,
@@ -67,18 +72,19 @@ export default function BookingsPage() {
     cancelled: 0,
     totalRevenue: "0",
   });
-  const [filters, setFilters] = useState({
-    status: "",
-    booking_status: "",
-    search: "",
-  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
+  const [showFilters, setShowFilters] = useState(false);
 
-  const fetchBookings = async () => {
+  // Get filters from URL params
+  const filters = {
+    status: searchParams.get("status") || "",
+    booking_status: searchParams.get("booking_status") || "",
+    search: searchParams.get("search") || "",
+  };
+
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -116,18 +122,17 @@ export default function BookingsPage() {
         }));
         setBookings(formattedBookings);
       }
-      setFilters((prev)=>({...prev}))
     } catch (err) {
       console.error("Error fetching bookings:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch bookings");
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.status, filters.booking_status, filters.search]);
 
   useEffect(() => {
     fetchBookings();
-  }, [filters,fetchBookings]);
+  }, [fetchBookings]);
 
   const handleBookingAction = async (
     id: string,
@@ -170,6 +175,20 @@ export default function BookingsPage() {
     }
   };
 
+  const updateFilters = (newFilters: Partial<typeof filters>) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+
+    router.push(`?${params.toString()}`);
+  };
+
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
@@ -178,7 +197,7 @@ export default function BookingsPage() {
         return "secondary";
       case "cancelled":
         return "destructive";
-      case "in_progress":
+      case "inprogress":
         return "outline";
       default:
         return "outline";
@@ -186,45 +205,21 @@ export default function BookingsPage() {
   };
 
   const columns: ColumnDef<BookingTableItem>[] = [
-    {
-      accessorKey: "orderNo",
-      header: "Order No",
-    },
-    {
-      accessorKey: "customer",
-      header: "Customer",
-    },
-    {
-      accessorKey: "service",
-      header: "Service",
-    },
-    {
-      accessorKey: "artisan",
-      header: "Artisan",
-    },
-    {
-      accessorKey: "bookingDate",
-      header: "Date",
-    },
-    {
-      accessorKey: "bookingTime",
-      header: "Time",
-    },
-    {
-      accessorKey: "price",
-      header: "Price",
-    },
+    { accessorKey: "orderNo", header: "Order No" },
+    { accessorKey: "customer", header: "Customer" },
+    { accessorKey: "service", header: "Service" },
+    { accessorKey: "artisan", header: "Artisan" },
+    { accessorKey: "bookingDate", header: "Date" },
+    { accessorKey: "bookingTime", header: "Time" },
+    { accessorKey: "price", header: "Price" },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        return (
-          <Badge variant={getStatusVariant(status)}>
-            {status.replace("_", " ")}
-          </Badge>
-        );
-      },
+      cell: ({ row }) => (
+        <Badge variant={getStatusVariant(row.getValue("status"))}>
+          {(row.getValue("status") as string).replace("_", " ")}
+        </Badge>
+      ),
     },
     {
       id: "actions",
@@ -260,7 +255,7 @@ export default function BookingsPage() {
                   <CheckCircle className="mr-2 h-4 w-4" /> Approve
                 </DropdownMenuItem>
               )}
-              {booking.status === "in_progress" && (
+              {booking.status === "inprogress" && (
                 <DropdownMenuItem
                   onClick={() => handleBookingAction(booking.id, "complete")}
                 >
@@ -297,13 +292,19 @@ export default function BookingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">
-          Service Bookings
-        </h1>
-        <p className="text-muted-foreground">
-          Manage customer service bookings and appointments
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary sm:text-3xl">
+            Service Bookings
+          </h1>
+          <p className="text-muted-foreground">
+            Manage customer service bookings and appointments
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+          <Filter className="mr-2 h-4 w-4" />
+          Filters
+        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -387,7 +388,9 @@ export default function BookingsPage() {
         </Card>
       </div>
 
-      {/* <BookingFilters onFiltersChange={setFilters} /> */}
+      {showFilters && (
+        <BookingFilters filters={filters} onFiltersChange={updateFilters} />
+      )}
 
       <DataTable
         columns={columns}
