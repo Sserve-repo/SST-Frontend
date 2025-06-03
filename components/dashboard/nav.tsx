@@ -27,6 +27,7 @@ import { TbChartArcs } from "react-icons/tb";
 import { HiOutlineArchive } from "react-icons/hi";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { useAuth } from "@/context/AuthContext";
+import { title } from "process";
 
 const getNavItems = (userType: string) => {
   const baseItems = [
@@ -138,6 +139,11 @@ const getNavItems = (userType: string) => {
       icon: Calendar,
     },
     {
+      title: "Payout Management",
+      href: "/admin/dashboard/payouts",
+      icon: BriefcaseBusiness,
+    },
+    {
       title: "User Management",
       href: "/admin/dashboard/users",
       icon: Users2Icon,
@@ -147,6 +153,7 @@ const getNavItems = (userType: string) => {
       href: "/admin/dashboard/roles",
       icon: Users,
     },
+
     {
       title: "Events",
       href: "/admin/dashboard/events",

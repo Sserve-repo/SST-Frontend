@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,81 +11,115 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { X } from "lucide-react";
 
 interface BookingFiltersProps {
-  onFiltersChange: (filters: {
+  filters: {
     status: string;
     booking_status: string;
     search: string;
-  }) => void;
+  };
+  onFiltersChange: (
+    filters: Partial<{
+      status: string;
+      booking_status: string;
+      search: string;
+    }>
+  ) => void;
 }
 
-export function BookingFilters({ onFiltersChange }: BookingFiltersProps) {
-  const [filters, setFilters] = useState({
-    status: "",
-    booking_status: "",
-    search: "",
-  });
+export function BookingFilters({
+  filters,
+  onFiltersChange,
+}: BookingFiltersProps) {
+  const [localFilters, setLocalFilters] = useState(filters);
 
-  const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFiltersChange(newFilters);
+  const handleApplyFilters = () => {
+    onFiltersChange(localFilters);
   };
 
-  const clearFilters = () => {
-    const clearedFilters = { status: "", booking_status: "", search: "" };
-    setFilters(clearedFilters);
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      status: "",
+      booking_status: "",
+      search: "",
+    };
+    setLocalFilters(clearedFilters);
     onFiltersChange(clearedFilters);
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search bookings..."
-          value={filters.search}
-          onChange={(e) => handleFilterChange("search", e.target.value)}
-          className="pl-8 sm:max-w-[300px]"
-        />
-      </div>
-      <div className="flex gap-4">
-        <Select
-          value={filters.status}
-          onValueChange={(value) => handleFilterChange("status", value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Order Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="confirmed">Confirmed</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.booking_status}
-          onValueChange={(value) => handleFilterChange("booking_status", value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Booking Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Booking Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="outline" onClick={clearFilters}>
-          Clear
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle className="text-lg">Filters</CardTitle>
+        <Button variant="ghost" size="sm" onClick={handleClearFilters}>
+          <X className="h-4 w-4 mr-1" />
+          Clear All
         </Button>
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-4">
+          <div className="space-y-2">
+            <Label htmlFor="search">Search</Label>
+            <Input
+              id="search"
+              placeholder="Search bookings..."
+              value={localFilters.search}
+              onChange={(e) =>
+                setLocalFilters({ ...localFilters, search: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Payment Status</Label>
+            <Select
+              value={localFilters.status}
+              onValueChange={(value) =>
+                setLocalFilters({ ...localFilters, status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="success">Success</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="booking_status">Booking Status</Label>
+            <Select
+              value={localFilters.booking_status}
+              onValueChange={(value) =>
+                setLocalFilters({ ...localFilters, booking_status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select booking status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Booking Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="inprogress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-end">
+            <Button onClick={handleApplyFilters} className="w-full">
+              Apply Filters
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
