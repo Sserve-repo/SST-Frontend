@@ -146,7 +146,7 @@ export function DataTable<TData, TValue>({
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2 flex items-center">
           <Button
             variant="outline"
             size="sm"
