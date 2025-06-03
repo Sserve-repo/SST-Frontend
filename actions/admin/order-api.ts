@@ -19,6 +19,7 @@ export interface OrderItem {
     vendor_email: string
     peoduct_name: string
     product_category: string
+    product_name: string
 }
 
 export interface Order {
@@ -58,23 +59,7 @@ export interface OrderDetailResponse {
         status: string
         created_at: string
         updated_at: string
-        product_items: {
-            id: number
-            order_id: number
-            user_id: number
-            local_id: string
-            vendor_id: number
-            product_listing_detail_id: number
-            quantity: number
-            currency: string
-            unit_price: number
-            total_amount: string
-            order_status: string
-            status: string
-            created_at: string
-            updated_at: string
-            product_name: string
-        }[]
+        product_items: OrderItem[]
         customer: {
             id: number
             firstname: string
