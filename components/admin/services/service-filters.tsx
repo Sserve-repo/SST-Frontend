@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -10,7 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { SearchWithSuggestions } from "@/components/ui/search-with-suggestions";
+import { useDebounceSearch } from "@/hooks/use-debounced-search";
+import { getServiceCategories } from "@/actions/admin/categories";
+import type { ServiceCategory } from "@/types/categories";
+import { useToast } from "@/hooks/use-toast";
 
 interface ServiceFiltersProps {
   onFiltersChange: (filters: {
@@ -21,11 +24,54 @@ interface ServiceFiltersProps {
 }
 
 export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     category: "",
     status: "",
     search: "",
   });
+
+  const { toast } = useToast();
+
+  const {
+    searchQuery,
+    setSearchQuery,
+    suggestions,
+    isLoading: searchLoading,
+    fetchSuggestions,
+  } = useDebounceSearch({
+    onSearch: (query) => {
+      const newFilters = { ...filters, search: query };
+      setFilters(newFilters);
+      onFiltersChange(newFilters);
+    },
+  });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await getServiceCategories();
+        if (error) {
+          throw new Error(error);
+        }
+        if (data?.data?.["Service Category"]) {
+          setCategories(data.data["Service Category"]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load categories",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [toast]);
 
   const handleFilterChange = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
@@ -36,36 +82,46 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
   const clearFilters = () => {
     const clearedFilters = { category: "", status: "", search: "" };
     setFilters(clearedFilters);
+    setSearchQuery("");
     onFiltersChange(clearedFilters);
   };
 
+  useEffect(() => {
+    if (searchQuery) {
+      fetchSuggestions(searchQuery);
+    }
+  }, [searchQuery, fetchSuggestions]);
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search services..."
-          value={filters.search}
-          onChange={(e) => handleFilterChange("search", e.target.value)}
-          className="pl-8 sm:max-w-[300px]"
-        />
-      </div>
+      <SearchWithSuggestions
+        value={searchQuery}
+        onChange={setSearchQuery}
+        suggestions={suggestions}
+        isLoading={searchLoading}
+        placeholder="Search services..."
+        className="flex-1 sm:max-w-[300px]"
+      />
+
       <div className="flex gap-4">
         <Select
           value={filters.category}
           onValueChange={(value) => handleFilterChange("category", value)}
+          disabled={loading}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder={loading ? "Loading..." : "Category"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="beauty">Beauty & Wellness</SelectItem>
-            <SelectItem value="fitness">Fitness</SelectItem>
-            <SelectItem value="home">Home Services</SelectItem>
-            <SelectItem value="automotive">Automotive</SelectItem>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.name}>
+                {category.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
+
         <Select
           value={filters.status}
           onValueChange={(value) => handleFilterChange("status", value)}
@@ -80,6 +136,7 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
             <SelectItem value="rejected">Rejected</SelectItem>
           </SelectContent>
         </Select>
+
         <Button variant="outline" onClick={clearFilters}>
           Clear
         </Button>
