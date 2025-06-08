@@ -288,6 +288,36 @@ export function ServiceTable({
                             </DropdownMenuItem>
                           </>
                         )}
+                        {service.status === "approved" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleSingleAction(service.id!, "reject")
+                            }
+                            disabled={actionLoading === `reject-${service.id}`}
+                          >
+                            {actionLoading === `reject-${service.id}` ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <X className="mr-2 h-4 w-4 text-red-600" />
+                            )}
+                            Reject
+                          </DropdownMenuItem>
+                        )}
+                        {service.status === "rejected" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleSingleAction(service.id!, "approve")
+                            }
+                            disabled={actionLoading === `approve-${service.id}`}
+                          >
+                            {actionLoading === `approve-${service.id}` ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="mr-2 h-4 w-4 text-green-600" />
+                            )}
+                            Approve
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() =>
