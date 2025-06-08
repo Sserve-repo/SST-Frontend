@@ -171,7 +171,11 @@ export function ProductTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img
-                        src={typeof product.images[0] === "string" ? product.images[0] : "/placeholder.svg"}
+                        src={
+                          typeof product.images[0] === "string"
+                            ? product.images[0]
+                            : "/placeholder.svg"
+                        }
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
                       />
@@ -246,21 +250,6 @@ export function ProductTable({
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() =>
-                                handleSingleAction(product.id!, "approve")
-                              }
-                              disabled={
-                                actionLoading === `approve-${product.id}`
-                              }
-                            >
-                              {actionLoading === `approve-${product.id}` ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              ) : (
-                                <Check className="mr-2 h-4 w-4 text-green-600" />
-                              )}
-                              Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
                                 handleSingleAction(product.id!, "reject")
                               }
                               disabled={
@@ -274,7 +263,52 @@ export function ProductTable({
                               )}
                               Reject
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleSingleAction(product.id!, "approve")
+                              }
+                              disabled={
+                                actionLoading === `approve-${product.id}`
+                              }
+                            >
+                              {actionLoading === `approve-${product.id}` ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <Check className="mr-2 h-4 w-4 text-green-600" />
+                              )}
+                              Approve
+                            </DropdownMenuItem>
                           </>
+                        )}
+                        {product.status === "rejected" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleSingleAction(product.id!, "approve")
+                            }
+                            disabled={actionLoading === `approve-${product.id}`}
+                          >
+                            {actionLoading === `approve-${product.id}` ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="mr-2 h-4 w-4 text-green-600" />
+                            )}
+                            Approve
+                          </DropdownMenuItem>
+                        )}
+                        {product.status === "approved" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleSingleAction(product.id!, "reject")
+                            }
+                            disabled={actionLoading === `reject-${product.id}`}
+                          >
+                            {actionLoading === `reject-${product.id}` ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <X className="mr-2 h-4 w-4 text-red-600" />
+                            )}
+                            Reject
+                          </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
