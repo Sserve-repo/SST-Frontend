@@ -26,51 +26,56 @@ export default function MessagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { currentUser } = useAuth();
   const [activeFilter, setActiveFilter] = useState<MessageFilter>("all");
+  const [loading, setLoading] = useState(true);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
 
   const handleFetchLastConversations = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await fetchLastConversations();
 
       if (!response?.ok) {
         const errorData = await response?.json();
-        console.error("Failed to create service:", errorData);
-        throw new Error("Service creation failed");
+        throw new Error(errorData?.message || "Failed to fetch conversations");
       }
 
       const waitedResponse = await response.json();
-      const data = waitedResponse.data.all;
-      console.log({ data });
+      const data = waitedResponse.data?.all || [];
 
-      const transformedConversations = data.map((conversation) => ({
-        id: conversation?.parent_message_id,
+      const transformedConversations = data.map((conversation: any) => ({
+        id:
+          conversation?.parent_message_id ||
+          Math.random().toString(36).substr(2, 9),
         customer: {
-          id: conversation?.recipient?.id,
-          name: conversation?.recipient?.name,
-          avatar:
-            conversation?.recipient?.image_url ||
-            "/assets/images/image-placeholder.png",
-          email: conversation?.recipient?.name || "sarah@example.com",
+          id: conversation?.recipient?.id || "",
+          name: conversation?.recipient?.name || "Unknown User",
+          avatar: conversation?.recipient?.image_url || "/placeholder.svg",
+          email:
+            conversation?.recipient?.email ||
+            conversation?.recipient?.name ||
+            "No email",
         },
         lastMessage: {
           id: "m1",
-          content: conversation?.last_message,
-          timestamp: new Date(conversation.time_ago),
-          senderId: conversation?.sender?.id,
+          content: conversation?.last_message || "",
+          timestamp: new Date(conversation.time_ago || Date.now()),
+          senderId: conversation?.sender?.id || "",
           read: false,
         },
         unreadCount: 1,
-        status: "active",
+        status: "active" as const,
       }));
 
       setConversations(transformedConversations);
     } catch (error) {
-      console.error("Error creating service:", error);
-      // Optionally show user-friendly feedback
+      console.error("Error fetching conversations:", error);
+      toast.error("Failed to load conversations");
+    } finally {
+      setLoading(false);
     }
-  }, []); // Removed conversations dependency which caused infinite loop
+  }, []);
 
   const handleFetchConversations = useCallback(async () => {
     if (!selectedConversation?.id) return;
@@ -237,6 +242,14 @@ export default function MessagesPage() {
       handleFetchConversations();
     }
   }, [selectedConversation?.id, handleFetchConversations]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <>
