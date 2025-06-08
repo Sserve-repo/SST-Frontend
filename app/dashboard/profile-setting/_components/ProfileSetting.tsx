@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -26,6 +28,7 @@ import { getLoggedInUserDetails } from "@/actions/auth";
 import { useAuth } from "@/context/AuthContext";
 import PasswordResetForm from "@/forms/password-reset-form";
 import { UserCircle2 } from "lucide-react";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 type FormData = {
   firstname: string;
@@ -226,7 +229,8 @@ export default function ProfileSetting() {
                           <AvatarImage
                             src={
                               imagePreview ||
-                              currentUser?.user_photo?.toString()
+                              currentUser?.user_photo?.toString() ||
+                              "/placeholder.svg"
                             }
                             alt="Profile photo"
                           />
@@ -234,11 +238,26 @@ export default function ProfileSetting() {
                             <UserCircle2 className="h-12 w-12 text-primary" />
                           </AvatarFallback>
                         </Avatar>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="w-full max-w-[250px] bg-secondary text-sm"
+                        <ImageUpload
+                          value={
+                            imagePreview || currentUser?.user_photo?.toString()
+                          }
+                          onChange={(file) => {
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const result = reader.result as string;
+                                setImagePreview(result);
+                                setValue("user_photo", file);
+                              };
+                              reader.readAsDataURL(file);
+                            } else {
+                              setImagePreview(null);
+                              setValue("user_photo", "" as any);
+                            }
+                          }}
+                          className="w-full max-w-[250px]"
+                          maxSize={5}
                         />
                       </div>
                       <div className="w-full">
