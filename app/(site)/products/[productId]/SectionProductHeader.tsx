@@ -4,7 +4,14 @@ import React, { useEffect, useState } from "react";
 import ReactStars from "react-rating-star-with-type";
 import { Button } from "@/components/ui/button";
 import ImageShowCase from "@/components/ImageShowCase";
-import { RotateCcw, Shield, ShoppingCart, Star, Truck } from "lucide-react";
+import {
+  MessageCircle,
+  RotateCcw,
+  Shield,
+  ShoppingCart,
+  Star,
+  Truck,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
@@ -16,6 +23,7 @@ import {
 } from "@/actions/product";
 import { ReplyForm, ReviewCard } from "@/components/reviews/utils";
 import { createMessage } from "@/actions/dashboard/vendors";
+import { MessageInitiationModal } from "@/components/messages/message-initiation-modal";
 
 interface SectionProductHeaderProps {
   slug: string;
@@ -353,10 +361,7 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                   <div key={star} className="flex items-center">
                     <span className="text-sm text-gray-600 w-2">{star}</span>
                     <Star className="h-4 w-4 text-yellow-400 fill-current mx-1" />
-                    <Progress
-                      value={rating * 100}
-                      className="h-2 flex-1"
-                    />
+                    <Progress value={rating * 100} className="h-2 flex-1" />
                   </div>
                 ))}
               </div>
@@ -490,39 +495,83 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
             <p className="text-gray-600">{estimatedDelivery}</p>
           </div>
 
-          <div className="border-t pt-4">
+          <div className="border-t pt-4 space-y-2">
             <h2 className="text-lg font-semibold mb-2">Meet Your Seller</h2>
             <div className="flex items-center space-x-4">
-              <Avatar className="h-24 w-24 rounded">
+              <Avatar className="h-20 w-20 rounded">
                 <AvatarImage
                   src={`https://i.pravatar.cc/48?u=${seller.name}`}
                 />
+                <AvatarFallback className="text-lg">
+                  {seller?.name?.slice(0, 2)}
+                </AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex-1">
                 <p className="font-semibold text-lg hover:underline">
                   {seller.name}
                 </p>
                 <p className="text-xs text-primary/70">
                   Owner of{" "}
-                  <span className="text-primary font-semibold" >{productName} </span>
+                  <span className="text-primary font-semibold">
+                    {productName}{" "}
+                  </span>
+                </p>
+                <p className="text-xs text-gray-500">
+                  Joined: {new Date(seller.joinedDate).toLocaleDateString()}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Location: {seller.location || "Unknown"}
+                </p>
+                <div className="flex items-center space-x-2 mb-2">
+                  <ReactStars
+                    value={seller.rating}
+                    isEdit={false}
+                    size={15}
+                    activeColors={["#FFCE50"]}
+                  />
+                  <span className="text-xs text-neutral-500">
+                    ({seller.totalSales}k) Sales
+                  </span>
+                </div>
+              </div>
+
+              {/* <div>
+                <p className="font-semibold text-lg hover:underline">
+                  {seller.name}
+                </p>
+                <p className="text-xs text-primary/70">
+                  Owner of{" "}
+                  <span className="text-primary font-semibold">
+                    {productName}{" "}
+                  </span>
                 </p>
 
                 <div className="grid grid-col-1">
                   <textarea
-                  placeholder="Enter your messsage here"
+                    placeholder="Enter your messsage here"
                     className=" border-2 border-black rounded-lg text-xs h-16 p-2 "
                     onChange={(e) => setMessage(e.target.value)}
                   ></textarea>
                   <Button
-                  onClick={handleMessageSeller}
+                    onClick={handleMessageSeller}
                     className="text-xs px-5 w-48 mt-1 bg-primary text-white"
                     variant={"outline"}
                   >
                     Send
                   </Button>
                 </div>
-              </div>
+              </div> */}
             </div>
+            <MessageInitiationModal
+              recipientId={userId}
+              recipientName={seller.name || "Vendor"}
+              productName={productName}
+            >
+              <Button className="flex-1">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Message Seller
+              </Button>
+            </MessageInitiationModal>
           </div>
         </div>
       </div>
