@@ -46,7 +46,7 @@ export default function ServiceApprovalPage() {
 
   const fetchServices = async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       setError(null);
 
       const { data, error: apiError } = await getServices({

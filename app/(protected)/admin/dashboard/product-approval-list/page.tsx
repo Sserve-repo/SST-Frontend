@@ -41,7 +41,7 @@ export default function ProductApprovalPage() {
 
   const fetchProducts = async () => {
     try {
-      setLoading(true)
+      // setLoading(true)
       setError(null)
 
       const { data, error: apiError } = await getProducts({
