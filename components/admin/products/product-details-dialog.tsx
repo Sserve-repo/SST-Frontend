@@ -13,6 +13,7 @@ import { Check, X, Loader2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { IProduct } from "@/types/product";
 import { useToast } from "@/hooks/use-toast";
+import ImageShowCase from "@/components/ImageShowCase";
 import { updateProductStatus } from "@/actions/admin/product-api";
 
 interface ProductDetailsDialogProps {
@@ -70,22 +71,8 @@ export function ProductDetailsDialog({
           <DialogTitle>Product Details</DialogTitle>
         </DialogHeader>
         <div className="grid gap-6">
-          <div className="aspect-video overflow-hidden rounded-lg bg-muted">
-            <img
-              src={
-                typeof product.images[0] === "string"
-                  ? product.images[0]
-                  : product.images[0] instanceof File
-                  ? URL.createObjectURL(product.images[0])
-                  : "/placeholder.svg"
-              }
-              alt={product.name}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg";
-              }}
-            />
+          <div className="rounded-lg overflow-hidden bg-muted">
+            <ImageShowCase shots={product.images} />
           </div>
 
           <div className="grid gap-2">
