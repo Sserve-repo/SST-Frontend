@@ -14,6 +14,7 @@ import { Check, X, Loader2, Star, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Service } from "@/types/services";
 import { useToast } from "@/hooks/use-toast";
+import ImageShowCase from "@/components/ImageShowCase";
 import { updateServiceStatus } from "@/actions/admin/service-api";
 
 interface ServiceDetailsDialogProps {
@@ -74,22 +75,8 @@ export function ServiceDetailsDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-6">
-          <div className="aspect-video overflow-hidden rounded-lg bg-muted">
-            <img
-              src={
-                typeof service.images[0] === "string"
-                  ? service.images[0]
-                  : service.images[0] instanceof File
-                  ? URL.createObjectURL(service.images[0])
-                  : "/placeholder.svg"
-              }
-              alt={service.name}
-              className="h-full w-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg";
-              }}
-            />
+          <div className="rounded-lg overflow-hidden bg-muted">
+            <ImageShowCase shots={service.images} />
           </div>
 
           <div className="grid gap-2">
