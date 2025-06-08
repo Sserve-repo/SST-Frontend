@@ -233,7 +233,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
             border: "1px solid #ccc",
             background: "#fff",
             padding: "1.5rem",
-            borderRadius: "0.5rem",
+            borderRadius: "1.5rem",
             maxWidth: "600px",
             width: "100%",
             maxHeight: "90vh",
