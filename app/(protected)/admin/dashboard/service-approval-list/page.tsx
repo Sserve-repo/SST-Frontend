@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BulkActionsToolbar } from "@/components/admin/services/bulk-actions-toolbar";
 import { ServiceTable } from "@/components/admin/services/service-table";
 import { ServiceFilters } from "@/components/admin/services/service-filters";
@@ -16,6 +16,7 @@ import {
   deleteServices,
   type Service,
 } from "@/actions/admin/service-api";
+import { getStatusFromNumber } from "@/lib/utils";
 
 interface ServiceStats {
   total: number;
@@ -41,23 +42,18 @@ export default function ServiceApprovalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-
   const { toast } = useToast();
 
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     try {
-      // setLoading(true);
       setError(null);
-
       const { data, error: apiError } = await getServices({
         service_category: filters.category || undefined,
         status: filters.status || undefined,
         search: filters.search || undefined,
       });
 
-      if (apiError) {
-        throw new Error(apiError);
-      }
+      if (apiError) throw new Error(apiError);
 
       if (data?.serviceListing) {
         const formattedServices: IService[] = data.serviceListing.map(
@@ -73,7 +69,7 @@ export default function ServiceApprovalPage() {
               email: service.vendor_email || "",
             },
             status: getStatusFromNumber(service.status),
-            featured: false, // This would come from the API if available
+            featured: false,
             images: service.image ? [service.image] : ["/placeholder.svg"],
             createdAt: service.created_at,
             duration: Number.parseInt(service.service_duration) || 0,
@@ -91,28 +87,22 @@ export default function ServiceApprovalPage() {
       }
     } catch (err) {
       console.error("Error fetching services:", err);
-      // setError(err instanceof Error ? err.message : "Failed to fetch services");
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchServices();
   }, [filters]);
 
-  const getStatusFromNumber = (
-    status: number
-  ): "pending" | "approved" | "rejected" => {
-    switch (status) {
-      case 1:
-        return "approved";
-      case 2:
-        return "rejected";
-      default:
-        return "pending";
-    }
-  };
+  // useEffect(() => {
+  //   // fetchServices();
+  // }, [filters]);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchServices();
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [fetchServices]);
 
   const calculateStats = (serviceList: IService[]) => {
     const newStats = {

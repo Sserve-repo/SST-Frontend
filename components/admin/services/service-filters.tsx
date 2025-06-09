@@ -42,9 +42,11 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
     fetchSuggestions,
   } = useDebounceSearch({
     onSearch: (query) => {
-      const newFilters = { ...filters, search: query };
-      setFilters(newFilters);
-      onFiltersChange(newFilters);
+      if (filters.search !== query) {
+        const newFilters = { ...filters, search: query };
+        setFilters(newFilters);
+        onFiltersChange(newFilters);
+      }
     },
   });
 

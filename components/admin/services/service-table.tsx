@@ -181,9 +181,15 @@ export function ServiceTable({
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = "/placeholder.svg";
+                          if (
+                            target.src !==
+                            window.location.origin + "/placeholder.svg"
+                          ) {
+                            target.src = "/placeholder.svg";
+                          }
                         }}
                       />
+
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate">{service.name}</p>
                         <p className="text-sm text-muted-foreground line-clamp-1">

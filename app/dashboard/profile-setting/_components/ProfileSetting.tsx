@@ -92,28 +92,28 @@ export default function ProfileSetting() {
     }
   }, [currentUser, reset]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
-        return;
-      }
+  // const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     if (file.size > 5 * 1024 * 1024) {
+  //       toast.error("Image size should be less than 5MB");
+  //       return;
+  //     }
 
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
-        return;
-      }
+  //     if (!file.type.startsWith("image/")) {
+  //       toast.error("Please upload an image file");
+  //       return;
+  //     }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setImagePreview(result);
-        setValue("user_photo", file);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       const result = reader.result as string;
+  //       setImagePreview(result);
+  //       setValue("user_photo", file);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const validateForm = (data: FormData): boolean => {
     let isValid = true;

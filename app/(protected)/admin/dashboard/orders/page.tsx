@@ -4,15 +4,15 @@ import { useState, useEffect, useCallback } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
+  // MoreHorizontal,
   Eye,
   Package,
   CheckCircle,
@@ -105,6 +105,7 @@ export default function OrdersPage() {
       setError(err instanceof Error ? err.message : "Failed to fetch orders");
     } finally {
       setLoading(false);
+      setFilters((prev) => ({ ...prev }));
     }
   }, [filters]);
 

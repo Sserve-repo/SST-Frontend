@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { useToast } from "@/hooks/use-toast";
 import {
   getOrderById,
   type OrderDetailResponse,
@@ -239,7 +238,7 @@ export default function OrderDetailPage() {
         <CardContent>
           <div className="space-y-4">
             {orderDetails.product_items?.length ? (
-              orderDetails.product_items.map((item, index) => (
+              orderDetails.product_items.map((item) => (
                 <div key={item.id} className="border rounded-lg p-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>

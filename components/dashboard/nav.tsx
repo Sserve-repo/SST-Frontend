@@ -27,7 +27,6 @@ import { TbChartArcs } from "react-icons/tb";
 import { HiOutlineArchive } from "react-icons/hi";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { useAuth } from "@/context/AuthContext";
-import { title } from "process";
 
 const getNavItems = (userType: string) => {
   const baseItems = [

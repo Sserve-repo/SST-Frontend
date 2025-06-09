@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, Send, Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { createMessage } from "@/actions/dashboard/vendors";
 
@@ -36,7 +35,6 @@ export function MessageInitiationModal({
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { currentUser } = useAuth();
 
   const handleSendMessage = async () => {
     if (!message.trim()) {

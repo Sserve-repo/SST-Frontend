@@ -41,10 +41,17 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
     isLoading: searchLoading,
     fetchSuggestions,
   } = useDebounceSearch({
+    // onSearch: (query) => {
+    //   const newFilters = { ...filters, search: query };
+    //   setFilters(newFilters);
+    //   onFiltersChange(newFilters);
+    // },
     onSearch: (query) => {
-      const newFilters = { ...filters, search: query };
-      setFilters(newFilters);
-      onFiltersChange(newFilters);
+      if (filters.search !== query) {
+        const newFilters = { ...filters, search: query };
+        setFilters(newFilters);
+        onFiltersChange(newFilters);
+      }
     },
   });
 
