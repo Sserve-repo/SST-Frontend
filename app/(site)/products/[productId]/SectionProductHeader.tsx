@@ -22,7 +22,6 @@ import {
   getProductReviewsReplies,
 } from "@/actions/product";
 import { ReplyForm, ReviewCard } from "@/components/reviews/utils";
-import { createMessage } from "@/actions/dashboard/vendors";
 import { MessageInitiationModal } from "@/components/messages/message-initiation-modal";
 
 interface SectionProductHeaderProps {
@@ -81,7 +80,6 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
   const { addToCart } = useCart();
   const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
   const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
-  const [message, setMessage] = useState("");
   const [reviewRepliesData, setReviewRepliesData] = useState<ReviewData>({
     id: "",
     username: "Vendor",
@@ -149,31 +147,6 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     }
   };
 
-  const handleMessageSeller = async (e) => {
-    e.preventDefault();
-    try {
-      if (!message) {
-        toast.error("Please enter a message");
-        return;
-      }
-
-      const form = new FormData();
-      form.append("recipient_id", userId.toString());
-      form.append("message", message);
-
-      const response = await createMessage(form);
-      const data = await response?.json();
-      if (data?.status === true) {
-        setMessage("");
-        toast.success("Message added successfully");
-      } else {
-        toast.error("Failed to add Message");
-      }
-    } catch (error) {
-      console.error("Error submitting reply:", error);
-      toast.error("Failed to submit reply");
-    }
-  };
 
   const handleAddToCart = () => {
     addToCart({
