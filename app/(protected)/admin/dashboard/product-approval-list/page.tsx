@@ -1,105 +1,123 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { BulkActionsToolbar } from "@/components/admin/products/bulk-actions-toolbar"
-import { ProductTable } from "@/components/admin/products/product-table"
-import { ProductFilters } from "@/components/admin/products/product-filters"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { ErrorMessage } from "@/components/ui/error-message"
-import type { IProduct } from "@/types/product"
-import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Clock, XCircle, Package } from "lucide-react"
-import { getProducts, updateProductStatus, deleteProducts, type Product } from "@/actions/admin/product-api"
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { BulkActionsToolbar } from "@/components/admin/products/bulk-actions-toolbar";
+import { ProductTable } from "@/components/admin/products/product-table";
+import { ProductFilters } from "@/components/admin/products/product-filters";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ErrorMessage } from "@/components/ui/error-message";
+import type { IProduct } from "@/types/product";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, Clock, XCircle, Package } from "lucide-react";
+import {
+  getProducts,
+  updateProductStatus,
+  deleteProducts,
+  type Product,
+} from "@/actions/admin/product-api";
 
 interface ProductStats {
-  total: number
-  pending: number
-  approved: number
-  rejected: number
+  total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
 }
 
 export default function ProductApprovalPage() {
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [products, setProducts] = useState<IProduct[]>([])
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [products, setProducts] = useState<IProduct[]>([]);
   const [stats, setStats] = useState<ProductStats>({
     total: 0,
     pending: 0,
     approved: 0,
     rejected: 0,
-  })
+  });
   const [filters, setFilters] = useState({
     category: "",
     status: "",
     search: "",
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const fetchProducts = async () => {
     try {
-      // setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      const { data, error: apiError } = await getProducts({
-        product_category: filters.category || undefined,
-        status: filters.status || undefined,
-        search: filters.search || undefined,
-      })
+      const params: Record<string, string> = {};
+      if (filters.category) params.product_category = filters.category;
+      if (filters.status) params.status = filters.status;
+      if (filters.search) params.search = filters.search;
+
+      const { data, error: apiError } = await getProducts(params);
 
       if (apiError) {
-        throw new Error(apiError)
+        throw new Error(apiError);
       }
 
       if (data?.productListing) {
-        const formattedProducts: IProduct[] = data.productListing.map((product: Product) => ({
-          id: product.id.toString(),
-          name: product.title,
-          description: product.description,
-          category: product.category?.name || "Uncategorized",
-          price: Number.parseFloat(product.price),
-          vendor: {
+        const formattedProducts: IProduct[] = data.productListing.map(
+          (product: Product) => ({
             id: product.id.toString(),
-            name: "Vendor Name", // This would come from a join or separate call
-            email: "vendor@email.com", // This would come from a join or separate call
-          },
-          status: getStatusFromNumber(product.status),
-          featured: false, // This would come from the API if available
-          images: product.image ? [product.image] : ["/placeholder.svg"],
-          createdAt: product.created_at,
-          duration: 0,
-        }))
+            name: product.title,
+            description: product.description,
+            category: product.category?.name || "Uncategorized",
+            price: Number.parseFloat(product.price),
+            vendor: {
+              id: product.id.toString(),
+              name: product.vendor_name || "Vendor Name",
+              email: product.vendor_email || "vendor@email.com",
+            },
+            status: getStatusFromNumber(product.status),
+            featured: Boolean(product.featured),
+            images: product.image ? [product.image] : ["/placeholder.svg"],
+            createdAt: product.created_at,
+            duration: 0,
+          })
+        );
 
-        setProducts(formattedProducts)
-        calculateStats(formattedProducts)
+        setProducts(formattedProducts);
+        calculateStats(formattedProducts);
       } else {
-        throw new Error("No product data received")
+        setProducts([]);
+        setStats({
+          total: 0,
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+        });
       }
     } catch (err) {
-      console.error("Error fetching products:", err)
-      // setError(err instanceof Error ? err.message : "Failed to fetch products")
+      console.error("Error fetching products:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch products");
+      setProducts([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchProducts()
-  }, [filters])
+    fetchProducts();
+  }, [filters]);
 
-  const getStatusFromNumber = (status: number): "pending" | "approved" | "rejected" => {
+  const getStatusFromNumber = (
+    status: number
+  ): "pending" | "approved" | "rejected" => {
     switch (status) {
       case 1:
-        return "approved"
+        return "approved";
       case 2:
-        return "rejected"
+        return "rejected";
       default:
-        return "pending"
+        return "pending";
     }
-  }
+  };
 
   const calculateStats = (productList: IProduct[]) => {
     const newStats = {
@@ -107,25 +125,27 @@ export default function ProductApprovalPage() {
       pending: productList.filter((p) => p.status === "pending").length,
       approved: productList.filter((p) => p.status === "approved").length,
       rejected: productList.filter((p) => p.status === "rejected").length,
-    }
-    setStats(newStats)
-  }
+    };
+    setStats(newStats);
+  };
 
-  const handleBulkAction = async (action: "approve" | "reject" | "delete" | "feature") => {
+  const handleBulkAction = async (
+    action: "approve" | "reject" | "delete" | "feature"
+  ) => {
     if (selectedIds.length === 0) {
       toast({
         title: "No Selection",
         description: "Please select products to perform this action.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsUpdating(true)
+    setIsUpdating(true);
 
     try {
-      const productIds = selectedIds.map((id) => Number.parseInt(id))
-      let result
+      const productIds = selectedIds.map((id) => Number.parseInt(id));
+      let result;
 
       switch (action) {
         case "approve":
@@ -133,92 +153,91 @@ export default function ProductApprovalPage() {
           result = await updateProductStatus({
             status: action === "approve" ? "approved" : "rejected",
             product_ids: productIds,
-          })
-          break
+          });
+          break;
         case "delete":
-          result = await deleteProducts(productIds)
-          break
+          result = await deleteProducts(productIds);
+          break;
         case "feature":
           toast({
             title: "Feature",
             description: "Feature functionality coming soon.",
-          })
-          return
+          });
+          return;
       }
 
       if (result.error) {
-        throw new Error(result.error)
+        throw new Error(result.error);
       }
 
       toast({
         title: "Success",
         description: `${selectedIds.length} product(s) ${action}d successfully.`,
-      })
+      });
 
-      setSelectedIds([])
-      await fetchProducts()
+      setSelectedIds([]);
+      await fetchProducts();
     } catch (err) {
-      console.error(`Failed to ${action} products:`, err)
+      console.error(`Failed to ${action} products:`, err);
       toast({
         title: "Error",
         description: `Failed to ${action} products. Please try again.`,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory = !filters.category || product.category === filters.category
-    const matchesStatus = !filters.status || product.status === filters.status
-    const matchesSearch =
-      !filters.search ||
-      product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      product.vendor.name.toLowerCase().includes(filters.search.toLowerCase())
-
-    return matchesCategory && matchesStatus && matchesSearch
-  })
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner />
-      </div>
-    )
-  }
-
-  if (error) {
-    return <ErrorMessage message={error} onRetry={fetchProducts} />
-  }
+  const handleFiltersChange = (newFilters: {
+    category: string;
+    status: string;
+    search: string;
+  }) => {
+    if (JSON.stringify(newFilters) !== JSON.stringify(filters)) {
+      setFilters(newFilters);
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Product Approval</h1>
-        <p className="text-muted-foreground">Review and manage product listings awaiting approval</p>
+        <h1 className="text-2xl font-bold text-primary sm:text-3xl">
+          Product Approval
+        </h1>
+        <p className="text-muted-foreground">
+          Review and manage product listings awaiting approval
+        </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Products
+            </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">All product listings</p>
+            <p className="text-xs text-muted-foreground">
+              All product listings
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pending Approval
+            </CardTitle>
             <Clock className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
             <p className="text-xs text-muted-foreground">Awaiting review</p>
           </CardContent>
         </Card>
@@ -229,7 +248,9 @@ export default function ProductApprovalPage() {
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.approved}
+            </div>
             <p className="text-xs text-muted-foreground">Live products</p>
           </CardContent>
         </Card>
@@ -240,13 +261,15 @@ export default function ProductApprovalPage() {
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.rejected}
+            </div>
             <p className="text-xs text-muted-foreground">Declined products</p>
           </CardContent>
         </Card>
       </div>
 
-      <ProductFilters onFiltersChange={setFilters} />
+      <ProductFilters onFiltersChange={handleFiltersChange} />
 
       {selectedIds.length > 0 && (
         <BulkActionsToolbar
@@ -260,13 +283,33 @@ export default function ProductApprovalPage() {
         />
       )}
 
-      <ProductTable
-        products={filteredProducts}
-        selectedIds={selectedIds}
-        onSelectedIdsChange={setSelectedIds}
-        onRefresh={fetchProducts}
-        isLoading={isUpdating}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchProducts} />
+      ) : products.length === 0 ? (
+        <div className="text-center py-12 border rounded-md">
+          <p className="text-muted-foreground">
+            No products found matching your criteria.
+          </p>
+          <Button
+            variant="link"
+            onClick={() => setFilters({ category: "", status: "", search: "" })}
+          >
+            Clear filters
+          </Button>
+        </div>
+      ) : (
+        <ProductTable
+          products={products}
+          selectedIds={selectedIds}
+          onSelectedIdsChange={setSelectedIds}
+          onRefresh={fetchProducts}
+          isLoading={isUpdating}
+        />
+      )}
     </div>
-  )
+  );
 }
