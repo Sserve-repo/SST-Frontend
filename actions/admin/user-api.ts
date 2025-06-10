@@ -1,4 +1,6 @@
-import { apiRequest } from "@/hooks/use-api"
+"use server"
+
+import { baseUrl } from "@/config/constant"
 
 export interface User {
     id: number
@@ -27,44 +29,142 @@ export interface User {
 }
 
 export async function createUser(formData: FormData) {
-    return apiRequest<User>(`/admin/dashboard/user/create`, {
-        method: "POST",
-        body: formData,
-        isFormData: true,
-    })
+    try {
+        const response = await fetch(`${baseUrl}/admin/dashboard/user/create`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.API_TOKEN}`,
+            },
+            body: formData,
+        })
+       
+        const data = await response.json()
+
+        if (!response.ok) {
+            return { data: null, error: data.message || "Failed to create user" }
+        }
+
+        return { data, error: null }
+    } catch (error) {
+        console.error("Error creating user:", error)
+        return { data: null, error: "Failed to create user" }
+    }
 }
 
 export async function getUserById(id: string) {
-    return apiRequest<User>(`/admin/dashboard/user/show/${id}`)
+    try {
+        const response = await fetch(`${baseUrl}/admin/dashboard/user/show/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.API_TOKEN}`,
+            },
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            return { data: null, error: data.message || "Failed to fetch user" }
+        }
+
+        return { data, error: null }
+    } catch (error) {
+        console.error("Error fetching user:", error)
+        return { data: null, error: "Failed to fetch user" }
+    }
 }
 
 export async function updateUser(id: string, formData: FormData) {
-    return apiRequest<User>(`/admin/dashboard/user/update/${id}`, {
-        method: "POST",
-        body: formData,
-        isFormData: true,
-    })
+    try {
+        const response = await fetch(`${baseUrl}/admin/dashboard/user/update/${id}`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.API_TOKEN}`,
+            },
+            body: formData,
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            return { data: null, error: data.message || "Failed to update user" }
+        }
+
+        return { data, error: null }
+    } catch (error) {
+        console.error("Error updating user:", error)
+        return { data: null, error: "Failed to update user" }
+    }
 }
 
 export async function updateUserStatus(id: string, formData: FormData) {
-    return apiRequest<User>(`/admin/dashboard/user/updateStatus/${id}`, {
-        method: "POST",
-        body: formData,
-        isFormData: true,
-    })
+    try {
+        const response = await fetch(`${baseUrl}/admin/dashboard/user/updateStatus/${id}`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.API_TOKEN}`,
+            },
+            body: formData,
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            return { data: null, error: data.message || "Failed to update user status" }
+        }
+
+        return { data, error: null }
+    } catch (error) {
+        console.error("Error updating user status:", error)
+        return { data: null, error: "Failed to update user status" }
+    }
 }
 
 export async function deleteUser(id: string) {
-    return apiRequest<any>(`/admin/dashboard/user/destroy/${id}`, {
-        method: "POST",
-    })
+    try {
+        const response = await fetch(`${baseUrl}/admin/dashboard/user/destroy/${id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.API_TOKEN}`,
+            },
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            return { data: null, error: data.message || "Failed to delete user" }
+        }
+
+        return { data, error: null }
+    } catch (error) {
+        console.error("Error deleting user:", error)
+        return { data: null, error: "Failed to delete user" }
+    }
 }
 
 export async function searchUsers(query: string) {
-    return apiRequest<{ "Search Details": { firstname: string; lastname: string; user_photo: string | null }[] }>(
-        `/general/search/userSearch?query=${encodeURIComponent(query)}`,
-        {
-            requiresAuth: false,
-        },
-    )
+    try {
+        const response = await fetch(
+            `${baseUrl}/general/search/userSearch?query=${encodeURIComponent(query)}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                cache: "no-store",
+            }
+        )
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            return { data: null, error: data.message || "Failed to search users" }
+        }
+
+        return { data, error: null }
+    } catch (error) {
+        console.error("Error searching users:", error)
+        return { data: null, error: "Failed to search users" }
+    }
 }
