@@ -64,4 +64,10 @@ export type IProduct = {
     name: string;
     email: string;
   };
+  totalPages?: number;
+  totalItems?: number;
+  page?: number;
+  limit?: number;
+  subcategory?: string;
+  stockLevel?: number | string;
 };
