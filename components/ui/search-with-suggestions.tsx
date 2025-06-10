@@ -5,14 +5,12 @@ import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface SearchWithSuggestionsProps {
   value: string;
   onChange: (value: string) => void;
-  onSearch?: (value: string) => void;
-  suggestions?: string[];
+  suggestions: string[];
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
@@ -21,8 +19,7 @@ interface SearchWithSuggestionsProps {
 export function SearchWithSuggestions({
   value,
   onChange,
-  onSearch,
-  suggestions = [],
+  suggestions,
   isLoading = false,
   placeholder = "Search...",
   className,
@@ -67,11 +64,9 @@ export function SearchWithSuggestions({
         e.preventDefault();
         if (selectedIndex >= 0) {
           onChange(suggestions[selectedIndex]);
-          onSearch?.(suggestions[selectedIndex]);
-        } else {
-          onSearch?.(value);
+          setShowSuggestions(false);
+          setSelectedIndex(-1);
         }
-        setShowSuggestions(false);
         break;
       case "Escape":
         setShowSuggestions(false);
@@ -82,7 +77,6 @@ export function SearchWithSuggestions({
 
   const handleSuggestionClick = (suggestion: string) => {
     onChange(suggestion);
-    onSearch?.(suggestion);
     setShowSuggestions(false);
     setSelectedIndex(-1);
   };
@@ -90,7 +84,7 @@ export function SearchWithSuggestions({
   return (
     <div className={cn("relative", className)}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           ref={inputRef}
           value={value}
@@ -102,10 +96,10 @@ export function SearchWithSuggestions({
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(true)}
           placeholder={placeholder}
-          className="pl-9 pr-10"
+          className="pl-8 pr-8"
         />
         {isLoading && (
-          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+          <Loader2 className="absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
         )}
       </div>
 
@@ -115,18 +109,16 @@ export function SearchWithSuggestions({
           className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border bg-popover p-1 shadow-md"
         >
           {suggestions.map((suggestion, index) => (
-            <Button
-              key={suggestion}
-              variant="ghost"
+            <div
+              key={index}
               className={cn(
-                "w-full justify-start text-left font-normal",
-                index === selectedIndex && "bg-accent"
+                "cursor-pointer rounded-sm px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground",
+                index === selectedIndex && "bg-accent text-accent-foreground"
               )}
               onClick={() => handleSuggestionClick(suggestion)}
             >
-              <Search className="mr-2 h-4 w-4" />
               {suggestion}
-            </Button>
+            </div>
           ))}
         </div>
       )}
