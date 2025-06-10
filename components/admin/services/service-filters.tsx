@@ -76,6 +76,10 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
   }, [toast]);
 
   const handleFilterChange = (key: string, value: string) => {
+    if (value == "all") {
+      clearFilters();
+      return;
+    }
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);

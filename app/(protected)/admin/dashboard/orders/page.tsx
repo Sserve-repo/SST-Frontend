@@ -56,7 +56,7 @@ export default function OrdersPage() {
     cancelled: 0,
     totalRevenue: "0",
   });
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     status: "",
     order_status: "",
     search: "",
@@ -105,7 +105,7 @@ export default function OrdersPage() {
       setError(err instanceof Error ? err.message : "Failed to fetch orders");
     } finally {
       setLoading(false);
-      setFilters((prev) => ({ ...prev }));
+      // setFilters((prev) => ({ ...prev }));
     }
   }, [filters]);
 

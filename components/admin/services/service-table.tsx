@@ -25,9 +25,9 @@ import {
   Eye,
   MoreHorizontal,
   Star,
-  Trash2,
   X,
   Loader2,
+  Ban,
 } from "lucide-react";
 import { ServiceDetailsDialog } from "./service-details-dialog";
 import { EditServiceDialog } from "./edit-service-dialog";
@@ -54,7 +54,7 @@ export function ServiceTable({
 }: ServiceTableProps) {
   const [serviceToView, setServiceToView] = useState<Service | null>(null);
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
-  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [serviceToDelete, setServiceToDisabled] = useState<Service | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -343,11 +343,11 @@ export function ServiceTable({
                           {service.featured ? "Unfeature" : "Feature"}
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => setServiceToDelete(service)}
+                          onClick={() => setServiceToDisabled(service)}
                           className="text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Ban className="mr-2 h-4 w-4" />
+                          Disable
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -373,7 +373,7 @@ export function ServiceTable({
 
       <DeleteServiceDialog
         service={serviceToDelete}
-        onOpenChange={(open) => !open && setServiceToDelete(null)}
+        onOpenChange={(open) => !open && setServiceToDisabled(null)}
         onRefresh={onRefresh}
       />
     </>

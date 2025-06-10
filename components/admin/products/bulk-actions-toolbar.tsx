@@ -1,14 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Check, Star, Trash2, X, Loader2 } from "lucide-react";
+import { Check, Star, X, Loader2, Ban } from "lucide-react";
 
 interface BulkActionsToolbarProps {
   selectedCount: number;
   onClearSelection: () => void;
   onApprove?: () => void;
   onReject?: () => void;
-  onDelete?: () => void;
+  onDisable?: () => void;
   onFeature?: () => void;
   isLoading?: boolean;
 }
@@ -18,7 +18,7 @@ export function BulkActionsToolbar({
   onClearSelection,
   onApprove,
   onReject,
-  onDelete,
+  onDisable,
   onFeature,
   isLoading = false,
 }: BulkActionsToolbarProps) {
@@ -86,20 +86,20 @@ export function BulkActionsToolbar({
             Feature
           </Button>
         )}
-        {onDelete && (
+        {onDisable && (
           <Button
             size="sm"
             variant="outline"
             className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={onDelete}
+            onClick={onDisable}
             disabled={isLoading}
           >
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Ban className="mr-2 h-4 w-4" />
             )}
-            Delete
+            Disable
           </Button>
         )}
       </div>
