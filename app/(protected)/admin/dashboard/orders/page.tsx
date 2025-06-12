@@ -4,15 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
 import {
-  // MoreHorizontal,
   Eye,
   Package,
   CheckCircle,
@@ -66,10 +58,10 @@ export default function OrdersPage() {
   const router = useRouter();
 
   const fetchOrders = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const { data, error: apiError } = await getOrders({
         status: filters.status || undefined,
         order_status: filters.order_status || undefined,
@@ -80,23 +72,23 @@ export default function OrdersPage() {
 
       if (data) {
         setStats({
-          delivered: data.deliveredOrder,
-          pending: data.pendingOrder,
-          inProgress: data.orderInProgress,
-          cancelled: data.cancelledOrder,
-          totalRevenue: data.TotalExpenditure,
+          delivered: data.deliveredOrder || 0,
+          pending: data.pendingOrder || 0,
+          inProgress: data.orderInProgress || 0,
+          cancelled: data.cancelledOrder || 0,
+          totalRevenue: data.TotalExpenditure || "0",
         });
-
-        const formattedOrders = data.Orders.map((order: Order) => ({
-          id: order.id.toString(),
+        console.log("Order stats:", data);
+        const formattedOrders = Array.isArray(data.Orders) ? data.Orders.map((order: Order) => ({
+          id: String(order.id),
           orderNo: order.order_no,
-          customer: "Customer",
-          items: order.product_items.length,
+          customer: order.customer_name || "N/A",
+          items: Array.isArray(order.product_items) ? order.product_items.length : 0,
           total: `$${order.total}`,
           status: order.status,
           orderType: order.order_type,
           createdAt: new Date(order.created_at).toLocaleDateString(),
-        }));
+        })) : [];
 
         setOrders(formattedOrders);
       }
@@ -105,7 +97,6 @@ export default function OrdersPage() {
       setError(err instanceof Error ? err.message : "Failed to fetch orders");
     } finally {
       setLoading(false);
-      // setFilters((prev) => ({ ...prev }));
     }
   }, [filters]);
 
@@ -115,69 +106,44 @@ export default function OrdersPage() {
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case "delivered":
-        return "default";
-      case "pending":
-        return "secondary";
-      case "cancelled":
-        return "destructive";
-      case "in_progress":
-        return "outline";
-      default:
-        return "outline";
+      case "delivered": return "default";
+      case "pending": return "secondary";
+      case "cancelled": return "destructive";
+      case "in_progress": return "outline";
+      default: return "outline";
     }
   };
 
   const columns: ColumnDef<OrderTableItem>[] = [
-    {
-      accessorKey: "orderNo",
-      header: "Order No",
-    },
-    {
-      accessorKey: "customer",
-      header: "Customer",
-    },
+    { accessorKey: "orderNo", header: "Order No" },
+    { accessorKey: "customer", header: "Customer" },
     {
       accessorKey: "items",
       header: "Items",
-      cell: ({ row }) => {
-        const items = row.getValue("items") as number;
-        return (
-          <div className="flex items-center">
-            <Package className="mr-2 h-4 w-4" />
-            {items}
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex items-center">
+          <Package className="mr-2 h-4 w-4" />
+          {row.getValue("items") as number}
+        </div>
+      ),
     },
-    {
-      accessorKey: "total",
-      header: "Total",
-    },
+    { accessorKey: "total", header: "Total" },
     {
       accessorKey: "orderType",
       header: "Type",
-      cell: ({ row }) => {
-        const type = row.getValue("orderType") as string;
-        return <Badge variant="outline">{type}</Badge>;
-      },
+      cell: ({ row }) => (
+        <Badge variant="outline"> {row.getValue("orderType") as string} </Badge>
+      ),
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        return (
-          <Badge variant={getStatusVariant(status)}>
-            {status.replace("_", " ")}
-          </Badge>
-        );
+        return <Badge variant={getStatusVariant(status)}>{status.replace("_", " ")}</Badge>;
       },
     },
-    {
-      accessorKey: "createdAt",
-      header: "Created",
-    },
+    { accessorKey: "createdAt", header: "Created" },
     {
       id: "actions",
       cell: ({ row }) => {
@@ -210,80 +176,17 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">
-          Product Orders
-        </h1>
-        <p className="text-muted-foreground">
-          Manage customer product orders and shipments
-        </p>
+        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Product Orders</h1>
+        <p className="text-muted-foreground">Manage customer product orders and shipments</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Delivered</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.delivered}
-            </div>
-            <p className="text-xs text-muted-foreground">Completed orders</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {stats.pending}
-            </div>
-            <p className="text-xs text-muted-foreground">Awaiting processing</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <TrendingUp className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {stats.inProgress}
-            </div>
-            <p className="text-xs text-muted-foreground">Being processed</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cancelled</CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {stats.cancelled}
-            </div>
-            <p className="text-xs text-muted-foreground">Cancelled orders</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              ${stats.totalRevenue}
-            </div>
-            <p className="text-xs text-muted-foreground">Total sales</p>
-          </CardContent>
-        </Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Delivered</CardTitle><CheckCircle className="h-4 w-4 text-green-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">{stats.delivered}</div><p className="text-xs text-muted-foreground">Completed orders</p></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Pending</CardTitle><Clock className="h-4 w-4 text-yellow-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-yellow-600">{stats.pending}</div><p className="text-xs text-muted-foreground">Awaiting processing</p></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">In Progress</CardTitle><TrendingUp className="h-4 w-4 text-blue-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{stats.inProgress}</div><p className="text-xs text-muted-foreground">Being processed</p></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Cancelled</CardTitle><XCircle className="h-4 w-4 text-red-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-red-600">{stats.cancelled}</div><p className="text-xs text-muted-foreground">Cancelled orders</p></CardContent></Card>
+        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Revenue</CardTitle><DollarSign className="h-4 w-4 text-green-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">${stats.totalRevenue}</div><p className="text-xs text-muted-foreground">Total sales</p></CardContent></Card>
       </div>
 
       {/* <OrderFilters onFiltersChange={setFilters} /> */}

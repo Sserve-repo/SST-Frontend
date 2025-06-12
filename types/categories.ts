@@ -18,8 +18,8 @@ export interface CategoryResponse<T> {
     status_code: number
     message: string
     data: T
-    token: string | null
-    debug: string | null
+    token: null
+    debug: null
 }
 
 export type ProductCategoryResponse = CategoryResponse<{
@@ -29,4 +29,3 @@ export type ProductCategoryResponse = CategoryResponse<{
 export type ServiceCategoryResponse = CategoryResponse<{
     "Service Category": ServiceCategory[]
 }>
-

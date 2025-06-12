@@ -1,49 +1,17 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useState, useCallback, useRef } from "react"
 
 interface UseDebounceSearchProps {
+    onSearch: (query: string) => void
     delay?: number
-    onSearch?: (query: string) => void
 }
 
-export function useDebounceSearch({ delay = 500, onSearch }: UseDebounceSearchProps = {}) {
-    const searchParams = useSearchParams()
-    const router = useRouter()
-    const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
-    const [debouncedQuery, setDebouncedQuery] = useState(searchQuery)
+export function useDebounceSearch({ onSearch, delay = 500 }: UseDebounceSearchProps) {
+    const [searchQuery, setSearchQuery] = useState("")
     const [suggestions, setSuggestions] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(false)
-
-    // Debounce search query
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(searchQuery)
-        }, delay)
-
-        return () => clearTimeout(timer)
-    }, [searchQuery, delay])
-
-    // Update URL when debounced query changes
-    useEffect(() => {
-        if (debouncedQuery !== searchParams.get("search")) {
-            const params = new URLSearchParams(searchParams.toString())
-            if (debouncedQuery) {
-                params.set("search", debouncedQuery)
-            } else {
-                params.delete("search")
-            }
-            router.push(`?${params.toString()}`, { scroll: false })
-        }
-    }, [debouncedQuery, searchParams, router])
-
-    // Call onSearch when debounced query changes
-    useEffect(() => {
-        if (onSearch && debouncedQuery) {
-            onSearch(debouncedQuery)
-        }
-    }, [debouncedQuery, onSearch])
+    const timeoutRef = useRef<NodeJS.Timeout>()
 
     const fetchSuggestions = useCallback(async (query: string) => {
         if (!query.trim()) {
@@ -54,13 +22,7 @@ export function useDebounceSearch({ delay = 500, onSearch }: UseDebounceSearchPr
         setIsLoading(true)
         try {
             // This would be replaced with actual API call
-            const mockSuggestions = [
-                `${query} products`,
-                `${query} services`,
-                `${query} vendors`,
-                `${query} categories`,
-            ].filter((s) => s.toLowerCase().includes(query.toLowerCase()))
-
+            const mockSuggestions = [`${query} suggestion 1`, `${query} suggestion 2`]
             setSuggestions(mockSuggestions)
         } catch (error) {
             console.error("Failed to fetch suggestions:", error)
@@ -70,10 +32,24 @@ export function useDebounceSearch({ delay = 500, onSearch }: UseDebounceSearchPr
         }
     }, [])
 
+    const debouncedSetSearchQuery = useCallback(
+        (query: string) => {
+            setSearchQuery(query)
+
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current)
+            }
+
+            timeoutRef.current = setTimeout(() => {
+                onSearch(query)
+            }, delay)
+        },
+        [onSearch, delay],
+    )
+
     return {
         searchQuery,
-        setSearchQuery,
-        debouncedQuery,
+        setSearchQuery: debouncedSetSearchQuery,
         suggestions,
         isLoading,
         fetchSuggestions,

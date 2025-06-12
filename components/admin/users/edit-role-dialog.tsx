@@ -1,14 +1,13 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,65 +15,69 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
 import {
-  createRole,
+  updateRole,
   getPermissions,
   type GroupedPermissions,
 } from "@/actions/admin/role-api";
-import { Loader2 } from "lucide-react";
 
-interface CreateRoleDialogProps {
-  children: React.ReactNode;
-  onSuccess?: () => void;
+interface Role {
+  id: string;
+  name: string;
+  permissions: string[];
 }
 
-export function CreateRoleDialog({
-  children,
+interface EditRoleDialogProps {
+  role: Role | null;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+}
+
+export function EditRoleDialog({
+  role,
+  onOpenChange,
   onSuccess,
-}: CreateRoleDialogProps) {
-  const [open, setOpen] = useState(false);
+}: EditRoleDialogProps) {
+  const [loading, setLoading] = useState(false);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [roleName, setRoleName] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [permissions, setPermissions] = useState<GroupedPermissions>({});
   const { toast } = useToast();
 
-  // Fetch permissions
-  const {
-    data: permissionsData,
-    isLoading: permissionsLoading,
-    error: permissionsError,
-  } = useQuery({
-    queryKey: ["permissions"],
-    queryFn: async () => {
-      const { data, error } = await getPermissions();
-      if (error) throw new Error(error);
-      return data;
-    },
-    enabled: open,
-  });
+  useEffect(() => {
+    if (role) {
+      setRoleName(role.name);
+      setSelectedPermissions(role.permissions);
+      fetchPermissions();
+    }
+  }, [role]);
 
-  // Create role mutation
-  const createRoleMutation = useMutation({
-    mutationFn: createRole,
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Role created successfully.",
-      });
-      resetForm();
-      setOpen(false);
-      onSuccess?.();
-    },
-    onError: (error: Error) => {
+  const fetchPermissions = async () => {
+    setPermissionsLoading(true);
+    try {
+      const { data, error } = await getPermissions();
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      if (data?.Permissions) {
+        setPermissions(data.Permissions);
+      }
+    } catch (error) {
+      console.error("Failed to fetch permissions:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create role.",
+        description: "Failed to load permissions. Please try again.",
         variant: "destructive",
       });
-    },
-  });
-
-  const permissions: GroupedPermissions = permissionsData?.Permissions || {};
+    } finally {
+      setPermissionsLoading(false);
+    }
+  };
 
   const handlePermissionChange = (permissionName: string, checked: boolean) => {
     setSelectedPermissions((prev) =>
@@ -109,43 +112,47 @@ export function CreateRoleDialog({
       return;
     }
 
-    if (selectedPermissions.length === 0) {
+    if (!role) return;
+
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("name", roleName);
+
+      // Add each permission as a separate form field
+      selectedPermissions.forEach((permission) => {
+        formData.append("permission[]", permission);
+      });
+
+      const { error } = await updateRole(role.id, formData);
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      toast({
+        title: "Success",
+        description: "Role updated successfully.",
+      });
+
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to update role:", error);
       toast({
         title: "Error",
-        description: "Please select at least one permission.",
+        description: "Failed to update role. Please try again.",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    const formData = new FormData();
-    formData.append("name", roleName);
-
-    // Add each permission as a separate form field
-    selectedPermissions.forEach((permission) => {
-      formData.append("permission[]", permission);
-    });
-
-    createRoleMutation.mutate(formData);
-  };
-
-  const resetForm = () => {
-    setRoleName("");
-    setSelectedPermissions([]);
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(newOpen) => {
-        setOpen(newOpen);
-        if (!newOpen) resetForm();
-      }}
-    >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={!!role} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>Create New Role</DialogTitle>
+          <DialogTitle>Edit Role: {role?.name}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -164,11 +171,7 @@ export function CreateRoleDialog({
             <Label>Permissions</Label>
             {permissionsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </div>
-            ) : permissionsError ? (
-              <div className="text-center py-4 text-red-600">
-                Failed to load permissions
+                <LoadingSpinner />
               </div>
             ) : (
               <ScrollArea className="h-[300px] border rounded-md p-4">
@@ -189,11 +192,9 @@ export function CreateRoleDialog({
                               id={`category-${category}`}
                               checked={allSelected}
                               ref={(el) => {
-                                if (el) {
-
+                                if (el)
                                   el.indeterminate =
                                     someSelected && !allSelected;
-                                }
                               }}
                               onCheckedChange={(checked) =>
                                 handleSelectAllInCategory(
@@ -204,7 +205,7 @@ export function CreateRoleDialog({
                             />
                             <Label
                               htmlFor={`category-${category}`}
-                              className="text-sm font-medium capitalize cursor-pointer"
+                              className="text-sm font-medium capitalize"
                             >
                               {category} ({categoryPermissions.length})
                             </Label>
@@ -230,7 +231,7 @@ export function CreateRoleDialog({
                                 />
                                 <Label
                                   htmlFor={`permission-${permission.id}`}
-                                  className="text-sm text-muted-foreground cursor-pointer"
+                                  className="text-sm text-muted-foreground"
                                 >
                                   {permission.name}
                                 </Label>
@@ -261,23 +262,12 @@ export function CreateRoleDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={createRoleMutation.isPending}
+              onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={createRoleMutation.isPending || permissionsLoading}
-            >
-              {createRoleMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                "Create Role"
-              )}
+            <Button type="submit" disabled={loading || permissionsLoading}>
+              {loading ? "Updating..." : "Update Role"}
             </Button>
           </div>
         </form>

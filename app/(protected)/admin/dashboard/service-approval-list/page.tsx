@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { BulkActionsToolbar } from "@/components/admin/services/bulk-actions-toolbar";
 import { ServiceTable } from "@/components/admin/services/service-table";
 import { ServiceFilters } from "@/components/admin/services/service-filters";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { Button } from "@/components/ui/button";
 import type { Service as IService } from "@/types/services";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +17,6 @@ import {
   disableServices,
   type Service,
 } from "@/actions/admin/service-api";
-import { getStatusFromNumber } from "@/lib/utils";
 
 interface ServiceStats {
   total: number;
@@ -42,18 +42,24 @@ export default function ServiceApprovalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
   const { toast } = useToast();
 
-  const fetchServices = useCallback(async () => {
+  const fetchServices = async () => {
     try {
+      setLoading(true);
       setError(null);
-      const { data, error: apiError } = await getServices({
-        service_category: filters.category || undefined,
-        status: filters.status || undefined,
-        search: filters.search || undefined,
-      });
 
-      if (apiError) throw new Error(apiError);
+      const params: Record<string, string> = {};
+      if (filters.category) params.service_category = filters.category;
+      if (filters.status) params.status = filters.status;
+      if (filters.search) params.search = filters.search;
+
+      const { data, error: apiError } = await getServices(params);
+
+      if (apiError) {
+        throw new Error(apiError);
+      }
 
       if (data?.serviceListing) {
         const formattedServices: IService[] = data.serviceListing.map(
@@ -69,13 +75,15 @@ export default function ServiceApprovalPage() {
               email: service.vendor_email || "",
             },
             status: getStatusFromNumber(service.status),
-            featured: false,
+            featured: Boolean(service.featured),
             images: service.image ? [service.image] : ["/placeholder.svg"],
             createdAt: service.created_at,
             duration: Number.parseInt(service.service_duration) || 0,
             availability: Array.isArray(service.available_dates)
-              ? service.available_dates.join(", ")
-              : service.available_dates || "",
+              ? service.available_dates
+              : service.available_dates
+              ? [service.available_dates]
+              : [],
             homeService: Boolean(service.home_service_availability),
           })
         );
@@ -83,26 +91,39 @@ export default function ServiceApprovalPage() {
         setServices(formattedServices);
         calculateStats(formattedServices);
       } else {
-        throw new Error("No service data received");
+        setServices([]);
+        setStats({
+          total: 0,
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+        });
       }
     } catch (err) {
       console.error("Error fetching services:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch services");
+      setServices([]);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
-
-  // useEffect(() => {
-  //   // fetchServices();
-  // }, [filters]);
+  };
 
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchServices();
-    }, 500);
+    fetchServices();
+  }, [filters]);
 
-    return () => clearTimeout(delayDebounce);
-  }, [fetchServices]);
+  const getStatusFromNumber = (
+    status: number
+  ): "pending" | "approved" | "rejected" => {
+    switch (status) {
+      case 1:
+        return "approved";
+      case 2:
+        return "rejected";
+      default:
+        return "pending";
+    }
+  };
 
   const calculateStats = (serviceList: IService[]) => {
     const newStats = {
@@ -174,29 +195,15 @@ export default function ServiceApprovalPage() {
     }
   };
 
-  const filteredServices = services.filter((service) => {
-    const matchesCategory =
-      !filters.category || service.category === filters.category;
-    const matchesStatus = !filters.status || service.status === filters.status;
-    const matchesSearch =
-      !filters.search ||
-      service.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      service.vendor?.name.toLowerCase().includes(filters.search.toLowerCase());
-
-    return matchesCategory && matchesStatus && matchesSearch;
-  });
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <ErrorMessage message={error} onRetry={fetchServices} />;
-  }
+  const handleFiltersChange = (newFilters: {
+    category: string;
+    status: string;
+    search: string;
+  }) => {
+    if (JSON.stringify(newFilters) !== JSON.stringify(filters)) {
+      setFilters(newFilters);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -268,7 +275,7 @@ export default function ServiceApprovalPage() {
         </Card>
       </div>
 
-      <ServiceFilters onFiltersChange={setFilters} />
+      <ServiceFilters onFiltersChange={handleFiltersChange} />
 
       {selectedIds.length > 0 && (
         <BulkActionsToolbar
@@ -282,13 +289,33 @@ export default function ServiceApprovalPage() {
         />
       )}
 
-      <ServiceTable
-        services={filteredServices}
-        selectedIds={selectedIds}
-        onSelectedIdsChange={setSelectedIds}
-        onRefresh={fetchServices}
-        isLoading={isUpdating}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchServices} />
+      ) : services.length === 0 ? (
+        <div className="text-center py-12 border rounded-md">
+          <p className="text-muted-foreground">
+            No services found matching your criteria.
+          </p>
+          <Button
+            variant="link"
+            onClick={() => setFilters({ category: "", status: "", search: "" })}
+          >
+            Clear filters
+          </Button>
+        </div>
+      ) : (
+        <ServiceTable
+          services={services}
+          selectedIds={selectedIds}
+          onSelectedIdsChange={setSelectedIds}
+          onRefresh={fetchServices}
+          isLoading={isUpdating}
+        />
+      )}
     </div>
   );
 }

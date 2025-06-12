@@ -9,11 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SearchWithSuggestions } from "@/components/ui/search-with-suggestions";
-import { useDebounceSearch } from "@/hooks/use-debounced-search";
+import { Input } from "@/components/ui/input";
 import { getProductCategories } from "@/actions/admin/categories";
 import type { ProductCategory } from "@/types/categories";
 import { useToast } from "@/hooks/use-toast";
+import { updateFilters, getFilterValue, clearAllFilters } from "@/lib/filters";
 
 interface ProductFiltersProps {
   onFiltersChange: (filters: {
@@ -26,45 +26,31 @@ interface ProductFiltersProps {
 export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    category: "",
-    status: "",
-    search: "",
-  });
-
+  const [searchQuery, setSearchQuery] = useState(getFilterValue("search"));
+  const [category, setCategory] = useState(getFilterValue("category"));
+  const [status, setStatus] = useState(getFilterValue("status"));
   const { toast } = useToast();
 
-  const {
-    searchQuery,
-    setSearchQuery,
-    suggestions,
-    isLoading: searchLoading,
-    fetchSuggestions,
-  } = useDebounceSearch({
-    // onSearch: (query) => {
-    //   const newFilters = { ...filters, search: query };
-    //   setFilters(newFilters);
-    //   onFiltersChange(newFilters);
-    // },
-    onSearch: (query) => {
-      if (filters.search !== query) {
-        const newFilters = { ...filters, search: query };
-        setFilters(newFilters);
-        onFiltersChange(newFilters);
-      }
-    },
-  });
+  // Initialize filters from URL on mount
+  useEffect(() => {
+    onFiltersChange({
+      category: getFilterValue("category"),
+      status: getFilterValue("status"),
+      search: getFilterValue("search"),
+    });
+  }, [onFiltersChange]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        setLoading(true);
         const { data, error } = await getProductCategories();
         if (error) {
           throw new Error(error);
         }
-        if (data?.data?.["Products Category"]) {
+        if (data?.["Products Category"]) {
           // Remove duplicates by name
-          const uniqueCategories = data.data["Products Category"].reduce(
+          const uniqueCategories = data["Products Category"].reduce(
             (acc, category) => {
               if (!acc.find((c) => c.name === category.name)) {
                 acc.push(category);
@@ -90,44 +76,58 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
     fetchCategories();
   }, [toast]);
 
-  const handleFilterChange = (key: string, value: string) => {
-    if (value == "all") {
-      clearFilters();
-      return;
-    }
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFiltersChange(newFilters);
+  const handleSearch = () => {
+    const newFilters = { search: searchQuery };
+    updateFilters(newFilters);
+    onFiltersChange({ ...newFilters, category, status });
+
   };
 
-  const clearFilters = () => {
-    const clearedFilters = { category: "", status: "", search: "" };
-    setFilters(clearedFilters);
+  const handleCategoryChange = (value: string) => {
+    const newValue = value === "all" ? "" : value;
+    setCategory(newValue);
+    updateFilters({ category: newValue });
+    onFiltersChange({ category: newValue, status, search: searchQuery });
+  };
+
+  const handleStatusChange = (value: string) => {
+    const newValue = value === "all" ? "" : value;
+    setStatus(newValue);
+    updateFilters({ status: newValue });
+    onFiltersChange({ category, status: newValue, search: searchQuery });
+  };
+
+  const handleClearFilters = () => {
     setSearchQuery("");
-    onFiltersChange(clearedFilters);
+    setCategory("");
+    setStatus("");
+    clearAllFilters();
+    onFiltersChange({ category: "", status: "", search: "" });
   };
-
-  useEffect(() => {
-    if (searchQuery) {
-      fetchSuggestions(searchQuery);
-    }
-  }, [searchQuery, fetchSuggestions]);
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <SearchWithSuggestions
-        value={searchQuery}
-        onChange={setSearchQuery}
-        suggestions={suggestions}
-        isLoading={searchLoading}
-        placeholder="Search products..."
-        className="flex-1 sm:max-w-[300px]"
-      />
+    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center justify-between ">
+      <div className="flex gap-2 flex-1 sm:max-w-[400px]">
+        <Input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search products..."
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        />
+        <Button
+          variant="outline"
+          onClick={handleSearch}
+          className="px-6"
+          disabled={loading}
+        >
+          Search
+        </Button>
+      </div>
 
       <div className="flex gap-4">
         <Select
-          value={filters.category}
-          onValueChange={(value) => handleFilterChange("category", value)}
+          value={category || "all"}
+          onValueChange={handleCategoryChange}
           disabled={loading}
         >
           <SelectTrigger className="w-[180px]">
@@ -143,10 +143,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
           </SelectContent>
         </Select>
 
-        <Select
-          value={filters.status}
-          onValueChange={(value) => handleFilterChange("status", value)}
-        >
+        <Select value={status || "all"} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -158,7 +155,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
           </SelectContent>
         </Select>
 
-        <Button variant="outline" onClick={clearFilters}>
+        <Button variant="outline" className="px-6" onClick={handleClearFilters}>
           Clear
         </Button>
       </div>

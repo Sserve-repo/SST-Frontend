@@ -28,6 +28,7 @@ export interface Order {
     user_id: number
     total: string
     vendor_tax: string
+    customer_name?: string;
     shipping_cost: string
     cart_total: string
     order_type: string

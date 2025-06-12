@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+
 import { useState, useEffect } from "react";
 import { BulkActionsToolbar } from "@/components/admin/products/bulk-actions-toolbar";
 import { ProductTable } from "@/components/admin/products/product-table";
@@ -45,14 +47,15 @@ export default function ProductApprovalPage() {
 
   const fetchProducts = async () => {
     try {
-      // setLoading(true)
+      setLoading(true);
       setError(null);
 
-      const { data, error: apiError } = await getProducts({
-        product_category: filters.category || undefined,
-        status: filters.status || undefined,
-        search: filters.search || undefined,
-      });
+      const params: Record<string, string> = {};
+      if (filters.category) params.product_category = filters.category;
+      if (filters.status) params.status = filters.status;
+      if (filters.search) params.search = filters.search;
+
+      const { data, error: apiError } = await getProducts(params);
 
       if (apiError) {
         throw new Error(apiError);
@@ -68,11 +71,12 @@ export default function ProductApprovalPage() {
             price: Number.parseFloat(product.price),
             vendor: {
               id: product.id.toString(),
-              name: "Vendor Name", // This would come from a join or separate call
-              email: "vendor@email.com", // This would come from a join or separate call
+              name: product.vendor_name || "Vendor Name",
+              email: product.vendor_email || "vendor@email.com",
             },
             status: getStatusFromNumber(product.status),
-            featured: false, // This would come from the API if available
+            featured: Boolean(product.featured),
+
             images: product.image ? [product.image] : ["/placeholder.svg"],
             createdAt: product.created_at,
             duration: 0,
@@ -82,11 +86,19 @@ export default function ProductApprovalPage() {
         setProducts(formattedProducts);
         calculateStats(formattedProducts);
       } else {
-        throw new Error("No product data received");
+        setProducts([]);
+        setStats({
+          total: 0,
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+        });
       }
     } catch (err) {
       console.error("Error fetching products:", err);
-      // setError(err instanceof Error ? err.message : "Failed to fetch products")
+      setError(err instanceof Error ? err.message : "Failed to fetch products");
+      setProducts([]);
+
     } finally {
       setLoading(false);
     }
@@ -145,6 +157,7 @@ export default function ProductApprovalPage() {
             product_ids: productIds,
           });
           break;
+
         case "disable":
           result = await updateProductStatus({
             status: "disabled",
@@ -182,29 +195,28 @@ export default function ProductApprovalPage() {
     }
   };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory =
-      !filters.category || product.category === filters.category;
-    const matchesStatus = !filters.status || product.status === filters.status;
-    const matchesSearch =
-      !filters.search ||
-      product.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-      product.vendor.name.toLowerCase().includes(filters.search.toLowerCase());
+  const handleFiltersChange = (newFilters: {
+    category: string;
+    status: string;
+    search: string;
+  }) => {
+    if (JSON.stringify(newFilters) !== JSON.stringify(filters)) {
+      setFilters(newFilters);
+    }
+  };
 
-    return matchesCategory && matchesStatus && matchesSearch;
-  });
 
-  if (loading) {
+<!--   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <LoadingSpinner />
       </div>
     );
-  }
+  } -->
 
-  if (error) {
+<!--   if (error) {
     return <ErrorMessage message={error} onRetry={fetchProducts} />;
-  }
+  } -->
 
   return (
     <div className="space-y-6">
@@ -276,7 +288,7 @@ export default function ProductApprovalPage() {
         </Card>
       </div>
 
-      <ProductFilters onFiltersChange={setFilters} />
+      <ProductFilters onFiltersChange={handleFiltersChange} />
 
       {selectedIds.length > 0 && (
         <BulkActionsToolbar
@@ -290,13 +302,33 @@ export default function ProductApprovalPage() {
         />
       )}
 
-      <ProductTable
-        products={filteredProducts}
-        selectedIds={selectedIds}
-        onSelectedIdsChange={setSelectedIds}
-        onRefresh={fetchProducts}
-        isLoading={isUpdating}
-      />
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchProducts} />
+      ) : products.length === 0 ? (
+        <div className="text-center py-12 border rounded-md">
+          <p className="text-muted-foreground">
+            No products found matching your criteria.
+          </p>
+          <Button
+            variant="link"
+            onClick={() => setFilters({ category: "", status: "", search: "" })}
+          >
+            Clear filters
+          </Button>
+        </div>
+      ) : (
+        <ProductTable
+          products={products}
+          selectedIds={selectedIds}
+          onSelectedIdsChange={setSelectedIds}
+          onRefresh={fetchProducts}
+          isLoading={isUpdating}
+        />
+      )}
     </div>
   );
 }
