@@ -14,7 +14,7 @@ import { CheckCircle, Clock, XCircle, Wrench } from "lucide-react";
 import {
   getServices,
   updateServiceStatus,
-  deleteServices,
+  disableServices,
   type Service,
 } from "@/actions/admin/service-api";
 
@@ -136,7 +136,7 @@ export default function ServiceApprovalPage() {
   };
 
   const handleBulkAction = async (
-    action: "approve" | "reject" | "delete" | "feature"
+    action: "approve" | "reject" | "disable" | "feature"
   ) => {
     if (selectedIds.length === 0) {
       toast({
@@ -161,8 +161,8 @@ export default function ServiceApprovalPage() {
             service_ids: serviceIds,
           });
           break;
-        case "delete":
-          result = await deleteServices(serviceIds);
+        case "disable":
+          result = await disableServices(serviceIds);
           break;
         case "feature":
           toast({
@@ -283,7 +283,7 @@ export default function ServiceApprovalPage() {
           onClearSelection={() => setSelectedIds([])}
           onApprove={() => handleBulkAction("approve")}
           onReject={() => handleBulkAction("reject")}
-          onDelete={() => handleBulkAction("delete")}
+          onDisable={() => handleBulkAction("disable")}
           onFeature={() => handleBulkAction("feature")}
           isLoading={isUpdating}
         />

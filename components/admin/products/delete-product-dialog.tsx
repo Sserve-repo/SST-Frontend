@@ -14,7 +14,7 @@ import {
 import type { IProduct } from "@/types/product";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { deleteProducts } from "@/actions/admin/product-api";
+import { disableProducts } from "@/actions/admin/product-api";
 
 interface DeleteProductDialogProps {
   product: IProduct | null;
@@ -36,7 +36,7 @@ export function DeleteProductDialog({
     setIsLoading(true);
 
     try {
-      const { error } = await deleteProducts([Number.parseInt(product.id!)]);
+      const { error } = await disableProducts([Number.parseInt(product.id!)]);
 
       if (error) {
         throw new Error(error);

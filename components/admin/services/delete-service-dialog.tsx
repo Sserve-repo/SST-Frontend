@@ -14,7 +14,7 @@ import {
 import type { Service } from "@/types/services";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { deleteServices } from "@/actions/admin/service-api";
+import { disableServices } from "@/actions/admin/service-api";
 
 interface DeleteServiceDialogProps {
   service: Service | null;
@@ -36,7 +36,7 @@ export function DeleteServiceDialog({
     setIsLoading(true);
 
     try {
-      const { error } = await deleteServices([Number.parseInt(service.id!)]);
+      const { error } = await disableServices([Number.parseInt(service.id!)]);
 
       if (error) {
         throw new Error(error);

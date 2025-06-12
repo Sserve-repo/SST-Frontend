@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+
 import { useState, useEffect } from "react";
 import { BulkActionsToolbar } from "@/components/admin/products/bulk-actions-toolbar";
 import { ProductTable } from "@/components/admin/products/product-table";
@@ -14,7 +15,6 @@ import { CheckCircle, Clock, XCircle, Package } from "lucide-react";
 import {
   getProducts,
   updateProductStatus,
-  deleteProducts,
   type Product,
 } from "@/actions/admin/product-api";
 
@@ -76,6 +76,7 @@ export default function ProductApprovalPage() {
             },
             status: getStatusFromNumber(product.status),
             featured: Boolean(product.featured),
+
             images: product.image ? [product.image] : ["/placeholder.svg"],
             createdAt: product.created_at,
             duration: 0,
@@ -97,6 +98,7 @@ export default function ProductApprovalPage() {
       console.error("Error fetching products:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch products");
       setProducts([]);
+
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ export default function ProductApprovalPage() {
   };
 
   const handleBulkAction = async (
-    action: "approve" | "reject" | "delete" | "feature"
+    action: "approve" | "reject" | "disable" | "feature"
   ) => {
     if (selectedIds.length === 0) {
       toast({
@@ -155,8 +157,12 @@ export default function ProductApprovalPage() {
             product_ids: productIds,
           });
           break;
-        case "delete":
-          result = await deleteProducts(productIds);
+
+        case "disable":
+          result = await updateProductStatus({
+            status: "disabled",
+            product_ids: productIds,
+          });
           break;
         case "feature":
           toast({
@@ -198,6 +204,19 @@ export default function ProductApprovalPage() {
       setFilters(newFilters);
     }
   };
+
+
+<!--   if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner />
+      </div>
+    );
+  } -->
+
+<!--   if (error) {
+    return <ErrorMessage message={error} onRetry={fetchProducts} />;
+  } -->
 
   return (
     <div className="space-y-6">
@@ -277,7 +296,7 @@ export default function ProductApprovalPage() {
           onClearSelection={() => setSelectedIds([])}
           onApprove={() => handleBulkAction("approve")}
           onReject={() => handleBulkAction("reject")}
-          onDelete={() => handleBulkAction("delete")}
+          onDisable={() => handleBulkAction("disable")}
           onFeature={() => handleBulkAction("feature")}
           isLoading={isUpdating}
         />

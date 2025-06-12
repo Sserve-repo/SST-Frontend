@@ -72,7 +72,7 @@ export function ProductDetailsDialog({
         </DialogHeader>
         <div className="grid gap-6">
           <div className="rounded-lg overflow-hidden bg-muted">
-            <ImageShowCase shots={product.images} />
+            <ImageShowCase shots={product.images as any} />
           </div>
 
           <div className="grid gap-2">

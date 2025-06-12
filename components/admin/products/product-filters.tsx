@@ -80,6 +80,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
     const newFilters = { search: searchQuery };
     updateFilters(newFilters);
     onFiltersChange({ ...newFilters, category, status });
+
   };
 
   const handleCategoryChange = (value: string) => {

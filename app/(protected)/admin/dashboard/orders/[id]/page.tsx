@@ -158,10 +158,10 @@ export default function OrderDetailPage() {
               <span className="text-muted-foreground">Email:</span>
               <span>{orderDetails.customer.email}</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span className="text-muted-foreground">Customer ID:</span>
               <span>{orderDetails.customer.id}</span>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
@@ -193,10 +193,10 @@ export default function OrderDetailPage() {
               <span className="text-muted-foreground">Postal Code:</span>
               <span>{orderDetails.delivery_information.postal_code}</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span className="text-muted-foreground">Province ID:</span>
               <span>{orderDetails.delivery_information.province_id}</span>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 

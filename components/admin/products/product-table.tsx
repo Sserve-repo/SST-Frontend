@@ -25,9 +25,9 @@ import {
   Eye,
   MoreHorizontal,
   Star,
-  Trash2,
   X,
   Loader2,
+  Ban,
 } from "lucide-react";
 import { ProductDetailsDialog } from "./product-details-dialog";
 import { EditProductDialog } from "./edit-product-dialog";
@@ -54,7 +54,9 @@ export function ProductTable({
 }: ProductTableProps) {
   const [productToView, setProductToView] = useState<IProduct | null>(null);
   const [productToEdit, setProductToEdit] = useState<IProduct | null>(null);
-  const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);
+  const [productToDelete, setProductToDisabled] = useState<IProduct | null>(
+    null
+  );
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -329,11 +331,11 @@ export function ProductTable({
                           {product.featured ? "Unfeature" : "Feature"}
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => setProductToDelete(product)}
+                          onClick={() => setProductToDisabled(product)}
                           className="text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
+                          <Ban className="mr-2 h-4 w-4" />
+                          Disable
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -359,7 +361,7 @@ export function ProductTable({
 
       <DeleteProductDialog
         product={productToDelete}
-        onOpenChange={(open) => !open && setProductToDelete(null)}
+        onOpenChange={(open) => !open && setProductToDisabled(null)}
         onRefresh={onRefresh}
       />
     </>

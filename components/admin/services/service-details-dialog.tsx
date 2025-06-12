@@ -76,7 +76,7 @@ export function ServiceDetailsDialog({
         </DialogHeader>
         <div className="grid gap-6">
           <div className="rounded-lg overflow-hidden bg-muted">
-            <ImageShowCase shots={service.images} />
+            <ImageShowCase shots={service.images as any} />
           </div>
 
           <div className="grid gap-2">

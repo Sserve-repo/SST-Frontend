@@ -190,6 +190,7 @@ export function CreateRoleDialog({
                               checked={allSelected}
                               ref={(el) => {
                                 if (el) {
+
                                   el.indeterminate =
                                     someSelected && !allSelected;
                                 }

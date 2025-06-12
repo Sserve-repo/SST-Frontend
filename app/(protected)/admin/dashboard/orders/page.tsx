@@ -48,7 +48,7 @@ export default function OrdersPage() {
     cancelled: 0,
     totalRevenue: "0",
   });
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     status: "",
     order_status: "",
     search: "",
