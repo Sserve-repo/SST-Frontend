@@ -188,7 +188,7 @@ export function CreateRoleDialog({
                             <Checkbox
                               id={`category-${category}`}
                               checked={allSelected}
-                              ref={(el) => {
+                              ref={(el:any) => {
                                 if (el) {
 
                                   el.indeterminate =

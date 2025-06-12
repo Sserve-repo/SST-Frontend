@@ -191,7 +191,7 @@ export function EditRoleDialog({
                             <Checkbox
                               id={`category-${category}`}
                               checked={allSelected}
-                              ref={(el) => {
+                              ref={(el:any) => {
                                 if (el)
                                   el.indeterminate =
                                     someSelected && !allSelected;

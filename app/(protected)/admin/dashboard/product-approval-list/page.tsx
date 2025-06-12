@@ -98,7 +98,6 @@ export default function ProductApprovalPage() {
       console.error("Error fetching products:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch products");
       setProducts([]);
-
     } finally {
       setLoading(false);
     }
@@ -205,18 +204,17 @@ export default function ProductApprovalPage() {
     }
   };
 
+  //  if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-[400px]">
+  //       <LoadingSpinner />
+  //     </div>
+  //   );
+  // }
 
-<!--   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner />
-      </div>
-    );
-  } -->
-
-<!--   if (error) {
-    return <ErrorMessage message={error} onRetry={fetchProducts} />;
-  } -->
+  //  if (error) {
+  //     return <ErrorMessage message={error} onRetry={fetchProducts} />;
+  //   }
 
   return (
     <div className="space-y-6">

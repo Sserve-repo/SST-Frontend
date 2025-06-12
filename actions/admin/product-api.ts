@@ -8,6 +8,9 @@ export interface Product {
   stock_level: number;
   shipping_cost: string;
   image: string;
+  vendor_name: string;
+  vendor_email: string;
+  featured: string;
   status: number;
   created_at: string;
   updated_at: string;

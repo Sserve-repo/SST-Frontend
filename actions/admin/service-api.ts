@@ -9,6 +9,7 @@ export interface Service {
   description: string;
   image: string;
   status: number;
+  featured: boolean | false;
   created_at: string;
   updated_at: string;
   available_dates: string[] | null;
