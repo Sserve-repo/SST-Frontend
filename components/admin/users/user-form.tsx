@@ -27,6 +27,9 @@ const formSchema = z.object({
   lastName: z.string().min(2).max(50),
   email: z.string().email(),
   phone: z.string().min(10).max(15),
+  password: z.string().min(8),
+  passwordConfirmation: z.string().min(8),
+
   role: z.enum(["shopper", "vendor", "artisan", "admin"]),
   status: z.enum(["active", "banned", "pending"]),
 });
@@ -44,6 +47,9 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
       lastName: "",
       email: "",
       phone: "",
+      password: "",
+      passwordConfirmation: "",
+
       role: "shopper",
       status: "active",
     },
@@ -157,6 +163,44 @@ export function UserForm({ user, onSubmit }: UserFormProps) {
                     <SelectItem value="pending">Pending</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="passwordConfirmation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password Confirm</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="confirm password"
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

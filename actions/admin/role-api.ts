@@ -1,6 +1,7 @@
-"use server";
+"use client";
 
 import { baseUrl } from "@/config/constant";
+import Cookies from "js-cookie";
 
 export interface Role {
   id: number;
@@ -32,6 +33,8 @@ export interface RolePermissionsResponse {
   groupedPermissions: GroupedPermissions;
 }
 
+const token = Cookies.get("accessToken");
+
 export async function createRole(formData: FormData) {
   try {
     const response = await fetch(
@@ -39,7 +42,7 @@ export async function createRole(formData: FormData) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       }
@@ -66,7 +69,7 @@ export async function getRoles() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       }
@@ -86,6 +89,8 @@ export async function getRoles() {
 }
 
 export async function getRolesWithPermissions() {
+  console.log("TOKEN:", token); // Make sure it's not undefined
+
   try {
     const response = await fetch(
       `${baseUrl}/admin/dashboard/user/role/listRolesWithPermissions`,
@@ -93,7 +98,7 @@ export async function getRolesWithPermissions() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       }
@@ -120,13 +125,14 @@ export async function getPermissions() {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       }
     );
 
     const data = await response.json();
+    console.log({ data });
 
     if (!response.ok) {
       return {
@@ -150,7 +156,7 @@ export async function getRolePermissions(id: string) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -178,7 +184,7 @@ export async function updateRole(id: string, formData: FormData) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       }
@@ -205,7 +211,7 @@ export async function deleteRole(id: string) {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -233,7 +239,7 @@ export async function assignRoleToUser(userId: string, roleId: string) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       }

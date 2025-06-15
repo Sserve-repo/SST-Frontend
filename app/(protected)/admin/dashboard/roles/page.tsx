@@ -65,8 +65,8 @@ export default function RolesPage() {
         throw new Error(apiError);
       }
 
-      if (data?.roles) {
-        const formattedRoles = data.roles.map((role: RoleWithPermissions) => ({
+      if (data?.data?.roles) {
+        const formattedRoles = data?.data.roles.map((role: RoleWithPermissions) => ({
           id: role.role_id.toString(),
           name: role.role,
           permissions: role.permissions,

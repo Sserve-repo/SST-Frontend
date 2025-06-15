@@ -74,7 +74,9 @@ export function CreateRoleDialog({
     },
   });
 
-  const permissions: GroupedPermissions = permissionsData?.Permissions || {};
+  const permissions: GroupedPermissions =
+    permissionsData?.data?.Permissions || {};
+  console.log({ permissions });
 
   const handlePermissionChange = (permissionName: string, checked: boolean) => {
     setSelectedPermissions((prev) =>
@@ -188,9 +190,8 @@ export function CreateRoleDialog({
                             <Checkbox
                               id={`category-${category}`}
                               checked={allSelected}
-                              ref={(el:any) => {
+                              ref={(el: any) => {
                                 if (el) {
-
                                   el.indeterminate =
                                     someSelected && !allSelected;
                                 }

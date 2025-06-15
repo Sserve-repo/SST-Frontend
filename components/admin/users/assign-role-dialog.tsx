@@ -105,7 +105,7 @@ export function AssignRoleDialog({
                 <SelectValue placeholder="Choose a role..." />
               </SelectTrigger>
               <SelectContent>
-                {roles.map((role) => (
+                {roles?.length > 0 && roles?.map((role) => (
                   <SelectItem key={role.id} value={role.id.toString()}>
                     {role.name}
                   </SelectItem>
