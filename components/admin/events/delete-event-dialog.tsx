@@ -15,6 +15,7 @@ import { deleteEvent } from "@/actions/admin/event-api";
 import { useState } from "react";
 
 interface DeleteEventDialogProps {
+  event:any
   eventId: string | null;
   eventTitle: string;
   onOpenChange: (open: boolean) => void;

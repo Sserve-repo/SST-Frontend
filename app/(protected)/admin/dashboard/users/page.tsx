@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateUserDialog } from "@/components/admin/users/create-user-dialog";
@@ -33,7 +33,7 @@ import {
 import {
   UserPlus,
   Plus,
-  Search,
+  // Search,
   Users,
   Shield,
   Settings,
@@ -43,8 +43,8 @@ import {
   Trash,
   UserCog,
   Loader2,
-  Filter,
-  Download,
+  // Filter,
+  // Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { searchUsers, deleteUser, getAllUsers } from "@/actions/admin/user-api";
@@ -77,7 +77,7 @@ interface RoleTableItem {
 
 export default function UsersRolesPage() {
   const [activeTab, setActiveTab] = useState("users");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserTableItem | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [deletingUser, setDeletingUser] = useState<{
@@ -184,17 +184,17 @@ export default function UsersRolesPage() {
     },
   });
 
-  const handleSearchUsers = () => {
-    if (!searchQuery.trim()) {
-      toast({
-        title: "Warning",
-        description: "Please enter a search query.",
-        variant: "destructive",
-      });
-      return;
-    }
-    refetchUsers();
-  };
+  // const handleSearchUsers = () => {
+  //   if (!searchQuery.trim()) {
+  //     toast({
+  //       title: "Warning",
+  //       description: "Please enter a search query.",
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
+  //   refetchUsers();
+  // };
 
   const handleDeleteUser = (user: UserTableItem) => {
     setDeletingUser({ id: user.id, name: user.name });
@@ -665,6 +665,7 @@ export default function UsersRolesPage() {
 
       {/* Dialogs */}
       <EditUserDialog
+        user={allUsers.find((u) => u.id == editingUserId)}
         userId={editingUserId}
         onOpenChange={(open) => !open && setEditingUserId(null)}
         onSuccess={handleUserSuccess}

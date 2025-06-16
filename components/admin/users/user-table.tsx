@@ -108,7 +108,7 @@ export function UserTable({ users }: UserTableProps) {
         </Table>
       </div>
 
-      <EditUserDialog user={userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)} />
+      <EditUserDialog userId={userToEdit?.id as string} user={userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)} />
 
       <DeleteUserDialog user={userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)} />
 

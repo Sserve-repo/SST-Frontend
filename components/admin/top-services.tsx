@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
-  getDashboardOverview,
-  type Overview,
-} from "@/actions/admin/dashboard-api";
+  getDashboardOverview} from "@/actions/admin/dashboard-api";
 
 export function TopServices() {
   const [services, setServices] = useState<any[]>([]);

@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getEvents, type Event } from "@/actions/admin/event-api";
-import { useToast } from "@/hooks/use-toast";
+// import { useToast } from "@/hooks/use-toast";
 import { CreateEventDialog } from "@/components/admin/events/create-event-dialog";
 import { EditEventDialog } from "@/components/admin/events/edit-event-dialog";
 import { ViewEventDialog } from "@/components/admin/events/view-event-dialog";
@@ -66,7 +66,7 @@ export default function EventsPage() {
     id: string;
     title: string;
   } | null>(null);
-  const { toast } = useToast();
+  // const { toast } = useToast();
 
   const fetchEvents = async () => {
     try {
@@ -362,6 +362,7 @@ export default function EventsPage() {
 
       {/* Dialogs */}
       <EditEventDialog
+        event={editingEventId}
         eventId={editingEventId}
         onOpenChange={(open) => !open && setEditingEventId(null)}
         onSuccess={fetchEvents}
@@ -373,6 +374,7 @@ export default function EventsPage() {
       />
 
       <DeleteEventDialog
+        event={deletingEvent}
         eventId={deletingEvent?.id || null}
         eventTitle={deletingEvent?.title || ""}
         onOpenChange={(open) => !open && setDeletingEvent(null)}

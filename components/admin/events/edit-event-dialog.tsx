@@ -25,6 +25,7 @@ import { X, ImageIcon } from "lucide-react";
 
 interface EditEventDialogProps {
   eventId: string | null;
+  event: any
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }

@@ -23,6 +23,7 @@ import { updateUser, getUserById } from "@/actions/admin/user-api";
 import { X, Upload } from "lucide-react";
 
 interface EditUserDialogProps {
+  user:any
   userId: string | null;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -160,15 +161,15 @@ export function EditUserDialog({
     }
   };
 
-  const getUserTypeLabel = (type: string) => {
-    const types: Record<string, string> = {
-      "1": "Admin",
-      "2": "Vendor",
-      "3": "Artisan",
-      "4": "Buyer",
-    };
-    return types[type] || type;
-  };
+  // const getUserTypeLabel = (type: string) => {
+  //   const types: Record<string, string> = {
+  //     "1": "Admin",
+  //     "2": "Vendor",
+  //     "3": "Artisan",
+  //     "4": "Buyer",
+  //   };
+  //   return types[type] || type;
+  // };
 
   return (
     <Dialog open={!!userId} onOpenChange={onOpenChange}>

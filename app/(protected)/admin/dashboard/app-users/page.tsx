@@ -20,6 +20,8 @@ export default function UsersPage() {
       status: "active",
       joinedDate: "2024-01-15",
       lastActive: "2024-02-25",
+      password: "",
+      passwordConfirmation: ""
     },
     {
       id: "2",
@@ -31,6 +33,8 @@ export default function UsersPage() {
       status: "active",
       joinedDate: "2024-01-20",
       lastActive: "2024-02-24",
+      password: "",
+      passwordConfirmation: ""
     },
     {
       id: "3",
@@ -42,10 +46,12 @@ export default function UsersPage() {
       status: "banned",
       joinedDate: "2024-01-25",
       lastActive: "2024-02-20",
+      password: "",
+      passwordConfirmation: ""
     },
     {
       id: "4",
-     firstName: "John",
+      firstName: "John",
       lastName: "JDoe",
       email: "sarah@example.com",
       phone: "+1234567893",
@@ -53,6 +59,8 @@ export default function UsersPage() {
       status: "active",
       joinedDate: "2024-02-01",
       lastActive: "2024-02-25",
+      password: "",
+      passwordConfirmation: ""
     },
   ]);
 

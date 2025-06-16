@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
   getDashboardOverview,
-  type Overview,
 } from "@/actions/admin/dashboard-api";
 
 export function TopProducts() {

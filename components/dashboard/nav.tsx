@@ -17,7 +17,6 @@ import {
   CalendarClock,
   LayoutDashboard,
   MessageSquareMore,
-  Users,
   Package,
   Users2Icon,
 } from "lucide-react";
