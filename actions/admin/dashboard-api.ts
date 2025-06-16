@@ -20,6 +20,13 @@ export interface Overview {
         total_bookings: number
         booking_percentage: number
     }[]
+    mostOrderedProducts: {
+        product_listing_detail_id: number
+        title: string
+        total_amount: number
+        total_orders: number
+        order_percentage: number
+    }[]
 }
 
 export async function getDashboardOverview() {
