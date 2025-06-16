@@ -92,7 +92,7 @@ export function AssignRoleDialog({
 
   return (
     <Dialog open={!!user} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Assign Role to {user?.name}</DialogTitle>
         </DialogHeader>
