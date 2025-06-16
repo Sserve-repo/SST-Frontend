@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateUserDialog } from "@/components/admin/users/create-user-dialog";
+import { EditUserDialog } from "@/components/admin/users/edit-user-dialog";
 import { CreateRoleDialog } from "@/components/admin/roles/create-role-dialog";
 import { AssignRoleDialog } from "@/components/admin/users/assign-role-dialog";
 import {
@@ -19,6 +20,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   UserPlus,
   Plus,
@@ -32,9 +43,11 @@ import {
   Trash,
   UserCog,
   Loader2,
+  Filter,
+  Download,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { searchUsers, deleteUser } from "@/actions/admin/user-api";
+import { searchUsers, deleteUser, getAllUsers } from "@/actions/admin/user-api";
 import {
   getRolesWithPermissions,
   getRoles,
@@ -51,6 +64,7 @@ interface UserTableItem {
   userType: string;
   status: string;
   verified: string;
+  photo: string | null;
   createdAt: string;
 }
 
@@ -65,8 +79,28 @@ export default function UsersRolesPage() {
   const [activeTab, setActiveTab] = useState("users");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserTableItem | null>(null);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [deletingUser, setDeletingUser] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [deletingRole, setDeletingRole] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch all users
+  const { data: allUsersData, isLoading: allUsersLoading } = useQuery({
+    queryKey: ["all-users"],
+    queryFn: async () => {
+      const { data, error } = await getAllUsers();
+      if (error) throw new Error(error);
+      return data.data;
+    },
+    enabled: activeTab === "users",
+  });
 
   // Fetch roles with permissions
   const {
@@ -109,18 +143,6 @@ export default function UsersRolesPage() {
     enabled: false, // Only run when manually triggered
   });
 
-  console.log("Users data:", usersData);
-  console.log("Roles data:", rolesData);
-  console.log("Simple roles:", simpleRoles);
-  console.log("Selected user:", selectedUser);
-  console.log("Search query:", searchQuery);
-  console.log("Active tab:", activeTab);
-  console.log("Users loading:", usersLoading);
-  console.log("Roles loading:", rolesLoading);
-  console.log("Roles error:", rolesError);
-  console.log("Users error:", usersData?.error);
-  console.log("Simple roles:", simpleRoles);
-
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: deleteUser,
@@ -129,7 +151,9 @@ export default function UsersRolesPage() {
         title: "Success",
         description: "User deleted successfully.",
       });
-      refetchUsers();
+      queryClient.invalidateQueries({ queryKey: ["all-users"] });
+      if (searchQuery) refetchUsers();
+      setDeletingUser(null);
     },
     onError: (error: Error) => {
       toast({
@@ -149,6 +173,7 @@ export default function UsersRolesPage() {
         description: "Role deleted successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["roles-with-permissions"] });
+      setDeletingRole(null);
     },
     onError: (error: Error) => {
       toast({
@@ -171,16 +196,17 @@ export default function UsersRolesPage() {
     refetchUsers();
   };
 
-  const handleDeleteUser = (id: string) => {
-    deleteUserMutation.mutate(id);
+  const handleDeleteUser = (user: UserTableItem) => {
+    setDeletingUser({ id: user.id, name: user.name });
   };
 
-  const handleDeleteRole = (id: string) => {
-    deleteRoleMutation.mutate(id);
+  const handleDeleteRole = (role: RoleTableItem) => {
+    setDeletingRole({ id: role.id, name: role.name });
   };
 
   const handleUserSuccess = () => {
-    refetchUsers();
+    queryClient.invalidateQueries({ queryKey: ["all-users"] });
+    if (searchQuery) refetchUsers();
   };
 
   const handleRoleSuccess = () => {
@@ -188,32 +214,59 @@ export default function UsersRolesPage() {
     queryClient.invalidateQueries({ queryKey: ["roles"] });
   };
 
+  const getUserTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      "1": "Admin",
+      "2": "Vendor",
+      "3": "Artisan",
+      "4": "Buyer",
+    };
+    return types[type] || type;
+  };
+
   // Format data for tables
-  const formattedUsers: UserTableItem[] =
-    usersData?.["Search Details"]?.map((user: any, index: number) => ({
-      id: user.id?.toString() || index.toString(),
+  const searchedUsers: UserTableItem[] =
+    usersData?.["Search Details"]?.map((user: any) => ({
+      id: user.id?.toString() || "",
       name:
         `${user.firstname || ""} ${user.lastname || ""}`.trim() || "Unknown",
       email: user.email || "N/A",
-      userType: user.user_type || "N/A",
+      userType: getUserTypeLabel(user.user_type || ""),
       status: user.active_status === 1 ? "Active" : "Inactive",
-      verified: user.email_verified_at ? "Verified" : "Unverified",
+      verified: user.verified_status === "1" ? "Verified" : "Unverified",
+      photo: user.user_photo,
       createdAt: user.created_at || "N/A",
     })) || [];
 
+  const allUsers: UserTableItem[] =
+    allUsersData?.users?.map((user: any) => ({
+      id: user.id?.toString() || "",
+      name:
+        `${user.firstname || ""} ${user.lastname || ""}`.trim() || "Unknown",
+      email: user.email || "N/A",
+      userType: getUserTypeLabel(user.user_type || ""),
+      status: user.active_status === 1 ? "Active" : "Inactive",
+      verified: user.verified_status === "1" ? "Verified" : "Unverified",
+      photo: user.user_photo,
+      createdAt: user.created_at || "N/A",
+    })) || [];
+
+  const displayUsers = searchQuery ? searchedUsers : allUsers;
+
   const formattedRoles: RoleTableItem[] =
-    rolesData?.roles?.map((role: RoleWithPermissions) => ({
+    rolesData?.data?.roles?.map((role: RoleWithPermissions) => ({
       id: role.role_id.toString(),
       name: role.role,
       permissions: role.permissions || [],
       permissionCount: (role.permissions || []).length,
     })) || [];
 
-  const formattedSimpleRoles: Role[] = simpleRoles || [];
+  const formattedSimpleRoles: Role[] = simpleRoles?.data || [];
 
   // Calculate stats
   const stats = {
-    totalUsers: formattedUsers.length,
+    totalUsers: allUsersData?.userCounts?.allUsers || 0,
+    activeUsers: allUsersData?.userCounts?.activeUsers || 0,
     totalRoles: formattedRoles.length,
     activeRoles: formattedRoles.filter((r) => r.permissionCount > 0).length,
     totalPermissions: formattedRoles.reduce(
@@ -224,19 +277,47 @@ export default function UsersRolesPage() {
 
   const userColumns: ColumnDef<UserTableItem>[] = [
     {
-      accessorKey: "name",
-      header: "Name",
+      accessorKey: "photo",
+      header: "",
+      cell: ({ row }) => {
+        const photo = row.getValue("photo") as string | null;
+        const name = row.getValue("name") as string;
+        return (
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
+            {photo ? (
+              <img
+                src={photo || "/placeholder.svg"}
+                alt={name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Users className="h-5 w-5 text-gray-400" />
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        const name = row.getValue("name") as string;
+        // const email = row.getValue("email") as string;
+        return (
+          <div>
+            <div className="font-medium">{name}</div>
+            {/* <div className="text-sm text-muted-foreground">{email}</div> */}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "userType",
       header: "User Type",
       cell: ({ row }) => {
         const userType = row.getValue("userType") as string;
-        if (userType === "N/A") return userType;
         return <Badge variant="outline">{userType}</Badge>;
       },
     },
@@ -277,19 +358,14 @@ export default function UsersRolesPage() {
                 <UserCog className="mr-2 h-4 w-4" />
                 Assign Role
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem onClick={() => setEditingUserId(user.id)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit User
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-red-600"
-                onClick={() => handleDeleteUser(user.id)}
-                disabled={deleteUserMutation.isPending}
+                onClick={() => handleDeleteUser(user)}
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Delete
@@ -305,6 +381,10 @@ export default function UsersRolesPage() {
     {
       accessorKey: "name",
       header: "Role Name",
+      cell: ({ row }) => {
+        const name = row.getValue("name") as string;
+        return <div className="font-medium">{name}</div>;
+      },
     },
     {
       accessorKey: "permissionCount",
@@ -354,18 +434,17 @@ export default function UsersRolesPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Role
-              </DropdownMenuItem>
-              <DropdownMenuItem>
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Role
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-red-600"
-                onClick={() => handleDeleteRole(role.id)}
-                disabled={deleteRoleMutation.isPending}
+                onClick={() => handleDeleteRole(role)}
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Delete
@@ -379,8 +458,9 @@ export default function UsersRolesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">
+        <h1 className="text-3xl font-bold text-primary">
           Users & Roles Management
         </h1>
         <p className="text-muted-foreground">
@@ -390,7 +470,7 @@ export default function UsersRolesPage() {
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-l-1 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -401,7 +481,20 @@ export default function UsersRolesPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-1 border-l-green-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <Users className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.activeUsers}
+            </div>
+            <p className="text-xs text-muted-foreground">Active users</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-1 border-l-blue-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
@@ -412,28 +505,15 @@ export default function UsersRolesPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Roles</CardTitle>
-            <Shield className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.activeRoles}
-            </div>
-            <p className="text-xs text-muted-foreground">With permissions</p>
-          </CardContent>
-        </Card>
-
-        <Card>
+        <Card className="border-l-1 border-l-yellow-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Total Permissions
             </CardTitle>
-            <Settings className="h-4 w-4 text-blue-600" />
+            <Settings className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-yellow-600">
               {stats.totalPermissions}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -455,6 +535,10 @@ export default function UsersRolesPage() {
           </TabsList>
 
           <div className="flex gap-2">
+            {/* <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Export
+            </Button> */}
             {activeTab === "users" && (
               <CreateUserDialog onSuccess={handleUserSuccess}>
                 <Button>
@@ -475,43 +559,57 @@ export default function UsersRolesPage() {
         </div>
 
         <TabsContent value="users" className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Search users by name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearchUsers()}
-              className="max-w-sm"
-            />
-            <Button onClick={handleSearchUsers} disabled={usersLoading}>
-              {usersLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="mr-2 h-4 w-4" />
-              )}
-              {usersLoading ? "Searching..." : "Search"}
+          {/* <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex gap-2 flex-1 max-w-sm">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search users by name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearchUsers()}
+                  className="pl-10"
+                />
+              </div>
+              <Button onClick={handleSearchUsers} disabled={usersLoading}>
+                {usersLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <Button variant="outline" size="sm">
+              <Filter className="mr-2 h-4 w-4" />
+              Filters
             </Button>
-          </div>
+          </div> */}
 
-          {usersLoading ? (
+          {allUsersLoading || usersLoading ? (
             <div className="flex items-center justify-center min-h-[400px]">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          ) : formattedUsers.length > 0 ? (
-            <DataTable
-              columns={userColumns}
-              data={formattedUsers}
-              searchKey="name"
-              searchPlaceholder="Filter users..."
-            />
+          ) : displayUsers.length > 0 ? (
+            <Card>
+              <CardContent className="p-4">
+                <DataTable
+                  columns={userColumns}
+                  data={displayUsers}
+                  searchKey="name"
+                  searchPlaceholder="Filter users..."
+                />
+              </CardContent>
+            </Card>
           ) : (
-            <div className="text-center py-8 border rounded-md">
-              <p className="text-muted-foreground">
-                {searchQuery
-                  ? "No users found. Try a different search term."
-                  : "Enter a search term to find users."}
-              </p>
-            </div>
+            <Card>
+              <CardContent className="text-center py-8">
+                <p className="text-muted-foreground">
+                  {searchQuery
+                    ? "No users found. Try a different search term."
+                    : "No users available."}
+                </p>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 
@@ -521,49 +619,123 @@ export default function UsersRolesPage() {
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : rolesError ? (
-            <div className="text-center py-8 border rounded-md">
-              <p className="text-red-600 mb-2">Failed to load roles</p>
-              <Button
-                variant="outline"
-                onClick={() =>
-                  queryClient.invalidateQueries({
-                    queryKey: ["roles-with-permissions"],
-                  })
-                }
-              >
-                Retry
-              </Button>
-            </div>
-          ) : formattedRoles.length > 0 ? (
-            <DataTable
-              columns={roleColumns}
-              data={formattedRoles}
-              searchKey="name"
-              searchPlaceholder="Search roles..."
-            />
-          ) : (
-            <div className="text-center py-8 border rounded-md">
-              <p className="text-muted-foreground mb-2">
-                No roles found. Create a new role to get started.
-              </p>
-              <CreateRoleDialog onSuccess={handleRoleSuccess}>
-                <Button variant="link">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Role
+            <Card>
+              <CardContent className="text-center py-8">
+                <p className="text-red-600 mb-2">Failed to load roles</p>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    queryClient.invalidateQueries({
+                      queryKey: ["roles-with-permissions"],
+                    })
+                  }
+                >
+                  Retry
                 </Button>
-              </CreateRoleDialog>
-            </div>
+              </CardContent>
+            </Card>
+          ) : formattedRoles.length > 0 ? (
+            <Card>
+              <CardContent className="p-4">
+                <DataTable
+                  columns={roleColumns}
+                  data={formattedRoles}
+                  searchKey="name"
+                  searchPlaceholder="Search roles..."
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-8">
+                <p className="text-muted-foreground mb-2">
+                  No roles found. Create a new role to get started.
+                </p>
+                <CreateRoleDialog onSuccess={handleRoleSuccess}>
+                  <Button variant="link">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Role
+                  </Button>
+                </CreateRoleDialog>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>
 
-      {/* Assign Role Dialog */}
+      {/* Dialogs */}
+      <EditUserDialog
+        userId={editingUserId}
+        onOpenChange={(open) => !open && setEditingUserId(null)}
+        onSuccess={handleUserSuccess}
+      />
+
       <AssignRoleDialog
         user={selectedUser}
         roles={formattedSimpleRoles}
         onOpenChange={(open) => !open && setSelectedUser(null)}
         onSuccess={handleUserSuccess}
       />
+
+      {/* Delete User Dialog */}
+      <AlertDialog
+        open={!!deletingUser}
+        onOpenChange={(open) => !open && setDeletingUser(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &ldquo;{deletingUser?.name}
+              &ldquo;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteUserMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                deletingUser && deleteUserMutation.mutate(deletingUser.id)
+              }
+              disabled={deleteUserMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Role Dialog */}
+      <AlertDialog
+        open={!!deletingRole}
+        onOpenChange={(open) => !open && setDeletingRole(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Role</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the role &ldquo;
+              {deletingRole?.name}&ldquo;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteRoleMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() =>
+                deletingRole && deleteRoleMutation.mutate(deletingRole.id)
+              }
+              disabled={deleteRoleMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteRoleMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
