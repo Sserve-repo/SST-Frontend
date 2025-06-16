@@ -30,6 +30,57 @@ export interface User {
 
 const token = Cookies.get("accessToken");
 
+export async function getAllUsers(
+  page: number = 1,
+  perPage: number = 10,
+  searchQuery: string = ""
+) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/admin/dashboard/user/list?page=${page}&perPage=${perPage}&search=${encodeURIComponent(searchQuery)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    console.log("Fetched users data:", data);
+
+    if (!response.ok) {
+      return { data: null, error: data.message || "Failed to fetch users" };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return { data: null, error: "Failed to fetch users" };
+  }
+}
+export async function getAllUsersCount() {
+  try {
+    const response = await fetch(`${baseUrl}/admin/dashboard/user/count`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { data: null, error: data.message || "Failed to fetch user count" };
+    }
+    return { data: data.count, error: null };
+  } catch (error) {
+    console.error("Error fetching user count:", error);
+    return { data: null, error: "Failed to fetch user count" };
+  }
+}
+
 export async function createUser(formData: FormData) {
   try {
     const response = await fetch(`${baseUrl}/admin/dashboard/user/create`, {
