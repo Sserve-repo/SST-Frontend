@@ -147,12 +147,11 @@ const getNavItems = (userType: string) => {
       href: "/admin/dashboard/users",
       icon: Users2Icon,
     },
-    {
-      title: "Roles & Permissions",
-      href: "/admin/dashboard/roles",
-      icon: Users,
-    },
-
+    // {
+    //   title: "Roles & Permissions",
+    //   href: "/admin/dashboard/roles",
+    //   icon: Users,
+    // },
     {
       title: "Events",
       href: "/admin/dashboard/events",
