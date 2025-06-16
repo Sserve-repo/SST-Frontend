@@ -42,6 +42,7 @@ export interface EventDetailResponse {
     address: string
     created_at: string
     updated_at: string
+    status: string
 }
 
 export async function getEvents() {
@@ -62,4 +63,12 @@ export async function createEvent(formData: FormData) {
 
 export async function deleteEvent(id: string) {
     return apiRequest<any>(`/admin/dashboard/events/destroy/${id}`)
+}
+
+export async function updateEvent(id: string, formData: FormData) {
+    return apiRequest<Event>(`/admin/dashboard/events/update/${id}`, {
+        method: "POST",
+        body: formData,
+        isFormData: true,
+    })
 }
