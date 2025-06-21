@@ -70,4 +70,5 @@ export type IProduct = {
   limit?: number;
   subcategory?: string;
   stockLevel?: number | string;
+  
 };

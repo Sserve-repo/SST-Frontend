@@ -17,9 +17,10 @@ export interface OrderItem {
     updated_at: string
     vendor_name: string
     vendor_email: string
-    peoduct_name: string
-    product_category: string
     product_name: string
+    product_category: string
+    product_image?: string
+    product_description?: string
 }
 
 export interface Order {
@@ -28,7 +29,14 @@ export interface Order {
     user_id: number
     total: string
     vendor_tax: string
-    customer_name?: string;
+    customer: {
+        id: number
+        firstname: string
+        lastname: string
+        email: string
+        phone?: string
+        user_photo?: string
+    }
     shipping_cost: string
     cart_total: string
     order_type: string
@@ -66,6 +74,8 @@ export interface OrderDetailResponse {
             firstname: string
             lastname: string
             email: string
+            phone?: string
+            user_photo?: string
         }
         delivery_information: {
             id: number

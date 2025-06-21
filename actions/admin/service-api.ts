@@ -1,88 +1,123 @@
-import { apiRequest } from "@/hooks/use-api";
+import { apiRequest } from "@/hooks/use-api"
 
 export interface Service {
-  id: number;
-  user_id: number;
-  title: string;
-  price: string;
-  service_duration: string;
-  description: string;
-  image: string;
-  status: number;
-  featured: boolean | false;
-  created_at: string;
-  updated_at: string;
-  available_dates: string[] | null;
-  start_time: string | null;
-  end_time: string | null;
-  home_service_availability: string | null;
-  service_images: string[];
-  vendor_name: string;
-  vendor_email: string;
+  id: number
+  user_id: number
+  title: string
+  price: string
+  description: string
+  image: string
+  status: number
+  created_at: string
+  updated_at: string
+  vendor_name: string
+  vendor_email: string
   service_category: {
-    id: number;
-    name: string;
-  };
-  service_category_item: {
-    id: number;
-    name: string;
-  };
+    id: number
+    name: string
+  }
+  service_duration: string
+  available_dates: string[] | string
+  home_service_availability: boolean
+  featured?: boolean
 }
 
 export interface ServiceListResponse {
-  serviceListing: Service[];
+  status: boolean
+  status_code: number
+  message: string
+  data: {
+    serviceListing: Service[]
+    listingCounts?: {
+      allServices: number
+      pendingServices: number
+      approvedServices: number
+      rejectedServices: number
+      disabledServices: number
+    }
+  }
+  token: null
+  debug: null
 }
 
-export interface ServiceDetailResponse {
-  serviceListing: Service;
-}
+export async function getServices(params: Record<string, string> = {}) {
+  try {
+    // Build query string from params
+    const queryParams = new URLSearchParams()
 
-export async function getServices(params?: {
-  service_category?: string;
-  status?: string;
-  search?: string;
-}) {
-  const queryParams = new URLSearchParams();
+    // Map frontend filter names to API parameter names
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && value !== "all") {
+        switch (key) {
+          case "category":
+            queryParams.append("service_category", value)
+            break
+          case "service_category": // Add this case to handle direct service_category param
+            queryParams.append("service_category", value)
+            break
+          case "status":
+            // Map status strings to numbers for API
+            const statusMap: Record<string, string> = {
+              pending: "0",
+              approved: "1",
+              rejected: "2",
+              disabled: "3",
+            }
+            queryParams.append("status", statusMap[value] || value)
+            break
+          case "search":
+            queryParams.append("search", value)
+            break
+          default:
+            queryParams.append(key, value)
+        }
+      }
+    })
 
-  if (params?.service_category)
-    queryParams.append("service_category", params.service_category);
-  if (params?.status) queryParams.append("status", params.status);
-  if (params?.search) queryParams.append("search", params.search);
+    const endpoint = `/admin/dashboard/serviceListing/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`
 
-  const endpoint = `/admin/dashboard/serviceListing/list${
-    queryParams.toString() ? `?${queryParams.toString()}` : ""
-  }`;
-
-  return apiRequest<ServiceListResponse>(endpoint);
-}
-
-export async function getServiceById(id: string) {
-  return apiRequest<ServiceDetailResponse>(
-    `/admin/dashboard/serviceListing/show/${id}`
-  );
-}
-
-export async function updateService(id: string, formData: FormData) {
-  return apiRequest<any>(`/admin/dashboard/serviceListing/update/${id}`, {
-    method: "POST",
-    body: formData,
-    isFormData: true,
-  });
+    return apiRequest<ServiceListResponse>(endpoint)
+  } catch (error) {
+    console.error("Error fetching services:", error)
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to fetch services",
+    }
+  }
 }
 
 export async function updateServiceStatus(payload: {
-  status: "approved" | "rejected" | "pending";
-  service_ids: number[];
+  status: string
+  service_ids: number[]
 }) {
-  return apiRequest<any>(`/admin/dashboard/serviceListing/updateStatus`, {
-    method: "POST",
-    body: payload,
-  });
+  try {
+    return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  } catch (error) {
+    console.error("Error updating service status:", error)
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to update service status",
+    }
+  }
 }
 
-export async function disableServices(service_ids: number[]) {
-  return apiRequest<any>(`/admin/dashboard/serviceListing/deleteService`, {
-    method: "GET",
-    body: { service_ids },
-  });
+export async function disableServices(serviceIds: number[]) {
+  try {
+    return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
+      method: "POST",
+      body: JSON.stringify({
+        status: "disabled",
+        service_ids: serviceIds,
+      }),
+    })
+  } catch (error) {
+    console.error("Error disabling services:", error)
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to disable services",
+    }
+  }
 }

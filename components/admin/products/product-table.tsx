@@ -176,10 +176,16 @@ export function ProductTable({
                         src={
                           typeof product.images[0] === "string"
                             ? product.images[0]
-                            : "/placeholder.svg"
+                            : "/placeholder.svg?height=40&width=40"
                         }
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (!target.src.includes("/placeholder.svg")) {
+                            target.src = "/placeholder.svg?height=40&width=40";
+                          }
+                        }}
                       />
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate">{product.name}</p>

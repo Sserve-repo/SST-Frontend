@@ -27,7 +27,6 @@ interface OrderTableItem {
   items: number;
   total: string;
   status: string;
-  orderType: string;
   createdAt: string;
 }
 
@@ -79,16 +78,22 @@ export default function OrdersPage() {
           totalRevenue: data.TotalExpenditure || "0",
         });
         console.log("Order stats:", data);
-        const formattedOrders = Array.isArray(data.Orders) ? data.Orders.map((order: Order) => ({
-          id: String(order.id),
-          orderNo: order.order_no,
-          customer: order.customer_name || "N/A",
-          items: Array.isArray(order.product_items) ? order.product_items.length : 0,
-          total: `$${order.total}`,
-          status: order.status,
-          orderType: order.order_type,
-          createdAt: new Date(order.created_at).toLocaleDateString(),
-        })) : [];
+        const formattedOrders = Array.isArray(data.Orders)
+          ? data.Orders.map((order: Order) => ({
+              id: String(order.id),
+              orderNo: order.order_no,
+              customer:
+                order.customer?.firstname && order.customer?.lastname
+                  ? `${order.customer.firstname} ${order.customer.lastname}`
+                  : "Unknown Customer",
+              items: Array.isArray(order.product_items)
+                ? order.product_items.length
+                : 0,
+              total: `$${order.total}`,
+              status: order.status,
+              createdAt: new Date(order.created_at).toLocaleDateString(),
+            }))
+          : [];
 
         setOrders(formattedOrders);
       }
@@ -106,11 +111,16 @@ export default function OrdersPage() {
 
   const getStatusVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case "delivered": return "default";
-      case "pending": return "secondary";
-      case "cancelled": return "destructive";
-      case "in_progress": return "outline";
-      default: return "outline";
+      case "delivered":
+        return "default";
+      case "pending":
+        return "secondary";
+      case "cancelled":
+        return "destructive";
+      case "in_progress":
+        return "outline";
+      default:
+        return "outline";
     }
   };
 
@@ -129,18 +139,15 @@ export default function OrdersPage() {
     },
     { accessorKey: "total", header: "Total" },
     {
-      accessorKey: "orderType",
-      header: "Type",
-      cell: ({ row }) => (
-        <Badge variant="outline"> {row.getValue("orderType") as string} </Badge>
-      ),
-    },
-    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        return <Badge variant={getStatusVariant(status)}>{status.replace("_", " ")}</Badge>;
+        return (
+          <Badge variant={getStatusVariant(status)}>
+            {status.replace("_", " ")}
+          </Badge>
+        );
       },
     },
     { accessorKey: "createdAt", header: "Created" },
@@ -176,17 +183,76 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary sm:text-3xl">Product Orders</h1>
-        <p className="text-muted-foreground">Manage customer product orders and shipments</p>
+        <h1 className="text-2xl font-bold text-primary sm:text-3xl">
+          Product Orders
+        </h1>
+        <p className="text-muted-foreground">
+          Manage customer product orders and shipments
+        </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Delivered</CardTitle><CheckCircle className="h-4 w-4 text-green-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">{stats.delivered}</div><p className="text-xs text-muted-foreground">Completed orders</p></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Pending</CardTitle><Clock className="h-4 w-4 text-yellow-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-yellow-600">{stats.pending}</div><p className="text-xs text-muted-foreground">Awaiting processing</p></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">In Progress</CardTitle><TrendingUp className="h-4 w-4 text-blue-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-blue-600">{stats.inProgress}</div><p className="text-xs text-muted-foreground">Being processed</p></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Cancelled</CardTitle><XCircle className="h-4 w-4 text-red-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-red-600">{stats.cancelled}</div><p className="text-xs text-muted-foreground">Cancelled orders</p></CardContent></Card>
-        <Card><CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Total Revenue</CardTitle><DollarSign className="h-4 w-4 text-green-600" /></CardHeader><CardContent><div className="text-2xl font-bold text-green-600">${stats.totalRevenue}</div><p className="text-xs text-muted-foreground">Total sales</p></CardContent></Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Delivered</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.delivered}
+            </div>
+            <p className="text-xs text-muted-foreground">Completed orders</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
+            <p className="text-xs text-muted-foreground">Awaiting processing</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            <TrendingUp className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.inProgress}
+            </div>
+            <p className="text-xs text-muted-foreground">Being processed</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cancelled</CardTitle>
+            <XCircle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.cancelled}
+            </div>
+            <p className="text-xs text-muted-foreground">Cancelled orders</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              ${stats.totalRevenue}
+            </div>
+            <p className="text-xs text-muted-foreground">Total sales</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* <OrderFilters onFiltersChange={setFilters} /> */}

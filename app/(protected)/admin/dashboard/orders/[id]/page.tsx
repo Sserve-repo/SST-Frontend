@@ -241,38 +241,76 @@ export default function OrderDetailPage() {
               orderDetails.product_items.map((item) => (
                 <div key={item.id} className="border rounded-lg p-4">
                   <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <h4 className="font-medium">{item.product_name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Item ID: {item.id}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Product ID: {item.product_listing_detail_id}
-                      </p>
+                    <div className="flex items-start gap-3">
+                      {item.product_image && (
+                        <img
+                          src={item.product_image || "/placeholder.svg"}
+                          alt={item.product_name}
+                          className="w-16 h-16 rounded-md object-cover"
+                        />
+                      )}
+                      <div>
+                        <h4 className="font-medium text-lg">
+                          {item.product_name}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Category: {item.product_category}
+                        </p>
+                        {item.product_description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {item.product_description}
+                          </p>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          Product ID: #{item.product_listing_detail_id}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Item ID: #{item.id}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Vendor:</span>
+                        <div className="text-right">
+                          <p className="font-medium">{item.vendor_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {item.vendor_email}
+                          </p>
+                        </div>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Quantity:</span>
-                        <span>{item.quantity}</span>
+                        <span className="font-medium">{item.quantity}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
                           Unit Price:
                         </span>
-                        <span>${item.unit_price}</span>
+                        <span className="font-medium">${item.unit_price}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
                           Total Amount:
                         </span>
-                        <span className="font-medium">
+                        <span className="font-medium text-lg">
                           ${item.total_amount}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status:</span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">
+                          Item Status:
+                        </span>
                         <Badge variant={getStatusVariant(item.order_status)}>
-                          {item.order_status}
+                          {item.order_status.replace("_", " ")}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">
+                          Payment Status:
+                        </span>
+                        <Badge variant={getStatusVariant(item.status)}>
+                          {item.status.replace("_", " ")}
                         </Badge>
                       </div>
                     </div>
@@ -280,9 +318,12 @@ export default function OrderDetailPage() {
                 </div>
               ))
             ) : (
-              <p className="text-muted-foreground">
-                No products found in this order.
-              </p>
+              <div className="text-center py-8 border rounded-lg bg-gray-50">
+                <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <p className="text-muted-foreground text-lg">
+                  No products found in this order.
+                </p>
+              </div>
             )}
           </div>
         </CardContent>

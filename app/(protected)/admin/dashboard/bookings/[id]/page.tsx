@@ -180,11 +180,16 @@ export default function BookingDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between w-full gap-4">
-        <Button variant="ghost" size="sm" onClick={() => router.back()}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.back()}
+          className="hover:bg-primary/10"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          Back to Bookings
         </Button>
-        <div>
+        <div className="text-right">
           <h1 className="text-xl text-primary font-bold">Booking Details</h1>
           <p className="text-muted-foreground">
             Order #{booking.order.order_no}
@@ -290,17 +295,93 @@ export default function BookingDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {booking.customer?.user_photo && (
+              <div className="flex items-center gap-3">
+                <img
+                  src={booking.customer.user_photo || "/placeholder.svg"}
+                  alt="Customer"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Name:</span>
-              <span className="font-medium">{booking.customer_name}</span>
+              <span className="font-medium">
+                {booking.customer?.firstname} {booking.customer?.lastname}
+              </span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Email:</span>
+              <span>{booking.customer?.email}</span>
+            </div>
+            {booking.customer?.phone && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Phone:</span>
+                <span>{booking.customer.phone}</span>
+              </div>
+            )}
+            {booking.customer?.address && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Address:</span>
+                <span>{booking.customer.address}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Customer ID:</span>
-              <span>{booking.user_id}</span>
+              <span>#{booking.user_id}</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Artisan Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center text-xl text-primary gap-2">
+              <User className="h-5 w-5" />
+              Artisan Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {booking.artisan?.user_photo && (
+              <div className="flex items-center gap-3">
+                <img
+                  src={booking.artisan.user_photo || "/placeholder.svg"}
+                  alt="Artisan"
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Name:</span>
+              <span className="font-medium">
+                {booking.artisan?.firstname} {booking.artisan?.lastname}
+              </span>
             </div>
             <div className="flex justify-between">
+              <span className="text-muted-foreground">Email:</span>
+              <span>{booking.artisan?.email}</span>
+            </div>
+            {booking.artisan?.phone && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Phone:</span>
+                <span>{booking.artisan.phone}</span>
+              </div>
+            )}
+            {booking.artisan?.business_name && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Business:</span>
+                <span>{booking.artisan.business_name}</span>
+              </div>
+            )}
+            {booking.artisan?.specialization && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Specialization:</span>
+                <span>{booking.artisan.specialization}</span>
+              </div>
+            )}
+            <div className="flex justify-between">
               <span className="text-muted-foreground">Artisan ID:</span>
-              <span>{booking.artisan_id}</span>
+              <span>#{booking.artisan_id}</span>
             </div>
           </CardContent>
         </Card>

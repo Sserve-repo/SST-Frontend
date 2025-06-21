@@ -29,12 +29,17 @@ export interface Booking {
         firstname: string
         lastname: string
         email: string
+        phone?: string
+        user_photo?: string
     }
     artisan: {
         id: number
         firstname: string
         lastname: string
         email: string
+        phone?: string
+        user_photo?: string
+        business_name?: string
     }
     order: {
         id: number
@@ -73,7 +78,25 @@ export interface BookingDetailResponse {
     status: string
     created_at: string
     updated_at: string
-    customer_name: string
+    customer: {
+        id: number
+        firstname: string
+        lastname: string
+        email: string
+        phone?: string
+        user_photo?: string
+        address?: string
+    }
+    artisan: {
+        id: number
+        firstname: string
+        lastname: string
+        email: string
+        phone?: string
+        user_photo?: string
+        business_name?: string
+        specialization?: string
+    }
     service_listing_name: string
     service_category: string
     service_subcategory: string

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 
 interface UseDebounceSearchProps {
     onSearch: (query: string) => void
@@ -12,6 +12,7 @@ export function useDebounceSearch({ onSearch, delay = 500 }: UseDebounceSearchPr
     const [suggestions, setSuggestions] = useState<string[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const timeoutRef = useRef<NodeJS.Timeout>()
+    const debouncedSearchQuery = useDebounce(searchQuery, delay)
 
     const fetchSuggestions = useCallback(async (query: string) => {
         if (!query.trim()) {
@@ -32,26 +33,31 @@ export function useDebounceSearch({ onSearch, delay = 500 }: UseDebounceSearchPr
         }
     }, [])
 
-    const debouncedSetSearchQuery = useCallback(
-        (query: string) => {
-            setSearchQuery(query)
-
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current)
-            }
-
-            timeoutRef.current = setTimeout(() => {
-                onSearch(query)
-            }, delay)
-        },
-        [onSearch, delay],
-    )
+    useEffect(() => {
+        onSearch(debouncedSearchQuery)
+    }, [debouncedSearchQuery, onSearch])
 
     return {
         searchQuery,
-        setSearchQuery: debouncedSetSearchQuery,
+        setSearchQuery,
         suggestions,
         isLoading,
         fetchSuggestions,
     }
+}
+
+export function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value)
+        }, delay)
+
+        return () => {
+            clearTimeout(handler)
+        }
+    }, [value, delay])
+
+    return debouncedValue
 }

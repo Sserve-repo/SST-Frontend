@@ -45,13 +45,28 @@ export default function ProductApprovalPage() {
 
   const { toast } = useToast();
 
+  const getStatusFromNumber = (
+    status: number
+  ): "pending" | "approved" | "rejected" | "disabled" => {
+    switch (status) {
+      case 1:
+        return "approved";
+      case 2:
+        return "rejected";
+      case 3:
+        return "disabled";
+      default:
+        return "pending";
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const params: Record<string, string> = {};
-      if (filters.category) params.product_category = filters.category;
+      if (filters.category) params.category = filters.category;
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
@@ -70,13 +85,12 @@ export default function ProductApprovalPage() {
             category: product.category?.name || "Uncategorized",
             price: Number.parseFloat(product.price),
             vendor: {
-              id: product.id.toString(),
+              id: product.user_id.toString(), // Fix: use user_id instead of id
               name: product.vendor_name || "Vendor Name",
               email: product.vendor_email || "vendor@email.com",
             },
             status: getStatusFromNumber(product.status),
             featured: Boolean(product.featured),
-
             images: product.image ? [product.image] : ["/placeholder.svg"],
             createdAt: product.created_at,
             duration: 0,
@@ -84,7 +98,18 @@ export default function ProductApprovalPage() {
         );
 
         setProducts(formattedProducts);
-        calculateStats(formattedProducts);
+
+        // Use API counts if available, otherwise calculate from filtered results
+        if (data.listingCounts) {
+          setStats({
+            total: data.listingCounts.allProducts || 0,
+            pending: data.listingCounts.pendingProducts || 0,
+            approved: data.listingCounts.approvedProducts || 0,
+            rejected: data.listingCounts.rejectedProducts || 0,
+          });
+        } else {
+          calculateStats(formattedProducts);
+        }
       } else {
         setProducts([]);
         setStats({
@@ -106,19 +131,6 @@ export default function ProductApprovalPage() {
   useEffect(() => {
     fetchProducts();
   }, [filters]);
-
-  const getStatusFromNumber = (
-    status: number
-  ): "pending" | "approved" | "rejected" => {
-    switch (status) {
-      case 1:
-        return "approved";
-      case 2:
-        return "rejected";
-      default:
-        return "pending";
-    }
-  };
 
   const calculateStats = (productList: IProduct[]) => {
     const newStats = {

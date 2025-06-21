@@ -54,7 +54,9 @@ export function ServiceTable({
 }: ServiceTableProps) {
   const [serviceToView, setServiceToView] = useState<Service | null>(null);
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
-  const [serviceToDelete, setServiceToDisabled] = useState<Service | null>(null);
+  const [serviceToDelete, setServiceToDisabled] = useState<Service | null>(
+    null
+  );
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -175,17 +177,14 @@ export function ServiceTable({
                         src={
                           typeof service.images[0] === "string"
                             ? service.images[0]
-                            : "/placeholder.svg"
+                            : "/placeholder.svg?height=40&width=40"
                         }
                         alt={service.name}
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (
-                            target.src !==
-                            window.location.origin + "/placeholder.svg"
-                          ) {
-                            target.src = "/placeholder.svg";
+                          if (!target.src.includes("/placeholder.svg")) {
+                            target.src = "/placeholder.svg?height=40&width=40";
                           }
                         }}
                       />

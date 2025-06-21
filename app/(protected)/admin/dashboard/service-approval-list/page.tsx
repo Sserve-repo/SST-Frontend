@@ -45,13 +45,28 @@ export default function ServiceApprovalPage() {
 
   const { toast } = useToast();
 
+  const getStatusFromNumber = (
+    status: number
+  ): "pending" | "approved" | "rejected" | "disabled" => {
+    switch (status) {
+      case 1:
+        return "approved";
+      case 2:
+        return "rejected";
+      case 3:
+        return "disabled";
+      default:
+        return "pending";
+    }
+  };
+
   const fetchServices = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const params: Record<string, string> = {};
-      if (filters.category) params.service_category = filters.category;
+      if (filters.category) params.category = filters.category; // Keep this as 'category' since service-api.ts will map it
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
@@ -89,7 +104,18 @@ export default function ServiceApprovalPage() {
         );
 
         setServices(formattedServices);
-        calculateStats(formattedServices);
+
+        // Use API counts if available, otherwise calculate from filtered results
+        if (data.listingCounts) {
+          setStats({
+            total: data.listingCounts.allServices || 0,
+            pending: data.listingCounts.pendingServices || 0,
+            approved: data.listingCounts.approvedServices || 0,
+            rejected: data.listingCounts.rejectedServices || 0,
+          });
+        } else {
+          calculateStats(formattedServices);
+        }
       } else {
         setServices([]);
         setStats({
@@ -111,19 +137,6 @@ export default function ServiceApprovalPage() {
   useEffect(() => {
     fetchServices();
   }, [filters]);
-
-  const getStatusFromNumber = (
-    status: number
-  ): "pending" | "approved" | "rejected" => {
-    switch (status) {
-      case 1:
-        return "approved";
-      case 2:
-        return "rejected";
-      default:
-        return "pending";
-    }
-  };
 
   const calculateStats = (serviceList: IService[]) => {
     const newStats = {

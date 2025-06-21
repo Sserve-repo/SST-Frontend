@@ -14,6 +14,7 @@ import { getProductCategories } from "@/actions/admin/categories";
 import type { ProductCategory } from "@/types/categories";
 import { useToast } from "@/hooks/use-toast";
 import { updateFilters, getFilterValue, clearAllFilters } from "@/lib/filters";
+import { useDebounce } from "@/hooks/use-debounced-search";
 
 interface ProductFiltersProps {
   onFiltersChange: (filters: {
@@ -31,6 +32,9 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
   const [status, setStatus] = useState(getFilterValue("status"));
   const { toast } = useToast();
 
+  // Debounce search query
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   // Initialize filters from URL on mount
   useEffect(() => {
     onFiltersChange({
@@ -39,6 +43,14 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
       search: getFilterValue("search"),
     });
   }, [onFiltersChange]);
+
+  // Handle real-time search
+  useEffect(() => {
+    if (debouncedSearchQuery !== getFilterValue("search")) {
+      updateFilters({ search: debouncedSearchQuery });
+      onFiltersChange({ category, status, search: debouncedSearchQuery });
+    }
+  }, [debouncedSearchQuery, category, status, onFiltersChange]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -76,13 +88,6 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
     fetchCategories();
   }, [toast]);
 
-  const handleSearch = () => {
-    const newFilters = { search: searchQuery };
-    updateFilters(newFilters);
-    onFiltersChange({ ...newFilters, category, status });
-
-  };
-
   const handleCategoryChange = (value: string) => {
     const newValue = value === "all" ? "" : value;
     setCategory(newValue);
@@ -112,16 +117,8 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search products..."
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          className="flex-1"
         />
-        <Button
-          variant="outline"
-          onClick={handleSearch}
-          className="px-6"
-          disabled={loading}
-        >
-          Search
-        </Button>
       </div>
 
       <div className="flex gap-4">
@@ -152,6 +149,7 @@ export function ProductFilters({ onFiltersChange }: ProductFiltersProps) {
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="disabled">Disabled</SelectItem>
           </SelectContent>
         </Select>
 

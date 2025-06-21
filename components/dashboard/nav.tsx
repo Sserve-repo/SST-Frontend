@@ -130,11 +130,13 @@ const getNavItems = (userType: string) => {
       title: "Manage Bookings",
       href: "/admin/dashboard/bookings",
       icon: Calendar,
+      matchPaths: ["/admin/dashboard/bookings"],
     },
     {
       title: "Manage Orders",
       href: "/admin/dashboard/orders",
       icon: Calendar,
+      matchPaths: ["/admin/dashboard/orders"],
     },
     {
       title: "Payout Management",
@@ -200,6 +202,13 @@ export function DashboardNav() {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, [router, isAuthenticated]);
 
+  const isItemActive = (item: any) => {
+    if (item.matchPaths) {
+      return item.matchPaths.some((path: string) => pathname.startsWith(path));
+    }
+    return pathname === item.href;
+  };
+
   return (
     <>
       {isMobile && !isCollapsed && (
@@ -238,7 +247,7 @@ export function DashboardNav() {
                 variant="ghost"
                 className={cn(
                   "w-full flex items-center justify-start px-3.5 py-3 my-2 rounded-lg text-left group",
-                  pathname === item.href
+                  isItemActive(item)
                     ? "bg-primary text-white"
                     : "text-primary hover:bg-purple-50"
                 )}
@@ -248,7 +257,7 @@ export function DashboardNav() {
                   <item.icon
                     className={cn(
                       "mr-4 h-5 w-5 group-hover:text-purple-900 transition-all",
-                      pathname === item.href && "text-white",
+                      isItemActive(item) && "text-white",
                       isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
                     )}
                   />
