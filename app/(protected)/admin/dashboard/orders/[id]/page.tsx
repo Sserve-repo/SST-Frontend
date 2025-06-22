@@ -244,7 +244,7 @@ export default function OrderDetailPage() {
                     <div className="flex items-start gap-3">
                       {item.product_image && (
                         <img
-                          src={item.product_image || "/placeholder.svg"}
+                          src={item.product_image || "/assets/images/image-placeholder.png"}
                           alt={item.product_name}
                           className="w-16 h-16 rounded-md object-cover"
                         />
