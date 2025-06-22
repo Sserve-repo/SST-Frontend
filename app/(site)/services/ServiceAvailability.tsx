@@ -500,7 +500,7 @@ export default function ServiceAvailability() {
                     <div className="flex flex-col md:flex-row md:items-start gap-4">
                       <div className="w-[100px] h-[100px] rounded-md bg-gray-100 flex-shrink-0 overflow-hidden">
                         <img
-                          src={provider.image || "/placeholder.svg"}
+                          src={provider.image || "/assets/images/image-placeholder.png"}
                           alt={provider.title}
                           className="w-full h-full object-cover"
                         />
