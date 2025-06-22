@@ -77,7 +77,7 @@ const data: Shipment[] = [
     customer: {
       name: "John Doe",
       email: "john@example.com",
-      avatar: "/placeholder.svg",
+      avatar: "/assets/images/image-placeholder.png",
     },
     carrier: "FedEx",
     trackingNumber: "794644564655",
@@ -106,7 +106,7 @@ const data: Shipment[] = [
     customer: {
       name: "Jane Smith",
       email: "jane@example.com",
-      avatar: "/placeholder.svg",
+      avatar: "/assets/images/image-placeholder.png",
     },
     carrier: "UPS",
     status: "pending",
