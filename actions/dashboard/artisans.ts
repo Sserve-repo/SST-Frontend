@@ -72,7 +72,7 @@ export const getserviceListings = async () => {
   }
 };
 
-export const getAppointments = async (date: string | null) => {
+export const getAppointments = async (date: string | null | undefined) => {
   const token = Cookies.get("accessToken");
   console.log({ date });
   try {
