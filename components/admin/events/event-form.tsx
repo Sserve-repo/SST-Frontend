@@ -83,7 +83,7 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
         id: "1",
         name: "",
         email: "",
-        avatar: "/placeholder.svg",
+        avatar: "/assets/images/image-placeholder.png",
       },
     },
   } as any);
