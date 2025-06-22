@@ -6,6 +6,8 @@ import { AppointmentCalendarView } from "@/components/artisan/appointments/calen
 import { AppointmentListView } from "@/components/artisan/appointments/list-view";
 import { AppointmentFilters } from "@/components/artisan/appointments/filters";
 import { CalendarDays, List } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { useToast } from "@/hooks/use-toast";
 import type { Appointment } from "@/types/appointments";
 import {
   bookingCompleteHandler,
@@ -13,32 +15,45 @@ import {
   getAppointments,
   rescheduleBookingHandler,
 } from "@/actions/dashboard/artisans";
+import { AppointmentSkeletonList } from "./appointment-skeleton-list";
 
 export default function AppointmentsPage() {
   const [view, setView] = useState<"calendar" | "list">("list");
   const [selectedStatus, setSelectedStatus] = useState<string[]>(["all"]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const getStatus = (status: string) => {
-    console.log({ status });
-    if (status === "completed") return "completed";
-    if (status === "inprogress") return "inprogress";
-    if (status === "pending") return "pending";
-    if (status === "cancelled") return "cancelled";
-    if (status === "rescheduled") return "rescheduled";
+  const itemsPerPage = 10;
+
+  const getStatus = (status: string): Appointment["status"] => {
+    switch (status) {
+      case "completed":
+        return "completed";
+      case "inprogress":
+        return "inprogress";
+      case "pending":
+        return "pending";
+      case "cancelled":
+        return "canceled";
+      case "rescheduled":
+        return "rescheduled";
+      default:
+        return "pending";
+    }
   };
 
-  const handleFetchServiceListings = async () => {
+  const fetchAppointments = async () => {
     try {
       const response = await getAppointments(null);
-      if (!response?.ok) {
-        throw Error("Cannot fetch appointments data");
-      }
+      if (!response?.ok) throw Error("Cannot fetch appointments data");
       const data = await response.json();
 
       const bookings = data.data;
-      const transformedAppointmentList = bookings.orders?.map((item) => {
-        return {
+      const transformed = bookings.orders?.map(
+        (item: any): Appointment => ({
           id: item.id,
           customerName: `${item?.customer?.firstname} ${item?.customer?.lastname}`,
           customerEmail: item?.customer?.email,
@@ -46,11 +61,11 @@ export default function AppointmentsPage() {
           service: {
             id: item?.service_detail?.id,
             name: item?.service_detail?.title,
+            duration: item?.service_detail?.service_duration,
             serviceCategory: {
-              name: item.service_detail?.service_category?.name,
+              name: item?.service_detail?.service_category?.name,
             },
             price: item?.price,
-            // duration: 60,
           },
           date: new Date(`${item?.booked_date}T${item?.booked_time}:00`),
           status: getStatus(item.booking_status),
@@ -63,86 +78,115 @@ export default function AppointmentsPage() {
             vendorTax: item.order.vendor_tax,
             cartTotal: item.order.cart_total,
           },
-        };
-      });
-      setAppointments(transformedAppointmentList);
+        })
+      );
+
+      setAppointments(transformed);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    handleFetchServiceListings();
+    fetchAppointments();
   }, []);
 
   const handleStatusChange = (status: string[]) => {
     setSelectedStatus(status);
+    setCurrentPage(1);
   };
 
-  const handleUpdateAppointment = async (updatedAppointment: Appointment) => {
-    const { id, event, date } = updatedAppointment;
+  const handleDateFilter = (date: string | null) => {
+    setSelectedDate(date);
+    setCurrentPage(1);
+  };
 
-    const handleError = () => {
-      throw new Error("Cannot fetch appointments data");
-    };
-
+  const handleUpdateAppointment = async (updated: Appointment) => {
+    const { id, event, date } = updated;
     try {
-      let response: Response | null = null;
+      let response: Response | undefined;
+      if (!id || !event) {
+        throw new Error("Invalid appointment data");
+      }
 
       switch (event) {
         case "completed":
-          response = (await bookingCompleteHandler(id)) ?? null;
+          response = await bookingCompleteHandler(id);
           break;
         case "approve":
-          response = (await bookingInprogressHandler(id)) ?? null;
+          response = await bookingInprogressHandler(id);
           break;
         case "reschedule":
-          response =
-            (await rescheduleBookingHandler(id, {
-              booked_date: date.toLocaleDateString("en-CA"),
-              booked_time: date.toLocaleTimeString("en-CA", {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-            })) ?? null;
+          const formData = new FormData();
+          formData.append("booked_date", date.toLocaleDateString("en-CA"));
+          formData.append(
+            "booked_time",
+            date.toLocaleTimeString("en-CA", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          );
+          response = await rescheduleBookingHandler(id, formData);
           break;
         default:
-          console.warn("Unknown event type:", event);
           return;
       }
 
-      if (!response?.ok) handleError();
+      if (!response?.ok) throw new Error("Failed to update appointment");
 
-      // Optionally consume the response JSON if needed
-      // const data = await response.json();
+      let newStatus: Appointment["status"] = updated.status;
+      if (event === "approve") newStatus = "inprogress";
+      if (event === "completed") newStatus = "completed";
+      if (event === "reschedule") newStatus = "rescheduled";
 
       setAppointments((prev) =>
         prev.map((appointment) =>
-          appointment.id === id ? updatedAppointment : appointment
+          appointment.id === id
+            ? { ...updated, status: newStatus }
+            : appointment
         )
       );
+
+      toast({
+        title: "Success",
+        description: `Appointment ${
+          event === "approve" ? "approved" : event
+        }d successfully`,
+      });
     } catch (error) {
       console.error("Appointment update failed:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update appointment. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  const filteredAppointments = appointments?.filter((appointment) => {
+  const filteredAppointments = appointments.filter((appointment) => {
     if (selectedStatus.includes("all")) return true;
-    return selectedStatus?.includes(appointment?.status);
+    return selectedStatus.includes(appointment.status);
   });
 
-  // const handleExport = () => {
-  //   const data = appointments.map((appointment) => ({
-  //     "Customer Name": appointment.customerName,
-  //     Service: appointment.service.name,
-  //     Date: appointment.date.toLocaleString(),
-  //     Status: appointment.status,
-  //     "Payment Status": appointment.paymentStatus,
-  //     Price: `$${appointment.service.price}`,
-  //   }));
+  const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAppointments = filteredAppointments.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
-  //   exportToCSV(data, "appointments.csv");
-  // };
+  if (loading) {
+    return (
+      <div className="p-6 space-y-4">
+        <h1 className="text-2xl font-bold text-primary">
+          Appointments & Bookings
+        </h1>
+        <AppointmentSkeletonList count={6} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -155,51 +199,49 @@ export default function AppointmentsPage() {
             Manage your upcoming appointments and booking requests
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-4 flex-col">
-          <div className="flex items-center gap-2">
-            <div className="bg-gray-100 rounded-lg p-1">
-              <Button
-                variant={view === "calendar" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setView("calendar")}
-              >
-                <CalendarDays className="h-4 w-4 mr-2" />
-                Calendar
-              </Button>
-              <Button
-                variant={view === "list" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setView("list")}
-              >
-                <List className="h-4 w-4 mr-2" />
-                List
-              </Button>
-            </div>
-            {/* <Button variant="outline" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button> */}
+        <div className="flex items-center gap-2">
+          <div className="bg-gray-100 rounded-lg p-1">
+            <Button
+              variant={view === "calendar" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setView("calendar")}
+            >
+              <CalendarDays className="h-4 w-4 mr-2" />
+              Calendar
+            </Button>
+            <Button
+              variant={view === "list" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setView("list")}
+            >
+              <List className="h-4 w-4 mr-2" />
+              List
+            </Button>
           </div>
         </div>
       </div>
 
-      <>
-        <AppointmentFilters
-          selectedStatus={selectedStatus}
-          onStatusChange={handleStatusChange}
-        />
+      <AppointmentFilters
+        selectedStatus={selectedStatus}
+        onStatusChange={handleStatusChange}
+        onDateFilter={handleDateFilter}
+        selectedDate={selectedDate}
+      />
 
-        {view === "calendar" ? (
-          <AppointmentCalendarView
-            onUpdateAppointment={handleUpdateAppointment}
-          />
-        ) : (
-          <AppointmentListView
-            appointments={filteredAppointments}
-            onUpdateAppointment={handleUpdateAppointment}
-          />
-        )}
-      </>
+      {view === "calendar" ? (
+        <AppointmentCalendarView
+          appointments={filteredAppointments}
+          onUpdateAppointment={handleUpdateAppointment}
+        />
+      ) : (
+        <AppointmentListView
+          appointments={paginatedAppointments}
+          onUpdateAppointment={handleUpdateAppointment}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }
