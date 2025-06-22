@@ -194,7 +194,7 @@ export function EditEventDialog({
                 {imagePreview ? (
                   <div className="relative">
                     <img
-                      src={imagePreview || "/placeholder.svg"}
+                      src={imagePreview || "/assets/images/image-placeholder.png"}
                       alt="Event preview"
                       className="w-full h-48 object-cover rounded-lg"
                     />
