@@ -1,25 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Calendar, Clock, MapPin, Users } from "lucide-react"
-import { RegistrationDialog } from "./registration-dialog"
-import { cn } from "@/lib/utils"
-import type { Event } from "@/types/events"
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { RegistrationDialog } from "./registration-dialog";
+import { cn } from "@/lib/utils";
+import type { Event } from "@/types/events";
 
 interface EventDetailsDialogProps {
-  event: Event | null
-  onOpenChange: (open: boolean) => void
-  onRegister: (eventId: string) => void
+  event: Event | null;
+  onOpenChange: (open: boolean) => void;
+  onRegister: (eventId: string) => void;
 }
 
-export function EventDetailsDialog({ event, onOpenChange, onRegister }: EventDetailsDialogProps) {
-  const [showRegistration, setShowRegistration] = useState(false)
+export function EventDetailsDialog({
+  event,
+  onOpenChange,
+  onRegister,
+}: EventDetailsDialogProps) {
+  const [showRegistration, setShowRegistration] = useState(false);
 
-  if (!event) return null
+  if (!event) return null;
 
   return (
     <>
@@ -31,16 +40,21 @@ export function EventDetailsDialog({ event, onOpenChange, onRegister }: EventDet
 
           <div className="grid gap-6">
             <div className="aspect-video relative rounded-lg overflow-hidden">
-              <img src={event.image || "/assets/images/image-placeholder.png"} alt={event.title} className="object-cover w-full h-full" />
+              <img
+                src={event.image || "/assets/images/image-placeholder.png"}
+                alt={event.title}
+                className="object-cover w-full h-full"
+              />
               <Badge
                 className={cn(
                   "absolute top-2 right-2",
                   event.status === "upcoming" && "bg-green-500",
                   event.status === "full" && "bg-orange-500",
-                  event.status === "completed" && "bg-gray-500",
+                  event.status === "completed" && "bg-gray-500"
                 )}
               >
-                {event.status === "upcoming" && `${event.capacity - event.registered} spots left`}
+                {event.status === "upcoming" &&
+                  `${event.capacity - event.registered} spots left`}
                 {event.status === "full" && "Fully Booked"}
                 {event.status === "completed" && "Completed"}
               </Badge>
@@ -54,7 +68,9 @@ export function EventDetailsDialog({ event, onOpenChange, onRegister }: EventDet
                 </Avatar>
                 <div>
                   <p className="font-medium">{event.instructor?.name}</p>
-                  <p className="text-sm text-gray-500">{event.instructor?.title}</p>
+                  <p className="text-sm text-gray-500">
+                    {event.instructor?.title}
+                  </p>
                 </div>
               </div>
 
@@ -97,11 +113,10 @@ export function EventDetailsDialog({ event, onOpenChange, onRegister }: EventDet
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t">
-                <div>
-                  <p className="text-sm text-gray-500">Price</p>
-                  <p className="text-2xl font-bold">${event.price}</p>
-                </div>
-                <Button onClick={() => setShowRegistration(true)} disabled={event.status !== "upcoming"}>
+                <Button
+                  onClick={() => setShowRegistration(true)}
+                  disabled={event.status !== "upcoming"}
+                >
                   Register Now
                 </Button>
               </div>
@@ -115,11 +130,10 @@ export function EventDetailsDialog({ event, onOpenChange, onRegister }: EventDet
         open={showRegistration}
         onOpenChange={setShowRegistration}
         onConfirm={() => {
-          onRegister(event.id)
-          setShowRegistration(false)
+          onRegister(event.id);
+          setShowRegistration(false);
         }}
       />
     </>
-  )
+  );
 }
-

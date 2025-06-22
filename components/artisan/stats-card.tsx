@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export function StatsCards({ statistics }) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
       {statistics.map((stat) => (
         <Card key={stat.title} className="border-gray-100">
           <CardContent className="p-6">

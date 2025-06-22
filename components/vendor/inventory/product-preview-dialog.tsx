@@ -51,7 +51,7 @@ export function ProductPreviewDialog({
                 src={
                   product?.images[currentImage] ||
                   product?.image ||
-                  "/placeholder.svg"
+                  "/assets/images/image-placeholder.png"
                 }
                 alt={product.name}
                 className="absolute h-full w-full object-cover"
@@ -89,7 +89,7 @@ export function ProductPreviewDialog({
                   onClick={() => setCurrentImage(index)}
                 >
                   <img
-                    src={image[0] || "/placeholder.svg"}
+                    src={image[0] || "/assets/images/image-placeholder.png"}
                     alt={`${product.name} ${index + 1}`}
                     className="h-full w-full object-cover"
                   />

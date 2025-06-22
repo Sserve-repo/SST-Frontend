@@ -17,7 +17,7 @@ export function TicketNotes({ ticket }: TicketNotesProps) {
         {ticket.internalNotes.map((note) => (
           <div key={note.id} className="flex gap-4 rounded-lg border p-4">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/placeholder.svg" alt={note.author} />
+              <AvatarImage src="/assets/images/image-placeholder.png" alt={note.author} />
               <AvatarFallback>{note.author[0]}</AvatarFallback>
             </Avatar>
             <div className="flex-1">

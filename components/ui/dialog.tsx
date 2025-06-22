@@ -4,6 +4,7 @@ import * as React from "react";
 import ReactModal from "react-modal";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Set app element for accessibility
 if (typeof window !== "undefined") {
@@ -139,7 +140,7 @@ const DialogOverlay = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-  console.log(props, ref, className)
+  console.log(props, ref, className);
   // This is handled by React Modal's overlay, but kept for API compatibility
   return null;
 });
@@ -173,7 +174,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
     ref
   ) => {
     const { open, onOpenChange } = useDialogContext();
-    
+
     // Lock body scroll when modal is open
     React.useEffect(() => {
       if (open) {
@@ -225,41 +226,51 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
             padding: "1rem",
           },
           content: {
+            inset: "unset",
             position: "relative",
+            background: "transparent", // we'll style the motion.div inside
             top: "auto",
             left: "auto",
             right: "auto",
             bottom: "auto",
-            border: "1px solid #ccc",
-            background: "#fff",
-            padding: "1.5rem",
-            borderRadius: "1.5rem",
+            border: "none",
             maxWidth: "600px",
             width: "100%",
-            maxHeight: "90vh",
-            overflowY: "auto",
+            maxHeight: "95vh",
+            overflow: "visible", // disable outer overflow
+            padding: 0,
           },
         }}
       >
-        <div ref={ref} {...props}>
-          {children}
-          {!hideCloseButton && (
-            <button
-              onClick={() => onOpenChange(false)}
-              style={{
-                position: "absolute",
-                top: "1rem",
-                right: "1rem",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-              aria-label="Close"
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              ref={ref}
+              {...props}
+              className={cn(
+                "relative rounded-2xl bg-white shadow-lg",
+                props.className
+              )}
+              style={{ maxHeight: "95vh", overflow: "hidden" }}
             >
-              <X className="h-4 w-4" />
-            </button>
+              <div className="p-6 overflow-y-auto max-h-[95vh]">{children}</div>
+
+              {!hideCloseButton && (
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="absolute top-4 right-4"
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+                </button>
+              )}
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </ReactModal>
     );
   }
@@ -275,7 +286,7 @@ const DialogHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
+      "flex flex-col space-y-1.5 pb-1 text-center sm:text-left",
       className
     )}
     {...props}

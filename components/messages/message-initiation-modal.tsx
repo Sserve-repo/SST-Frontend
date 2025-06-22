@@ -101,7 +101,7 @@ export function MessageInitiationModal({
           <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
             <Avatar className="h-10 w-10">
               <AvatarImage
-                src={recipientAvatar || "/placeholder.svg"}
+                src={recipientAvatar || "/assets/images/image-placeholder.png"}
                 alt={recipientName}
               />
               <AvatarFallback>{recipientName.charAt(0)}</AvatarFallback>

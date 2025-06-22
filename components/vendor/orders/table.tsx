@@ -81,7 +81,7 @@ export function OrdersTable({ orders }) {
       customer: {
         name: `${order?.customer?.firstname} ${order?.customer?.lastname}`,
         email: order?.email,
-        avatar: "/placeholder.svg",
+        avatar: "/assets/images/image-placeholder.png",
       },
       date: order?.created_at,
       total: order?.total,
@@ -252,7 +252,7 @@ export function OrdersTable({ orders }) {
       customer: {
         name: `${order?.customer?.firstname} ${order?.customer?.lastname}`,
         email: order?.email,
-        avatar: "/placeholder.svg",
+        avatar: "/assets/images/image-placeholder.png",
       },
       date: order?.created_at,
       total: order?.total,

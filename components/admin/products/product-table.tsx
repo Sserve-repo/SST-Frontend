@@ -176,14 +176,14 @@ export function ProductTable({
                         src={
                           typeof product.images[0] === "string"
                             ? product.images[0]
-                            : "/placeholder.svg?height=40&width=40"
+                            : "/assets/images/image-placeholder.png?height=40&width=40"
                         }
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (!target.src.includes("/placeholder.svg")) {
-                            target.src = "/placeholder.svg?height=40&width=40";
+                          if (!target.src.includes("/assets/images/image-placeholder.png")) {
+                            target.src = "/assets/images/image-placeholder.png?height=40&width=40";
                           }
                         }}
                       />

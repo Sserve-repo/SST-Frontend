@@ -1,123 +1,120 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EventList } from "@/components/events/event-list";
 import { EventDetailsDialog } from "@/components/events/event-details-dialog";
 import type { Event } from "@/types/events";
 import { useToast } from "@/hooks/use-toast";
+import Cookies from "js-cookie";
+import { baseUrl } from "@/config/constant";
+
+export const fetchEvents = async (): Promise<Event[] | null> => {
+  const token = Cookies.get("accessToken");
+  try {
+    const res = await fetch(`${baseUrl}/artisan/dashboard/events/list`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch events");
+
+    const data = await res.json();
+    return data.data.events.map((event: any) => ({
+      id: String(event.id),
+      title: event.title,
+      description: event.description,
+      shortDescription: event.description.slice(0, 80) + "...",
+      date: new Date(event.start_date + "T" + event.start_time),
+      endDate: new Date(event.end_date + "T" + event.end_time),
+      duration: 120, // Optional: calculate from start and end time
+      location: event.location,
+      capacity: Number(event.capacity),
+      registered: 0,
+      price: 0,
+      instructor: {
+        name: "N/A",
+        title: event.event_type || "Instructor",
+        image: "/assets/images/image-placeholder.png",
+      },
+      topics: [],
+      status: event.status,
+      image: event.image,
+      type: event.event_type,
+      organizer: {
+        id: "",
+        name: "Organizer",
+        email: "",
+        avatar: "",
+      },
+      attendees: [],
+      createdAt: event.created_at,
+    }));
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return null;
+  }
+};
+
+export const fetchEventById = async (id: string): Promise<Event | null> => {
+  const token = Cookies.get("accessToken");
+  try {
+    const res = await fetch(`${baseUrl}/artisan/dashboard/events/show/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch event detail");
+
+    const event = await res.json().then((r) => r.data);
+    return {
+      id: String(event.id),
+      title: event.title,
+      description: event.description,
+      shortDescription: event.description.slice(0, 80) + "...",
+      date: new Date(event.start_date + "T" + event.start_time),
+      endDate: new Date(event.end_date + "T" + event.end_time),
+      duration: 120,
+      location: event.location,
+      capacity: Number(event.capacity),
+      registered: 0,
+      instructor: {
+        name: "N/A",
+        title: event.event_type || "Instructor",
+        image: "/assets/images/image-placeholder.png",
+      },
+      topics: [],
+      status: event.status,
+      image: event.image,
+      type: event.event_type,
+      organizer: {
+        id: "",
+        name: "Organizer",
+        email: "",
+        avatar: "",
+      },
+      attendees: [],
+      createdAt: event.created_at,
+    };
+  } catch (error) {
+    console.error("Error fetching event:", error);
+    return null;
+  }
+};
 
 export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
   const { toast } = useToast();
 
-  // In a real app, this would be fetched from an API
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: "1",
-      title: "Advanced Hair Coloring Workshop",
-      description: "Learn advanced techniques in hair coloring from industry experts. This workshop covers the latest trends and methods in hair coloring, including balayage, ombre, and creative color techniques.",
-      shortDescription: "Master the art of advanced hair coloring techniques",
-      date: new Date("2024-03-15T10:00:00"),
-      duration: 180,
-      location: "Style Academy, 123 Main St",
-      capacity: 20,
-      registered: 12,
-      price: 199,
-      instructor: {
-        name: "Maria Rodriguez",
-        title: "Master Colorist",
-        image: "/assets/images/image-placeholder.png",
-      },
-      topics: [
-        "Color Theory",
-        "Balayage Techniques",
-        "Creative Color Application",
-        "Color Correction",
-      ],
-      status: "upcoming",
-      image: "/assets/images/image-placeholder.png",
-      endDate: new Date(),
-      type: "",
-      organizer: {
-        id: "",
-        name: "",
-        email: "",
-        avatar: ""
-      },
-      attendees: [],
-      createdAt: ""
-    },
-    {
-      id: "2",
-      title: "Business Growth Seminar",
-      description: "A comprehensive seminar focused on growing your beauty business. Learn about marketing, client retention, pricing strategies, and business management specifically tailored for beauty professionals.",
-      shortDescription: "Essential strategies for beauty business success",
-      date: new Date("2024-03-20T14:00:00"),
-      duration: 120,
-      location: "Virtual Event",
-      capacity: 50,
-      registered: 35,
-      price: 99,
-      instructor: {
-        name: "John Smith",
-        title: "Business Consultant",
-        image: "/assets/images/image-placeholder.png",
-      },
-      topics: [
-        "Marketing Strategies",
-        "Client Retention",
-        "Pricing Models",
-        "Business Management",
-      ],
-      status: "upcoming",
-      image: "/assets/images/image-placeholder.png",
-      endDate: new Date(),
-      type: "",
-      organizer: {
-        id: "",
-        name: "",
-        email: "",
-        avatar: ""
-      },
-      attendees: [],
-      createdAt: ""
-    },
-    {
-      id: "3",
-      title: "Natural Hair Care Workshop",
-      description: "Explore natural hair care techniques and products. This hands-on workshop focuses on understanding different hair textures, natural treatments, and protective styling.",
-      shortDescription: "Master natural hair care and styling",
-      date: new Date("2024-04-05T11:00:00"),
-      duration: 240,
-      location: "Beauty Hub, 456 Oak Street",
-      capacity: 15,
-      registered: 15,
-      price: 149,
-      instructor: {
-        name: "Ashley Williams",
-        title: "Natural Hair Specialist",
-        image: "/assets/images/image-placeholder.png",
-      },
-      topics: [
-        "Hair Texture Analysis",
-        "Natural Treatments",
-        "Protective Styling",
-        "Product Selection",
-      ],
-      status: "full",
-      image: "/assets/images/image-placeholder.png",
-      endDate: new Date(),
-      type: "",
-      organizer: {
-        id: "",
-        name: "",
-        email: "",
-        avatar: ""
-      },
-      attendees: [],
-      createdAt: ""
-    },
-  ]);
+  useEffect(() => {
+    const loadEvents = async () => {
+      const result = await fetchEvents();
+      if (result) setEvents(result);
+    };
+    loadEvents();
+  }, []);
 
   const handleRegister = (eventId: string) => {
     setEvents(
@@ -143,9 +140,7 @@ export default function EventsPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary">
-          Events & Workshops
-        </h1>
+        <h1 className="text-2xl font-bold text-primary">Events & Workshops</h1>
         <p className="text-gray-500">
           Discover and register for upcoming events
         </p>

@@ -51,7 +51,7 @@ export default function MessagesPage() {
         customer: {
           id: conversation?.recipient?.id || "",
           name: conversation?.recipient?.name || "Unknown User",
-          avatar: conversation?.recipient?.image_url || "/placeholder.svg",
+          avatar: conversation?.recipient?.image_url || "/assets/images/image-placeholder.png",
           email:
             conversation?.recipient?.email ||
             conversation?.recipient?.name ||

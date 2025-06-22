@@ -1,85 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AppointmentDetailsDialog } from "./details-dialog";
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/appointments";
-import { getAppointments } from "@/actions/dashboard/artisans";
 import { format } from "date-fns";
 
 interface AppointmentCalendarViewProps {
+  appointments: Appointment[];
   onUpdateAppointment: (appointment: Appointment) => void;
 }
 
 export function AppointmentCalendarView({
+  appointments,
   onUpdateAppointment,
 }: AppointmentCalendarViewProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const dateKey = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
 
-  const appointmentsByDate = appointments?.reduce((acc, appointment) => {
-    const dateKey = format(appointment.date, "yyyy-MM-dd");
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(appointment);
+  const appointmentsByDate = appointments.reduce((acc, appointment) => {
+    const key = format(appointment.date, "yyyy-MM-dd");
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(appointment);
     return acc;
   }, {} as Record<string, Appointment[]>);
-
-  const fetchAppointments = async (date: Date) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const formattedDate = format(date, "yyyy-MM-dd");
-      const response = await getAppointments(formattedDate);
-      if (!response?.ok) {
-        setAppointments([]);
-        console.log("Cannot fetch appointments");
-      }
-
-      const data = await response?.json();
-      const bookings = data.data;
-
-      const transformedAppointments = bookings?.orders?.map((item: any) => ({
-        id: item?.id ?? crypto.randomUUID(),
-        customerName: `${item?.customer?.firstname ?? ""} ${
-          item?.customer?.lastname ?? ""
-        }`,
-        customerEmail: item?.customer?.email ?? "",
-        customerPhone: item?.customer?.phone ?? "",
-        service: {
-          id: item?.service_detail?.id ?? "",
-          name: item?.service_detail?.name ?? "Unknown Service",
-          price: item?.price ?? 0,
-          duration: 60,
-        },
-        date: new Date(`${item?.booked_date}T${item?.booked_time}:00`),
-        status: item?.status ?? "confirmed",
-        paymentStatus: "paid",
-        notes: item?.notes ?? "",
-      }));
-
-      setAppointments(transformedAppointments);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load appointments.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (selectedDate) {
-      fetchAppointments(selectedDate);
-    }
-  }, [selectedDate]);
 
   return (
     <>
@@ -132,7 +82,11 @@ export function AppointmentCalendarView({
                                     appointment.status === "canceled" &&
                                       "bg-red-500",
                                     appointment.status === "completed" &&
-                                      "bg-blue-500"
+                                      "bg-blue-500",
+                                    appointment.status === "rescheduled" &&
+                                      "bg-purple-500",
+                                    appointment.status === "inprogress" &&
+                                      "bg-orange-500"
                                   )}
                                 />
                               ))}
@@ -159,11 +113,7 @@ export function AppointmentCalendarView({
                 </h3>
 
                 <div className="space-y-2 w-full">
-                  {loading ? (
-                    <p className="text-gray-500">Loading appointments...</p>
-                  ) : error ? (
-                    <p className="text-red-500">{error}</p>
-                  ) : appointmentsByDate?.[dateKey]?.length > 0 ? (
+                  {appointmentsByDate?.[dateKey]?.length > 0 ? (
                     appointmentsByDate[dateKey].map((appointment) => (
                       <button
                         key={appointment.id}
@@ -184,7 +134,11 @@ export function AppointmentCalendarView({
                               appointment.status === "canceled" &&
                                 "bg-red-100 text-red-700",
                               appointment.status === "completed" &&
-                                "bg-blue-100 text-blue-700"
+                                "bg-blue-100 text-blue-700",
+                              appointment.status === "rescheduled" &&
+                                "bg-purple-100 text-purple-700",
+                              appointment.status === "inprogress" &&
+                                "bg-orange-100 text-orange-700"
                             )}
                           >
                             {appointment.status}

@@ -191,7 +191,7 @@ export function EditUserDialog({
                 {photoPreview ? (
                   <div className="relative">
                     <img
-                      src={photoPreview || "/placeholder.svg"}
+                      src={photoPreview || "/assets/images/image-placeholder.png"}
                       alt="Profile preview"
                       className="w-20 h-20 rounded-full object-cover"
                     />

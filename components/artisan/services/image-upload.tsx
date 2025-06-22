@@ -45,10 +45,10 @@ export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
       if (file instanceof File && file.type.startsWith("image/")) {
         return URL.createObjectURL(file);
       }
-      return "/placeholder.svg?height=96&width=96";
+      return "/assets/images/image-placeholder.png?height=96&width=96";
     } catch (error) {
       console.error("Error creating object URL:", error);
-      return "/placeholder.svg?height=96&width=96";
+      return "/assets/images/image-placeholder.png?height=96&width=96";
     }
   };
 
@@ -81,12 +81,12 @@ export function ImageUpload({ value, onChange, onRemove }: ImageUploadProps) {
           {value.map((file, index) => (
             <div key={`${file.name}-${index}`} className="relative group">
               <img
-                src={createImagePreview(file) || "/placeholder.svg"}
+                src={createImagePreview(file) || "/assets/images/image-placeholder.png"}
                 alt={`Service image ${index + 1}`}
                 className="h-24 w-full rounded-md object-cover border"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder.svg?height=96&width=96";
+                  target.src = "/assets/images/image-placeholder.png?height=96&width=96";
                 }}
               />
               <Button

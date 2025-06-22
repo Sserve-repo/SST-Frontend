@@ -447,7 +447,7 @@ export function AddProductDialog({
                         {image ? (
                           <>
                             <img
-                              src={image.preview || "/placeholder.svg"}
+                              src={image.preview || "/assets/images/image-placeholder.png"}
                               alt={`Product ${index + 1}`}
                               className="absolute h-full w-full rounded-lg object-cover"
                             />
@@ -566,7 +566,7 @@ export function AddProductDialog({
                     {images.length > 0 && (
                       <div className="aspect-square overflow-hidden rounded-lg border">
                         <img
-                          src={images[0].preview || "/placeholder.svg"}
+                          src={images[0].preview || "/assets/images/image-placeholder.png"}
                           alt="Product preview"
                           className="h-full w-full object-cover"
                         />

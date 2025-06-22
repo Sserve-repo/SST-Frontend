@@ -45,8 +45,8 @@ export default function InventoryPage() {
         description: item?.description || "No description available",
         images: item.product_images?.length
           ? item.product_images
-          : item.image || ["/placeholder.svg"],
-        image: item.image || ["/placeholder.svg"],
+          : item.image || ["/assets/images/image-placeholder.png"],
+        image: item.image || ["/assets/images/image-placeholder.png"],
         shippingCost: item?.shippingCost || 0.0,
       }));
 

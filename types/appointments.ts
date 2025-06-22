@@ -3,7 +3,9 @@ export type AppointmentStatus =
   | "inprogress"
   | "confirmed"
   | "completed"
-  | "canceled";
+  | "canceled"
+  | "rescheduled";
+
 export type PaymentStatus = "pending" | "success" | "refunded";
 
 export interface AppointmentService {

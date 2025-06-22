@@ -94,7 +94,7 @@ export function ViewEventDialog({
             {event.image ? (
               <div className="w-full h-64 rounded-lg overflow-hidden">
                 <img
-                  src={event.image || "/placeholder.svg"}
+                  src={event.image || "/assets/images/image-placeholder.png"}
                   alt={event.title}
                   className="w-full h-full object-cover"
                 />

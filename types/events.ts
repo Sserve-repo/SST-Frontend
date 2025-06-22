@@ -16,7 +16,6 @@ export interface Event {
   location: string;
   capacity: number;
   registered: number;
-  price: number;
   instructor?: Instructor;
   topics: string[];
   status:

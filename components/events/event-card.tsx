@@ -54,7 +54,6 @@ export function EventCard({ event, onClick }: EventCardProps) {
       </CardContent>
 
       <CardFooter className="flex items-center justify-between">
-        <p className="font-semibold">${event.price}</p>
         <Button
           variant={event.status === "full" ? "secondary" : "default"}
           onClick={onClick}

@@ -96,7 +96,7 @@ export function ImageUpload({
         <div className="relative group">
           <div className="relative aspect-square w-32 h-32 rounded-lg overflow-hidden border">
             <Image
-              src={previewUrl || "/placeholder.svg"}
+              src={previewUrl || "/assets/images/image-placeholder.png"}
               alt="Preview"
               fill
               className="object-cover"
