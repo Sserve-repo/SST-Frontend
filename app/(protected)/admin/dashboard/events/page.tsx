@@ -148,7 +148,7 @@ export default function EventsPage() {
           <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
             {image ? (
               <img
-                src={image || "/placeholder.svg"}
+                src={image || "/assets/images/image-placeholder.png"}
                 alt={row.getValue("title") as string}
                 className="w-full h-full object-cover"
               />
