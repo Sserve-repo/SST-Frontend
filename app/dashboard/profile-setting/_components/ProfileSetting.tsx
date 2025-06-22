@@ -230,7 +230,7 @@ export default function ProfileSetting() {
                             src={
                               imagePreview ||
                               currentUser?.user_photo?.toString() ||
-                              "/placeholder.svg"
+                              "/assets/images/image-placeholder.png"
                             }
                             alt="Profile photo"
                           />
