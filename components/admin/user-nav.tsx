@@ -19,7 +19,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-full justify-start gap-2 px-2">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg" alt="Admin" />
+            <AvatarImage src="/assets/images/image-placeholder.png" alt="Admin" />
             <AvatarFallback>AD</AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start">
