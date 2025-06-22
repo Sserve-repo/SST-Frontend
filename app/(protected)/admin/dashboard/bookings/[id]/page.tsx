@@ -298,7 +298,7 @@ export default function BookingDetailPage() {
             {booking.customer?.user_photo && (
               <div className="flex items-center gap-3">
                 <img
-                  src={booking.customer.user_photo || "/placeholder.svg"}
+                  src={booking.customer.user_photo || "/assets/images/image-placeholder.png"}
                   alt="Customer"
                   className="w-16 h-16 rounded-full object-cover"
                 />
@@ -345,7 +345,7 @@ export default function BookingDetailPage() {
             {booking.artisan?.user_photo && (
               <div className="flex items-center gap-3">
                 <img
-                  src={booking.artisan.user_photo || "/placeholder.svg"}
+                  src={booking.artisan.user_photo || "/assets/images/image-placeholder.png"}
                   alt="Artisan"
                   className="w-16 h-16 rounded-full object-cover"
                 />
