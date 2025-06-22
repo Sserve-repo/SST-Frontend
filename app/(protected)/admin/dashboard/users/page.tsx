@@ -286,7 +286,7 @@ export default function UsersRolesPage() {
           <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
             {photo ? (
               <img
-                src={photo || "/placeholder.svg"}
+                src={photo || "/assets/images/image-placeholder.png"}
                 alt={name}
                 className="w-full h-full object-cover"
               />

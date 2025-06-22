@@ -91,7 +91,7 @@ export default function ProductApprovalPage() {
             },
             status: getStatusFromNumber(product.status),
             featured: Boolean(product.featured),
-            images: product.image ? [product.image] : ["/placeholder.svg"],
+            images: product.image ? [product.image] : ["/assets/images/image-placeholder.png"],
             createdAt: product.created_at,
             duration: 0,
           })

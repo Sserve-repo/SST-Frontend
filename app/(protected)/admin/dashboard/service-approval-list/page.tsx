@@ -91,7 +91,7 @@ export default function ServiceApprovalPage() {
             },
             status: getStatusFromNumber(service.status),
             featured: Boolean(service.featured),
-            images: service.image ? [service.image] : ["/placeholder.svg"],
+            images: service.image ? [service.image] : ["/assets/images/image-placeholder.png"],
             createdAt: service.created_at,
             duration: Number.parseInt(service.service_duration) || 0,
             availability: Array.isArray(service.available_dates)
