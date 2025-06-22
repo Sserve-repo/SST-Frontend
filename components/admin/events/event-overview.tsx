@@ -12,7 +12,7 @@ export function EventOverview({ event }: EventOverviewProps) {
   return (
     <div className="space-y-6">
       <div className="aspect-video overflow-hidden rounded-lg">
-        <img src={event.image || "/placeholder.svg"} alt={event.title} className="h-full w-full object-cover" />
+        <img src={event.image || "/assets/images/image-placeholder.png"} alt={event.title} className="h-full w-full object-cover" />
       </div>
 
       <div className="space-y-2">
@@ -63,7 +63,7 @@ export function EventOverview({ event }: EventOverviewProps) {
         <h3 className="font-semibold">Organizer</h3>
         <div className="flex items-center gap-2">
           <img
-            src={event.organizer.avatar || "/placeholder.svg"}
+            src={event.organizer.avatar || "/assets/images/image-placeholder.png"}
             alt={event.organizer.name}
             className="h-10 w-10 rounded-full"
           />
