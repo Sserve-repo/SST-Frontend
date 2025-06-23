@@ -27,23 +27,42 @@ export interface Product {
   featured?: boolean
 }
 
-export interface ProductListResponse {
-  status: boolean
-  status_code: number
-  message: string
+// export interface ProductListResponse {
+//   status: boolean
+//   status_code: number
+//   message: string
+//   data: {
+//     productListing: Product[]
+//     listingCounts?: {
+//       allProducts: number
+//       pendingProducts: number
+//       approvedProducts: number
+//       rejectedProducts: number
+//       disabledProducts: number
+//     }
+//   }
+//   token: null
+//   debug: null
+// }
+
+export type ProductListResponse = {
+  status: string;
+  status_code: number;
+  message: string;
+  token?: string;
+  debug?: any;
   data: {
-    productListing: Product[]
+    productListing: Product[];
     listingCounts?: {
-      allProducts: number
-      pendingProducts: number
-      approvedProducts: number
-      rejectedProducts: number
-      disabledProducts: number
-    }
-  }
-  token: null
-  debug: null
-}
+      allProducts: number;
+      pendingProducts: number;
+      approvedProducts: number;
+      rejectedProducts: number;
+      disabledProducts: number;
+    };
+  };
+};
+
 
 export async function getProducts(params: Record<string, string> = {}) {
   try {
@@ -95,7 +114,7 @@ export async function updateProductStatus(payload: {
   try {
     return apiRequest<any>("/admin/dashboard/productListing/updateStatus", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: payload,
     })
   } catch (error) {
     console.error("Error updating product status:", error)
