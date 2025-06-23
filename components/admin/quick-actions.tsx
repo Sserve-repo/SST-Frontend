@@ -20,6 +20,22 @@ const actions = [
     href: "/admin/dashboard/events",
   },
   {
+    title: "Manage Services",
+    description: "manage artisan's services",
+    icon: CheckSquare,
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
+    href: "/admin/dashboard/services",
+  },
+  {
+    title: "Manage Products",
+    description: "manage vendor's products",
+    icon: CheckSquare,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+    href: "/admin/dashboard/products",
+  },
+  {
     title: "View Payouts",
     description: "manage vendor's & artisan's payout",
     icon: CheckSquare,
@@ -33,7 +49,7 @@ export function QuickActions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
+        <CardTitle className="text-primary">Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
@@ -41,7 +57,7 @@ export function QuickActions() {
             <Link
               href={action.href}
               key={action.title}
-              className="h-auto flex items-center justify-start gap-4 p-4 hover:bg-muted border rounded-lg border-1"
+              className="h-auto flex items-center justify-start gap-4 px-4 py-2 hover:bg-muted border rounded-xl border-1"
             >
               {/* <Link href={action.href}> */}
               <div className={`rounded-lg p-2 ${action.bgColor}`}>
