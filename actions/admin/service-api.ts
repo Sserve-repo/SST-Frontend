@@ -93,7 +93,7 @@ export async function updateServiceStatus(payload: {
   try {
     return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: payload,
     })
   } catch (error) {
     console.error("Error updating service status:", error)
@@ -108,10 +108,10 @@ export async function disableServices(serviceIds: number[]) {
   try {
     return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
       method: "POST",
-      body: JSON.stringify({
+      body: {
         status: "disabled",
         service_ids: serviceIds,
-      }),
+      },
     })
   } catch (error) {
     console.error("Error disabling services:", error)
