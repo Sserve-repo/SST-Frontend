@@ -13,8 +13,8 @@ import { Input } from "@/components/ui/input";
 import { getServiceCategories } from "@/actions/admin/categories";
 import type { ServiceCategory } from "@/types/categories";
 import { useToast } from "@/hooks/use-toast";
-import { updateFilters, getFilterValue, clearAllFilters } from "@/lib/filters";
 import { useDebounce } from "@/hooks/use-debounced-search";
+import { updateFilters, getFilterValue, clearAllFilters } from "@/lib/filters";
 
 interface ServiceFiltersProps {
   onFiltersChange: (filters: {
@@ -26,74 +26,49 @@ interface ServiceFiltersProps {
 
 export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(getFilterValue("search"));
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [search, setSearch] = useState(getFilterValue("search"));
   const [category, setCategory] = useState(getFilterValue("category"));
   const [status, setStatus] = useState(getFilterValue("status"));
+
   const { toast } = useToast();
+  const debouncedSearch = useDebounce(search, 500);
 
-  // Debounce search query
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
-
-  // Initialize filters from URL on mount
   useEffect(() => {
-    onFiltersChange({
-      category: getFilterValue("category"),
-      status: getFilterValue("status"),
-      search: getFilterValue("search"),
-    });
-  }, [onFiltersChange]);
+    onFiltersChange({ category, status, search });
+  }, []); // Trigger initial filter on mount
 
-  // Handle real-time search
   useEffect(() => {
-    if (debouncedSearchQuery !== getFilterValue("search")) {
-      updateFilters({ search: debouncedSearchQuery });
-      onFiltersChange({ category, status, search: debouncedSearchQuery });
-    }
-  }, [debouncedSearchQuery, category, status, onFiltersChange]);
+    onFiltersChange({ category, status, search: debouncedSearch });
+    updateFilters({ category, status, search: debouncedSearch });
+  }, [category, status, debouncedSearch]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const { data, error } = await getServiceCategories();
-        if (error) {
-          throw new Error(error);
-        }
+        if (error) throw new Error(error);
         if (data?.["Service Category"]) {
           setCategories(data["Service Category"]);
         }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
+      } catch {
         toast({
           title: "Error",
-          description: "Failed to load categories",
+          description: "Failed to load service categories.",
           variant: "destructive",
         });
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchCategories();
-  }, [toast]);
+  }, []);
 
-  const handleCategoryChange = (value: string) => {
-    const newValue = value === "all" ? "" : value;
-    setCategory(newValue);
-    updateFilters({ category: newValue });
-    onFiltersChange({ category: newValue, status, search: searchQuery });
-  };
-
-  const handleStatusChange = (value: string) => {
-    const newValue = value === "all" ? "" : value;
-    setStatus(newValue);
-    updateFilters({ status: newValue });
-    onFiltersChange({ category, status: newValue, search: searchQuery });
-  };
-
-  const handleClearFilters = () => {
-    setSearchQuery("");
+  const resetFilters = () => {
+    setSearch("");
     setCategory("");
     setStatus("");
     clearAllFilters();
@@ -101,36 +76,39 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
-      <div className="flex gap-2 flex-1 sm:max-w-[400px]">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-1 gap-2 sm:max-w-[400px]">
         <Input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search services..."
           className="flex-1"
         />
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
         <Select
           value={category || "all"}
-          onValueChange={handleCategoryChange}
-          disabled={loading}
+          onValueChange={(value) => setCategory(value === "all" ? "" : value)}
+          disabled={isLoading}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={loading ? "Loading..." : "Category"} />
+            <SelectValue placeholder={isLoading ? "Loading..." : "Category"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.name}>
-                {category.name}
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.name}>
+                {cat.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
-        <Select value={status || "all"} onValueChange={handleStatusChange}>
+        <Select
+          value={status || "all"}
+          onValueChange={(value) => setStatus(value === "all" ? "" : value)}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -143,7 +121,7 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
           </SelectContent>
         </Select>
 
-        <Button variant="outline" className="px-6" onClick={handleClearFilters}>
+        <Button variant="outline" className="px-6" onClick={resetFilters}>
           Clear
         </Button>
       </div>
