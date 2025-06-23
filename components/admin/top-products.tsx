@@ -34,7 +34,7 @@ export function TopProducts() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Top Ordered Products</CardTitle>
+          <CardTitle className="text-primary">Top Ordered Products</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
