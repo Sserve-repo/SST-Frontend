@@ -50,7 +50,7 @@ export function TopServices() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Booked Services</CardTitle>
+        <CardTitle className="text-primary">Top Booked Services</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
