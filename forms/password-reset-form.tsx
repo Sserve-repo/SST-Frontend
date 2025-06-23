@@ -84,8 +84,8 @@ export default function PasswordResetForm() {
   };
 
   return (
-    <div className="border shadow p-8 rounded-lg">
-      <h1 className="text-2xl sm:text-3xl tracking-tight mb-6">
+    <div className="border bg-white shadow p-8 rounded-3xl">
+      <h1 className="text-xl sm:text-2xl text-primary font-semibold tracking-tight mb-6">
         Reset Password
       </h1>
       <Form {...form}>
