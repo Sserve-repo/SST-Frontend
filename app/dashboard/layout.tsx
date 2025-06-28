@@ -10,14 +10,18 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthGuard>
-      <div className="flex h-screen overflow-hidden bg-slate-50/60">
-        <DashboardNav />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <Header />
-          <PageWrapper>{children}</PageWrapper>
+    <>
+      <AuthGuard>
+        <div className="flex h-screen bg-slate-50/60">
+          <DashboardNav />
+          <div className="flex flex-col flex-1 h-full">
+            <Header />
+            <div className="flex-1 overflow-y-auto">
+              <PageWrapper>{children}</PageWrapper>
+            </div>
+          </div>
         </div>
-      </div>
-    </AuthGuard>
+      </AuthGuard>
+    </>
   );
 }

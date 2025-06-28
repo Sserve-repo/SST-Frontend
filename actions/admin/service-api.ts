@@ -40,6 +40,19 @@ export interface ServiceListResponse {
   debug: null
 }
 
+const getStatusFromNumber = (status: number): "pending" | "approved" | "rejected" | "disabled" => {
+  switch (status) {
+    case 1:
+      return "approved"
+    case 2:
+      return "rejected"
+    case 3:
+      return "disabled"
+    default:
+      return "pending"
+  }
+}
+
 export async function getServices(params: Record<string, string> = {}) {
   try {
     // Build query string from params

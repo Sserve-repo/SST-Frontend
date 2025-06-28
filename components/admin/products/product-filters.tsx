@@ -22,12 +22,14 @@ interface ProductFiltersProps {
   onFiltersChange: (filters: Filters) => void;
   initialFilters: Filters;
   categories: string[];
+  onClearFilters?: () => void;
 }
 
 export function ProductFilters({
   onFiltersChange,
   initialFilters,
   categories,
+  onClearFilters,
 }: ProductFiltersProps) {
   const [category, setCategory] = useState(initialFilters.category || "");
   const [status, setStatus] = useState(initialFilters.status || "");
@@ -49,10 +51,11 @@ export function ProductFilters({
     setCategory("");
     setStatus("");
     setSearchQuery("");
+    onClearFilters?.();
   };
 
   return (
-    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center justify-between ">
+    <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center justify-between">
       <div className="flex gap-2 flex-1 sm:max-w-[400px]">
         <Input
           value={searchQuery}

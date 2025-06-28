@@ -12,7 +12,11 @@ import Cookies from "js-cookie";
 interface AuthContextType {
   isAuthenticated: boolean;
   currentUser: any | null;
-  setAuth: (authState: boolean, user: any | null, token: string | null) => any;
+  setAuth: (
+    authState: boolean,
+    user: any | null,
+    token?: string | null
+  ) => void;
   getCurrentUser: () => any | null;
   getAuth: () => boolean;
   logOut: () => void;
@@ -37,8 +41,7 @@ const hoursToDays = (hours: number): number => hours / 24;
 export const COOKIE_OPTIONS: Cookies.CookieAttributes = {
   expires: hoursToDays(16),
   path: "/",
-  // secure: process.env.NODE_ENV === "production",
-  secure: false,
+  secure: false, // Change to true in production
   sameSite: "Lax",
 };
 
@@ -62,52 +65,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const accessToken = Cookies.get("accessToken");
       const currentUserData = Cookies.get("currentUser");
 
-      if (
-        (authData === "true" || authData) &&
-        accessToken &&
-        currentUserData
-      ) {
+      if (authData === "true" && accessToken && currentUserData) {
         try {
           const userData = JSON.parse(currentUserData);
           setCurrentUser(userData);
           setIsAuthenticated(true);
-        } catch (error) {
-          // console.error("Error parsing user data:", error);
-          // Cookies.remove("isAuthenticated", { path: "/" });
-          // Cookies.remove("accessToken", { path: "/" });
-          // Cookies.remove("currentUser", { path: "/" });
-          // setCurrentUser(null);
-          // setIsAuthenticated(false);
+        } catch {
+          // Clear invalid cookies
+          Cookies.remove("isAuthenticated");
+          Cookies.remove("accessToken");
+          Cookies.remove("currentUser");
+          setCurrentUser(null);
+          setIsAuthenticated(false);
         }
-      } else {
-        // Cookies.remove("isAuthenticated", { path: "/" });
-        // Cookies.remove("accessToken", { path: "/" });
-        // Cookies.remove("currentUser", { path: "/" });
-        // setCurrentUser(null);
-        // setIsAuthenticated(false);
       }
     };
 
     initAuth();
   }, []);
 
-  const setAuth = async (
+  const setAuth = (
     authState: boolean,
     user: any | null = null,
-    token: string | null
+    token: string | null = Cookies.get("accessToken") ?? null
   ) => {
     if (authState && user && token) {
-      // Set the cookie to expire in 10 hours
-      localStorage.setItem("email", JSON.stringify(user.email));
+      localStorage.setItem("currentUser", JSON.stringify(user));
       Cookies.set("isAuthenticated", "true", COOKIE_OPTIONS);
-      Cookies.set("currentUser", JSON.stringify(user), COOKIE_OPTIONS);
       Cookies.set("accessToken", token, COOKIE_OPTIONS);
+      Cookies.set("currentUser", JSON.stringify(user), COOKIE_OPTIONS);
       setIsAuthenticated(true);
       setCurrentUser(user);
     } else {
-      Cookies.remove("accessToken", { path: "/" });
-      Cookies.remove("isAuthenticated", { path: "/" });
-      Cookies.remove("currentUser", { path: "/" });
+      localStorage.removeItem("currentUser");
+      Cookies.remove("isAuthenticated");
+      Cookies.remove("accessToken");
+      Cookies.remove("currentUser");
       setIsAuthenticated(false);
       setCurrentUser(null);
     }
@@ -118,7 +111,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logOut = () => {
     setAuth(false, null, null);
-    localStorage.removeItem("email");
   };
 
   return (

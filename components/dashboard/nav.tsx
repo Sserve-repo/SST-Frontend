@@ -272,14 +272,17 @@ export function DashboardNav() {
           <div className="mt-auto space-y-2 border-t py-4">
             <Button
               variant="ghost"
-              className="w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-primary hover:bg-purple-50"
+              className={cn(
+                "w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-primary hover:bg-purple-50",
+                pathname === "/dashboard/profile-setting" &&
+                  "bg-primary text-white"
+              )}
               asChild
             >
               <Link href="/dashboard/profile-setting">
                 <Settings
                   className={cn(
                     "mr-4 h-5 w-5 transition-all",
-                    pathname === "/dashboard/profile-setting" && "text-white",
                     isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
                   )}
                 />

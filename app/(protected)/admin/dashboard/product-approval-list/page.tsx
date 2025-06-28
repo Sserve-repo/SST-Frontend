@@ -15,23 +15,19 @@ import {
   getProducts,
   updateProductStatus,
   type Product,
-  type ProductListResponse,
 } from "@/actions/admin/product-api";
+import { useUrlFilters } from "@/hooks/use-url-filters";
 
 interface ProductStats {
   total: number;
   pending: number;
   approved: number;
   rejected: number;
-}
-
-interface Filters {
-  category: string;
-  status: string;
-  search: string;
+  disabled: number;
 }
 
 export default function ProductApprovalPage() {
+  const { filters, updateFilters, clearFilters } = useUrlFilters();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -40,34 +36,36 @@ export default function ProductApprovalPage() {
     pending: 0,
     approved: 0,
     rejected: 0,
-  });
-  const [filters, setFilters] = useState<Filters>({
-    category: "",
-    status: "",
-    search: "",
+    disabled: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [reload, setReload] = useState(0);
-
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 10;
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    total: 0,
+    perPage: 10,
+  });
 
   const { toast } = useToast();
 
   const getStatusFromNumber = (
     status: number
-  ): "pending" | "approved" | "inactive" | "active" | "rejected" => {
+  ):
+    | "pending"
+    | "approved"
+    | "inactive"
+    | "active"
+    | "rejected"
+    | "disabled" => {
     switch (status) {
       case 1:
         return "approved";
       case 2:
         return "rejected";
       case 3:
-        return "inactive";
+        return "disabled";
       default:
         return "pending";
     }
@@ -79,33 +77,35 @@ export default function ProductApprovalPage() {
       setError(null);
 
       const params: Record<string, string> = {
-        page: currentPage.toString(),
-        limit: pageSize.toString(),
+        page: filters.page,
+        limit: filters.limit,
       };
+
       if (filters.category) params.category = filters.category;
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
-      const response: ProductListResponse = await getProducts(params);
+      const response = await getProducts(params);
 
-      if (!response || !response.data?.productListing) {
-        throw new Error(response.message || "No products found");
+      if (response.error || !response.data?.productListing) {
+        throw new Error(response.error || "No products found");
       }
 
-      const formattedProducts: IProduct[] = response.data.productListing.map(
+      const apiData = response.data;
+      const formattedProducts: IProduct[] = apiData.productListing.map(
         (product: Product): IProduct => ({
           id: product.id.toString(),
           name: product.title,
           description: product.description,
           category: product.category?.name || "Uncategorized",
-          price: parseFloat(product.price),
+          price: Number.parseFloat(product.price),
           vendor: {
             id: product.user_id.toString(),
             name: product.vendor_name || "Vendor Name",
             email: product.vendor_email || "vendor@email.com",
           },
           status: getStatusFromNumber(product.status),
-          featured: Boolean(product.featured),
+          featured: Boolean(product.is_featured),
           images: product.image
             ? [product.image]
             : ["/assets/images/image-placeholder.png"],
@@ -120,17 +120,26 @@ export default function ProductApprovalPage() {
       const uniqueCategories = Array.from(
         new Set(formattedProducts.map((p) => p.category))
       );
-      setCategories(uniqueCategories); // ✅ Save to state
+      setCategories(uniqueCategories);
 
-      if (response.data.listingCounts) {
-        const counts = response.data.listingCounts;
+      // Update pagination
+      setPagination({
+        currentPage: apiData.current_page || 1,
+        totalPages: apiData.last_page || 1,
+        total: apiData.total || 0,
+        perPage: apiData.per_page || 10,
+      });
+
+      // Update stats
+      if (apiData.listingCounts) {
+        const counts = apiData.listingCounts;
         setStats({
           total: counts.allProducts || 0,
           pending: counts.pendingProducts || 0,
           approved: counts.approvedProducts || 0,
           rejected: counts.rejectedProducts || 0,
+          disabled: counts.disabledProducts || 0,
         });
-        setTotalPages(Math.ceil((counts.allProducts || 1) / pageSize));
       }
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -139,16 +148,25 @@ export default function ProductApprovalPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters, currentPage, reload]);
+  }, [filters]);
 
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  const handleFiltersChange = useCallback((newFilters: Filters) => {
-    setFilters(newFilters);
-    setCurrentPage(1); // Reset pagination
-  }, []);
+  const handleFiltersChange = useCallback(
+    (newFilters: { category: string; status: string; search: string }) => {
+      updateFilters(newFilters);
+    },
+    [updateFilters]
+  );
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      updateFilters({ page: page.toString() });
+    },
+    [updateFilters]
+  );
 
   const handleBulkAction = async (
     action: "approve" | "reject" | "disable" | "feature"
@@ -165,7 +183,7 @@ export default function ProductApprovalPage() {
     setIsUpdating(true);
 
     try {
-      const productIds = selectedIds.map((id) => parseInt(id));
+      const productIds = selectedIds.map((id) => Number.parseInt(id));
 
       if (action === "feature") {
         toast({
@@ -175,11 +193,10 @@ export default function ProductApprovalPage() {
         return;
       }
 
-      // Define status mapping if your API expects numbers or specific strings
       const statusMap = {
         approve: "approved",
         reject: "rejected",
-        disable: "inactive",
+        disable: "disabled",
       };
 
       const result = await updateProductStatus({
@@ -197,7 +214,7 @@ export default function ProductApprovalPage() {
       });
 
       setSelectedIds([]);
-      setReload((prev) => prev + 1); // trigger re-fetch
+      await fetchProducts();
     } catch (err) {
       console.error(`Failed to ${action} products:`, err);
       toast({
@@ -221,7 +238,7 @@ export default function ProductApprovalPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {[
           {
             title: "Total Products",
@@ -247,6 +264,12 @@ export default function ProductApprovalPage() {
             value: stats.rejected,
             color: "text-red-600",
           },
+          {
+            title: "Disabled",
+            icon: <XCircle className="h-4 w-4 text-gray-600" />,
+            value: stats.disabled,
+            color: "text-gray-600",
+          },
         ].map((stat, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -266,7 +289,9 @@ export default function ProductApprovalPage() {
                   ? "Awaiting review"
                   : stat.title === "Approved"
                   ? "Live products"
-                  : "Declined products"}
+                  : stat.title === "Rejected"
+                  ? "Declined products"
+                  : "Inactive products"}
               </p>
             </CardContent>
           </Card>
@@ -277,6 +302,7 @@ export default function ProductApprovalPage() {
         onFiltersChange={handleFiltersChange}
         initialFilters={filters}
         categories={categories}
+        onClearFilters={clearFilters}
       />
 
       {selectedIds.length > 0 && (
@@ -296,16 +322,13 @@ export default function ProductApprovalPage() {
           <LoadingSpinner />
         </div>
       ) : error ? (
-        <ErrorMessage message={error} onRetry={() => setReload((r) => r + 1)} />
+        <ErrorMessage message={error} onRetry={fetchProducts} />
       ) : products.length === 0 ? (
         <div className="text-center py-12 border rounded-md">
           <p className="text-muted-foreground">
             No products found matching your criteria.
           </p>
-          <Button
-            variant="link"
-            onClick={() => setFilters({ category: "", status: "", search: "" })}
-          >
+          <Button variant="link" onClick={clearFilters}>
             Clear filters
           </Button>
         </div>
@@ -314,8 +337,10 @@ export default function ProductApprovalPage() {
           products={products}
           selectedIds={selectedIds}
           onSelectedIdsChange={setSelectedIds}
-          onRefresh={() => setReload((r) => r + 1)}
+          onRefresh={fetchProducts}
           isLoading={isUpdating}
+          pagination={pagination}
+          onPageChange={handlePageChange}
         />
       )}
     </div>

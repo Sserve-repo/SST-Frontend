@@ -79,7 +79,7 @@ export function ServiceTable({
 
   const handleSingleAction = async (
     serviceId: string,
-    action: "approve" | "reject" | "feature",
+    action: "approve" | "reject" | "disable" | "feature",
     currentStatus?: boolean
   ) => {
     setActionLoading(`${action}-${serviceId}`);
@@ -98,6 +98,20 @@ export function ServiceTable({
         toast({
           title: "Success",
           description: `Service ${action}d successfully.`,
+        });
+      } else if (action === "disable") {
+        const { error } = await updateServiceStatus({
+          status: "disabled",
+          service_ids: [Number.parseInt(serviceId)],
+        });
+
+        if (error) {
+          throw new Error(error);
+        }
+
+        toast({
+          title: "Success",
+          description: "Service disabled successfully.",
         });
       } else if (action === "feature") {
         // Feature/unfeature logic would go here
@@ -144,6 +158,7 @@ export function ServiceTable({
               <TableHead>Duration</TableHead>
               <TableHead>Artisan</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -152,7 +167,7 @@ export function ServiceTable({
             {services.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No services found
@@ -183,8 +198,13 @@ export function ServiceTable({
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (!target.src.includes("/assets/images/image-placeholder.png")) {
-                            target.src = "/assets/images/image-placeholder.png?height=40&width=40";
+                          if (
+                            !target.src.includes(
+                              "/assets/images/image-placeholder.png"
+                            )
+                          ) {
+                            target.src =
+                              "/assets/images/image-placeholder.png?height=40&width=40";
                           }
                         }}
                       />
@@ -224,11 +244,42 @@ export function ServiceTable({
                         service.status === "pending" &&
                           "bg-yellow-100 text-yellow-600",
                         service.status === "rejected" &&
-                          "bg-red-100 text-red-600"
+                          "bg-red-100 text-red-600",
+                        service.status === "disabled" &&
+                          "bg-gray-100 text-gray-600"
                       )}
                     >
                       {service.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleSingleAction(
+                          service.id!,
+                          "feature",
+                          service.featured
+                        )
+                      }
+                      disabled={actionLoading === `feature-${service.id}`}
+                      className={cn(
+                        "h-8 w-8 p-0",
+                        service.featured && "text-yellow-600"
+                      )}
+                    >
+                      {actionLoading === `feature-${service.id}` ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Star
+                          className={cn(
+                            "h-4 w-4",
+                            service.featured && "fill-current"
+                          )}
+                        />
+                      )}
+                    </Button>
                   </TableCell>
                   <TableCell>
                     {new Date(service.createdAt).toLocaleDateString()}
@@ -326,26 +377,16 @@ export function ServiceTable({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() =>
-                            handleSingleAction(
-                              service.id!,
-                              "feature",
-                              service.featured
-                            )
+                            handleSingleAction(service.id!, "disable")
                           }
-                          disabled={actionLoading === `feature-${service.id}`}
-                        >
-                          {actionLoading === `feature-${service.id}` ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            <Star className="mr-2 h-4 w-4 text-yellow-600" />
-                          )}
-                          {service.featured ? "Unfeature" : "Feature"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setServiceToDisabled(service)}
+                          disabled={actionLoading === `disable-${service.id}`}
                           className="text-red-600"
                         >
-                          <Ban className="mr-2 h-4 w-4" />
+                          {actionLoading === `disable-${service.id}` ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Ban className="mr-2 h-4 w-4" />
+                          )}
                           Disable
                         </DropdownMenuItem>
                       </DropdownMenuContent>

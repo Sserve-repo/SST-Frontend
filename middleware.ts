@@ -40,6 +40,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
+  console.log("Middleware Cookies", {
+    isAuthenticated: request.cookies.get("isAuthenticated")?.value,
+    accessToken: request.cookies.get("accessToken")?.value,
+  });
+  console.log("Middleware Request URL", request.url);
+
   return NextResponse.next();
 }
 

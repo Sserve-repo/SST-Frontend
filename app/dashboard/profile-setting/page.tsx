@@ -1,14 +1,15 @@
 import { Metadata } from "next";
-import ProfileSettingPage from "./_components/ProfileSetting";
+// import ProfileSettingPage from "./_components/ProfileSetting";
+import UnifiedProfileSettings from "@/components/profile/unified-profile-settings";
 
 export const metadata: Metadata = {
-  title: "Page Setup | SphereServe",
+  title: "Setting | Profile",
 };
 
 export default function ProfileSetting() {
   return (
     <>
-      <ProfileSettingPage />
+      <UnifiedProfileSettings userType="buyer" />
     </>
   );
 }

@@ -46,23 +46,22 @@ export interface Product {
 // }
 
 export type ProductListResponse = {
-  status: string;
-  status_code: number;
-  message: string;
-  token?: string;
-  debug?: any;
+  status: string
+  status_code: number
+  message: string
+  token?: string
+  debug?: any
   data: {
-    productListing: Product[];
+    productListing: Product[]
     listingCounts?: {
-      allProducts: number;
-      pendingProducts: number;
-      approvedProducts: number;
-      rejectedProducts: number;
-      disabledProducts: number;
-    };
-  };
-};
-
+      allProducts: number
+      pendingProducts: number
+      approvedProducts: number
+      rejectedProducts: number
+      disabledProducts: number
+    }
+  }
+}
 
 export async function getProducts(params: Record<string, string> = {}) {
   try {
@@ -108,7 +107,7 @@ export async function getProducts(params: Record<string, string> = {}) {
 }
 
 export async function updateProductStatus(payload: {
-  status: string
+  status: "approved" | "rejected" | "disabled" | "pending"
   product_ids: number[]
 }) {
   try {
@@ -121,6 +120,24 @@ export async function updateProductStatus(payload: {
     return {
       data: null,
       error: error instanceof Error ? error.message : "Failed to update product status",
+    }
+  }
+}
+
+export async function disableProducts(productIds: number[]) {
+  try {
+    return apiRequest<any>("/admin/dashboard/productListing/updateStatus", {
+      method: "POST",
+      body: {
+        status: "disabled",
+        product_ids: productIds,
+      },
+    })
+  } catch (error) {
+    console.error("Error disabling products:", error)
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : "Failed to disable products",
     }
   }
 }

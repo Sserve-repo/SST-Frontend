@@ -7,7 +7,8 @@ interface FilterState {
     category: string
     status: string
     search: string
-    page?: string
+    page: string
+    limit: string
 }
 
 export function useUrlFilters() {
@@ -20,6 +21,7 @@ export function useUrlFilters() {
             status: searchParams.get("status") || "",
             search: searchParams.get("search") || "",
             page: searchParams.get("page") || "1",
+            limit: searchParams.get("limit") || "10",
         }),
         [searchParams],
     )
@@ -37,8 +39,8 @@ export function useUrlFilters() {
             })
 
             // Reset page when filters change (except when only page changes)
-            if (Object.keys(newFilters).some((key) => key !== "page")) {
-                params.delete("page")
+            if (Object.keys(newFilters).some((key) => key !== "page" && key !== "limit")) {
+                params.set("page", "1")
             }
 
             const newUrl = `${window.location.pathname}?${params.toString()}`
@@ -48,8 +50,13 @@ export function useUrlFilters() {
     )
 
     const clearFilters = useCallback(() => {
-        router.push(window.location.pathname, { scroll: false })
-    }, [router])
+        const params = new URLSearchParams()
+        params.set("page", "1")
+        params.set("limit", filters.limit)
+
+        const newUrl = `${window.location.pathname}?${params.toString()}`
+        router.push(newUrl, { scroll: false })
+    }, [router, filters.limit])
 
     return {
         filters,

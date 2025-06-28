@@ -28,6 +28,8 @@ import {
   X,
   Loader2,
   Ban,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ProductDetailsDialog } from "./product-details-dialog";
 import { EditProductDialog } from "./edit-product-dialog";
@@ -43,6 +45,13 @@ interface ProductTableProps {
   onSelectedIdsChange: (ids: string[]) => void;
   onRefresh?: () => void;
   isLoading?: boolean;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    total: number;
+    perPage: number;
+  };
+  onPageChange?: (page: number) => void;
 }
 
 export function ProductTable({
@@ -51,6 +60,8 @@ export function ProductTable({
   onSelectedIdsChange,
   onRefresh,
   isLoading = false,
+  pagination,
+  onPageChange,
 }: ProductTableProps) {
   const [productToView, setProductToView] = useState<IProduct | null>(null);
   const [productToEdit, setProductToEdit] = useState<IProduct | null>(null);
@@ -79,7 +90,7 @@ export function ProductTable({
 
   const handleSingleAction = async (
     productId: string,
-    action: "approve" | "reject" | "feature",
+    action: "approve" | "reject" | "disable" | "feature",
     currentStatus?: boolean
   ) => {
     setActionLoading(`${action}-${productId}`);
@@ -98,6 +109,20 @@ export function ProductTable({
         toast({
           title: "Success",
           description: `Product ${action}d successfully.`,
+        });
+      } else if (action === "disable") {
+        const { error } = await updateProductStatus({
+          status: "disabled",
+          product_ids: [Number.parseInt(productId)],
+        });
+
+        if (error) {
+          throw new Error(error);
+        }
+
+        toast({
+          title: "Success",
+          description: "Product disabled successfully.",
         });
       } else if (action === "feature") {
         // Feature/unfeature logic would go here
@@ -143,6 +168,7 @@ export function ProductTable({
               <TableHead>Price</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -151,7 +177,7 @@ export function ProductTable({
             {products.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No products found
@@ -182,8 +208,13 @@ export function ProductTable({
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (!target.src.includes("/assets/images/image-placeholder.png")) {
-                            target.src = "/assets/images/image-placeholder.png?height=40&width=40";
+                          if (
+                            !target.src.includes(
+                              "/assets/images/image-placeholder.png"
+                            )
+                          ) {
+                            target.src =
+                              "/assets/images/image-placeholder.png?height=40&width=40";
                           }
                         }}
                       />
@@ -219,11 +250,40 @@ export function ProductTable({
                         product.status === "pending" &&
                           "bg-yellow-100 text-yellow-600",
                         product.status === "rejected" &&
-                          "bg-red-100 text-red-600"
+                          "bg-red-100 text-red-600",
+                        product.status === "disabled" &&
+                          "bg-gray-100 text-gray-600"
                       )}
                     >
                       {product.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleSingleAction(
+                          product.id!,
+                          "feature",
+                          product.featured
+                        )
+                      }
+                      disabled={actionLoading === `feature-${product.id}`}
+                    >
+                      {actionLoading === `feature-${product.id}` ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Star
+                          className={cn(
+                            "h-4 w-4",
+                            product.featured
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-gray-400"
+                          )}
+                        />
+                      )}
+                    </Button>
                   </TableCell>
                   <TableCell>
                     {new Date(product.createdAt).toLocaleDateString()}
@@ -321,26 +381,16 @@ export function ProductTable({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() =>
-                            handleSingleAction(
-                              product.id!,
-                              "feature",
-                              product.featured
-                            )
+                            handleSingleAction(product.id!, "disable")
                           }
-                          disabled={actionLoading === `feature-${product.id}`}
-                        >
-                          {actionLoading === `feature-${product.id}` ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            <Star className="mr-2 h-4 w-4 text-yellow-600" />
-                          )}
-                          {product.featured ? "Unfeature" : "Feature"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setProductToDisabled(product)}
+                          disabled={actionLoading === `disable-${product.id}`}
                           className="text-red-600"
                         >
-                          <Ban className="mr-2 h-4 w-4" />
+                          {actionLoading === `disable-${product.id}` ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Ban className="mr-2 h-4 w-4" />
+                          )}
                           Disable
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -352,6 +402,45 @@ export function ProductTable({
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
+            {Math.min(
+              pagination.currentPage * pagination.perPage,
+              pagination.total
+            )}{" "}
+            of {pagination.total} results
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(pagination.currentPage - 1)}
+              disabled={pagination.currentPage <= 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(pagination.currentPage + 1)}
+              disabled={pagination.currentPage >= pagination.totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <ProductDetailsDialog
         product={productToView}
