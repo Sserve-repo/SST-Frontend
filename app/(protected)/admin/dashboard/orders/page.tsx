@@ -78,8 +78,8 @@ export default function OrdersPage() {
           totalRevenue: data.TotalExpenditure || "0",
         });
         console.log("Order stats:", data);
-        const formattedOrders = Array.isArray(data.Orders)
-          ? data.Orders.map((order: Order) => ({
+        const formattedOrders = Array.isArray(data.orders)
+          ? data.orders.map((order: Order) => ({
               id: String(order.id),
               orderNo: order.order_no,
               customer:
