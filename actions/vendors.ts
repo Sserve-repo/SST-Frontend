@@ -117,3 +117,12 @@ export const creatOtp = async (requestPayload: any) => {
     console.log("Otp verification creation failed", error);
   }
 };
+
+export const getRecommendedVendors = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/general/featuredVendors`);
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch recommended vendors", error);
+  }
+};

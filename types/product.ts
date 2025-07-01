@@ -1,4 +1,5 @@
 export interface Product {
+    is_favorite: any
     id: number
     user_id: number
     title: string
@@ -34,6 +35,7 @@ export interface ProductResponse {
 }
 
 export interface FilterParams {
+    search: string | undefined
     page?: number
     limit?: number
     product_category?: string

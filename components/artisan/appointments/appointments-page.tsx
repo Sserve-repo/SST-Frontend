@@ -6,7 +6,6 @@ import { AppointmentCalendarView } from "@/components/artisan/appointments/calen
 import { AppointmentListView } from "@/components/artisan/appointments/list-view";
 import { AppointmentFilters } from "@/components/artisan/appointments/filters";
 import { CalendarDays, List } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment } from "@/types/appointments";
 import {

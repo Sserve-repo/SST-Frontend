@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ReviewOverview, ReviewStats } from "@/components/reviews/stats";
 import { ReviewSort } from "@/components/reviews/sort";
 import type { Review } from "@/types/reviews";
@@ -22,7 +22,7 @@ export default function ProductReviewsPage({ product }) {
   const [sortBy, setSortBy] = useState<"latest" | "rating">("latest");
   const { toast } = useToast();
 
-  const handleFetchReview = async () => {
+  const handleFetchReview = useCallback(async () => {
     try {
       const response = await getCustomerReviews(product?.id);
       const data = await response?.json();
@@ -49,7 +49,7 @@ export default function ProductReviewsPage({ product }) {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
+  }, []);
 
   const handleReply = async (reviewId: string, replyText: string) => {
     if (!replyText) {
