@@ -2,6 +2,7 @@ export type User = {
   id: string;
   firstName: string;
   lastName: string;
+  user_photo?: string; // Optional, can be null
   email: string;
   phone: string;
   password: string;
