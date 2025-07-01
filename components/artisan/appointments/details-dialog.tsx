@@ -17,27 +17,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import {
-//   AlertDialog,
-//   AlertDialogAction,
-//   AlertDialogCancel,
-//   AlertDialogContent,
-//   AlertDialogDescription,
-//   AlertDialogFooter,
-//   AlertDialogHeader,
-//   AlertDialogTitle,
-// } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/appointments";
 
 interface AppointmentDetailsDialogProps {
   appointment: Appointment | null;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (appointment: Appointment) => void;
 }
 
 export function AppointmentDetailsDialog({
   appointment,
+  open,
   onOpenChange,
   onUpdate,
 }: AppointmentDetailsDialogProps) {
@@ -53,6 +45,7 @@ export function AppointmentDetailsDialog({
       status: newStatus,
       event: "completed",
     });
+    onOpenChange(false);
   };
 
   const handleReschedule = () => {
@@ -68,15 +61,16 @@ export function AppointmentDetailsDialog({
       event: "reschedule",
     });
     setShowReschedule(false);
+    onOpenChange(false);
   };
 
-  const handleApproveBooking = (event) => {
+  const handleApproveBooking = () => {
     onUpdate({
       ...appointment,
-      status: "canceled",
-      event,
+      status: "inprogress",
+      event: "approve",
     });
-    // setShowCancel(false);
+    onOpenChange(false);
   };
 
   const timeSlots = Array.from({ length: 24 * 2 }).map((_, i) => {
@@ -87,7 +81,7 @@ export function AppointmentDetailsDialog({
 
   return (
     <>
-      <Dialog open={!!appointment} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle className="text-primary text-2xl">
@@ -106,10 +100,12 @@ export function AppointmentDetailsDialog({
                       "bg-green-100 text-green-700",
                     appointment.status === "pending" &&
                       "bg-yellow-100 text-yellow-700",
-                    appointment.status === "canceled" &&
+                    appointment.status === "cancelled" &&
                       "bg-red-100 text-red-700",
                     appointment.status === "completed" &&
-                      "bg-blue-100 text-blue-700"
+                      "bg-blue-100 text-blue-700",
+                    appointment.status === "inprogress" &&
+                      "bg-orange-100 text-orange-700"
                   )}
                 >
                   {appointment.status.charAt(0).toUpperCase() +
@@ -131,25 +127,17 @@ export function AppointmentDetailsDialog({
 
             <div className="grid gap-2">
               <h3 className="font-semibold">Service Details</h3>
-              <div className="grid gap-1  text-gray-500">
-                <p className="text-sm font-medium ">
-                  Name:{" "}
-                  {appointment.service.name.charAt(0).toUpperCase() +
-                    appointment.service.name.slice(1)}
+              <div className="grid gap-1 text-gray-500">
+                <p className="text-sm font-medium">
+                  Name: {appointment.service.name}
                 </p>
                 <p className="text-sm font-medium mb-3">
-                  Category:{" "}
-                  {appointment.service?.serviceCategory?.name
-                    .charAt(0)
-                    .toUpperCase() +
-                    appointment.service?.serviceCategory?.name.slice(1)}
+                  Category: {appointment.service?.name}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm">
                   Duration: {appointment.service.duration} minutes
                 </p>
-                <p className="text-sm text-gray-500">
-                  Price: ${appointment.service.price}
-                </p>
+                <p className="text-sm">Price: ${appointment.service.price}</p>
               </div>
             </div>
 
@@ -180,18 +168,12 @@ export function AppointmentDetailsDialog({
                   >
                     Reschedule
                   </Button>
-                  <Button
-                    variant="default"
-                    onClick={() => handleApproveBooking("approve")}
-                  >
-                    In Progress
-                  </Button>
+                  <Button onClick={handleApproveBooking}>In Progress</Button>
                 </>
               )}
 
               {appointment.status === "inprogress" && (
                 <Button
-                  // variant="default"
                   className="bg-green-600"
                   onClick={() => handleStatusUpdate("completed")}
                 >
@@ -213,7 +195,7 @@ export function AppointmentDetailsDialog({
               mode="single"
               selected={newDate}
               onSelect={setNewDate}
-              className="rounded-md border"
+              className="rounded-md border w-full"
             />
             <Select value={newTime} onValueChange={setNewTime}>
               <SelectTrigger>
@@ -239,27 +221,6 @@ export function AppointmentDetailsDialog({
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* <AlertDialog open={showCancel} onOpenChange={setShowCancel}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to cancel this appointment? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>No, keep appointment</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleCancel}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Yes, cancel appointment
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> */}
     </>
   );
 }
