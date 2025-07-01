@@ -1,5 +1,6 @@
-"use client"
+"use client";
 
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,48 +10,96 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import type { User } from "@/types/users"
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { updateUserStatus } from "@/actions/admin/user-api";
+import type { User } from "@/types/users";
 
 interface BanUserDialogProps {
-  user: User | null
-  onOpenChange: (open: boolean) => void
+  user: User | null;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function BanUserDialog({ user, onOpenChange }: BanUserDialogProps) {
-  if (!user) return null
+export function BanUserDialog({
+  user,
+  onOpenChange,
+  onSuccess,
+}: BanUserDialogProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const isBanned = user.status === "banned"
-  const action = isBanned ? "unban" : "ban"
+  const handleStatusChange = async () => {
+    if (!user) return;
 
-  const handleAction = () => {
-    // Handle user ban/unban here
-    console.log(`${action}ning user:`, user.id)
-    onOpenChange(false)
-  }
+    const newStatus = user.status === "banned" ? "active" : "banned";
+    const action = newStatus === "banned" ? "ban" : "unban";
+
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("active_status", newStatus === "active" ? "1" : "0");
+
+      const { error } = await updateUserStatus(user.id, formData);
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      toast({
+        title: "Success",
+        description: `User ${user.firstName} ${user.lastName} ${action}ned successfully.`,
+      });
+
+      onSuccess?.();
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${action} user. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!user) return null;
+
+  const isBanned = user.status === "banned";
+  const action = isBanned ? "unban" : "ban";
 
   return (
     <AlertDialog open={!!user} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{isBanned ? "Unban User Account" : "Ban User Account"}</AlertDialogTitle>
+          <AlertDialogTitle>{isBanned ? "Unban" : "Ban"} User</AlertDialogTitle>
           <AlertDialogDescription>
+            Are you sure you want to {action}{" "}
+            <span className="font-medium">
+              {user.firstName} {user.lastName}
+            </span>
+            ?
             {isBanned
-              ? `Are you sure you want to unban ${user.firstName}'s account? They will regain access to all platform features.`
-              : `Are you sure you want to ban ${user.firstName}'s account? They will lose access to all platform features until unbanned.`}
+              ? " This will restore their access to the platform."
+              : " This will prevent them from accessing the platform."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleAction}
-            className={isBanned ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+            onClick={handleStatusChange}
+            disabled={isLoading}
+            className={
+              isBanned
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-red-600 hover:bg-red-700"
+            }
           >
-            {isBanned ? "Unban Account" : "Ban Account"}
+            {isLoading ? `${action}ning...` : `${action} User`}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
-
