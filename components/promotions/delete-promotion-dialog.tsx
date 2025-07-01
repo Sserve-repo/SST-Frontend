@@ -31,7 +31,7 @@ export function DeletePromotionDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Promotion</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the promotion &quot;{promotion.code}
+            Are you sure you want to delete the promotion &quot;{promotion.name}
             &quot;? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
