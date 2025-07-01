@@ -1,60 +1,85 @@
-"use client"
+"use client";
 
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounced-search";
 
-export function PayoutFilters() {
+interface PayoutFiltersProps {
+  onFiltersChange: (filters: { search: string; type: string }) => void;
+  initialFilters: {
+    search: string;
+    status: string;
+  };
+  onClearFilters?: () => void;
+}
+
+export function PayoutFilters({
+  onFiltersChange,
+  initialFilters,
+  onClearFilters,
+}: PayoutFiltersProps) {
+  const [search, setSearch] = useState(initialFilters.search || "");
+  const [type, setType] = useState(initialFilters.status || "");
+
+  const debouncedSearch = useDebounce(search, 500);
+
+  useEffect(() => {
+    setSearch(initialFilters.search || "");
+    setType(initialFilters.status || "");
+  }, [initialFilters]);
+
+  useEffect(() => {
+    onFiltersChange({ search: debouncedSearch, type });
+  }, [debouncedSearch, type, onFiltersChange]);
+
+  const resetFilters = () => {
+    setSearch("");
+    setType("");
+    onClearFilters?.();
+  };
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div className="relative flex-1">
-        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search tickets..." className="pl-8 sm:max-w-[300px]" />
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-1 gap-2 sm:max-w-[400px]">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by vendor/artisan name..."
+          className="flex-1"
+        />
       </div>
-      <div className="flex gap-4">
-        <Select defaultValue="all-status">
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all-status">All Status</SelectItem>
-              <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <Select defaultValue="all-type">
+
+      {/* <div className="flex items-center gap-4">
+        <Select
+          value={type || "all"}
+          onValueChange={(value) => setType(value === "all" ? "" : value)}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all-type">All Types</SelectItem>
-              <SelectItem value="technical">Technical</SelectItem>
-              <SelectItem value="billing">Billing</SelectItem>
-              <SelectItem value="feature_request">Feature Request</SelectItem>
-              <SelectItem value="general">General</SelectItem>
-            </SelectGroup>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="product">Product</SelectItem>
+            <SelectItem value="service">Service</SelectItem>
           </SelectContent>
         </Select>
-        <Select defaultValue="all-priority">
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all-priority">All Priority</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  )
-}
 
+        <Button
+          variant="outline"
+          className="px-6 bg-transparent"
+          onClick={resetFilters}
+        >
+          Clear
+        </Button>
+      </div> */}
+    </div>
+  );
+}
