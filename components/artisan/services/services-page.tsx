@@ -91,10 +91,7 @@ export default function ServicesPage() {
         price: data.price,
         duration: data.service_duration,
         images: [data.image],
-        availability: {
-          monday: { start: "09:00", end: "17:00" }
-          // Add other days as needed
-        },
+        availability: newService.availability,
         status: "inactive",
         category: "",
         createdAt: data.created_at || "",
@@ -104,7 +101,6 @@ export default function ServicesPage() {
           name: data.vendor_name || "",
           email: data.vendor_email || "",
         },
-        reviews: [],
       };
 
       setServices((prev) => [...prev, newEntry]);

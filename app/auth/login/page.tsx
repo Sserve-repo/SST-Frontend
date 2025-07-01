@@ -1,3 +1,5 @@
+"use client";
+
 import React, { Suspense } from "react";
 import LoginForm from "./_components/LoginForm";
 import { Splash } from "../_components/splash";

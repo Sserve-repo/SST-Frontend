@@ -121,14 +121,6 @@ export default function PromotionsPage() {
     >
   ) => {
     try {
-      // Determine status using the getDiscountStatus function
-      const status = getDiscountStatus(
-        newPromotion.startDate.toISOString().split("T")[0],
-        newPromotion.endDate.toISOString().split("T")[0],
-        newPromotion.usageLimit,
-        0 // New promotion starts with 0 usage
-      );
-
       const formData = new FormData();
       formData.append("discount_name", newPromotion.code);
       formData.append("discount_type", newPromotion.type);
