@@ -1,9 +1,13 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import People from "../../assets/images/many.png";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const Section7 = () => {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col-reverse lg:flex-row justify-center items-center mt-10 md:mt-16 lg:mt-20 px-6 md:px-12 lg:px-24 w-full">
       <div className="lg:flex-1 flex flex-col items-center lg:items-start text-[#502266] gap-y-4 lg:gap-y-8 mx-2 text-center lg:text-left">
@@ -23,7 +27,10 @@ const Section7 = () => {
           Find the perfect Artisans & Vendors near you!
         </p>
 
-        <Button className="sm:text-[1rem] md:text-[1.4rem] px-4 py-3 sm:my-6 md:my-8 text-white bg-[#502266] rounded-2xl">
+        <Button
+          className="sm:text-[1rem] md:text-[1.4rem] px-4 py-3 sm:my-6 md:my-8 text-white bg-[#502266] rounded-2xl"
+          onClick={() => router.push("/auth/register")}
+        >
           Join SphereServe
         </Button>
       </div>

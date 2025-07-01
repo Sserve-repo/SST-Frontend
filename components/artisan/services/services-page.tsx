@@ -153,6 +153,7 @@ export default function ServicesPage() {
       } else {
         throw new Error("Failed to delete service");
       }
+
     } catch (error) {
       console.error("Error deleting service:", error);
       toast({

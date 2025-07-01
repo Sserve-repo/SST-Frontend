@@ -15,12 +15,14 @@ export const Splash = () => {
       }
     >
       <div className="2xl:pr-16 xl:pr-14 pr-12 2xl:pl-32 xl:pl-28 pl-24 py-20 flex flex-col justify-between h-screen">
-        <Image
-          src="/assets/images/logo-light.png"
-          width={200}
-          height={200}
-          alt="logo"
-        />
+        <Link href="/">
+          <Image
+            src="/assets/images/logo-light.png"
+            width={200}
+            height={200}
+            alt="logo"
+          />
+        </Link>
         <div className="text-left py-10">
           <h1 className="2xl:text-6xl xl:text-5xl text-4xl font-bold text-white">
             Join a thriving community of experts and clients

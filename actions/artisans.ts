@@ -174,24 +174,20 @@ export const creatOtp = async (requestPayload: any) => {
   }
 };
 
-
 export const getArtisanProfile = async (artisanId) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/getArtisanBusinessProfile/${artisanId}`)
+      `${baseUrl}/general/services/getArtisanBusinessProfile/${artisanId}`
+    );
     return response;
   } catch (error: any) {
     console.log("failed to fetch artisan profile", error);
   }
 };
 
-
-
-export const getFeaturedArtisans = async () => {
+export const getRecommendedArtisans = async () => {
   try {
-    const response = await fetch(
-      `${baseUrl}/general/featuredArtisans`
-    );
+    const response = await fetch(`${baseUrl}/general/featuredArtisans`);
     return response;
   } catch (error: any) {
     console.log("failed to fetch featured artisan", error);

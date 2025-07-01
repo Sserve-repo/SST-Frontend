@@ -119,6 +119,7 @@ export default function PromotionsPage() {
             upcoming: data.data.upcoming?.count || 0,
           });
         }
+
       }
     } catch (error) {
       console.error("Error fetching stats:", error);
