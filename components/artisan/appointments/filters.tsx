@@ -1,22 +1,22 @@
 "use client";
 
-// import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// import { Calendar } from "@/components/ui/calendar";
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover";
-// import { CalendarIcon, X } from "lucide-react";
-// import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon, X } from "lucide-react";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface AppointmentFiltersProps {
   selectedStatus: string[];
   onStatusChange: (status: string[]) => void;
-  onDateFilter?: (date: string | null) => void;
-  selectedDate?: string | null;
+  onDateChange: (date: Date | undefined) => void;
+  selectedDate?: Date;
 }
 
 const statusOptions = [
@@ -41,18 +41,13 @@ const statusOptions = [
     label: "Completed",
     color: "bg-green-100 text-green-700",
   },
-  { value: "canceled", label: "Canceled", color: "bg-red-100 text-red-700" },
-  {
-    value: "rescheduled",
-    label: "Rescheduled",
-    color: "bg-purple-100 text-purple-700",
-  },
+  { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-700" },
 ];
 
 export function AppointmentFilters({
   selectedStatus,
   onStatusChange,
-  onDateFilter,
+  onDateChange,
   selectedDate,
 }: AppointmentFiltersProps) {
   const handleStatusToggle = (status: string) => {
@@ -76,23 +71,11 @@ export function AppointmentFilters({
     onStatusChange(newStatus);
   };
 
-  // const handleDateSelect = (date: Date | undefined) => {
-  //   if (onDateFilter) {
-  //     onDateFilter(date ? format(date, "yyyy-MM-dd") : null);
-  //   }
-  // };
-
-  // const clearDateFilter = () => {
-  //   if (onDateFilter) {
-  //     onDateFilter(null);
-  //   }
-  // };
-
   return (
-    <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+    <div className="flex flex-wrap gap-4 items-center justify-end">
       <div className="flex flex-wrap gap-2">
         <span className="text-sm font-medium text-gray-700 flex items-center">
-          Filter by Status:
+          Status:
         </span>
         {statusOptions.map((option) => (
           <Badge
@@ -111,46 +94,41 @@ export function AppointmentFilters({
         ))}
       </div>
 
-      {onDateFilter && (
-        <></>
-        // <div className="flex items-center gap-2">
-        //   <span className="text-sm font-medium text-gray-700">Date:</span>
-        //   <Popover>
-        //     <PopoverTrigger asChild>
-        //       <Button
-        //         variant="outline"
-        //         className={cn(
-        //           "justify-start text-left font-normal",
-        //           !selectedDate && "text-muted-foreground"
-        //         )}
-        //       >
-        //         <CalendarIcon className="mr-2 h-4 w-4" />
-        //         {selectedDate
-        //           ? format(new Date(selectedDate), "PPP")
-        //           : "Pick a date"}
-        //       </Button>
-        //     </PopoverTrigger>
-        //     <PopoverContent className="w-auto p-0" align="start">
-        //       <Calendar
-        //         mode="single"
-        //         selected={selectedDate ? new Date(selectedDate) : undefined}
-        //         onSelect={handleDateSelect}
-        //         initialFocus
-        //       />
-        //     </PopoverContent>
-        //   </Popover>
-        //   {selectedDate && (
-        //     <Button
-        //       variant="ghost"
-        //       size="sm"
-        //       onClick={clearDateFilter}
-        //       className="h-8 w-8 p-0"
-        //     >
-        //       <X className="h-4 w-4" />
-        //     </Button>
-        //   )}
-        // </div>
-      )}
+      {/* <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-gray-700">Date:</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "justify-start text-left font-normal",
+                !selectedDate && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={onDateChange}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        {selectedDate && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDateChange(undefined)}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div> */}
     </div>
   );
 }
