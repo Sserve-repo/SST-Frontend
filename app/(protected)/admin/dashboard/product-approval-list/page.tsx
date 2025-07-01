@@ -76,22 +76,22 @@ export default function ProductApprovalPage() {
       setLoading(true);
       setError(null);
 
-      const params: Record<string, string> = {
-        page: filters.page,
-        limit: filters.limit,
-      };
+      const params: Record<string, string> = {};
 
+      // Only add non-empty filter values
+      if (filters.page && filters.page !== "1") params.page = filters.page;
+      if (filters.limit && filters.limit !== "10") params.limit = filters.limit;
       if (filters.category) params.category = filters.category;
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
-      const response = await getProducts(params);
+      const { data, error: apiError } = await getProducts(params);
 
-      if (response.error || !response.data?.productListing) {
-        throw new Error(response.error || "No products found");
+      if (apiError || !data?.data?.productListing) {
+        throw new Error(apiError || "No products found");
       }
 
-      const apiData = response.data;
+      const apiData = data.data;
       const formattedProducts: IProduct[] = apiData.productListing.map(
         (product: Product): IProduct => ({
           id: product.id.toString(),
@@ -105,7 +105,7 @@ export default function ProductApprovalPage() {
             email: product.vendor_email || "vendor@email.com",
           },
           status: getStatusFromNumber(product.status),
-          featured: Boolean(product.is_featured),
+          featured: Boolean(product.featured),
           images: product.image
             ? [product.image]
             : ["/assets/images/image-placeholder.png"],
@@ -122,12 +122,12 @@ export default function ProductApprovalPage() {
       );
       setCategories(uniqueCategories);
 
-      // Update pagination
+      // Update pagination from API response
       setPagination({
-        currentPage: apiData.current_page || 1,
-        totalPages: apiData.last_page || 1,
-        total: apiData.total || 0,
-        perPage: apiData.per_page || 10,
+        currentPage: data.current_page || Number.parseInt(filters.page) || 1,
+        totalPages: data.last_page || 1,
+        total: data.total || formattedProducts.length,
+        perPage: data.per_page || Number.parseInt(filters.limit) || 10,
       });
 
       // Update stats
@@ -148,7 +148,13 @@ export default function ProductApprovalPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [
+    filters.page,
+    filters.limit,
+    filters.category,
+    filters.status,
+    filters.search,
+  ]);
 
   useEffect(() => {
     fetchProducts();

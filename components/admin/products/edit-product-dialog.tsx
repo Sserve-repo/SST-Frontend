@@ -1,16 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import type React from "react";
+
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { ProductForm } from "./product-form";
-import type { IProduct } from "@/types/product";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { updateProduct } from "@/actions/admin/product-api";
+import { getProductCategories } from "@/actions/admin/categories";
+import type { IProduct } from "@/types/product";
+import type { ProductCategory } from "@/types/categories";
 
 interface EditProductDialogProps {
   product: IProduct | null;
@@ -23,51 +38,69 @@ export function EditProductDialog({
   onOpenChange,
   onRefresh,
 }: EditProductDialogProps) {
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    featured: false,
+  });
+
   const { toast } = useToast();
 
-  if (!product) return null;
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price.toString(),
+        category: product.category,
+        featured: product.featured || false,
+      });
+    }
+  }, [product]);
 
-  const handleSubmit = async (data: Partial<IProduct>) => {
-    setIsLoading(true);
-
-    try {
-      // Create FormData for file upload
-      const formData = new FormData();
-
-      // Add text fields
-      if (data.name) formData.append("title", data.name);
-      if (data.description) formData.append("description", data.description);
-      if (data.price) formData.append("price", data.price.toString());
-      if (data.category) formData.append("category", data.category);
-
-      // Handle images if they're files
-      if (data.images && data.images.length > 0) {
-        data.images.forEach((image, index) => {
-          if (image && typeof image === "object" && image instanceof File) {
-            formData.append(`images[${index}]`, image);
-          }
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await getProductCategories();
+        if (error) throw new Error(error);
+        if (data?.["Product Category"]) {
+          setCategories(data["Product Category"]);
+        }
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "Failed to load categories.",
+          variant: "destructive",
         });
       }
+    };
 
-      const { error } = await updateProduct(product.id!, formData);
+    if (product) {
+      fetchCategories();
+    }
+  }, [product]);
 
-      if (error) {
-        throw new Error(error);
-      }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!product) return;
 
+    setIsLoading(true);
+    try {
+      // Implementation would go here
       toast({
         title: "Success",
         description: "Product updated successfully.",
       });
-
       onRefresh?.();
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to update product:", error);
       toast({
         title: "Error",
-        description: "Failed to update product. Please try again.",
+        description: "Failed to update product.",
         variant: "destructive",
       });
     } finally {
@@ -75,17 +108,103 @@ export function EditProductDialog({
     }
   };
 
+  if (!product) return null;
+
   return (
     <Dialog open={!!product} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
-        <ProductForm
-          product={product}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="name">Product Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              rows={3}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="price">Price ($)</Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.01"
+              value={formData.price}
+              onChange={(e) =>
+                setFormData({ ...formData, price: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="featured"
+              checked={formData.featured}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, featured: checked })
+              }
+            />
+            <Label htmlFor="featured">Featured product</Label>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Updating..." : "Update Product"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { BulkActionsToolbar } from "@/components/admin/services/bulk-actions-toolbar";
 import { ServiceTable } from "@/components/admin/services/service-table";
 import { ServiceFilters } from "@/components/admin/services/service-filters";
@@ -11,20 +10,14 @@ import { Button } from "@/components/ui/button";
 import type { Service as IService } from "@/types/services";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  CheckCircle,
-  Clock,
-  XCircle,
-  Wrench,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { CheckCircle, Clock, XCircle, Wrench } from "lucide-react";
 import {
   getServices,
   updateServiceStatus,
   disableServices,
   type Service,
 } from "@/actions/admin/service-api";
+import { useUrlFilters } from "@/hooks/use-url-filters";
 
 interface ServiceStats {
   total: number;
@@ -34,17 +27,8 @@ interface ServiceStats {
   disabled: number;
 }
 
-interface Filters {
-  category: string;
-  status: string;
-  search: string;
-}
-
 export default function ServiceApprovalPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
-
+  const { filters, updateFilters, clearFilters } = useUrlFilters();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [services, setServices] = useState<IService[]>([]);
   const [stats, setStats] = useState<ServiceStats>({
@@ -54,45 +38,17 @@ export default function ServiceApprovalPage() {
     rejected: 0,
     disabled: 0,
   });
-
-  // Get initial values from URL
-  const [filters, setFilters] = useState<Filters>({
-    category: searchParams.get("category") || "",
-    status: searchParams.get("status") || "",
-    search: searchParams.get("search") || "",
-  });
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(
-    Number(searchParams.get("page")) || 1
-  );
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const pageSize = 20;
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    total: 0,
+    perPage: 10,
+  });
 
   const { toast } = useToast();
-
-  // Update URL when filters or pagination change
-  const updateURL = useCallback(
-    (newFilters: Filters, newPage: number) => {
-      const params = new URLSearchParams();
-
-      if (newFilters.category) params.set("category", newFilters.category);
-      if (newFilters.status) params.set("status", newFilters.status);
-      if (newFilters.search) params.set("search", newFilters.search);
-      if (newPage > 1) params.set("page", newPage.toString());
-
-      const newURL = `${pathname}${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
-      router.replace(newURL, { scroll: false });
-    },
-    [pathname, router]
-  );
 
   const getStatusFromNumber = (
     status: number
@@ -114,77 +70,71 @@ export default function ServiceApprovalPage() {
       setLoading(true);
       setError(null);
 
-      const params: Record<string, string> = {
-        page: currentPage.toString(),
-        limit: pageSize.toString(),
-      };
+      const params: Record<string, string> = {};
 
-      if (filters.category) params.service_category = filters.category;
+      // Only add non-empty filter values
+      if (filters.page && filters.page !== "1") params.page = filters.page;
+      if (filters.limit && filters.limit !== "10") params.limit = filters.limit;
+      if (filters.category) params.category = filters.category;
       if (filters.status) params.status = filters.status;
       if (filters.search) params.search = filters.search;
 
       const { data, error: apiError } = await getServices(params);
 
-      if (apiError) {
-        throw new Error(apiError);
+      if (apiError || !data?.serviceListing) {
+        throw new Error(apiError || "No services found");
       }
 
-      if (data?.serviceListing) {
-        const formattedServices: IService[] = data.serviceListing.map(
-          (service: Service) => ({
-            id: service.id.toString(),
-            name: service.title,
-            description: service.description,
-            category: service.service_category?.name || "Uncategorized",
-            price: Number.parseFloat(service.price),
-            vendor: {
-              id: service.user_id.toString(),
-              name: service.vendor_name || "Unknown Vendor",
-              email: service.vendor_email || "",
-            },
-            status: getStatusFromNumber(service.status),
-            featured: Boolean(service.is_featured),
-            images: service.image
-              ? [service.image]
-              : ["/assets/images/image-placeholder.png"],
-            createdAt: service.created_at,
-            duration: Number.parseInt(service.service_duration) || 0,
-            availability: Array.isArray(service.available_dates)
-              ? service.available_dates.join(", ")
-              : service.available_dates
-              ? service.available_dates
-              : "",
-            homeService: Boolean(service.home_service_availability),
-          })
-        );
+      const apiData = data;
+      const formattedServices: IService[] = apiData.serviceListing.map(
+        (service: Service) => ({
+          id: service.id.toString(),
+          name: service.title,
+          description: service.description,
+          category: service.service_category?.name || "Uncategorized",
+          price: Number.parseFloat(service.price),
+          vendor: {
+            id: service.user_id.toString(),
+            name: service.vendor_name || "Unknown Vendor",
+            email: service.vendor_email || "",
+          },
+          status: getStatusFromNumber(service.status),
+          featured: Boolean(service.featured),
+          images: service.image
+            ? [service.image]
+            : ["/assets/images/image-placeholder.png"],
+          createdAt: service.created_at,
+          duration: Number.parseFloat(service.service_duration) || 0,
+          availability: Array.isArray(service.available_dates)
+            ? service.available_dates.join(", ")
+            : service.available_dates
+            ? service.available_dates
+            : "",
+          homeService: Boolean(service.home_service_availability),
+        })
+      );
 
-        setServices(formattedServices);
+      setServices(formattedServices);
 
-        // Set pagination info
-        setTotalItems(data.total || 0);
-        setTotalPages(data.last_page || 1);
+      // Update pagination from API response
+      setPagination({
+        currentPage: data.current_page || Number.parseInt(filters.page) || 1,
+        totalPages: data.last_page || 1,
+        total: data.total || formattedServices.length,
+        perPage: data.per_page || Number.parseInt(filters.limit) || 10,
+      });
 
-        // Use API counts if available, otherwise calculate from filtered results
-        if (data.listingCounts) {
-          setStats({
-            total: data.listingCounts.allServices || 0,
-            pending: data.listingCounts.pendingServices || 0,
-            approved: data.listingCounts.approvedServices || 0,
-            rejected: data.listingCounts.rejectedServices || 0,
-            disabled: data.listingCounts.disabledServices || 0,
-          });
-        } else {
-          calculateStats(formattedServices);
-        }
-      } else {
-        setServices([]);
+      // Update stats
+      if (apiData.listingCounts) {
         setStats({
-          total: 0,
-          pending: 0,
-          approved: 0,
-          rejected: 0,
-          disabled: 0,
+          total: apiData.listingCounts.allServices || 0,
+          pending: apiData.listingCounts.pendingServices || 0,
+          approved: apiData.listingCounts.approvedServices || 0,
+          rejected: apiData.listingCounts.rejectedServices || 0,
+          disabled: apiData.listingCounts.disabledServices || 0,
         });
+      } else {
+        calculateStats(formattedServices);
       }
     } catch (err) {
       console.error("Error fetching services:", err);
@@ -193,7 +143,13 @@ export default function ServiceApprovalPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters, currentPage]);
+  }, [
+    filters.page,
+    filters.limit,
+    filters.category,
+    filters.status,
+    filters.search,
+  ]);
 
   useEffect(() => {
     fetchServices();
@@ -211,20 +167,17 @@ export default function ServiceApprovalPage() {
   };
 
   const handleFiltersChange = useCallback(
-    (newFilters: Filters) => {
-      setFilters(newFilters);
-      setCurrentPage(1); // Reset to first page when filters change
-      updateURL(newFilters, 1);
+    (newFilters: { category: string; status: string; search: string }) => {
+      updateFilters(newFilters);
     },
-    [updateURL]
+    [updateFilters]
   );
 
   const handlePageChange = useCallback(
-    (newPage: number) => {
-      setCurrentPage(newPage);
-      updateURL(filters, newPage);
+    (page: number) => {
+      updateFilters({ page: page.toString() });
     },
-    [filters, updateURL]
+    [updateFilters]
   );
 
   const handleBulkAction = async (
@@ -365,12 +318,16 @@ export default function ServiceApprovalPage() {
             <div className="text-2xl font-bold text-gray-600">
               {stats.disabled}
             </div>
-            <p className="text-xs text-muted-foreground">Disabled services</p>
+            <p className="text-xs text-muted-foreground">Inactive services</p>
           </CardContent>
         </Card>
       </div>
 
-      <ServiceFilters onFiltersChange={handleFiltersChange} />
+      <ServiceFilters
+        onFiltersChange={handleFiltersChange}
+        initialFilters={filters}
+        onClearFilters={clearFilters}
+      />
 
       {selectedIds.length > 0 && (
         <BulkActionsToolbar
@@ -395,91 +352,20 @@ export default function ServiceApprovalPage() {
           <p className="text-muted-foreground">
             No services found matching your criteria.
           </p>
-          <Button
-            variant="link"
-            onClick={() =>
-              handleFiltersChange({ category: "", status: "", search: "" })
-            }
-          >
+          <Button variant="link" onClick={clearFilters}>
             Clear filters
           </Button>
         </div>
       ) : (
-        <>
-          <ServiceTable
-            services={services}
-            selectedIds={selectedIds}
-            onSelectedIdsChange={setSelectedIds}
-            onRefresh={fetchServices}
-            isLoading={isUpdating}
-          />
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <div className="flex-1 text-sm text-muted-foreground">
-                Showing {(currentPage - 1) * pageSize + 1} to{" "}
-                {Math.min(currentPage * pageSize, totalItems)} of {totalItems}{" "}
-                services
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage <= 1}
-                >
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Previous
-                </Button>
-
-                <div className="flex items-center space-x-1">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={
-                          currentPage === pageNum ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => handlePageChange(pageNum)}
-                        className="w-8 h-8 p-0"
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                  {totalPages > 5 && (
-                    <>
-                      <span className="text-muted-foreground">...</span>
-                      <Button
-                        variant={
-                          currentPage === totalPages ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => handlePageChange(totalPages)}
-                        className="w-8 h-8 p-0"
-                      >
-                        {totalPages}
-                      </Button>
-                    </>
-                  )}
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage >= totalPages}
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
+        <ServiceTable
+          services={services}
+          selectedIds={selectedIds}
+          onSelectedIdsChange={setSelectedIds}
+          onRefresh={fetchServices}
+          isLoading={isUpdating}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+        />
       )}
     </div>
   );

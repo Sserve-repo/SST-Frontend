@@ -28,6 +28,8 @@ import {
   X,
   Loader2,
   Ban,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ServiceDetailsDialog } from "./service-details-dialog";
 import { EditServiceDialog } from "./edit-service-dialog";
@@ -43,6 +45,13 @@ interface ServiceTableProps {
   onSelectedIdsChange: (ids: string[]) => void;
   onRefresh?: () => void;
   isLoading?: boolean;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    total: number;
+    perPage: number;
+  };
+  onPageChange?: (page: number) => void;
 }
 
 export function ServiceTable({
@@ -51,6 +60,8 @@ export function ServiceTable({
   onSelectedIdsChange,
   onRefresh,
   isLoading = false,
+  pagination,
+  onPageChange,
 }: ServiceTableProps) {
   const [serviceToView, setServiceToView] = useState<Service | null>(null);
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
@@ -264,10 +275,6 @@ export function ServiceTable({
                         )
                       }
                       disabled={actionLoading === `feature-${service.id}`}
-                      className={cn(
-                        "h-8 w-8 p-0",
-                        service.featured && "text-yellow-600"
-                      )}
                     >
                       {actionLoading === `feature-${service.id}` ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -275,7 +282,9 @@ export function ServiceTable({
                         <Star
                           className={cn(
                             "h-4 w-4",
-                            service.featured && "fill-current"
+                            service.featured
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-gray-400"
                           )}
                         />
                       )}
@@ -377,6 +386,23 @@ export function ServiceTable({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() =>
+                            handleSingleAction(
+                              service.id!,
+                              "feature",
+                              service.featured
+                            )
+                          }
+                          disabled={actionLoading === `feature-${service.id}`}
+                        >
+                          {actionLoading === `feature-${service.id}` ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Star className="mr-2 h-4 w-4 text-yellow-600" />
+                          )}
+                          {service.featured ? "Unfeature" : "Feature"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
                             handleSingleAction(service.id!, "disable")
                           }
                           disabled={actionLoading === `disable-${service.id}`}
@@ -398,6 +424,45 @@ export function ServiceTable({
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between space-x-2 py-4">
+          <div className="flex-1 text-sm text-muted-foreground">
+            Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{" "}
+            {Math.min(
+              pagination.currentPage * pagination.perPage,
+              pagination.total
+            )}{" "}
+            of {pagination.total} results
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(pagination.currentPage - 1)}
+              disabled={pagination.currentPage <= 1}
+            > 
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            <div className="flex items-center space-x-1">
+              <span className="text-sm">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange?.(pagination.currentPage + 1)}
+              disabled={pagination.currentPage >= pagination.totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <ServiceDetailsDialog
         service={serviceToView}

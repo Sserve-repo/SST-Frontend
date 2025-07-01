@@ -307,12 +307,12 @@ export function ProductTable({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => setProductToEdit(product)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Product
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         {product.status === "pending" && (
                           <>
                             <DropdownMenuSeparator />

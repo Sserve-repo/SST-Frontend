@@ -10,38 +10,38 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Promotion } from "@/types/promotions";
 
-interface DeletePromotionDialogProps {
-  promotion: Promotion | null;
+interface DeleteRoleDialogProps {
+  role: { id: string; name: string } | null;
   onOpenChange: (open: boolean) => void;
-  onDelete: (id: string) => void;
+  onConfirm: (roleId: string) => void;
 }
 
-export function DeletePromotionDialog({
-  promotion,
+export function DeleteRoleDialog({
+  role,
   onOpenChange,
-  onDelete,
-}: DeletePromotionDialogProps) {
-  if (!promotion) return null;
+  onConfirm,
+}: DeleteRoleDialogProps) {
+  if (!role) return null;
 
   return (
-    <AlertDialog open={!!promotion} onOpenChange={onOpenChange}>
+    <AlertDialog open={!!role} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Promotion</AlertDialogTitle>
+          <AlertDialogTitle>Delete Role</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the promotion &quot;{promotion.name}
-            &quot;? This action cannot be undone.
+            Are you sure you want to delete the role &quot;{role.name}&quot;?
+            This action cannot be undone and will remove all associated
+            permissions.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => onDelete(promotion.id)}
+            onClick={() => onConfirm(role.id)}
             className="bg-red-600 hover:bg-red-700"
           >
-            Delete
+            Delete Role
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

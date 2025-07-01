@@ -14,7 +14,6 @@ import { getServiceCategories } from "@/actions/admin/categories";
 import type { ServiceCategory } from "@/types/categories";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounced-search";
-import { updateFilters, getFilterValue, clearAllFilters } from "@/lib/filters";
 
 interface ServiceFiltersProps {
   onFiltersChange: (filters: {
@@ -22,27 +21,38 @@ interface ServiceFiltersProps {
     status: string;
     search: string;
   }) => void;
+  initialFilters: {
+    category: string;
+    status: string;
+    search: string;
+  };
+  onClearFilters?: () => void;
 }
 
-export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
+export function ServiceFilters({
+  onFiltersChange,
+  initialFilters,
+  onClearFilters,
+}: ServiceFiltersProps) {
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [search, setSearch] = useState(getFilterValue("search"));
-  const [category, setCategory] = useState(getFilterValue("category"));
-  const [status, setStatus] = useState(getFilterValue("status"));
+  const [search, setSearch] = useState(initialFilters.search || "");
+  const [category, setCategory] = useState(initialFilters.category || "");
+  const [status, setStatus] = useState(initialFilters.status || "");
 
   const { toast } = useToast();
   const debouncedSearch = useDebounce(search, 500);
 
   useEffect(() => {
-    onFiltersChange({ category, status, search });
-  }, []); // Trigger initial filter on mount
+    setSearch(initialFilters.search || "");
+    setCategory(initialFilters.category || "");
+    setStatus(initialFilters.status || "");
+  }, [initialFilters]);
 
   useEffect(() => {
     onFiltersChange({ category, status, search: debouncedSearch });
-    updateFilters({ category, status, search: debouncedSearch });
-  }, [category, status, debouncedSearch]);
+  }, [category, status, debouncedSearch, onFiltersChange]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -71,8 +81,7 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
     setSearch("");
     setCategory("");
     setStatus("");
-    clearAllFilters();
-    onFiltersChange({ category: "", status: "", search: "" });
+    onClearFilters?.();
   };
 
   return (
@@ -98,7 +107,7 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.name}>
+              <SelectItem key={cat.id} value={cat.id.toString()} className="capitalize line-clamp-1">
                 {cat.name}
               </SelectItem>
             ))}
@@ -121,7 +130,11 @@ export function ServiceFilters({ onFiltersChange }: ServiceFiltersProps) {
           </SelectContent>
         </Select>
 
-        <Button variant="outline" className="px-6" onClick={resetFilters}>
+        <Button
+          variant="outline"
+          className="px-6 bg-transparent"
+          onClick={resetFilters}
+        >
           Clear
         </Button>
       </div>

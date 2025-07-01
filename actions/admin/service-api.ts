@@ -26,16 +26,20 @@ export interface ServiceListResponse {
   status: boolean
   status_code: number
   message: string
-  data: {
-    serviceListing: Service[]
-    listingCounts?: {
-      allServices: number
-      pendingServices: number
-      approvedServices: number
-      rejectedServices: number
-      disabledServices: number
-    }
+
+  serviceListing: Service[]
+  listingCounts?: {
+    allServices: number
+    pendingServices: number
+    approvedServices: number
+    rejectedServices: number
+    disabledServices: number
   }
+  current_page: number
+  total: number
+  last_page: number
+  per_page: number
+
   token: null
   debug: null
 }
@@ -71,10 +75,10 @@ export async function getServices(params: Record<string, string> = {}) {
           case "status":
             // Map status strings to numbers for API
             const statusMap: Record<string, string> = {
-              pending: "0",
-              approved: "1",
-              rejected: "2",
-              disabled: "3",
+              pending: "pending",
+              approved: "approved",
+              rejected: "rejected",
+              disabled: "disabled3",
             }
             queryParams.append("status", statusMap[value] || value)
             break

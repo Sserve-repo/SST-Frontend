@@ -60,3 +60,8 @@ export interface Region {
 export interface MenuData {
     "Products Category Menu": Region[]
 }
+
+export interface RescheduleData {
+    booked_date: string
+    booked_time: string
+}

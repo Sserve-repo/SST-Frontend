@@ -195,7 +195,8 @@ export function ServiceTable({
                         alt={service.name}
                         className="h-10 w-10 rounded-md object-cover bg-muted"
                         onError={(e) =>
-                          (e.currentTarget.src = "/assets/images/image-placeholder.png")
+                          (e.currentTarget.src =
+                            "/assets/images/image-placeholder.png")
                         }
                       />
                       <div className="truncate max-w-[200px]">

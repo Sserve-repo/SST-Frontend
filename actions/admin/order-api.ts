@@ -47,7 +47,7 @@ export interface Order {
 }
 
 export interface OrderListResponse {
-    Orders: Order[]
+    orders: Order[]
     TotalExpenditure: string
     deliveredOrder: number
     pendingOrder: number

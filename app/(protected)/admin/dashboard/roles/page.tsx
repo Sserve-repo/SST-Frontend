@@ -1,88 +1,114 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "@/components/ui/data-table";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CreateRoleDialog } from "@/components/admin/roles/create-role-dialog";
+import { EditRoleDialog } from "@/components/admin/users/edit-role-dialog";
+import { ViewRoleDialog } from "@/components/admin/roles/view-role-dialog";
+import { DeleteRoleDialog } from "@/components/admin/roles/delete-role-dialog";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { useToast } from "@/hooks/use-toast";
 import {
+  getRoles,
+  getRolePermissions,
+  deleteRole,
+} from "@/actions/admin/role-api";
+import {
+  Shield,
+  Plus,
+  Search,
   MoreHorizontal,
   Eye,
   Edit,
   Trash,
-  Plus,
-  Shield,
   Users,
-  Settings,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import {
-  getRolesWithPermissions,
-  deleteRole,
-  type RoleWithPermissions,
-} from "@/actions/admin/role-api";
-import { useToast } from "@/hooks/use-toast";
-import { CreateRoleDialog } from "@/components/admin/roles/create-role-dialog";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { ErrorMessage } from "@/components/ui/error-message";
+import { useUrlFilters } from "@/hooks/use-url-filters";
 
-interface RoleTableItem {
+interface Role {
   id: string;
   name: string;
   permissions: string[];
-  permissionCount: number;
+  userCount?: number;
+  createdAt: string;
 }
 
 export default function RolesPage() {
-  const [roles, setRoles] = useState<RoleTableItem[]>([]);
-  const [stats, setStats] = useState({
-    total: 0,
-    withPermissions: 0,
-    totalPermissions: 0,
-  });
+  const { filters, updateFilters, clearFilters } = useUrlFilters();
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [filteredRoles, setFilteredRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [roleToEdit, setRoleToEdit] = useState<Role | null>(null);
+  const [roleToView, setRoleToView] = useState<string | null>(null);
+  const [roleToDelete, setRoleToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
   const { toast } = useToast();
 
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const { data, error: apiError } = await getRolesWithPermissions();
+      const { data, error: apiError } = await getRoles();
 
       if (apiError) {
         throw new Error(apiError);
       }
 
-      if (data?.data?.roles) {
-        const formattedRoles = data?.data.roles.map((role: RoleWithPermissions) => ({
-          id: role.role_id.toString(),
-          name: role.role,
-          permissions: role.permissions,
-          permissionCount: role.permissions.length,
-        }));
+      console.log("Fetched roles:", data);
 
-        setRoles(formattedRoles);
-        setStats({
-          total: formattedRoles.length,
-          withPermissions: formattedRoles.filter((r) => r.permissionCount > 0)
-            .length,
-          totalPermissions: formattedRoles.reduce(
-            (acc, r) => acc + r.permissionCount,
-            0
-          ),
-        });
+      if (data?.data) {
+        const rolesWithPermissions = await Promise.all(
+          data.data.map(async (role: any) => {
+            try {
+              const { data: permData } = await getRolePermissions(
+                role.id.toString()
+              );
+              return {
+                id: role.id.toString(),
+                name: role.name,
+                permissions:
+                  permData?.permissions?.map((p: any) => p.name) || [],
+                userCount: 0, // This would come from a separate API call
+                createdAt: role.created_at || new Date().toISOString(),
+              };
+            } catch {
+              return {
+                id: role.id.toString(),
+                name: role.name,
+                permissions: [],
+                userCount: 0,
+                createdAt: role.created_at || new Date().toISOString(),
+              };
+            }
+          })
+        );
+
+        setRoles(rolesWithPermissions);
+        setFilteredRoles(rolesWithPermissions);
       }
     } catch (err) {
       console.error("Error fetching roles:", err);
@@ -90,15 +116,33 @@ export default function RolesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchRoles();
-  }, []);
+  }, [fetchRoles]);
 
-  const handleDeleteRole = async (id: string) => {
+  useEffect(() => {
+    if (filters.search) {
+      const filtered = roles.filter((role) =>
+        role.name.toLowerCase().includes(filters.search.toLowerCase())
+      );
+      setFilteredRoles(filtered);
+    } else {
+      setFilteredRoles(roles);
+    }
+  }, [filters.search, roles]);
+
+  const handleSearch = useCallback(
+    (searchValue: string) => {
+      updateFilters({ search: searchValue });
+    },
+    [updateFilters]
+  );
+
+  const handleDeleteRole = async (roleId: string) => {
     try {
-      const { error } = await deleteRole(id);
+      const { error } = await deleteRole(roleId);
 
       if (error) {
         throw new Error(error);
@@ -111,7 +155,6 @@ export default function RolesPage() {
 
       fetchRoles();
     } catch (error) {
-      console.error("Failed to delete role:", error);
       toast({
         title: "Error",
         description: "Failed to delete role. Please try again.",
@@ -120,99 +163,9 @@ export default function RolesPage() {
     }
   };
 
-  const columns: ColumnDef<RoleTableItem>[] = [
-    {
-      accessorKey: "name",
-      header: "Role Name",
-    },
-    {
-      accessorKey: "permissionCount",
-      header: "Permissions",
-      cell: ({ row }) => {
-        const count = row.getValue("permissionCount") as number;
-        return <Badge variant="secondary">{count} permissions</Badge>;
-      },
-    },
-    {
-      accessorKey: "permissions",
-      header: "Permission List",
-      cell: ({ row }) => {
-        const permissions = row.getValue("permissions") as string[];
-        const displayPermissions = permissions.slice(0, 3);
-        const remaining = permissions.length - 3;
-
-        return (
-          <div className="flex flex-wrap gap-1">
-            {displayPermissions.map((permission, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {permission}
-              </Badge>
-            ))}
-            {remaining > 0 && (
-              <Badge variant="outline" className="text-xs">
-                +{remaining} more
-              </Badge>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const role = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => router.push(`/admin/dashboard/roles/${role.id}`)}
-              >
-                <Eye className="mr-2 h-4 w-4" /> View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  router.push(`/admin/dashboard/roles/${role.id}/edit`)
-                }
-              >
-                <Edit className="mr-2 h-4 w-4" /> Edit Role
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-red-600"
-                onClick={() => handleDeleteRole(role.id)}
-              >
-                <Trash className="mr-2 h-4 w-4" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <ErrorMessage message={error} onRetry={fetchRoles} />;
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary sm:text-3xl">
             Role Management
@@ -237,23 +190,21 @@ export default function RolesPage() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">All system roles</p>
+            <div className="text-2xl font-bold">{roles.length}</div>
+            <p className="text-xs text-muted-foreground">System roles</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Roles</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
+            <Shield className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {stats.withPermissions}
+              {roles.length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Roles with permissions
-            </p>
+            <p className="text-xs text-muted-foreground">Currently active</p>
           </CardContent>
         </Card>
 
@@ -262,11 +213,11 @@ export default function RolesPage() {
             <CardTitle className="text-sm font-medium">
               Total Permissions
             </CardTitle>
-            <Settings className="h-4 w-4 text-blue-600" />
+            <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {stats.totalPermissions}
+              {roles.reduce((acc, role) => acc + role.permissions.length, 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Assigned permissions
@@ -275,11 +226,142 @@ export default function RolesPage() {
         </Card>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={roles}
-        searchKey="name"
-        searchPlaceholder="Search roles..."
+      {/* Search */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search roles..."
+            value={filters.search}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button variant="outline" size="sm" onClick={clearFilters}>
+          Clear Filters
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner />
+        </div>
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchRoles} />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Role Name</TableHead>
+                  <TableHead>Permissions</TableHead>
+                  <TableHead>Users</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRoles.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      No roles found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredRoles.map((role) => (
+                    <TableRow key={role.id}>
+                      <TableCell className="font-medium">{role.name}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {role.permissions.slice(0, 3).map((permission) => (
+                            <Badge
+                              key={permission}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {permission}
+                            </Badge>
+                          ))}
+                          {role.permissions.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{role.permissions.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{role.userCount || 0}</TableCell>
+                      <TableCell>
+                        {new Date(role.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => setRoleToView(role.id)}
+                            >
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setRoleToEdit(role)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Role
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-red-600"
+                              onClick={() =>
+                                setRoleToDelete({
+                                  id: role.id,
+                                  name: role.name,
+                                })
+                              }
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Dialogs */}
+      <ViewRoleDialog
+        roleId={roleToView}
+        onOpenChange={(open) => !open && setRoleToView(null)}
+      />
+
+      <EditRoleDialog
+        role={roleToEdit}
+        onOpenChange={(open) => !open && setRoleToEdit(null)}
+        onSuccess={fetchRoles}
+      />
+
+      <DeleteRoleDialog
+        role={roleToDelete}
+        onOpenChange={(open) => !open && setRoleToDelete(null)}
+        onConfirm={(roleId) => {
+          handleDeleteRole(roleId);
+          setRoleToDelete(null);
+        }}
       />
     </div>
   );

@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounced-search";
+import { getProductCategories } from "@/actions/admin/categories";
+import type { ProductCategory } from "@/types/categories";
+import { useToast } from "@/hooks/use-toast";
 
 interface Filters {
   category: string;
@@ -21,21 +24,48 @@ interface Filters {
 interface ProductFiltersProps {
   onFiltersChange: (filters: Filters) => void;
   initialFilters: Filters;
-  categories: string[];
+  categories?: string[];
   onClearFilters?: () => void;
 }
 
 export function ProductFilters({
   onFiltersChange,
   initialFilters,
-  categories,
   onClearFilters,
 }: ProductFiltersProps) {
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [category, setCategory] = useState(initialFilters.category || "");
   const [status, setStatus] = useState(initialFilters.status || "");
   const [searchQuery, setSearchQuery] = useState(initialFilters.search || "");
 
+  const { toast } = useToast();
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await getProductCategories();
+
+        console.log("Fetched categories:", data);
+        if (error) throw new Error(error);
+        if (data?.["Products Category"]) {
+          setCategories(data["Products Category"]);
+        }
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to load product categories.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     onFiltersChange({ category, status, search: debouncedSearchQuery });
@@ -69,15 +99,16 @@ export function ProductFilters({
         <Select
           value={category || "all"}
           onValueChange={(value) => setCategory(value === "all" ? "" : value)}
+          disabled={isLoading}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Category" />
+            <SelectValue placeholder={isLoading ? "Loading..." : "Category"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {categories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat}
+              <SelectItem key={cat.id} value={cat.id.toString()}>
+                {cat.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -95,7 +126,7 @@ export function ProductFilters({
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="disabled">Disabled</SelectItem>
           </SelectContent>
         </Select>
 
