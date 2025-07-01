@@ -1,13 +1,12 @@
 "use client";
 
-import type React from "react";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,24 +19,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { assignRoleToUser } from "@/actions/admin/role-api";
-import { Loader2 } from "lucide-react";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-interface Role {
-  id: number;
-  name: string;
-}
+import type { User } from "@/types/users";
 
 interface AssignRoleDialogProps {
   user: User | null;
-  roles: Role[];
+  roles: any[];
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export function AssignRoleDialog({
@@ -47,65 +35,66 @@ export function AssignRoleDialog({
   onSuccess,
 }: AssignRoleDialogProps) {
   const [selectedRole, setSelectedRole] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const assignRoleMutation = useMutation({
-    mutationFn: ({ userId, roleId }: { userId: string; roleId: string }) =>
-      assignRoleToUser(userId, roleId),
-    onSuccess: () => {
+  const handleAssignRole = async () => {
+    if (!user || !selectedRole) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await assignRoleToUser(user.id, selectedRole);
+
+      if (error) {
+        throw new Error(error);
+      }
+
       toast({
         title: "Success",
-        description: "Role assigned successfully.",
+        description: `Role assigned to ${user.firstName} ${user.lastName} successfully.`,
       });
-      setSelectedRole("");
+
+      onSuccess?.();
       onOpenChange(false);
-      onSuccess();
-    },
-    onError: (error: Error) => {
+      setSelectedRole("");
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message || "Failed to assign role.",
+        description: "Failed to assign role. Please try again.",
         variant: "destructive",
       });
-    },
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!selectedRole) {
-      toast({
-        title: "Error",
-        description: "Please select a role.",
-        variant: "destructive",
-      });
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    if (!user) return;
-
-    assignRoleMutation.mutate({
-      userId: user.id,
-      roleId: selectedRole,
-    });
   };
+
+  if (!user) return null;
 
   return (
     <Dialog open={!!user} onOpenChange={onOpenChange}>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Assign Role to {user?.name}</DialogTitle>
+          <DialogTitle>Assign Role</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Assign a role to{" "}
+              <span className="font-medium">
+                {user.firstName} {user.lastName}
+              </span>
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="role">Select Role</Label>
             <Select value={selectedRole} onValueChange={setSelectedRole}>
               <SelectTrigger>
-                <SelectValue placeholder="Choose a role..." />
+                <SelectValue placeholder="Choose a role" />
               </SelectTrigger>
               <SelectContent>
-                {roles?.length > 0 && roles?.map((role) => (
+                {roles.map((role) => (
                   <SelectItem key={role.id} value={role.id.toString()}>
                     {role.name}
                   </SelectItem>
@@ -113,28 +102,23 @@ export function AssignRoleDialog({
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={assignRoleMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={assignRoleMutation.isPending}>
-              {assignRoleMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Assigning...
-                </>
-              ) : (
-                "Assign Role"
-              )}
-            </Button>
-          </div>
-        </form>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAssignRole}
+            disabled={!selectedRole || isLoading}
+          >
+            {isLoading ? "Assigning..." : "Assign Role"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
