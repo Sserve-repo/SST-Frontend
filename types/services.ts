@@ -1,31 +1,44 @@
-export type DayAvailability = {
-  start: string;
-  end: string;
-};
+export type ServiceStatus = "active" | "inactive" | "draft"
 
-export type ServiceAvailability = {
-  [key: string]: DayAvailability;
-};
+export interface Service {
+  id: string
+  name: string
+  title?: string
+  description: string
+  price: number
+  duration: number
+  category: string
+  status: ServiceStatus
+  images: string[]
+  availability: ServiceAvailability[]
+  rating: number
+  reviewCount: number
+  bookingCount: number
+  createdAt: Date
+  updatedAt: Date
+}
 
-export type Service = {
-  id: string | undefined;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  images: string[] | File[];
-  availability: string;
-  location?: string;
-  homeService?: boolean,
-  status?: string; // e.g., "pending", "approved", "rejected"
-  category: string;
-  createdAt: string | Date
-  featured: boolean
-  vendor?: {
-    id: string;
-    name: string;
-    email: string;
-  };
-};
+export interface ServiceAvailability {
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  isAvailable: boolean
+}
 
+export interface ServiceFilters {
+  category?: string
+  status?: ServiceStatus
+  priceRange?: {
+    min: number
+    max: number
+  }
+}
 
+export interface CreateServiceData {
+  title: string
+  description: string
+  price: number
+  duration: number
+  category: string
+  images?: File[]
+}
