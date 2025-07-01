@@ -113,7 +113,7 @@ export function AppointmentListView({
                 "bg-green-100 text-green-700",
               appointment.status === "pending" &&
                 "bg-yellow-100 text-yellow-700",
-              appointment.status === "canceled" && "bg-red-100 text-red-700",
+              appointment.status === "cancelled" && "bg-red-100 text-red-700",
               appointment.status === "completed" && "bg-blue-100 text-blue-700",
               appointment.status === "rescheduled" &&
                 "bg-purple-100 text-purple-700",
@@ -215,7 +215,10 @@ export function AppointmentListView({
 
       <AppointmentDetailsDialog
         appointment={selectedAppointment}
-        onOpenChange={(open) => !open && setSelectedAppointment(null)}
+        open={!!selectedAppointment}
+        onOpenChange={(open) => {
+          if (!open) setSelectedAppointment(null);
+        }}
         onUpdate={(updatedAppointment) => {
           onUpdateAppointment(updatedAppointment);
           setSelectedAppointment(null);
