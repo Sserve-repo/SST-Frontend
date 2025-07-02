@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   type ColumnDef,
@@ -59,7 +59,6 @@ import {
   cancelBookingHandler,
 } from "@/actions/dashboard/artisans";
 import type { Appointment, AppointmentStatus } from "@/types/appointments";
-import { AppointmentDetailsDialog } from "./details-dialog";
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -83,7 +82,7 @@ export default function AppointmentsPage() {
   const currentPage = Number(searchParams.get("page")) || 1;
   const itemsPerPage = 10;
 
-  const fetchAppointments = async (page = 1, search = "", date?: string) => {
+  const fetchAppointments = useCallback(async (page = 1, search = "", date?: string) => {
     try {
       setLoading(true);
       const response = await getAppointmentsPaginated(
@@ -161,7 +160,7 @@ export default function AppointmentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     const page = Number(searchParams.get("page")) || 1;
@@ -172,7 +171,7 @@ export default function AppointmentsPage() {
     }
 
     fetchAppointments(page, debouncedSearchTerm, dateParam || undefined);
-  }, [debouncedSearchTerm, searchParams]);
+  }, [debouncedSearchTerm, searchParams, fetchAppointments]);
 
   const handleViewChange = (view: string) => {
     const params = new URLSearchParams(searchParams);
@@ -180,11 +179,11 @@ export default function AppointmentsPage() {
     router.push(`?${params.toString()}`);
   };
 
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", page.toString());
-    router.push(`?${params.toString()}`);
-  };
+  // const handlePageChange = (page: number) => {
+  //   const params = new URLSearchParams(searchParams);
+  //   params.set("page", page.toString());
+  //   router.push(`?${params.toString()}`);
+  // };
 
   const handleDateFilter = (date: Date | undefined) => {
     setSelectedDate(date);

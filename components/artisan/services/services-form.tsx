@@ -38,7 +38,7 @@ export function ServicesForm({
     duration: service?.duration || 60,
     location: service?.location || "",
     featured: service?.featured || false,
-    availability: service?.availability || "available",
+    availability: service?.availability || ["available"],
   });
   const [images, setImages] = useState<File[]>([]);
 
@@ -49,6 +49,7 @@ export function ServicesForm({
       ...formData,
       price: Number(formData.price),
       duration: Number(formData.duration),
+      availability: formData.availability as Service["availability"],
     };
 
     if (images.length > 0) {
@@ -189,9 +190,9 @@ export function ServicesForm({
           <div>
             <Label htmlFor="availability">Availability</Label>
             <Select
-              value={formData.availability}
+              value={String(formData.availability[0] || "")}
               onValueChange={(value) =>
-                setFormData({ ...formData, availability: value })
+                setFormData({ ...formData, availability: [value] })
               }
               disabled={isSubmitting}
             >

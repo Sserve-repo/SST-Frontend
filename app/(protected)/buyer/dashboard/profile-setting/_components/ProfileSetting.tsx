@@ -164,7 +164,7 @@ export default function ProfileSetting() {
     }
 
     setLoading(true);
-    const payload = profilePayload(data, currentUser, changedFields);
+    const payload = profilePayload(data, currentUser!, changedFields);
     const token = Cookies.get("accessToken");
 
     try {

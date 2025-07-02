@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,13 +27,7 @@ export function ViewEventDialog({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (eventId) {
-      fetchEvent();
-    }
-  }, [eventId]);
-
-  const fetchEvent = async () => {
+  const fetchEvent =useCallback( async () => {
     if (!eventId) return;
 
     setLoading(true);
@@ -57,7 +51,13 @@ export function ViewEventDialog({
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId, toast]);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId, fetchEvent]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {

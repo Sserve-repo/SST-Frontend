@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 import {
@@ -81,7 +80,6 @@ export default function ProfileSetting() {
   const { setAuth } = useAuth();
   const [currentUser, setCurrentUser] = useState<ProfileFormData | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const router = useRouter();
 
   const fetchUser = useCallback(async () => {
     const userRes = await getLoggedInUserDetails();
@@ -107,7 +105,7 @@ export default function ProfileSetting() {
     },
   });
 
-  const { reset, setValue, setError } = form;
+  const { reset, setValue } = form;
 
   useEffect(() => {
     if (currentUser) {

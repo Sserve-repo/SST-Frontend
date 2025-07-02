@@ -52,11 +52,11 @@ export default function PayoutsPage() {
 
       const { data, error: apiError } = await getPendingPayouts();
 
-      if (apiError || !data?.data?.Payout) {
+      if (apiError || !data?.data?.data.Payout) {
         throw new Error(apiError || "Failed to fetch pending payouts");
       }
 
-      const payoutData = data.data.Payout;
+      const payoutData = data.data.data.Payout;
       setPendingPayouts(payoutData.allPending || []);
 
       setStats((prev) => ({
@@ -82,11 +82,11 @@ export default function PayoutsPage() {
 
       const { data, error: apiError } = await getCompletedPayouts();
 
-      if (apiError || !data?.data?.Payout) {
+      if (apiError || !data?.data?.data?.Payout) {
         throw new Error(apiError || "Failed to fetch completed payouts");
       }
 
-      const payoutData = data.data.Payout;
+      const payoutData = data.data.data?.Payout;
       setCompletedPayouts(payoutData.allCompleted || []);
 
       setStats((prev) => ({
@@ -117,7 +117,7 @@ export default function PayoutsPage() {
     try {
       const { data, error: apiError } = await processPayout(userId);
 
-      if (apiError || !data?.data?.payout) {
+      if (apiError || !data?.data?.data?.payout) {
         throw new Error(apiError || "Failed to process payout");
       }
 

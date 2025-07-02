@@ -86,7 +86,7 @@ export default function ServiceApprovalPage() {
       }
 
       const apiData = data;
-      const formattedServices: IService[] = apiData.serviceListing.map(
+      const formattedServices: any[] = apiData.serviceListing.map(
         (service: Service) => ({
           id: service.id.toString(),
           name: service.title,
@@ -98,7 +98,7 @@ export default function ServiceApprovalPage() {
             name: service.vendor_name || "Unknown Vendor",
             email: service.vendor_email || "",
           },
-          status: getStatusFromNumber(service.status),
+          status: getStatusFromNumber(service.status) as IService["status"],
           featured: Boolean(service.featured),
           images: service.image
             ? [service.image]
@@ -106,11 +106,18 @@ export default function ServiceApprovalPage() {
           createdAt: service.created_at,
           duration: Number.parseFloat(service.service_duration) || 0,
           availability: Array.isArray(service.available_dates)
-            ? service.available_dates.join(", ")
+            ? (service.available_dates as string[])
             : service.available_dates
-            ? service.available_dates
-            : "",
+            ? ([service.available_dates] as string[])
+            : [],
           homeService: Boolean(service.home_service_availability),
+          // Add missing properties for Service type
+          rating: typeof service.rating === "number" ? service.rating : 0,
+          reviewCount:
+            typeof service.reviewCount === "number" ? service.reviewCount : 0,
+          bookingCount:
+            typeof service.bookingCount === "number" ? service.bookingCount : 0,
+          updatedAt: service.updated_at || service.created_at,
         })
       );
 
@@ -158,10 +165,18 @@ export default function ServiceApprovalPage() {
   const calculateStats = (serviceList: IService[]) => {
     const newStats = {
       total: serviceList.length,
-      pending: serviceList.filter((s) => s.status === "pending").length,
-      approved: serviceList.filter((s) => s.status === "approved").length,
-      rejected: serviceList.filter((s) => s.status === "rejected").length,
-      disabled: serviceList.filter((s) => s.status === "disabled").length,
+      pending: serviceList.filter(
+        (s) => s.status === ("pending" as IService["status"])
+      ).length,
+      approved: serviceList.filter(
+        (s) => s.status === ("approved" as IService["status"])
+      ).length,
+      rejected: serviceList.filter(
+        (s) => s.status === ("rejected" as IService["status"])
+      ).length,
+      disabled: serviceList.filter(
+        (s) => s.status === ("disabled" as IService["status"])
+      ).length,
     };
     setStats(newStats);
   };

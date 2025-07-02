@@ -215,80 +215,89 @@ export default function ServiceAvailability() {
     setScheduleRequest((prev) => ({ ...prev, [field]: value }));
   };
 
-  const fetchServices = async (page = 1) => {
-    setIsLoading(true);
-    try {
-      // Build query params for the API call
-      const params = new URLSearchParams();
+  const fetchServices = useCallback(
+    async (page = 1) => {
+      setIsLoading(true);
+      try {
+        // Build query params for the API call
+        const params = new URLSearchParams();
 
-      // If no specific category filters, fetch all services
-      if (scheduleRequest.serviceSubCategoryId) {
-        params.append(
-          "sub_service_category",
-          scheduleRequest.serviceSubCategoryId.toString()
-        );
-      }
+        // If no specific category filters, fetch all services
+        if (scheduleRequest.serviceSubCategoryId) {
+          params.append(
+            "sub_service_category",
+            scheduleRequest.serviceSubCategoryId.toString()
+          );
+        }
 
-      if (scheduleRequest.serviceCategoryId) {
-        params.append(
-          "service_category",
-          scheduleRequest.serviceCategoryId.toString()
-        );
-      }
+        if (scheduleRequest.serviceCategoryId) {
+          params.append(
+            "service_category",
+            scheduleRequest.serviceCategoryId.toString()
+          );
+        }
 
-      if (scheduleRequest.locationId) {
-        params.append("province", scheduleRequest.locationId.toString());
-      }
+        if (scheduleRequest.locationId) {
+          params.append("province", scheduleRequest.locationId.toString());
+        }
 
-      if (scheduleRequest.date) {
-        params.append("date", format(scheduleRequest.date, "yyyy-MM-dd"));
-      }
+        if (scheduleRequest.date) {
+          params.append("date", format(scheduleRequest.date, "yyyy-MM-dd"));
+        }
 
-      if (scheduleRequest.searchQuery.trim()) {
-        params.append("search", scheduleRequest.searchQuery.trim());
-      }
+        if (scheduleRequest.searchQuery.trim()) {
+          params.append("search", scheduleRequest.searchQuery.trim());
+        }
 
-      params.append("page", page.toString());
+        params.append("page", page.toString());
 
-      // Use appropriate endpoint based on whether we have filters
-      const hasFilters =
-        scheduleRequest.serviceSubCategoryId ||
-        scheduleRequest.serviceCategoryId ||
-        scheduleRequest.locationId ||
-        scheduleRequest.date ||
-        scheduleRequest.searchQuery.trim();
+        // Use appropriate endpoint based on whether we have filters
+        const hasFilters =
+          scheduleRequest.serviceSubCategoryId ||
+          scheduleRequest.serviceCategoryId ||
+          scheduleRequest.locationId ||
+          scheduleRequest.date ||
+          scheduleRequest.searchQuery.trim();
 
-      const endpoint = hasFilters
-        ? `${baseUrl}/general/services/getServicesByCategory`
-        : `${baseUrl}/general/services/getServicesByCategory`;
+        const endpoint = hasFilters
+          ? `${baseUrl}/general/services/getServicesByCategory`
+          : `${baseUrl}/general/services/getServicesByCategory`;
 
-      const url = `${endpoint}?${params.toString()}`;
-      console.log({ url });
+        const url = `${endpoint}?${params.toString()}`;
+        console.log({ url });
 
-      const response = await fetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        const servicesData = data.data.Services as PaginatedResponse;
+        const response = await fetch(url);
+        if (response.ok) {
+          const data = await response.json();
+          const servicesData = data.data.Services as PaginatedResponse;
 
-        setFilteredServices(servicesData?.data || []);
+          setFilteredServices(servicesData?.data || []);
 
-        // Update pagination data
-        setPaginationData({
-          currentPage: servicesData.current_page,
-          lastPage: servicesData.last_page,
-          total: servicesData.total,
-        });
-      } else {
+          // Update pagination data
+          setPaginationData({
+            currentPage: servicesData.current_page,
+            lastPage: servicesData.last_page,
+            total: servicesData.total,
+          });
+        } else {
+          setFilteredServices([]);
+          setPaginationData({ currentPage: 1, lastPage: 1, total: 0 });
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
         setFilteredServices([]);
-        setPaginationData({ currentPage: 1, lastPage: 1, total: 0 });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching services:", error);
-      setFilteredServices([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [
+      scheduleRequest.serviceSubCategoryId,
+      scheduleRequest.serviceCategoryId,
+      scheduleRequest.locationId,
+      scheduleRequest.date,
+      scheduleRequest.searchQuery,
+    ]
+  );
 
   // Handle favorite toggle
   const handleFavoriteToggle = async (
@@ -353,19 +362,19 @@ export default function ServiceAvailability() {
       // No category specified, fetch all services
       fetchServices(1);
     }
-  }, [subCategory]);
+  }, [subCategory, fetchServices]);
 
   // Fetch services when category changes
   useEffect(() => {
     if (scheduleRequest.serviceSubCategoryId !== null || subCategory) {
       fetchServices();
     }
-  }, [scheduleRequest.serviceSubCategoryId]);
+  }, [scheduleRequest.serviceSubCategoryId, fetchServices, subCategory]);
 
   const handleSearch = useCallback(() => {
     setScheduleRequest((prev) => ({ ...prev, page: 1 }));
     fetchServices(1);
-  }, [scheduleRequest, fetchServices]);
+  }, [fetchServices]);
 
   const handleReset = useCallback(() => {
     setScheduleRequest({
@@ -380,7 +389,7 @@ export default function ServiceAvailability() {
       page: 1,
     });
     fetchServices(1);
-  }, []);
+  }, [fetchServices]);
 
   const handlePageChange = (page: number) => {
     setScheduleRequest((prev) => ({ ...prev, page }));

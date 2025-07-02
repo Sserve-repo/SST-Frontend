@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ import { X, ImageIcon } from "lucide-react";
 
 interface EditEventDialogProps {
   eventId: string | null;
-  event: any
+  event: any;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
@@ -54,13 +54,7 @@ export function EditEventDialog({
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (eventId) {
-      fetchEvent();
-    }
-  }, [eventId]);
-
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     if (!eventId) return;
 
     setFetchingEvent(true);
@@ -100,7 +94,13 @@ export function EditEventDialog({
     } finally {
       setFetchingEvent(false);
     }
-  };
+  }, [eventId, toast]);
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId, fetchEvent]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -194,7 +194,9 @@ export function EditEventDialog({
                 {imagePreview ? (
                   <div className="relative">
                     <img
-                      src={imagePreview || "/assets/images/image-placeholder.png"}
+                      src={
+                        imagePreview || "/assets/images/image-placeholder.png"
+                      }
                       alt="Event preview"
                       className="w-full h-48 object-cover rounded-lg"
                     />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Plus,
@@ -47,7 +47,7 @@ export default function PromotionsPage() {
   const currentTab = searchParams.get("tab") || "all";
   const itemsPerPage = 10;
 
-  const fetchPromotions = async (page = 1, search = "", status = "all") => {
+  const fetchPromotions = useCallback(async (page = 1, search = "", status = "all") => {
     try {
       setLoading(true);
       const response = await getPromotions(page, itemsPerPage, search);
@@ -104,7 +104,7 @@ export default function PromotionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const fetchStats = async () => {
     try {
@@ -147,7 +147,7 @@ export default function PromotionsPage() {
     setCurrentPage(page);
     fetchPromotions(page, debouncedSearchTerm, tab);
     fetchStats();
-  }, [debouncedSearchTerm, searchParams]);
+  }, [debouncedSearchTerm, searchParams, fetchPromotions]);
 
   const handleTabChange = (tab: string) => {
     const params = new URLSearchParams(searchParams);

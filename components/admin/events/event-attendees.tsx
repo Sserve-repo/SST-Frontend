@@ -36,7 +36,7 @@ export function EventAttendees({ event }: EventAttendeesProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {event.attendees.map((attendee) => (
+            {(event as any)?.attendees.map((attendee) => (
               <TableRow key={attendee.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">

@@ -75,7 +75,7 @@ export function ServiceFilters({
     };
 
     fetchCategories();
-  }, []);
+  }, [toast]);
 
   const resetFilters = () => {
     setSearch("");

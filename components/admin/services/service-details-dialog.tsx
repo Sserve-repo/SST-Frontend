@@ -92,11 +92,11 @@ export function ServiceDetailsDialog({
                 <Badge
                   variant="secondary"
                   className={cn(
-                    service.status === "approved" &&
+                    service.status === "approved" as any &&
                       "bg-green-100 text-green-600",
-                    service.status === "pending" &&
+                    service.status === "pending" as any &&
                       "bg-yellow-100 text-yellow-600",
-                    service.status === "rejected" && "bg-red-100 text-red-600"
+                    service.status === "rejected" as any && "bg-red-100 text-red-600"
                   )}
                 >
                   {service.status}
@@ -157,7 +157,7 @@ export function ServiceDetailsDialog({
             </div>
           </div>
 
-          {service.status === "pending" && (
+          {service.status === 'pending' as unknown as typeof service.status && (
             <div className="flex justify-end gap-4 pt-4 border-t">
               <Button
                 variant="outline"

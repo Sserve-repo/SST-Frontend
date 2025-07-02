@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, Calendar, Users, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ interface EventsPageProps {
 }
 
 export default function EventsPage({ userType = "artisan" }: EventsPageProps) {
+    console.log(userType)
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,7 +34,7 @@ export default function EventsPage({ userType = "artisan" }: EventsPageProps) {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const itemsPerPage = 12;
 
-  const fetchEvents = async (page = 1, search = "") => {
+  const fetchEvents = useCallback(async (page = 1, search = "") => {
     try {
       setLoading(true);
       const response = await getEvents(page, itemsPerPage, search);
@@ -81,7 +82,7 @@ export default function EventsPage({ userType = "artisan" }: EventsPageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  },[toast]);
 
   const calculateEventStatus = (
     startDate: string,
@@ -116,7 +117,7 @@ export default function EventsPage({ userType = "artisan" }: EventsPageProps) {
     const page = Number(searchParams.get("page")) || 1;
     setCurrentPage(page);
     fetchEvents(page, debouncedSearchTerm);
-  }, [debouncedSearchTerm, searchParams]);
+  }, [debouncedSearchTerm, searchParams, fetchEvents]);
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,13 +22,7 @@ export function ViewRoleDialog({ roleId, onOpenChange }: ViewRoleDialogProps) {
   const [roleData, setRoleData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (roleId) {
-      fetchRoleData();
-    }
-  }, [roleId]);
-
-  const fetchRoleData = async () => {
+    const fetchRoleData =useCallback( async () => {
     if (!roleId) return;
 
     setLoading(true);
@@ -42,7 +36,15 @@ export function ViewRoleDialog({ roleId, onOpenChange }: ViewRoleDialogProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [roleId]);
+
+  useEffect(() => {
+    if (roleId) {
+      fetchRoleData();
+    }
+  }, [roleId, fetchRoleData]);
+
+
 
   if (!roleId) return null;
 

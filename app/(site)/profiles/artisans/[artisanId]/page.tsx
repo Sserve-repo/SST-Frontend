@@ -92,7 +92,7 @@ const Service = () => {
             Artisan Not Found
           </h1>
           <p className="text-gray-600">
-            The artisan profile you're looking for doesn't exist.
+            The artisan profile you&apos;re looking for doesn&apos;t exist.
           </p>
           <Button onClick={() => router.push("/artisans")} className="mt-4">
             Browse Other Artisans
@@ -120,7 +120,7 @@ const Service = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="absolute bottom-4 left-4 text-white">
               <h1 className="text-2xl font-bold">
-                {`${artisan?.firstname} ${artisan?.lastname}`}'s Workshop
+                {`${artisan?.firstname} ${artisan?.lastname}`}&apos;s Workshop
               </h1>
             </div>
           </div>
@@ -325,7 +325,7 @@ const Service = () => {
                 No Services Available
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                This artisan hasn't listed any services yet. Check back later or
+                This artisan hasn&apos;t listed any services yet. Check back later or
                 browse other talented artisans.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">

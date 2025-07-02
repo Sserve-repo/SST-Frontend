@@ -1,14 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/use-debounced-search";
 
@@ -24,7 +16,7 @@ interface PayoutFiltersProps {
 export function PayoutFilters({
   onFiltersChange,
   initialFilters,
-  onClearFilters,
+  // onClearFilters,
 }: PayoutFiltersProps) {
   const [search, setSearch] = useState(initialFilters.search || "");
   const [type, setType] = useState(initialFilters.status || "");
@@ -40,11 +32,11 @@ export function PayoutFilters({
     onFiltersChange({ search: debouncedSearch, type });
   }, [debouncedSearch, type, onFiltersChange]);
 
-  const resetFilters = () => {
-    setSearch("");
-    setType("");
-    onClearFilters?.();
-  };
+  // const resetFilters = () => {
+  //   setSearch("");
+  //   setType("");
+  //   onClearFilters?.();
+  // };
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

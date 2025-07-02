@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Check,
-  Edit,
   Eye,
   MoreHorizontal,
   Star,

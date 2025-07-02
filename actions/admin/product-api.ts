@@ -108,7 +108,7 @@ export async function getProducts(params: Record<string, string> = {}): Promise<
     const response = await apiRequest<ProductListResponse>(endpoint);
 
     return {
-      data: response,
+      data: response as any,
       error: null,
     };
   } catch (error) {

@@ -39,6 +39,14 @@ import type { Service } from "@/types/services";
 import { useToast } from "@/hooks/use-toast";
 import { updateServiceStatus } from "@/actions/admin/service-api";
 
+// Define ServiceStatus enum if not imported from elsewhere
+export enum ServiceStatus {
+  Approved = "approved",
+  Pending = "pending",
+  Rejected = "rejected",
+  Disabled = "disabled",
+}
+
 interface ServiceTableProps {
   services: Service[];
   selectedIds: string[];
@@ -250,13 +258,13 @@ export function ServiceTable({
                     <Badge
                       variant="secondary"
                       className={cn(
-                        service.status === "approved" &&
+                        service.status === ServiceStatus.Approved.toString() &&
                           "bg-green-100 text-green-600",
-                        service.status === "pending" &&
+                        service.status === ServiceStatus.Pending.toString() &&
                           "bg-yellow-100 text-yellow-600",
-                        service.status === "rejected" &&
+                        service.status === ServiceStatus.Rejected.toString() &&
                           "bg-red-100 text-red-600",
-                        service.status === "disabled" &&
+                        service.status === ServiceStatus.Disabled.toString() &&
                           "bg-gray-100 text-gray-600"
                       )}
                     >
@@ -318,7 +326,8 @@ export function ServiceTable({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Service
                         </DropdownMenuItem>
-                        {service.status === "pending" && (
+                        {service.status ===
+                          ServiceStatus.Pending.toString() && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -353,7 +362,8 @@ export function ServiceTable({
                             </DropdownMenuItem>
                           </>
                         )}
-                        {service.status === "approved" && (
+                        {service.status ===
+                          ServiceStatus.Approved.toString() && (
                           <DropdownMenuItem
                             onClick={() =>
                               handleSingleAction(service.id!, "reject")
@@ -368,7 +378,8 @@ export function ServiceTable({
                             Reject
                           </DropdownMenuItem>
                         )}
-                        {service.status === "rejected" && (
+                        {service.status ===
+                          ServiceStatus.Rejected.toString() && (
                           <DropdownMenuItem
                             onClick={() =>
                               handleSingleAction(service.id!, "approve")
@@ -442,7 +453,7 @@ export function ServiceTable({
               size="sm"
               onClick={() => onPageChange?.(pagination.currentPage - 1)}
               disabled={pagination.currentPage <= 1}
-            > 
+            >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Previous
             </Button>

@@ -27,7 +27,8 @@ import { cn } from "@/lib/utils";
 import type { Event } from "@/types/events";
 
 interface EventTableProps {
-  events: Event[];
+  // events: Event[];
+  events: any;
 }
 
 export function EventTable({ events }: EventTableProps) {
@@ -57,7 +58,9 @@ export function EventTable({ events }: EventTableProps) {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <img
-                      src={event.image || "/assets/images/image-placeholder.png"}
+                      src={
+                        event.image || "/assets/images/image-placeholder.png"
+                      }
                       alt={event.title}
                       className="h-10 w-10 rounded-lg object-cover"
                     />

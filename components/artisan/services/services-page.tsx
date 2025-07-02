@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -73,13 +73,12 @@ export default function ServicesPage() {
 
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const currentPage = Number(searchParams.get("page")) || 1;
   const itemsPerPage = 10;
 
-  const fetchServices = async (page = 1, search = "") => {
+  const fetchServices = useCallback(async (page = 1, search = "") => {
     try {
       setLoading(true);
       const response = await getServices(page, itemsPerPage, search);
@@ -124,21 +123,21 @@ export default function ServicesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     const page = Number(searchParams.get("page")) || 1;
     fetchServices(page, debouncedSearchTerm);
-  }, [debouncedSearchTerm, searchParams]);
+  }, [debouncedSearchTerm, searchParams, fetchServices]);
 
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", page.toString());
-    if (searchTerm) {
-      params.set("search", searchTerm);
-    }
-    router.push(`?${params.toString()}`);
-  };
+  // const handlePageChange = (page: number) => {
+  //   const params = new URLSearchParams(searchParams);
+  //   params.set("page", page.toString());
+  //   if (searchTerm) {
+  //     params.set("search", searchTerm);
+  //   }
+  //   router.push(`?${params.toString()}`);
+  // };
 
   const handleDeleteService = async (serviceId: string) => {
     try {
@@ -153,7 +152,6 @@ export default function ServicesPage() {
       } else {
         throw new Error("Failed to delete service");
       }
-
     } catch (error) {
       console.error("Error deleting service:", error);
       toast({
@@ -328,7 +326,7 @@ export default function ServicesPage() {
           </p>
         </div>
 
-        <CreateServiceDialog onSuccess={handleCreateService}>
+        <CreateServiceDialog onSubmit={handleCreateService}>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Add Service

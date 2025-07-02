@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,13 +47,7 @@ export function EditUserDialog({
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (userId) {
-      fetchUser();
-    }
-  }, [userId]);
-
-  const fetchUser = async () => {
+    const fetchUser =  useCallback(async() => {
     if (!userId) return;
 
     setFetchingUser(true);
@@ -87,7 +81,15 @@ export function EditUserDialog({
     } finally {
       setFetchingUser(false);
     }
-  };
+  },[toast, userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchUser();
+    }
+  }, [userId, fetchUser]);
+
+
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

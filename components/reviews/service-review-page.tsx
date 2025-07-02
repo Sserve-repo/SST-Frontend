@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ReviewOverview, ReviewStats } from "@/components/reviews/stats";
 import { ReviewSort } from "@/components/reviews/sort";
 import type { Review } from "@/types/reviews";
@@ -22,7 +22,7 @@ export default function ServiceReviewsPage({ service }) {
   const [sortBy, setSortBy] = useState<"latest" | "rating">("latest");
   const { toast } = useToast();
 
-  const handleFetchReview = async () => {
+  const handleFetchReview = useCallback(async () => {
     try {
       const response = await getCustomerReviews(service?.id);
       const data = await response?.json();
@@ -49,7 +49,7 @@ export default function ServiceReviewsPage({ service }) {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
+  }, [service?.id]);
 
   const handleReply = async (reviewId: string, replyText: string) => {
     if (!replyText) {
@@ -130,7 +130,7 @@ export default function ServiceReviewsPage({ service }) {
 
   useEffect(() => {
     handleFetchReview();
-  }, []);
+  }, [handleFetchReview]);
 
   return (
     <div className="p-6 space-y-6">

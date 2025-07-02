@@ -64,7 +64,7 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: promotion?.code || "",
-      type: promotion?.type || "percentage",
+      type: promotion?.type as any|| "percentage",
       value: promotion?.value || 0,
       startDate: promotion?.startDate || new Date(),
       endDate:
@@ -81,6 +81,8 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
         id: promotion.id,
         status: promotion.status,
         usageCount: promotion.usageCount,
+        name: "",
+ 
       });
     } else {
       onSubmit({

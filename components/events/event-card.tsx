@@ -1,31 +1,43 @@
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, MapPin } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { Event } from "@/types/events"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, Clock, MapPin } from "lucide-react";
+import { cn } from "@/lib/utils";
+// import type { Event } from "@/types/events";
 
 interface EventCardProps {
-  event: Event
-  onClick: () => void
+  // event: Event
+  event: any;
+
+  onClick: () => void;
 }
 
 export function EventCard({ event, onClick }: EventCardProps) {
   return (
     <Card className="overflow-hidden">
       <div className="aspect-video relative">
-        <img src={event.image || "/assets/images/image-placeholder.png"} alt={event.title} className="object-cover w-full h-full" />
+        <img
+          src={event.image || "/assets/images/image-placeholder.png"}
+          alt={event.title}
+          className="object-cover w-full h-full"
+        />
         <Badge
           className={cn(
             "absolute top-2 right-2",
             event.status === "upcoming" && "bg-green-500",
-            event.status === "full" && "bg-orange-500",
-            event.status === "completed" && "bg-gray-500",
+            event.status === "completed" && "bg-gray-500"
           )}
         >
-          {event.status === "upcoming" && `${event.capacity - event.registered} spots left`}
-          {event.status === "full" && "Fully Booked"}
+          {event.status === "upcoming" &&
+            `${event.capacity - event.registered} spots left`}
+          {event.status === "ongoing" && "Ongoing"}
           {event.status === "completed" && "Completed"}
+          {event.status === "cancelled" && "Cancelled"}
         </Badge>
       </div>
 
@@ -63,6 +75,5 @@ export function EventCard({ event, onClick }: EventCardProps) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

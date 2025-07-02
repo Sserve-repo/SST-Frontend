@@ -228,7 +228,7 @@ export default function BookingForm() {
       fetchServiceDetail(serviceId);
       handleFetchReview(parseInt(serviceId));
     }
-  }, [fetchServiceDetail, handleFetchReview, serviceId]);
+  }, [fetchServiceDetail, handleFetchReview, serviceId, router]);
 
   useEffect(() => {
     (async () => {

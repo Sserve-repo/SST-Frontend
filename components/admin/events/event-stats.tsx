@@ -23,7 +23,7 @@ const stats = [
   },
   {
     title: "Total Attendees",
-    value: (events: Event[]) => events.reduce((acc, event) => acc + event.attendees.length, 0),
+    value: (events: Event[]) => events.reduce((acc, event) => acc + (event as any)?.attendees.length, 0),
     icon: Users,
     color: "text-green-600",
     bgColor: "bg-green-100",

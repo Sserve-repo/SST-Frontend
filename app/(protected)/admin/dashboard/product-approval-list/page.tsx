@@ -199,7 +199,10 @@ export default function ProductApprovalPage() {
         return;
       }
 
-      const statusMap = {
+      const statusMap: Record<
+        "approve" | "reject" | "disable",
+        "approved" | "rejected" | "disabled"
+      > = {
         approve: "approved",
         reject: "rejected",
         disable: "disabled",

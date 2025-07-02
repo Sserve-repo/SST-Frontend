@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   AlertDialog,
@@ -9,33 +9,41 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import type { Event } from "@/types/events"
+} from "@/components/ui/alert-dialog";
+// import type { Event } from "@/types/events";
 
 interface RegistrationDialogProps {
-  event: Event
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => void
+  // event: Event
+  event: any;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
 }
 
-export function RegistrationDialog({ event, open, onOpenChange, onConfirm }: RegistrationDialogProps) {
+export function RegistrationDialog({
+  event,
+  open,
+  onOpenChange,
+  onConfirm,
+}: RegistrationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to register for &quot;{event.title}&quot;? The event costs ${event.price} and will
-            take place on {event.date.toLocaleDateString()}.
+            Are you sure you want to register for &quot;{event.title}&quot;? The
+            event costs ${event.price} and will take place on{" "}
+            {event.date.toLocaleDateString()}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>Confirm Registration</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>
+            Confirm Registration
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }
-

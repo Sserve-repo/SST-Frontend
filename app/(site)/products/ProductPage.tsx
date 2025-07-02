@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import Image from "next/image";
 import {
   ShoppingCart,
@@ -46,11 +46,11 @@ const sortOptions = {
 } as const;
 
 // Debounce function
-function debounce(func: Function, delay: number) {
-  let timeoutId: NodeJS.Timeout;
-  return (...args: any[]) => {
+function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func.apply(null, args), delay);
+    timeoutId = setTimeout(() => func(...args), delay);
   };
 }
 
@@ -85,12 +85,13 @@ export default function ProductPage() {
   const { addToCart } = useCart();
 
   // Handle search with backend API (debounced)
-  const handleSearchQuery = useCallback(
-    debounce((query: string) => {
-      setFilters((prev) => ({ ...prev, search: query }));
-      setCurrentPage(1);
-    }, 500),
-    []
+  const handleSearchQuery = useMemo(
+    () =>
+      debounce((query: string) => {
+        setFilters((prev) => ({ ...prev, search: query }));
+        setCurrentPage(1);
+      }, 500),
+    [setFilters, setCurrentPage]
   );
 
   // Fetch menu data
@@ -133,7 +134,7 @@ export default function ProductPage() {
           cleanParams.product_category ||
           cleanParams.product_subcategory ||
           cleanParams.search ||
-          Object.keys(cleanParams).length > 3; // More than page, limit, sort_by
+          Object.keys(cleanParams).length > 3;
 
         const response = await getProductByCategorySub({
           limit: ITEMS_PER_PAGE,
@@ -152,6 +153,7 @@ export default function ProductPage() {
           setTotalPages(1);
           setTotalProducts(0);
         }
+        console.log(hasFilters);
       } catch (error) {
         console.error("Error fetching products:", error);
         setProducts([]);

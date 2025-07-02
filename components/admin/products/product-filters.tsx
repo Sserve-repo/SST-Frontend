@@ -65,7 +65,7 @@ export function ProductFilters({
     };
 
     fetchCategories();
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     onFiltersChange({ category, status, search: debouncedSearchQuery });

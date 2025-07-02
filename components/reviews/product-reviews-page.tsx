@@ -49,7 +49,7 @@ export default function ProductReviewsPage({ product }) {
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  }, []);
+  }, [product?.id]);
 
   const handleReply = async (reviewId: string, replyText: string) => {
     if (!replyText) {

@@ -40,7 +40,7 @@ import {
   UserX,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { deleteUser, getAllUsers } from "@/actions/admin/user-api";
+import { getAllUsers } from "@/actions/admin/user-api";
 import {
   getRolesWithPermissions,
   getRoles,
@@ -122,24 +122,24 @@ export default function UsersRolesPage() {
   });
 
   // Delete user mutation
-  const deleteUserMutation = useMutation({
-    mutationFn: deleteUser,
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "User deleted successfully.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["all-users"] });
-      setDeletingUserId(null);
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete user.",
-        variant: "destructive",
-      });
-    },
-  });
+  // const deleteUserMutation = useMutation({
+  //   mutationFn: deleteUser,
+  //   onSuccess: () => {
+  //     toast({
+  //       title: "Success",
+  //       description: "User deleted successfully.",
+  //     });
+  //     queryClient.invalidateQueries({ queryKey: ["all-users"] });
+  //     setDeletingUserId(null);
+  //   },
+  //   onError: (error: Error) => {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message || "Failed to delete user.",
+  //       variant: "destructive",
+  //     });
+  //   },
+  // });
 
   // Delete role mutation
   const deleteRoleMutation = useMutation({
@@ -586,7 +586,7 @@ export default function UsersRolesPage() {
 
       {/* User Dialogs */}
       <ViewUserDialog
-        userId={viewingUserId}
+        user={allUsers.find((u) => u.id == viewingUserId) as any}
         onOpenChange={(open) => !open && setViewingUserId(null)}
       />
 
@@ -598,20 +598,20 @@ export default function UsersRolesPage() {
       />
 
       <AssignRoleDialog
-        user={selectedUser}
+        user={selectedUser as any}
         roles={formattedSimpleRoles}
         onOpenChange={(open) => !open && setSelectedUser(null)}
         onSuccess={handleUserSuccess}
       />
 
       <DeleteUserDialog
-        userId={deletingUserId}
+        user={(allUsers.find((u) => u.id == deletingUserId) as any) ?? null}
         onOpenChange={(open) => !open && setDeletingUserId(null)}
         onSuccess={handleUserSuccess}
       />
 
       <BanUserDialog
-        userId={banningUserId}
+        user={(allUsers.find((u) => u.id == banningUserId) as any) ?? null}
         onOpenChange={(open) => !open && setBanningUserId(null)}
         onSuccess={handleUserSuccess}
       />

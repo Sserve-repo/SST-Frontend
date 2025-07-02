@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -13,16 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
   DollarSign,
   Loader2,
-  Eye,
   CheckCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -55,8 +46,8 @@ export function PayoutTable({
   type,
   onProcessPayout,
   isProcessing = false,
-  selectedIds,
-  onSelectedIdsChange,
+  // selectedIds,
+  // onSelectedIdsChange,
 }: PayoutTableProps) {
   const [payoutToProcess, setPayoutToProcess] = useState<PendingPayout | null>(
     null
@@ -94,23 +85,23 @@ export function PayoutTable({
     return payout.total_orders || payout.total_bookings || 0;
   };
 
-  const toggleAll = () => {
-    if (selectedIds.length === payouts.length) {
-      onSelectedIdsChange([]);
-    } else {
-      onSelectedIdsChange(
-        payouts.map((payout) => getUserId(payout).toString())
-      );
-    }
-  };
+  // const toggleAll = () => {
+  //   if (selectedIds.length === payouts.length) {
+  //     onSelectedIdsChange([]);
+  //   } else {
+  //     onSelectedIdsChange(
+  //       payouts.map((payout) => getUserId(payout).toString())
+  //     );
+  //   }
+  // };
 
-  const toggleOne = (id: string) => {
-    if (selectedIds.includes(id)) {
-      onSelectedIdsChange(selectedIds.filter((payoutId) => payoutId !== id));
-    } else {
-      onSelectedIdsChange([...selectedIds, id]);
-    }
-  };
+  // const toggleOne = (id: string) => {
+  //   if (selectedIds.includes(id)) {
+  //     onSelectedIdsChange(selectedIds.filter((payoutId) => payoutId !== id));
+  //   } else {
+  //     onSelectedIdsChange([...selectedIds, id]);
+  //   }
+  // };
 
   const handleProcessPayout = (payout: PendingPayout) => {
     setPayoutToProcess(payout);

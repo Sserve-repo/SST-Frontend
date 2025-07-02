@@ -53,12 +53,13 @@ export function BanUserDialog({
 
       onSuccess?.();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: `Failed to ${action} user. Please try again.`,
         variant: "destructive",
       });
+      throw new Error(error.toString());
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Plus,
@@ -48,62 +48,65 @@ export default function VendorPromotionsPage() {
   const currentTab = searchParams.get("tab") || "all";
   const itemsPerPage = 10;
 
-  const fetchPromotions = async (page = 1, search = "", status = "all") => {
-    try {
-      setLoading(true);
-      const response = await getPromotions(page, itemsPerPage, search);
+  const fetchPromotions = useCallback(
+    async (page = 1, search = "", status = "all") => {
+      try {
+        setLoading(true);
+        const response = await getPromotions(page, itemsPerPage, search);
 
-      if (!response?.ok) {
-        throw new Error("Failed to fetch promotions");
+        if (!response?.ok) {
+          throw new Error("Failed to fetch promotions");
+        }
+
+        const data = await response.json();
+
+        if (data.status && data.data) {
+          const allPromotions = data.data.all_discounts || [];
+
+          const transformedPromotions: Promotion[] = allPromotions.map(
+            (promo: any) => ({
+              id: String(promo.id),
+              name: promo.discount_name,
+              type: promo.discount_type,
+              value: Number(promo.discount_value),
+              startDate: new Date(promo.start_date),
+              endDate: new Date(promo.end_date),
+              status: calculateStatus(
+                promo.start_date,
+                promo.end_date,
+                promo.status
+              ),
+              usageLimit: Number(promo.usage_limit) || 0,
+              usageCount: Number(promo.usage_count) || 0,
+              description: promo.description || "",
+              createdAt: new Date(promo.created_at),
+              updatedAt: new Date(promo.updated_at),
+            })
+          );
+
+          // Filter by status if not "all"
+          const filteredPromotions =
+            status === "all"
+              ? transformedPromotions
+              : transformedPromotions.filter((p) => p.status === status);
+
+          setPromotions(filteredPromotions);
+          setTotalPromotions(filteredPromotions.length);
+          setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
+        }
+      } catch (error) {
+        console.error("Error fetching promotions:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load promotions. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-
-      if (data.status && data.data) {
-        const allPromotions = data.data.all_discounts || [];
-
-        const transformedPromotions: Promotion[] = allPromotions.map(
-          (promo: any) => ({
-            id: String(promo.id),
-            name: promo.discount_name,
-            type: promo.discount_type,
-            value: Number(promo.discount_value),
-            startDate: new Date(promo.start_date),
-            endDate: new Date(promo.end_date),
-            status: calculateStatus(
-              promo.start_date,
-              promo.end_date,
-              promo.status
-            ),
-            usageLimit: Number(promo.usage_limit) || 0,
-            usageCount: Number(promo.usage_count) || 0,
-            description: promo.description || "",
-            createdAt: new Date(promo.created_at),
-            updatedAt: new Date(promo.updated_at),
-          })
-        );
-
-        // Filter by status if not "all"
-        const filteredPromotions =
-          status === "all"
-            ? transformedPromotions
-            : transformedPromotions.filter((p) => p.status === status);
-
-        setPromotions(filteredPromotions);
-        setTotalPromotions(filteredPromotions.length);
-        setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
-      }
-    } catch (error) {
-      console.error("Error fetching promotions:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load promotions. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [toast]
+  );
 
   const fetchStats = async () => {
     try {
@@ -145,7 +148,7 @@ export default function VendorPromotionsPage() {
     setCurrentPage(page);
     fetchPromotions(page, debouncedSearchTerm, tab);
     fetchStats();
-  }, [debouncedSearchTerm, searchParams]);
+  }, [debouncedSearchTerm, searchParams, fetchPromotions]);
 
   const handleTabChange = (tab: string) => {
     const params = new URLSearchParams(searchParams);

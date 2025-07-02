@@ -70,19 +70,20 @@ export function EditProductDialog({
         if (data?.["Product Category"]) {
           setCategories(data["Product Category"]);
         }
-      } catch (err) {
+      } catch (err: any) {
         toast({
           title: "Error",
           description: "Failed to load categories.",
           variant: "destructive",
         });
+        throw new Error(err.toString());
       }
     };
 
     if (product) {
       fetchCategories();
     }
-  }, [product]);
+  }, [product, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,12 +98,13 @@ export function EditProductDialog({
       });
       onRefresh?.();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to update product.",
         variant: "destructive",
       });
+      throw new Error(error.toString());
     } finally {
       setIsLoading(false);
     }

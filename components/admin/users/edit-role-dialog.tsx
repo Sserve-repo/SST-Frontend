@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -47,15 +47,7 @@ export function EditRoleDialog({
   const [permissions, setPermissions] = useState<GroupedPermissions>({});
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (role) {
-      setRoleName(role.name);
-      setSelectedPermissions(role.permissions);
-      fetchPermissions();
-    }
-  }, [role]);
-
-  const fetchPermissions = async () => {
+    const fetchPermissions = useCallback(async () => {
     setPermissionsLoading(true);
     try {
       const { data, error } = await getPermissions();
@@ -77,7 +69,17 @@ export function EditRoleDialog({
     } finally {
       setPermissionsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (role) {
+      setRoleName(role.name);
+      setSelectedPermissions(role.permissions);
+      fetchPermissions();
+    }
+  }, [role, fetchPermissions]);
+
+
 
   const handlePermissionChange = (permissionName: string, checked: boolean) => {
     setSelectedPermissions((prev) =>

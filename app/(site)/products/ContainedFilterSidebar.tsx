@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import type { MenuData } from "@/types/menu";
 import type { FilterParams } from "@/types/product";
+import { useMemo } from "react";
 
 interface ContainedFilterSidebarProps {
   menuData: MenuData | null;
@@ -105,7 +106,7 @@ export function ContainedFilterSidebar({
   };
 
   const handlePriceRangeChange = (value: string) => {
-    let newFilters = { ...filters };
+    const newFilters = { ...filters };
 
     switch (value) {
       case "under25":
@@ -152,10 +153,12 @@ export function ContainedFilterSidebar({
   };
 
   // Get unique regions
-  const regions = menuData?.["Products Category Menu"] || [];
+const regions = useMemo(() => {
+  return menuData?.["Products Category Menu"] || [];
+}, [menuData]);
 
   // Get unique product categories across all regions
-  const allCategories = React.useMemo(() => {
+  const allCategories = useMemo(() => {
     const categoryMap = new Map();
     regions.forEach((region) => {
       region.product_categories.forEach((category) => {

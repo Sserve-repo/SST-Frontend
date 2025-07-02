@@ -75,6 +75,7 @@ export default function UnifiedProfileSettings({
   showBusinessInfo = false,
   showBankDetails = false,
 }: UnifiedProfileSettingsProps) {
+  console.log(userType, showBusinessInfo, showBankDetails)
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);

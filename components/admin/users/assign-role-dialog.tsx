@@ -57,12 +57,13 @@ export function AssignRoleDialog({
       onSuccess?.();
       onOpenChange(false);
       setSelectedRole("");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to assign role. Please try again.",
         variant: "destructive",
       });
+      throw new Error(error.toString());
     } finally {
       setIsLoading(false);
     }

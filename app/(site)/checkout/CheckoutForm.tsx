@@ -264,7 +264,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { StripePaymentForm } from "@/components/StripeProductPaymentForm";
@@ -328,7 +328,7 @@ export default function CheckoutForm() {
     }
   };
 
-  const createStripePaymentIntent = async (isRetry = false) => {
+  const createStripePaymentIntent = useCallback(async (isRetry = false) => {
     try {
       setIsLoadingPayment(true);
       setPaymentError(null);
@@ -381,7 +381,7 @@ export default function CheckoutForm() {
     } finally {
       setIsLoadingPayment(false);
     }
-  };
+  }, [retryCount]);
 
   const handleRetryPayment = () => {
     setRetryCount(0);
@@ -394,7 +394,7 @@ export default function CheckoutForm() {
       await handleGetProvinces();
       await createStripePaymentIntent();
     })();
-  }, []);
+  }, [createStripePaymentIntent]);
 
   useEffect(() => {
     console.log("cart length", cartData);

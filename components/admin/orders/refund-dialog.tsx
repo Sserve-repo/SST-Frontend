@@ -37,7 +37,7 @@ export function RefundDialog({ order, onOpenChange }: RefundDialogProps) {
         reason: "",
       })
     }
-  }, [order, form.reset])
+  }, [order,form, form.reset])
 
   if (!order) return null
 

@@ -63,7 +63,7 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       code: promotion?.code || "",
-      type: promotion?.type || "percentage",
+      type: promotion?.type as any || "percentage",
       value: promotion?.value || 0,
       // Pass the values directly now that the schema can handle both
       startDate: promotion?.startDate || new Date(),
@@ -78,7 +78,12 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
   useEffect(() => {
     if (promotion) {
       form.setValue("code", promotion.code || "");
-      form.setValue("type", promotion.type || "percentage");
+      form.setValue(
+        "type",
+        promotion.type === "percentage" || promotion.type === "fixed"
+          ? promotion.type
+          : "percentage"
+      );
       form.setValue("value", promotion.value || 0);
 
       // Ensure dates are properly converted

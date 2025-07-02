@@ -1,6 +1,6 @@
 "use client";
 
-import {  useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -237,7 +237,7 @@ export function OrdersTable({ orders }) {
     },
   });
 
-  const handleFetchOrderDetail = async (id: number) => {
+  const handleFetchOrderDetail = async (id: string) => {
     const response = await getOrderDetails(id);
     if (!response?.ok) {
       throw Error("Error fetching order detail");
@@ -337,9 +337,7 @@ export function OrdersTable({ orders }) {
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/50"
-                  onClick={() =>
-                    handleFetchOrderDetail(parseInt(row.original.id))
-                  }
+                  onClick={() => handleFetchOrderDetail(row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

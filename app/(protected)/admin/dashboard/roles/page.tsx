@@ -154,12 +154,13 @@ export default function RolesPage() {
       });
 
       fetchRoles();
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to delete role. Please try again.",
         variant: "destructive",
       });
+      throw new Error(error.toString());
     }
   };
 
