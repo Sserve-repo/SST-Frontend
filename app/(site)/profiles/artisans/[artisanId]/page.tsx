@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getArtisanProfile } from "@/actions/artisans";
 import { ReviewCard } from "@/components/ReviewCard";
@@ -10,6 +10,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, Calendar, MessageCircle, MapPin, Package } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { replyCustomerReview } from "@/actions/dashboard/artisans";
+import {
+  addServiceReview,
+  getServiceReviewsReplies,
+  getServiceReviews,
+} from "@/actions/service";
+import { toast } from "sonner";
+import { ReplyForm } from "@/components/reviews/utils";
 
 type ArtisanListing = {
   id: string;
@@ -23,6 +31,7 @@ type ArtisanListing = {
 };
 
 type Artisan = {
+  id: string;
   firstname: string;
   lastname: string;
   service_category: any;
@@ -33,12 +42,41 @@ type Artisan = {
   artisan_business_policy: any;
 };
 
+type ReviewData = {
+  id: string;
+  avatar: string;
+  username: string;
+  productId?: number;
+  comment: string;
+  rating: number;
+};
+
 const Service = () => {
   const [artisan, setArtisan] = useState<Artisan | null>(null);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
   const { artisanId } = useParams();
   const router = useRouter();
+  const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
+  const [reviewsData, setReviewsData] = useState<ReviewData[]>([]);
+  const [reviewFormData, setReviewFormData] = useState<{
+    review: string;
+    rating: number;
+  }>({ review: "", rating: 0 });
+  const [replies, setReplies] = useState({
+    0: [{ text: "Reply 1" }],
+    1: [],
+    2: [],
+  });
+
+  const [reviewRepliesData, setReviewRepliesData] = useState<ReviewData>({
+    id: "",
+    username: "Vendor",
+    productId: 1,
+    comment: "",
+    rating: 0,
+    avatar: "https://i.pravatar.cc/40?img=1",
+  });
 
   const handleFetchArtisanProfile = async (id) => {
     try {
@@ -47,6 +85,17 @@ const Service = () => {
       if (response && response.ok) {
         const data = await response.json();
         setArtisan(data.data["Artisan Business profile"]);
+
+        const transformedData = data?.data["Artisan Reviews"]?.map(
+          (item: any) => ({
+            id: item.id,
+            username: item.customer_name,
+            comment: item.comment,
+            rating: item.rating,
+            avatar: item.customer_photo,
+          })
+        );
+        setReviewsData(transformedData);
       }
     } catch (error) {
       console.error("Error fetching artisan profile:", error);
@@ -54,6 +103,30 @@ const Service = () => {
       setLoading(false);
     }
   };
+
+  const handleFetchReview = useCallback(async () => {
+    try {
+      const response = await getServiceReviews(artisanId as any);
+      const data = await response?.json();
+
+      console.log({ data });
+
+      const transformedData = data?.data.reviews.map(
+        (item: any) => ({
+          id: item.id,
+          username: item.customer_name,
+          comment: item.comment,
+          rating: item.rating,
+          avatar: item.customer_photo,
+        })
+      );
+      setReviewsData(transformedData);
+
+      console.log({ transformedData });
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  }, []);
 
   const handleBookService = async (serviceId) => {
     router.push(`/booking?serviceId=${serviceId}`);
@@ -72,6 +145,131 @@ const Service = () => {
       handleFetchArtisanProfile(artisanId);
     }
   }, [artisanId]);
+
+  useEffect(() => {
+    handleFetchReview();
+  }, [handleFetchReview]);
+
+  const handleReply = async (reviewId: string, replyText: string) => {
+    if (!replyText) {
+      toast("Please enter a response before submitting");
+      return;
+    }
+
+    const form = new FormData();
+    form.append("comment", replyText);
+
+    const response = await replyCustomerReview(form, parseInt(reviewId));
+    const data = await response?.json();
+
+    if (data?.status !== "success") {
+      toast("Failed to post your response. Please try again");
+      return;
+    }
+
+    const rev = data.data.reviews;
+    setReviewFormData({ review: "", rating: 0 });
+    setActiveReplyIndex(null);
+
+    setReplies(replies);
+    setReviewsData((prev) => [
+      {
+        id: rev?.id,
+        avatar: data?.data?.user?.avatar,
+        username: data?.data?.user.username || "Anonymous",
+        comment: rev?.comment,
+        rating: rev?.rating,
+      },
+      ...prev,
+    ]);
+
+    toast("Reply sent...");
+  };
+
+  const handleSubmitReply = async () => {
+    try {
+      if (!reviewFormData.review) {
+        toast.error("Please enter a review");
+        return;
+      }
+      if (reviewFormData.rating === 0) {
+        toast.error("Please select a rating");
+        return;
+      }
+
+      const form = new FormData();
+      form.append("comment", reviewFormData.review);
+      form.append("rating", reviewFormData.rating.toString());
+
+      const response = await addServiceReview(form, artisan?.id as any);
+      const data = await response?.json();
+      if (data?.status === true) {
+        const rev = data.data.reviews;
+        setReviewFormData({ review: "", rating: 0 });
+        setActiveReplyIndex(null);
+
+        setReplies(replies);
+        setReviewsData((prev) => [
+          {
+            id: rev?.id,
+            avatar: data?.data?.user?.avatar,
+            username: data?.data?.user.username || "Anonymous",
+            comment: rev?.comment,
+            rating: rev?.rating,
+          },
+          ...prev,
+        ]);
+        toast.success("Review added successfully");
+      } else {
+        toast.error("Failed to add review");
+      }
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      toast.error("Failed to submit reply");
+    }
+  };
+
+  const handleFetchReviewReplies = async (
+    productId: number,
+    reviewId: number
+  ) => {
+    try {
+      if (activeReplyIndex === reviewId) {
+        setActiveReplyIndex(null);
+      } else {
+        setActiveReplyIndex(reviewId);
+
+        // Optionally: fetch replies here
+        const response = await getServiceReviewsReplies(productId, reviewId);
+        const data = await response?.json();
+
+        setReviewRepliesData((prev) => ({
+          ...prev,
+          comment: data?.data?.reviews?.comment,
+        }));
+        //         setReviewOverview({
+        //   averageRating: data?.data?.ratings_overview?.averageRating,
+        //   totalReviews: data?.data?.ratings_overview?.totalReviews,
+        //   ratingCounts: data?.data?.ratings_overview?.ratingCounts,
+        // } as any);
+        // setReviewsData((prev) => [
+        //   ...prev,
+        //   {
+        //     id: review?.id,
+        //     customerName: review?.customer_name,
+        //     comment: review?.comment,
+        //     rating: review?.rating,
+        //     customerAvatar: review?.customer_photo,
+        //     date: new Date("2024-02-20"),
+        //     reply: null,
+        //     status: "visible",
+        //   },
+        // ]);
+      }
+    } catch (error) {
+      console.error("Error fetching review replies:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -325,8 +523,8 @@ const Service = () => {
                 No Services Available
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                This artisan hasn&apos;t listed any services yet. Check back later or
-                browse other talented artisans.
+                This artisan hasn&apos;t listed any services yet. Check back
+                later or browse other talented artisans.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
@@ -341,32 +539,59 @@ const Service = () => {
         </section>
 
         {/* Reviews Section */}
-        <section className="mb-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-[#502266]">
-              Customer Reviews
-            </h2>
-            <select className="rounded-md border p-2 text-sm">
-              <option>Sort by Recent</option>
-              <option>Sort by Rating</option>
-              <option>Sort by Helpful</option>
-            </select>
-          </div>
-          <div className="space-y-4">
-            <ReviewCard
-              author="James Smith"
-              date="Oct 27, 2023"
-              rating={5}
-              content="Outstanding work! The artisan delivered exactly what I needed with excellent attention to detail."
-            />
-            <ReviewCard
-              author="Sarah Johnson"
-              date="Oct 22, 2023"
-              rating={4}
-              content="Great service and professional communication. Would definitely recommend and hire again."
-            />
-          </div>
-        </section>
+
+        <div className="space-y-6">
+          {reviewsData?.length > 0 ? (
+            reviewsData?.map((item: any, i) => (
+              <div key={i} className="border-t pt-6">
+                <p>hbjbjb nknknkn knk</p>
+                <ReviewCard
+                  avatar={item?.avatar}
+                  username={item?.username}
+                  rating={item?.rating}
+                  comment={item?.comment}
+                />
+
+                <div className="flex gap-4 mt-2">
+                  <p
+                    onClick={() => handleFetchReviewReplies(2, item?.id)}
+                    className="cursor-pointer text-sm text-blue-500"
+                  >
+                    {activeReplyIndex === parseInt(item?.id)
+                      ? "Hide Replies"
+                      : "See Replies"}
+                  </p>
+                </div>
+
+                {activeReplyIndex === parseInt(item?.id) && (
+                  <div className="mt-4 ml-8 space-y-4">
+                    {reviewRepliesData && reviewRepliesData.comment ? (
+                      <ReviewCard
+                        // key={j}
+                        avatar={reviewRepliesData?.avatar}
+                        username={reviewRepliesData.username}
+                        comment={reviewRepliesData.comment}
+                        showRating={true}
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-400">
+                        No replies yet. Be the first to reply.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p>No Reviews</p>
+          )}
+        </div>
+
+        <ReplyForm
+          onSubmit={() => handleSubmitReply()}
+          setFormData={setReviewFormData}
+          formData={reviewFormData}
+        />
       </main>
     </Suspense>
   );

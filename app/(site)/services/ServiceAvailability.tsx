@@ -266,12 +266,16 @@ export default function ServiceAvailability() {
         const url = `${endpoint}?${params.toString()}`;
         console.log({ url });
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers:{
+            "Authorization": `Bearer ${Cookies.get("accessToken")}`
+          }
+        });
         if (response.ok) {
           const data = await response.json();
           const servicesData = data.data.Services as PaginatedResponse;
-
-          setFilteredServices(servicesData?.data || []);
+          console.log({servicesData})
+          setFilteredServices(servicesData as any || []);
 
           // Update pagination data
           setPaginationData({

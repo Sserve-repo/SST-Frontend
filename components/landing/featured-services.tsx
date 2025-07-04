@@ -34,7 +34,16 @@ export default function FeaturedServices() {
   // Fetch featured services
   const fetchFeaturedServices = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/general/featuredServices`);
+      let response;
+      if (isAuthenticated) {
+        response = await fetch(`${API_BASE_URL}/general/featuredServices`, {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("accessToken")}`,
+          },
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/general/featuredServices`);
+      }
       const data = await response.json();
 
       if (data.status && data.data.highlighted_services) {

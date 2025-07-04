@@ -21,7 +21,6 @@ import { DeleteServiceDialog } from "./delete-service-dialog";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import type { Service } from "@/types/services";
 import { Card } from "@/components/ui/card";
-import { ServiceReviewsPreviewSheet } from "./service-review-preview-sheet";
 import { EditServicesDialog } from "./edit-services-dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,10 +54,8 @@ export function ServiceTable({
 }: ServiceTableProps) {
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isReviewSheetOpen, setIsReviewSheetOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,11 +71,6 @@ export function ServiceTable({
     setIsDeleteDialogOpen(true);
   };
 
-  const handleViewReviews = (service: Service) => {
-    setSelectedService(service);
-    setIsReviewSheetOpen(true);
-  };
-
   const handleEditDialogClose = () => {
     setIsEditDialogOpen(false);
     setTimeout(() => setServiceToEdit(null), 150);
@@ -87,11 +79,6 @@ export function ServiceTable({
   const handleDeleteDialogClose = () => {
     setIsDeleteDialogOpen(false);
     setTimeout(() => setServiceToDelete(null), 150);
-  };
-
-  const handleReviewSheetClose = () => {
-    setIsReviewSheetOpen(false);
-    setTimeout(() => setSelectedService(null), 150);
   };
 
   const handleServiceUpdate = (updatedService: Service) => {
@@ -220,15 +207,7 @@ export function ServiceTable({
                       {service.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewReviews(service)}
-                    >
-                      View
-                    </Button>
-                  </TableCell>
+
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -302,14 +281,6 @@ export function ServiceTable({
         onOpenChange={handleDeleteDialogClose}
         onDelete={handleServiceDelete}
       />
-
-      {selectedService && (
-        <ServiceReviewsPreviewSheet
-          service={selectedService}
-          open={isReviewSheetOpen}
-          onOpenChange={handleReviewSheetClose}
-        />
-      )}
     </>
   );
 }
