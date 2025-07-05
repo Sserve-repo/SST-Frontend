@@ -13,15 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Printer, Send, Tag, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -170,50 +162,6 @@ export function OrdersTable({ orders }) {
       cell: ({ row }) => {
         const date = row.getValue("date") as string;
         return <div className="font-medium">{formatDate(date)}</div>;
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        const order = row.original;
-
-        return (
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSelectedOrder(order)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px]">
-                <DropdownMenuItem>
-                  <Printer className="mr-2 h-4 w-4" />
-                  Print Invoice
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Send className="mr-2 h-4 w-4" />
-                  Email Invoice
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Tag className="mr-2 h-4 w-4" />
-                  Create Label
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Truck className="mr-2 h-4 w-4" />
-                  Track Order
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
       },
     },
   ];

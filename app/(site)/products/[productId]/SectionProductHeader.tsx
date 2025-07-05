@@ -147,7 +147,6 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
     }
   };
 
-
   const handleAddToCart = () => {
     addToCart({
       unit_price: price.toString(),
@@ -507,33 +506,6 @@ const SectionProductHeader: FC<SectionProductHeaderProps> = ({
                   </span>
                 </div>
               </div>
-
-              {/* <div>
-                <p className="font-semibold text-lg hover:underline">
-                  {seller.name}
-                </p>
-                <p className="text-xs text-primary/70">
-                  Owner of{" "}
-                  <span className="text-primary font-semibold">
-                    {productName}{" "}
-                  </span>
-                </p>
-
-                <div className="grid grid-col-1">
-                  <textarea
-                    placeholder="Enter your messsage here"
-                    className=" border-2 border-black rounded-lg text-xs h-16 p-2 "
-                    onChange={(e) => setMessage(e.target.value)}
-                  ></textarea>
-                  <Button
-                    onClick={handleMessageSeller}
-                    className="text-xs px-5 w-48 mt-1 bg-primary text-white"
-                    variant={"outline"}
-                  >
-                    Send
-                  </Button>
-                </div>
-              </div> */}
             </div>
             <MessageInitiationModal
               recipientId={userId}

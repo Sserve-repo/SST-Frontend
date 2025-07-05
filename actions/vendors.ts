@@ -130,7 +130,7 @@ export const getRecommendedVendors = async () => {
 export const getVendorProfile = async (vendorId) => {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/getVendorBusinessProfile/${vendorId}`
+      `${baseUrl}/general/products/getVendorBusinessProfile/${vendorId}`
     );
     return response;
   } catch (error: any) {

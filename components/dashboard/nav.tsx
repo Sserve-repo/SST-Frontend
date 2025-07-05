@@ -23,7 +23,6 @@ import {
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import Image from "next/image";
 import { TbChartArcs } from "react-icons/tb";
-import { HiOutlineArchive } from "react-icons/hi";
 import { RiShoppingBag3Line } from "react-icons/ri";
 import { useAuth } from "@/context/AuthContext";
 
@@ -102,11 +101,7 @@ const getNavItems = (userType: string) => {
       href: "/buyer/dashboard/bookings",
       icon: ShoppingBag,
     },
-    {
-      title: "Saved Items",
-      href: "/buyer/dashboard/saved",
-      icon: HiOutlineArchive,
-    },
+
     {
       title: "Messages",
       href: "/buyer/dashboard/messages",

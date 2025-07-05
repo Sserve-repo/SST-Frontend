@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Calendar, MessageCircle, MapPin, Package } from "lucide-react";
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
-// import { replyCustomerReview } from "@/actions/dashboard/artisans";
+
 import {
   addServiceReview,
   getServiceReviewsReplies,
@@ -17,6 +16,7 @@ import {
 } from "@/actions/service";
 import { toast } from "sonner";
 import { ReplyForm, ReviewCard } from "@/components/reviews/utils";
+import { ArtisanMessageInitiationModal } from "@/components/messages/artisan-message-initiation-modal";
 
 type ArtisanListing = {
   id: string;
@@ -53,7 +53,6 @@ type ReviewData = {
 const Service = () => {
   const [artisan, setArtisan] = useState<Artisan | null>(null);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated } = useAuth();
   const { artisanId } = useParams();
   const router = useRouter();
   const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
@@ -127,14 +126,6 @@ const Service = () => {
 
   const handleBookService = async (serviceId) => {
     router.push(`/booking?serviceId=${serviceId}`);
-  };
-
-  const handleMessageArtisan = () => {
-    if (!isAuthenticated) {
-      router.push("/auth/login");
-      return;
-    }
-    router.push(`/messages/${artisanId}`);
   };
 
   useEffect(() => {
@@ -368,13 +359,17 @@ const Service = () => {
                 </Badge>
               </div>
 
-              <Button
-                onClick={handleMessageArtisan}
-                className="mt-4 w-full bg-[#502266] hover:bg-[#502266]/90"
+              <ArtisanMessageInitiationModal
+                recipientId={artisan.id}
+                recipientName={artisan.firstname || "Artisan"}
+                serviceName={artisan.firstname}
               >
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Message Artisan
-              </Button>
+                <Button className="mt-4 w-full bg-[#502266] hover:bg-[#502266]/90">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Message Artisan
+                </Button>
+              </ArtisanMessageInitiationModal>
+
               <p className="mt-2 text-center text-xs text-gray-600">
                 We respond quickly, usually within a few hours
               </p>
@@ -500,17 +495,6 @@ const Service = () => {
                   </div>
                 ))}
               </div>
-
-              {artisan.artisan_service_listing.length > 4 && (
-                <div className="text-center mt-6">
-                  <Button
-                    variant="outline"
-                    className="border-[#502266] text-[#502266] hover:bg-[#502266] hover:text-white"
-                  >
-                    View all ({artisan.artisan_service_listing.length}) services
-                  </Button>
-                </div>
-              )}
             </>
           ) : (
             /* Empty State */
@@ -536,7 +520,7 @@ const Service = () => {
         </section>
 
         {/* Reviews Section */}
-        <h1 className="font-bold text-2xl">Customer Reviews</h1>
+        <h1 className="font-bold text-2xl py-8">Customer Reviews</h1>
 
         <div className="space-y-6">
           {reviewsData?.length > 0 ? (

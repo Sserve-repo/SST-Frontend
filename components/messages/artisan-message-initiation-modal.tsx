@@ -17,21 +17,21 @@ import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createMessage } from "@/actions/dashboard/vendors";
 
-interface MessageInitiationModalProps {
+interface ArtisanMessageInitiationModalProps {
   recipientId: string | number;
   recipientName: string;
   recipientAvatar?: string;
-  productName?: string;
+  serviceName?: string;
   children?: React.ReactNode;
 }
 
-export function MessageInitiationModal({
+export function ArtisanMessageInitiationModal({
   recipientId,
   recipientName,
   recipientAvatar,
-  productName,
+  serviceName,
   children,
-}: MessageInitiationModalProps) {
+}: ArtisanMessageInitiationModalProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,10 +48,9 @@ export function MessageInitiationModal({
       const formData = new FormData();
       formData.append("recipient_id", String(recipientId));
       formData.append("message", message.trim());
-      if (productName) {
-        formData.append("subject", `Inquiry about ${productName}`);
+      if (serviceName) {
+        formData.append("subject", `Inquiry about ${serviceName}`);
       }
-
 
       const response = await createMessage(formData);
       const data = await response?.json();
@@ -72,8 +71,8 @@ export function MessageInitiationModal({
     }
   };
 
-  const defaultMessage = productName
-    ? `Hi! I'm interested in your product "${productName}". Could you provide more details?`
+  const defaultMessage = serviceName
+    ? `Hi! I'm interested in your product "${serviceName}". Could you provide more details?`
     : "";
 
   return (
@@ -103,9 +102,9 @@ export function MessageInitiationModal({
             </Avatar>
             <div>
               <p className="font-medium">{recipientName}</p>
-              {productName && (
+              {serviceName && (
                 <p className="text-sm text-muted-foreground">
-                  Re: {productName}
+                  Re: {serviceName}
                 </p>
               )}
             </div>

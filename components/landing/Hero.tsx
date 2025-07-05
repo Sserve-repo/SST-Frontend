@@ -6,11 +6,11 @@ import { Search, Loader2 } from "lucide-react";
 import Marquee from "react-fast-marquee";
 import { useAuth } from "@/context/AuthContext";
 import { useSearch } from "@/hooks/use-search";
+import Link from "next/link";
 
 export default function Hero() {
   const { currentUser } = useAuth();
   const { query, setQuery, results, isLoading, error } = useSearch();
-
   const products = [
     "Cuisines",
     "Fashion and textiles",
@@ -95,12 +95,14 @@ export default function Hero() {
                             Products
                           </h4>
                           {results.products.map((item: any) => (
-                            <p
+                            <Link
+                              href={`/products/${item?.id}`}
                               key={item.title}
-                              className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50"
                             >
-                              {item.title}
-                            </p>
+                              <p className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50">
+                                {item.title}
+                              </p>
+                            </Link>
                           ))}
                         </div>
                       )}
@@ -110,12 +112,14 @@ export default function Hero() {
                             Services
                           </h4>
                           {results.services.map((item: any) => (
-                            <p
+                            <Link
+                              href={`/services/${item?.id}`}
                               key={item.title}
-                              className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50"
                             >
-                              {item.title}
-                            </p>
+                              <p className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50">
+                                {item.title}
+                              </p>
+                            </Link>
                           ))}
                         </div>
                       )}

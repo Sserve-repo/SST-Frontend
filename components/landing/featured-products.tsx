@@ -239,9 +239,11 @@ export default function FeaturedProducts() {
 
                 <CardContent className="bg-[#240F2E] text-white p-4 relative overflow-hidden">
                   <div className="relative z-10">
-                    <h3 className="text-lg font-semibold text-[#FF7F00] mb-2 line-clamp-2 group-hover:text-white transition-colors duration-300">
-                      {product.title}
-                    </h3>
+                    <Link href={`/products/${product.id}`}>
+                      <h3 className="text-lg font-semibold text-[#FF7F00] mb-2 line-clamp-2 group-hover:text-white transition-colors duration-300">
+                        {product.title}
+                      </h3>
+                    </Link>
 
                     {/* Category */}
                     <Badge
