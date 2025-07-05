@@ -1,171 +1,147 @@
-import { apiRequest } from "@/hooks/use-api";
+import { apiRequest } from "@/hooks/use-api"
+
+export interface ServiceCategory {
+  id: number
+  name: string
+}
+
+export interface ServiceCategoryItem {
+  id: number
+  name: string
+}
+
+export interface ServiceImage {
+  id: number
+  user_id: number
+  service_listing_detail_id: number
+  image: string
+  created_at: string
+  updated_at: string
+}
 
 export interface Service {
-  id: number;
-  user_id: number;
-  rating?: number;
-  reviewCount?: number;
-  bookingCount?: number;
-  title: string;
-  price: string;
-  description: string;
-  image: string;
-  status: number;
-  created_at: string;
-  updated_at: string;
-  vendor_name: string;
-  vendor_email: string;
-  service_category: {
-    id: number;
-    name: string;
-  };
-  service_duration: string;
-  available_dates: string[] | string;
-  home_service_availability: boolean;
-  featured?: boolean;
+  id: number
+  user_id: number
+  title: string
+  price: string
+  service_duration: string
+  description: string
+  image: string | null
+  status: number
+  is_featured: number
+  available_dates: string[]
+  start_time: string
+  end_time: string
+  home_service_availability: string
+  service_images: string[] | ServiceImage[]
+  vendor_name: string
+  vendor_email: string
+  service_category: ServiceCategory
+  service_category_item: ServiceCategoryItem
+  created_at: string
+  updated_at: string
 }
 
 export interface ServiceListResponse {
-  status: boolean;
-  status_code: number;
-  message: string;
 
-  serviceListing: Service[];
-  listingCounts?: {
-    allServices: number;
-    pendingServices: number;
-    approvedServices: number;
-    rejectedServices: number;
-    disabledServices: number;
-  };
-  current_page: number;
-  total: number;
-  last_page: number;
-  per_page: number;
 
-  token: null;
-  debug: null;
+  serviceListing: Service[]
+  listingCounts: {
+    allServices: number
+    pendingServices: number
+    approvedServices: number
+    rejectedServices: number
+    disabledServices: number
+  }
+  current_page: number
+  per_page: number
+  total: number
+  last_page: number
+
 }
 
-const getStatusFromNumber = (
-  status: number
-): "pending" | "approved" | "rejected" | "disabled" => {
-  switch (status) {
-    case 1:
-      return "approved";
-    case 2:
-      return "rejected";
-    case 3:
-      return "disabled";
-    default:
-      return "pending";
+export interface ServiceDetailResponse {
+  data: {
+    serviceListing: Service
   }
-};
+}
 
-export async function getServices(params: Record<string, string> = {}) {
-  try {
-    // Build query string from params
-    const queryParams = new URLSearchParams();
+export async function getServices(params?: Record<string, string>) {
+  const queryParams = new URLSearchParams()
 
-    // Map frontend filter names to API parameter names
+  if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value && value !== "all") {
-        switch (key) {
-          case "category":
-            queryParams.append("service_category", value);
-            break;
-          case "service_category": // Add this case to handle direct service_category param
-            queryParams.append("service_category", value);
-            break;
-          case "status":
-            // Map status strings to numbers for API
-            const statusMap: Record<string, string> = {
-              pending: "pending",
-              approved: "approved",
-              rejected: "rejected",
-              disabled: "disabled3",
-            };
-            queryParams.append("status", statusMap[value] || value);
-            break;
-          case "search":
-            queryParams.append("search", value);
-            break;
-          default:
-            queryParams.append(key, value);
+        // Map category to service_category for API
+        if (key === "category") {
+          queryParams.append("service_category", value)
+        } else {
+          queryParams.append(key, value)
         }
       }
-    });
-
-    const endpoint = `/admin/dashboard/serviceListing/list${
-      queryParams.toString() ? `?${queryParams.toString()}` : ""
-    }`;
-
-    return apiRequest<ServiceListResponse>(endpoint);
-  } catch (error) {
-    console.error("Error fetching services:", error);
-    return {
-      data: null,
-      error:
-        error instanceof Error ? error.message : "Failed to fetch services",
-    };
+    })
   }
+
+  const endpoint = `/admin/dashboard/serviceListing/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`
+  return apiRequest<ServiceListResponse>(endpoint)
 }
 
-export async function updateServiceStatus(payload: {
-  status: string;
-  service_ids: number[];
+export async function getServiceById(id: string) {
+  return apiRequest<ServiceDetailResponse>(`/admin/dashboard/serviceListing/show/${id}`)
+}
+
+export async function updateServiceStatus(data: {
+  status: string
+  service_ids: number[]
 }) {
-  try {
-    return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
-      method: "POST",
-      body: payload,
-    });
-  } catch (error) {
-    console.error("Error updating service status:", error);
-    return {
-      data: null,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to update service status",
-    };
-  }
+  return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: {
+      status: data.status,
+      service_ids: data.service_ids,
+    },
+  })
+}
+
+export async function updateServiceFeatureStatus(data: {
+  service_ids: number[]
+  is_featured: boolean
+}) {
+  const endpoint = data.is_featured
+    ? "/admin/dashboard/serviceListing/isFeatured"
+    : "/admin/dashboard/serviceListing/removeFeatured"
+
+  return apiRequest<any>(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: {
+      service_ids: data.service_ids,
+    },
+  })
 }
 
 export async function disableServices(serviceIds: number[]) {
-  try {
-    return apiRequest<any>("/admin/dashboard/serviceListing/updateStatus", {
-      method: "POST",
-      body: {
-        status: "disabled",
-        service_ids: serviceIds,
-      },
-    });
-  } catch (error) {
-    console.error("Error disabling services:", error);
-    return {
-      data: null,
-      error:
-        error instanceof Error ? error.message : "Failed to disable services",
-    };
-  }
+  return updateServiceStatus({
+    status: "disabled",
+    service_ids: serviceIds,
+  })
 }
 
-export async function updateService(serviceId: string, formData) {
-  try {
-    return apiRequest<any>(
-      `/admin/dashboard/serviceListing/update/${serviceId}`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-  } catch (error) {
-    console.error("Error updating services:", error);
-    return {
-      data: null,
-      error:
-        error instanceof Error ? error.message : "Failed to update services",
-    };
-  }
+export async function deleteService(id: string) {
+  return apiRequest<any>(`/admin/dashboard/serviceListing/destroy/${id}`, {
+    method: "DELETE",
+  })
+}
+
+export async function updateService(id: string, data: FormData) {
+  return apiRequest<any>(`/admin/dashboard/serviceListing/update/${id}`, {
+    method: "POST",
+    body: data,
+    isFormData: true,
+  })
 }
