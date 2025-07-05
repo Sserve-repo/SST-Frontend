@@ -3,7 +3,8 @@
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getArtisanProfile } from "@/actions/artisans";
-import { ReviewCard } from "@/components/ReviewCard";
+// import { ReviewCard } from "@/components/ReviewCard";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +18,7 @@ import {
   getServiceReviews,
 } from "@/actions/service";
 import { toast } from "sonner";
-import { ReplyForm } from "@/components/reviews/utils";
+import { ReplyForm, ReviewCard } from "@/components/reviews/utils";
 
 type ArtisanListing = {
   id: string;
@@ -111,15 +112,13 @@ const Service = () => {
 
       console.log({ data });
 
-      const transformedData = data?.data.reviews.map(
-        (item: any) => ({
-          id: item.id,
-          username: item.customer_name,
-          comment: item.comment,
-          rating: item.rating,
-          avatar: item.customer_photo,
-        })
-      );
+      const transformedData = data?.data.reviews.map((item: any) => ({
+        id: item.id,
+        username: item.customer_name,
+        comment: item.comment,
+        rating: item.rating,
+        avatar: item.customer_photo,
+      }));
       setReviewsData(transformedData);
 
       console.log({ transformedData });
@@ -539,6 +538,7 @@ const Service = () => {
         </section>
 
         {/* Reviews Section */}
+        <h1 className="font-bold text-2xl">Customer Reviews</h1>
 
         <div className="space-y-6">
           {reviewsData?.length > 0 ? (

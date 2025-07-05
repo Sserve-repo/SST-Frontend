@@ -83,23 +83,27 @@ const RecommendedVendors = () => {
               className="overflow-hidden group cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl"
             >
               <div className="relative">
-                <Image
-                  src={
-                    vendor.image ??
-                    "/assets/images/tailor.png?height=300&width=400"
-                  }
-                  alt={vendor.firstname}
-                  width={400}
-                  height={300}
-                  className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                <Link href={`/profiles/vendors/${vendor.id}`}>
+                  <Image
+                    src={
+                      vendor.image ??
+                      "/assets/images/tailor.png?height=300&width=400"
+                    }
+                    alt={vendor.firstname}
+                    width={400}
+                    height={300}
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </Link>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
 
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2 text-[#502266] truncate">
-                  {getVendorFullname(vendor)}
-                </h3>
+                <Link href={`/profiles/vendors/${vendor.id}`}>
+                  <h3 className="text-lg font-semibold mb-2 text-[#502266] truncate">
+                    {getVendorFullname(vendor)}
+                  </h3>
+                </Link>
 
                 {/* Business Name with Shop Icon */}
                 <div className="flex items-center gap-2 mb-2">
