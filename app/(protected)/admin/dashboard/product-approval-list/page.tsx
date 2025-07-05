@@ -14,6 +14,7 @@ import { CheckCircle, Clock, XCircle, Package } from "lucide-react";
 import {
   getProducts,
   updateProductStatus,
+  updateProductFeatureStatus,
   type Product,
 } from "@/actions/admin/product-api";
 import { useUrlFilters } from "@/hooks/use-url-filters";
@@ -87,28 +88,33 @@ export default function ProductApprovalPage() {
 
       const { data, error: apiError } = await getProducts(params);
 
-      if (apiError || !data?.data?.productListing) {
+      if (apiError || !data?.productListing) {
         throw new Error(apiError || "No products found");
       }
 
-      const apiData = data.data;
+      const apiData = data;
       const formattedProducts: IProduct[] = apiData.productListing.map(
         (product: Product): IProduct => ({
           id: product.id.toString(),
           name: product.title,
           description: product.description,
           category: product.category?.name || "Uncategorized",
+          subcategory: product.subcategory?.name,
           price: Number.parseFloat(product.price),
+          stockLevel: product.stock_level,
           vendor: {
             id: product.user_id.toString(),
             name: product.vendor_name || "Vendor Name",
             email: product.vendor_email || "vendor@email.com",
           },
           status: getStatusFromNumber(product.status),
-          featured: Boolean(product.featured),
-          images: product.image
-            ? [product.image]
-            : ["/assets/images/image-placeholder.png"],
+          featured: Boolean(product.is_featured),
+          images:
+            product.product_images && product.product_images.length > 0
+              ? product.product_images
+              : product.image
+              ? [product.image]
+              : ["/assets/images/image-placeholder.png"],
           createdAt: product.created_at,
           duration: 0,
         })
@@ -124,10 +130,10 @@ export default function ProductApprovalPage() {
 
       // Update pagination from API response
       setPagination({
-        currentPage: data.current_page || Number.parseInt(filters.page) || 1,
-        totalPages: data.last_page || 1,
-        total: data.total || formattedProducts.length,
-        perPage: data.per_page || Number.parseInt(filters.limit) || 10,
+        currentPage: apiData.current_page || Number.parseInt(filters.page) || 1,
+        totalPages: apiData.last_page || 1,
+        total: apiData.total || formattedProducts.length,
+        perPage: apiData.per_page || Number.parseInt(filters.limit) || 10,
       });
 
       // Update stats
@@ -192,29 +198,29 @@ export default function ProductApprovalPage() {
       const productIds = selectedIds.map((id) => Number.parseInt(id));
 
       if (action === "feature") {
-        toast({
-          title: "Feature Coming Soon",
-          description: "Feature functionality is under development.",
+        const result = await updateProductFeatureStatus({
+          product_ids: productIds,
+          is_featured: true,
         });
-        return;
-      }
 
-      const statusMap: Record<
-        "approve" | "reject" | "disable",
-        "approved" | "rejected" | "disabled"
-      > = {
-        approve: "approved",
-        reject: "rejected",
-        disable: "disabled",
-      };
+        if (result?.error) {
+          throw new Error(result.error);
+        }
+      } else {
+        const statusMap = {
+          approve: "approved",
+          reject: "rejected",
+          disable: "disabled",
+        };
 
-      const result = await updateProductStatus({
-        status: statusMap[action],
-        product_ids: productIds,
-      });
+        const result = await updateProductStatus({
+          status: statusMap[action],
+          product_ids: productIds,
+        });
 
-      if (result?.error) {
-        throw new Error(result.error);
+        if (result?.error) {
+          throw new Error(result.error);
+        }
       }
 
       toast({
