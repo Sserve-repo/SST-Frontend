@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import type { Service } from "@/types/services";
+import type { Service } from "@/types/service";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { disableServices } from "@/actions/admin/service-api";
