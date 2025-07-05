@@ -16,6 +16,7 @@ import type { Service } from "@/types/services";
 interface CreateServiceDialogProps {
   children: React.ReactNode;
   onSubmit: (service: Omit<Service, "id">) => void | Promise<void>;
+  onSuccess?: (message: string) => void;
 }
 
 export function CreateServiceDialog({
@@ -24,6 +25,8 @@ export function CreateServiceDialog({
 }: CreateServiceDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Removed onOpenChange prop since we are managing open state internally
+  
 
   const handleSubmit = async (data: Partial<Service>) => {
     setIsSubmitting(true);
