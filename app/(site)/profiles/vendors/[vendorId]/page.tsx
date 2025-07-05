@@ -33,7 +33,7 @@ type Vendor = {
   lastname: string;
   vendor_category: any;
   vendor_category_item: any;
-  vendor_service_listing: VendorListing[];
+  vendor_product_listing: VendorListing[];
   vendor_business_details: any;
   vendor_vendor_area: any;
   vendor_business_policy: any;
@@ -83,7 +83,7 @@ const VendorShop = () => {
           <div className="relative aspect-video rounded-lg bg-gray-100">
             <Image
               src="/assets/images/tailor.png?height=300&width=400"
-              alt="Service preview"
+              alt="Product preview"
               fill
               className="rounded-lg object-cover"
             />
@@ -170,22 +170,21 @@ const VendorShop = () => {
         </div>
 
         {/* Services Section */}
-        {/* Services Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold text-[#502266]">
               Available Products
             </h2>
             <Badge variant="outline" className="text-sm">
-              {vendor?.vendor_service_listing?.length || 0} services
+              {vendor?.vendor_product_listing?.length || 0} products
             </Badge>
           </div>
 
-          {vendor?.vendor_service_listing &&
-          vendor.vendor_service_listing.length > 0 ? (
+          {vendor?.vendor_product_listing &&
+          vendor.vendor_product_listing.length > 0 ? (
             <>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {vendor.vendor_service_listing.map((listing) => (
+                {vendor.vendor_product_listing.map((listing) => (
                   <div
                     key={listing.id}
                     className="transition-all duration-300 transform hover:-translate-y-1"
@@ -261,10 +260,10 @@ const VendorShop = () => {
             <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
               <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                No Services Available
+                No Product Available
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                This vendor hasn&apos;t listed any services yet. Check back
+                This vendor hasn&apos;t listed any products yet. Check back
                 later or browse other talented artisans.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -272,7 +271,7 @@ const VendorShop = () => {
                   onClick={() => router.push("/artisans")}
                   className="bg-[#FF7F00] hover:bg-[#FF7F00]/90"
                 >
-                  Browse Other Artisans
+                  Browse Other Vendors
                 </Button>
               </div>
             </div>

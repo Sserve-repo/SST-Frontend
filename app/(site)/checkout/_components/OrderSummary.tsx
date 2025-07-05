@@ -67,7 +67,9 @@ const OrderSummary = ({ cartMetadata }) => {
       <div className="border-t pt-4 mt-4">
         <div className="flex justify-between font-semibold">
           <span>Total:</span>
-          <span>${totalPrice?.toFixed(2)}</span>
+          <span>${cartMetadata &&
+            cartMetadata["Total Amount"] &&
+            cartMetadata["Total Amount"].toFixed(2)}{" "}</span>
         </div>
       </div>
 
@@ -88,37 +90,6 @@ const OrderSummary = ({ cartMetadata }) => {
           Proceed to Checkout
         </Button>
       )}
-
-      {/* Promo Code Section */}
-      <div className="mt-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-          {/* Promo Code Input */}
-          {/* <div className="sm:col-span-2">
-            <Label htmlFor="promo-code">Promo Code</Label>
-            <Input
-              placeholder="Enter code"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-            />
-          </div> */}
-
-          {/* Apply Button */}
-          {/* <div className="sm:col-span-1">
-
-            <Label htmlFor="apply-button" className="sr-only">
-              Apply
-            </Label>
-            <Button
-              type="button"
-              onClick={handleApplyCoupon}
-              className="w-full py-6 mt-1 text-white rounded-md"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Processing..." : "Apply"}
-            </Button>
-          </div> */}
-        </div>
-      </div>
     </div>
   );
 };
