@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import QueryProvider from "@/components/query-provider";
 
 const APP_NAME = "SphereServes";
 const APP_DEFAULT_TITLE = "SphereServes";
@@ -69,11 +70,13 @@ export default function RootLayout({
           color="hsl(281, 50%, 27%)"
         />
         <Toaster position="top-right" richColors closeButton />
-        <ThemeProvider attribute="class" enableSystem={false}>
-          <AuthProvider>
-            <CartProvider>{children}</CartProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider attribute="class" enableSystem={false}>
+            <AuthProvider>
+              <CartProvider>{children}</CartProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );
