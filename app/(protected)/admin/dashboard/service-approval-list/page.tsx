@@ -7,13 +7,14 @@ import { ServiceFilters } from "@/components/admin/services/service-filters";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Button } from "@/components/ui/button";
-import type { Service as IService } from "@/types/services";
+import type { Service as IService } from "@/types/service";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Clock, XCircle, Wrench } from "lucide-react";
 import {
   getServices,
   updateServiceStatus,
+  updateServiceFeatureStatus,
   disableServices,
   type Service,
 } from "@/actions/admin/service-api";
@@ -80,13 +81,15 @@ export default function ServiceApprovalPage() {
       if (filters.search) params.search = filters.search;
 
       const { data, error: apiError } = await getServices(params);
+      console.log("Fetched services:", data);
 
       if (apiError || !data?.serviceListing) {
         throw new Error(apiError || "No services found");
       }
 
+
       const apiData = data;
-      const formattedServices: any[] = apiData.serviceListing.map(
+      const formattedServices: IService[] = apiData.serviceListing.map(
         (service: Service) => ({
           id: service.id.toString(),
           name: service.title,
@@ -98,26 +101,27 @@ export default function ServiceApprovalPage() {
             name: service.vendor_name || "Unknown Vendor",
             email: service.vendor_email || "",
           },
-          status: getStatusFromNumber(service.status) as IService["status"],
-          featured: Boolean(service.featured),
-          images: service.image
+          status: getStatusFromNumber(service.status),
+          featured: Boolean(service.is_featured),
+          images: Array.isArray(service.service_images)
+            ? service.service_images.map((img) =>
+                typeof img === "string" ? img : img.image
+              )
+            : service.image
             ? [service.image]
             : ["/assets/images/image-placeholder.png"],
           createdAt: service.created_at,
           duration: Number.parseFloat(service.service_duration) || 0,
           availability: Array.isArray(service.available_dates)
-            ? (service.available_dates as string[])
+            ? service.available_dates.join(", ")
             : service.available_dates
-            ? ([service.available_dates] as string[])
-            : [],
-          homeService: Boolean(service.home_service_availability),
-          // Add missing properties for Service type
-          rating: typeof service.rating === "number" ? service.rating : 0,
-          reviewCount:
-            typeof service.reviewCount === "number" ? service.reviewCount : 0,
-          bookingCount:
-            typeof service.bookingCount === "number" ? service.bookingCount : 0,
-          updatedAt: service.updated_at || service.created_at,
+            ? service.available_dates
+            : "",
+          homeService: Boolean(Number(service.home_service_availability)),
+          rating: 0,
+          reviewCount: 0,
+          bookingCount: 0,
+          updatedAt: new Date(service.updated_at),
         })
       );
 
@@ -125,10 +129,10 @@ export default function ServiceApprovalPage() {
 
       // Update pagination from API response
       setPagination({
-        currentPage: data.current_page || Number.parseInt(filters.page) || 1,
-        totalPages: data.last_page || 1,
-        total: data.total || formattedServices.length,
-        perPage: data.per_page || Number.parseInt(filters.limit) || 10,
+        currentPage: apiData.current_page || Number.parseInt(filters.page) || 1,
+        totalPages: apiData.last_page || 1,
+        total: apiData.total || formattedServices.length,
+        perPage: apiData.per_page || Number.parseInt(filters.limit) || 10,
       });
 
       // Update stats
@@ -165,18 +169,10 @@ export default function ServiceApprovalPage() {
   const calculateStats = (serviceList: IService[]) => {
     const newStats = {
       total: serviceList.length,
-      pending: serviceList.filter(
-        (s) => s.status === ("pending" as IService["status"])
-      ).length,
-      approved: serviceList.filter(
-        (s) => s.status === ("approved" as IService["status"])
-      ).length,
-      rejected: serviceList.filter(
-        (s) => s.status === ("rejected" as IService["status"])
-      ).length,
-      disabled: serviceList.filter(
-        (s) => s.status === ("disabled" as IService["status"])
-      ).length,
+      pending: serviceList.filter((s) => s.status === "pending").length,
+      approved: serviceList.filter((s) => s.status === "approved").length,
+      rejected: serviceList.filter((s) => s.status === "rejected").length,
+      disabled: serviceList.filter((s) => s.status === "disabled").length,
     };
     setStats(newStats);
   };
@@ -225,11 +221,11 @@ export default function ServiceApprovalPage() {
           result = await disableServices(serviceIds);
           break;
         case "feature":
-          toast({
-            title: "Feature",
-            description: "Feature functionality coming soon.",
+          result = await updateServiceFeatureStatus({
+            service_ids: serviceIds,
+            is_featured: true,
           });
-          return;
+          break;
       }
 
       if (result.error) {
