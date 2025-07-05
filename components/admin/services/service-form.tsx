@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import type { Service } from "@/types/services"
+import type { Service } from "@/types/service"
 
 const formSchema = z.object({
   name: z.string().min(2).max(100),
