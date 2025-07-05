@@ -113,9 +113,9 @@ const getNavItems = (userType: string) => {
       icon: MessageSquare,
     },
   ];
+
   const adminItems = [
     { title: "Overview", href: "/admin/dashboard", icon: TbChartArcs },
-
     {
       title: "Products Approval",
       href: "/admin/dashboard/product-approval-list",
@@ -148,11 +148,6 @@ const getNavItems = (userType: string) => {
       href: "/admin/dashboard/users",
       icon: Users2Icon,
     },
-    // {
-    //   title: "Roles & Permissions",
-    //   href: "/admin/dashboard/roles",
-    //   icon: Users,
-    // },
     {
       title: "Events",
       href: "/admin/dashboard/events",
@@ -165,12 +160,27 @@ const getNavItems = (userType: string) => {
       return [...vendorItems];
     case "4": // Artisan
       return [...artisanItems];
-    case "2": // Shopper
+    case "2": // Buyer
       return [...shopperItems];
     case "1": // Admin
       return [...adminItems];
     default:
       return baseItems;
+  }
+};
+
+const getSettingsHref = (userType: string) => {
+  switch (userType) {
+    case "1": // Admin
+      return "/admin/dashboard/profile-setting";
+    case "3": // Vendor
+      return "/vendor/dashboard/settings";
+    case "4": // Artisan
+      return "/artisan/dashboard/settings/profile";
+    case "2": // Buyer
+      return "/buyer/dashboard/profile-setting";
+    default:
+      return "/dashboard/profile-setting";
   }
 };
 
@@ -181,7 +191,8 @@ export function DashboardNav() {
   const { isCollapsed, toggleSidebar } = useSidebarToggle();
   const [isMobile, setIsMobile] = useState(false);
 
-  const navItems = getNavItems(currentUser?.user_type);
+  const navItems = getNavItems(currentUser?.user_type || "4");
+  const settingsHref = getSettingsHref(currentUser?.user_type || "4");
 
   const handleLogOut = () => {
     router.push("/");
@@ -207,6 +218,14 @@ export function DashboardNav() {
       return item.matchPaths.some((path: string) => pathname.startsWith(path));
     }
     return pathname === item.href;
+  };
+
+  const isSettingsActive = () => {
+    return (
+      pathname === settingsHref ||
+      pathname.includes("/settings") ||
+      pathname.includes("/profile-setting")
+    );
   };
 
   return (
@@ -274,16 +293,16 @@ export function DashboardNav() {
               variant="ghost"
               className={cn(
                 "w-full flex items-center justify-start px-3.5 py-3 rounded-lg text-left text-primary hover:bg-purple-50",
-                pathname === "/dashboard/profile-setting" &&
-                  "bg-primary text-white"
+                isSettingsActive() && "bg-primary text-white"
               )}
               asChild
             >
-              <Link href="/dashboard/profile-setting">
+              <Link href={settingsHref}>
                 <Settings
                   className={cn(
                     "mr-4 h-5 w-5 transition-all",
-                    isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4"
+                    isCollapsed ? "h-6 w-6 mx-auto" : "h-5 w-5 mr-4",
+                    isSettingsActive() && "text-white"
                   )}
                 />
                 {!isCollapsed && <span className="truncate">Settings</span>}
