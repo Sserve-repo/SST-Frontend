@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Check,
+  Edit,
   Eye,
   MoreHorizontal,
   Star,
@@ -36,7 +37,10 @@ import { DeleteProductDialog } from "./delete-product-dialog";
 import { cn } from "@/lib/utils";
 import type { IProduct } from "@/types/product";
 import { useToast } from "@/hooks/use-toast";
-import { updateProductStatus } from "@/actions/admin/product-api";
+import {
+  updateProductStatus,
+  updateProductFeatureStatus,
+} from "@/actions/admin/product-api";
 
 interface ProductTableProps {
   products: IProduct[];
@@ -64,9 +68,7 @@ export function ProductTable({
 }: ProductTableProps) {
   const [productToView, setProductToView] = useState<IProduct | null>(null);
   const [productToEdit, setProductToEdit] = useState<IProduct | null>(null);
-  const [productToDelete, setProductToDisabled] = useState<IProduct | null>(
-    null
-  );
+  const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -90,14 +92,20 @@ export function ProductTable({
   const handleSingleAction = async (
     productId: string,
     action: "approve" | "reject" | "disable" | "feature",
-    currentStatus?: boolean
+    currentFeatured?: boolean
   ) => {
     setActionLoading(`${action}-${productId}`);
 
     try {
-      if (action === "approve" || action === "reject") {
+      if (action === "approve" || action === "reject" || action === "disable") {
+        const statusMap = {
+          approve: "approved",
+          reject: "rejected",
+          disable: "disabled",
+        };
+
         const { error } = await updateProductStatus({
-          status: action === "approve" ? "approved" : "rejected",
+          status: statusMap[action],
           product_ids: [Number.parseInt(productId)],
         });
 
@@ -109,10 +117,10 @@ export function ProductTable({
           title: "Success",
           description: `Product ${action}d successfully.`,
         });
-      } else if (action === "disable") {
-        const { error } = await updateProductStatus({
-          status: "disabled",
+      } else if (action === "feature") {
+        const { error } = await updateProductFeatureStatus({
           product_ids: [Number.parseInt(productId)],
+          is_featured: !currentFeatured,
         });
 
         if (error) {
@@ -121,14 +129,8 @@ export function ProductTable({
 
         toast({
           title: "Success",
-          description: "Product disabled successfully.",
-        });
-      } else if (action === "feature") {
-        // Feature/unfeature logic would go here
-        toast({
-          title: "Success",
           description: `Product ${
-            currentStatus ? "unfeatured" : "featured"
+            currentFeatured ? "unfeatured" : "featured"
           } successfully.`,
         });
       }
@@ -165,6 +167,7 @@ export function ProductTable({
               <TableHead>Product</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Stock</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Featured</TableHead>
@@ -176,7 +179,7 @@ export function ProductTable({
             {products.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No products found
@@ -207,13 +210,8 @@ export function ProductTable({
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (
-                            !target.src.includes(
-                              "/assets/images/image-placeholder.png"
-                            )
-                          ) {
-                            target.src =
-                              "/assets/images/image-placeholder.png?height=40&width=40";
+                          if (!target.src.includes("/assets/images/image-placeholder.png")) {
+                            target.src = "/assets/images/image-placeholder.png?height=40&width=40";
                           }
                         }}
                       />
@@ -225,13 +223,23 @@ export function ProductTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{product.category}</p>
+                      {product.subcategory && (
+                        <p className="text-sm text-muted-foreground">
+                          {product.subcategory}
+                        </p>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     $
                     {typeof product.price === "number"
                       ? product.price.toFixed(2)
                       : product.price}
                   </TableCell>
+                  <TableCell>{product.stockLevel || 0}</TableCell>
                   <TableCell>
                     <div>
                       <p className="font-medium">{product.vendor.name}</p>
@@ -306,30 +314,15 @@ export function ProductTable({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        {/* <DropdownMenuItem
+                        <DropdownMenuItem
                           onClick={() => setProductToEdit(product)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Product
-                        </DropdownMenuItem> */}
+                        </DropdownMenuItem>
                         {product.status === "pending" && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleSingleAction(product.id!, "reject")
-                              }
-                              disabled={
-                                actionLoading === `reject-${product.id}`
-                              }
-                            >
-                              {actionLoading === `reject-${product.id}` ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              ) : (
-                                <X className="mr-2 h-4 w-4 text-red-600" />
-                              )}
-                              Reject
-                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
                                 handleSingleAction(product.id!, "approve")
@@ -344,6 +337,21 @@ export function ProductTable({
                                 <Check className="mr-2 h-4 w-4 text-green-600" />
                               )}
                               Approve
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleSingleAction(product.id!, "reject")
+                              }
+                              disabled={
+                                actionLoading === `reject-${product.id}`
+                              }
+                            >
+                              {actionLoading === `reject-${product.id}` ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <X className="mr-2 h-4 w-4 text-red-600" />
+                              )}
+                              Reject
                             </DropdownMenuItem>
                           </>
                         )}
@@ -378,6 +386,23 @@ export function ProductTable({
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleSingleAction(
+                              product.id!,
+                              "feature",
+                              product.featured
+                            )
+                          }
+                          disabled={actionLoading === `feature-${product.id}`}
+                        >
+                          {actionLoading === `feature-${product.id}` ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Star className="mr-2 h-4 w-4 text-yellow-600" />
+                          )}
+                          {product.featured ? "Unfeature" : "Feature"}
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() =>
                             handleSingleAction(product.id!, "disable")
@@ -455,7 +480,7 @@ export function ProductTable({
 
       <DeleteProductDialog
         product={productToDelete}
-        onOpenChange={(open) => !open && setProductToDisabled(null)}
+        onOpenChange={(open) => !open && setProductToDelete(null)}
         onRefresh={onRefresh}
       />
     </>
