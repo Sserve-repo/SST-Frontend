@@ -1,112 +1,3 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import Image from "next/image";
-// import { Heart } from "lucide-react";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardFooter } from "@/components/ui/card";
-// import { useRouter } from "next/navigation";
-// import { getRecommendedVendors } from "@/actions/vendors";
-
-// type Vendor = {
-//   id: string;
-//   firstname: string;
-//   lastname: string;
-//   business_name: string;
-//   product_category_name: string;
-//   rating: number;
-//   image: string;
-// };
-
-// const RecommendedArtisans = () => {
-//   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-//   const router = useRouter();
-//   const [vendors, setVendors] = useState<Vendor[]>([]);
-
-//   const handleRedirect = (id) => {
-//     router.push(`vendor-profile/${id}`);
-//   };
-
-//   const getVendorFullname = (vendor: Vendor) => {
-//     return vendor?.firstname + " " + vendor?.lastname;
-//   };
-
-//   const handleFetchRecommendedVendors = async () => {
-//     const response = await getRecommendedVendors();
-//     if (response && response.ok) {
-//       const data = await response.json();
-//       setVendors(data.data["Vendors"]);
-//     }
-//   };
-
-//   useEffect(() => {
-//     handleFetchRecommendedVendors();
-//   }, []);
-
-//   return (
-//     <section className="bg-white py-12 md:py-24">
-//       <div className="container mx-auto px-4 md:px-6">
-//         <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#502266] text-center mb-12">
-//           Recommended Vendors
-//         </h2>
-//         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-//           {vendors?.map((vendor, index) => (
-//             <Card
-//               key={index}
-//               className="overflow-hidden"
-//               onMouseEnter={() => setHoveredIndex(index)}
-//               onMouseLeave={() => setHoveredIndex(null)}
-//             >
-//               <div className="relative h-48">
-//                 <Image
-//                   src={
-//                     vendor.image ??
-//                     "/assets/images/tailor.png?height=300&width=400"
-//                   }
-//                   alt={vendor.firstname}
-//                   layout="fill"
-//                   objectFit="cover"
-//                   className="rounded-t-lg"
-//                 />
-//                 {hoveredIndex === index && (
-//                   <Button
-//                     size="icon"
-//                     variant="secondary"
-//                     className="absolute top-2 right-2 bg-white rounded-full"
-//                   >
-//                     <Heart className="h-4 w-4" />
-//                   </Button>
-//                 )}
-//               </div>
-//               <CardContent className="bg-[#240F2E] text-white p-4 h-48 flex flex-col justify-between">
-//                 <div>
-//                   <h3 className="text-lg font-semibold mb-2">
-//                     {getVendorFullname(vendor)}
-//                   </h3>
-//                   <p className="text-sm text-[#FFCA95]">
-//                     {vendor.business_name}
-//                   </p>
-//                   <p className="text-sm mt-2">
-//                     ⭐ ({vendor?.rating?.toFixed(1)}/5.0)
-//                   </p>
-//                 </div>
-//                 <CardFooter className="p-0">
-//                   <Button className="w-full bg-[#FF7F00] hover:bg-[#FF7F00]/90 text-white rounded-full">
-//                     Explore
-//                   </Button>
-//                 </CardFooter>
-//               </CardContent>
-//             </Card>
-//           ))}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default RecommendedArtisans;
-
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
@@ -163,7 +54,7 @@ const RecommendedVendors = () => {
               Recommended Vendors
             </h2>
             <Link
-              href="/vendors"
+              href="/products"
               className="text-[#FF7F00] hover:text-[#502266] font-medium transition-colors duration-300 flex items-center gap-1 self-start sm:self-auto"
             >
               Explore
@@ -192,23 +83,27 @@ const RecommendedVendors = () => {
               className="overflow-hidden group cursor-pointer transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl"
             >
               <div className="relative">
-                <Image
-                  src={
-                    vendor.image ??
-                    "/assets/images/tailor.png?height=300&width=400"
-                  }
-                  alt={vendor.firstname}
-                  width={400}
-                  height={300}
-                  className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
-                />
+                <Link href={`/profiles/vendors/${vendor.id}`}>
+                  <Image
+                    src={
+                      vendor.image ??
+                      "/assets/images/tailor.png?height=300&width=400"
+                    }
+                    alt={vendor.firstname}
+                    width={400}
+                    height={300}
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </Link>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
 
               <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2 text-[#502266] truncate">
-                  {getVendorFullname(vendor)}
-                </h3>
+                <Link href={`/profiles/vendors/${vendor.id}`}>
+                  <h3 className="text-lg font-semibold mb-2 text-[#502266] truncate">
+                    {getVendorFullname(vendor)}
+                  </h3>
+                </Link>
 
                 {/* Business Name with Shop Icon */}
                 <div className="flex items-center gap-2 mb-2">

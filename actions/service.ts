@@ -84,14 +84,14 @@ export const getServiceDetail = async (id) => {
   }
 };
 
-export async function addServiceReview(payload: any, serviceId: number) {
+export async function addServiceReview(payload: any, artisanId: number) {
   try {
     const token = Cookies.get("accessToken");
     if (!token) {
       throw new Error("No access token found");
     }
     const response = await fetch(
-      `${baseUrl}/general/services/addReviews/${serviceId}`,
+      `${baseUrl}/general/services/addReviews/${artisanId}`,
       {
         method: "POST",
         headers: {
@@ -106,10 +106,10 @@ export async function addServiceReview(payload: any, serviceId: number) {
   }
 }
 
-export async function getServiceReviews(serviceId: number) {
+export async function getServiceReviews(artisanId: number) {
   try {
     const response = await fetch(
-      `${baseUrl}/general/services/getreviews/${serviceId}`,
+      `${baseUrl}/general/services/getreviews/${artisanId}`,
       {
         headers: {
           Authorization: `Bearer ${Cookies.get("accessToken")}`,

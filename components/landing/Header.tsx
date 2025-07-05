@@ -1569,138 +1569,38 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
             {/* Services Popover */}
-            <Popover
-              open={isServicesOpen && !isModalOpen}
-              onOpenChange={setIsServicesOpen}
+            <Link
+              href={"/services"}
+              className="text-gray-700 hover:text-[#502266] transition-colors font-medium flex items-center gap-1"
             >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-gray-700 hover:text-[#502266] transition-colors font-medium flex items-center gap-1"
-                  disabled={isModalOpen}
-                >
-                  Services
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[600px] max-h-[80vh] overflow-y-auto p-0 z-50"
-                side="bottom"
-                align="start"
-              >
-                <div className="grid grid-cols-2 gap-4 p-6">
-                  {servicesMenu.map((service) => (
-                    <div
-                      key={`${service.name}${service.id}`}
-                      className="flex flex-col space-y-2"
-                    >
-                      <p className="font-semibold text-[#502266] mb-2 border-b border-gray-200 pb-1">
-                        {service.name}
-                      </p>
-                      {service["service_category_items"]?.map((item, index) => (
-                        <Link
-                          key={index}
-                          href={`/services/?categoryId=${item.id}`}
-                          className="text-gray-600 hover:text-[#FF7F00] hover:underline transition-colors text-sm"
-                          onClick={() => setIsServicesOpen(false)}
-                        >
-                          {item.name}
-                        </Link>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+              Services
+            </Link>
 
-            {/* Products Popover */}
-            <Popover
-              open={isProductsOpen && !isModalOpen}
-              onOpenChange={setIsProductsOpen}
+            <Link
+              href={"/products"}
+              className="text-gray-700 hover:text-[#502266] transition-colors font-medium flex items-center gap-1"
             >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-gray-700 hover:text-[#502266] transition-colors font-medium flex items-center gap-1"
-                  disabled={isModalOpen}
-                >
-                  Products
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[600px] max-h-[80vh] overflow-y-auto p-0 z-50"
-                side="bottom"
-                align="start"
-              >
-                <div className="grid grid-cols-2 gap-4 p-6">
-                  {productsMenu.map((category) => (
-                    <div
-                      key={`${category.name}${category.id}`}
-                      className="flex flex-col space-y-2"
-                    >
-                      <p className="font-semibold text-[#502266] mb-2 border-b border-gray-200 pb-1">
-                        {category.name}
-                      </p>
-                      {category["product_categories"]?.map((item, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between"
-                        >
-                          <Link
-                            href={`/products/?categoryId=${item.id}`}
-                            className="text-gray-600 hover:text-[#FF7F00] hover:underline transition-colors text-sm flex-1"
-                            onClick={() => setIsProductsOpen(false)}
-                          >
-                            {item.name}
-                          </Link>
-                          {item["product_category_items"]?.length > 0 && (
-                            <HoverCard>
-                              <HoverCardTrigger>
-                                <RiArrowDropDownLine className="hover:cursor-pointer text-2xl text-gray-400 hover:text-[#502266] transition-colors" />
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-56">
-                                <div className="flex flex-col space-y-2">
-                                  {item["product_category_items"].map(
-                                    (subItem, subItemIndex) => (
-                                      <Link
-                                        key={subItemIndex}
-                                        href={`/products/?categoryId=${item.id}&subCategoryId=${subItem.id}`}
-                                        className="text-gray-600 hover:text-[#FF7F00] hover:underline transition-colors text-sm"
-                                        onClick={() => setIsProductsOpen(false)}
-                                      >
-                                        {subItem.name}
-                                      </Link>
-                                    )
-                                  )}
-                                </div>
-                              </HoverCardContent>
-                            </HoverCard>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+              Products
+            </Link>
 
             {/* Additional Navigation Items */}
             <div className="flex items-center space-x-4">
-              <Link
-                href="/refer-earn"
-                className="text-gray-700 hover:text-[#502266] transition-colors text-sm font-medium"
-              >
-                Refer & Earn
-              </Link>
               <Link
                 href="/favorites"
                 className="text-gray-600 hover:text-[#502266] transition-colors"
                 title="Favorites"
               >
-                <Heart className="h-6 w-6" />
+                <div className="flex gap-x-2">
+                  <Heart className="h-6 w-6" />
+                  Favorites
+                </div>
               </Link>
-              <CartIcon />
+              <Link href={"/cart"}>
+                <div className="flex gap-x-2">
+                  <CartIcon />
+                  Carts
+                </div>
+              </Link>
             </div>
           </div>
 

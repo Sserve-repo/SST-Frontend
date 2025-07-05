@@ -1,15 +1,30 @@
+import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { Star } from "lucide-react";
 
 interface ReviewCardProps {
+  avatar: string;
   author: string;
   date: string;
   rating: number;
   content: string;
 }
 
-export function ReviewCard({ author, date, rating, content }: ReviewCardProps) {
+export function ReviewCard({
+  avatar,
+  author,
+  date,
+  rating,
+  content,
+}: ReviewCardProps) {
   return (
     <div className="border-b py-4">
+      <div className="flex items-start gap-3 h6 w-6 rounded">
+        <Avatar>
+          <AvatarImage src={avatar} />
+          <AvatarFallback>{author}</AvatarFallback>
+        </Avatar>
+      </div>
+      {/* </div> */}
       <div className="flex items-center gap-2">
         <span className="font-medium">{author}</span>
         <span className="text-sm text-muted-foreground">{date}</span>

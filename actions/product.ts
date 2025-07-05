@@ -39,7 +39,12 @@ export const getProductByCategorySub = async (params) => {
   try {
     const query = new URLSearchParams(params).toString();
     const response = await fetch(
-      `${baseUrl}/general/products/getProductByCategorySub?${query}`
+      `${baseUrl}/general/products/getProductByCategorySub?${query}`,
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`,
+        },
+      }
     );
     return response;
   } catch (error: any) {

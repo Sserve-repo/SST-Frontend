@@ -126,3 +126,14 @@ export const getRecommendedVendors = async () => {
     console.log("failed to fetch recommended vendors", error);
   }
 };
+
+export const getVendorProfile = async (vendorId) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getVendorBusinessProfile/${vendorId}`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("failed to fetch vendor profile", error);
+  }
+};

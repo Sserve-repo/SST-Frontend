@@ -52,7 +52,7 @@ const RecommendedArtisans = () => {
               Recommended Artisans
             </h2>
             <Link
-              href="/artisan"
+              href="/services"
               className="text-[#FF7F00] hover:text-[#502266] font-medium transition-colors duration-300 flex items-center gap-1 self-start sm:self-auto"
             >
               Explore
