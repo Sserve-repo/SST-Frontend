@@ -6,7 +6,7 @@ export default function AdminProfileSettingsPage() {
   return (
     <UnifiedProfileSettings
       userType="admin"
-      showBusinessInfo={true}
+      showBusinessInfo={false}
       showBankDetails={false}
     />
   );

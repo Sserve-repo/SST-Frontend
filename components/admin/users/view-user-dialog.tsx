@@ -32,7 +32,7 @@ export function ViewUserDialog({ user, onOpenChange }: ViewUserDialogProps) {
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16">
               <AvatarImage
-                src={user.user_photo || "/placeholder.svg"}
+                src={user.user_photo || "/assets/images/image-placeholder.png"}
                 alt={`${user.firstName} ${user.lastName}`}
               />
               <AvatarFallback>

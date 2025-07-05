@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Check, X, Loader2, Star, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Service } from "@/types/services";
+import type { Service } from "@/types/service";
 import { useToast } from "@/hooks/use-toast";
 import ImageShowCase from "@/components/ImageShowCase";
 import { updateServiceStatus } from "@/actions/admin/service-api";

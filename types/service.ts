@@ -1,4 +1,4 @@
-export type ServiceStatus = "active" | "inactive" | "draft"
+export type ServiceStatus = "active" | "inactive" | "draft" | "pending" | "approved" | "rejected" | "disabled"
 
 export interface Service {
   id: string
@@ -10,12 +10,19 @@ export interface Service {
   category: string
   status: ServiceStatus
   images: string[]
-  availability: ServiceAvailability[]
+  availability?: string
+  homeService?: boolean
   rating: number
   reviewCount: number
   bookingCount: number
-  createdAt: Date
+  createdAt: Date | string
   updatedAt: Date
+  featured?: boolean
+  vendor?: {
+    id: string
+    name: string
+    email: string
+  }
 }
 
 export interface ServiceAvailability {

@@ -7,23 +7,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Calendar as CalendarIcon,
   Clock,
   DollarSign,
   CheckCircle,
   XCircle,
   PlayCircle,
+  Eye,
+  Phone,
+  Mail,
 } from "lucide-react";
 import type { Appointment, AppointmentStatus } from "@/types/appointments";
-import type { JSX } from "react"; // Import JSX to fix the undeclared variable error
 
 interface CalendarViewProps {
   appointments: Appointment[];
   onStatusUpdate: (appointmentId: string, newStatus: AppointmentStatus) => void;
+  onViewDetails: (appointment: Appointment) => void;
 }
 
 export function CalendarView({
   appointments,
   onStatusUpdate,
+  onViewDetails,
 }: CalendarViewProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
@@ -47,17 +52,17 @@ export function CalendarView({
   const getStatusColor = (status: AppointmentStatus) => {
     switch (status) {
       case "confirmed":
-        return "bg-blue-100 text-blue-600";
+        return "bg-blue-100 text-blue-600 border-blue-200";
       case "inprogress":
-        return "bg-yellow-100 text-yellow-600";
+        return "bg-orange-100 text-orange-600 border-orange-200";
       case "completed":
-        return "bg-green-100 text-green-600";
+        return "bg-green-100 text-green-600 border-green-200";
       case "cancelled":
-        return "bg-red-100 text-red-600";
+        return "bg-red-100 text-red-600 border-red-200";
       case "rescheduled":
-        return "bg-purple-100 text-purple-600";
+        return "bg-purple-100 text-purple-600 border-purple-200";
       default:
-        return "bg-gray-100 text-gray-600";
+        return "bg-yellow-100 text-yellow-600 border-yellow-200";
     }
   };
 
@@ -74,8 +79,9 @@ export function CalendarView({
           key="confirm"
           size="sm"
           onClick={() => onStatusUpdate(appointment.id, "confirmed")}
+          className="flex items-center gap-1"
         >
-          <CheckCircle className="h-4 w-4 mr-1" />
+          <CheckCircle className="h-3 w-3" />
           Confirm
         </Button>
       );
@@ -87,8 +93,9 @@ export function CalendarView({
           key="start"
           size="sm"
           onClick={() => onStatusUpdate(appointment.id, "inprogress")}
+          className="flex items-center gap-1"
         >
-          <PlayCircle className="h-4 w-4 mr-1" />
+          <PlayCircle className="h-3 w-3" />
           Start
         </Button>
       );
@@ -100,8 +107,9 @@ export function CalendarView({
           key="complete"
           size="sm"
           onClick={() => onStatusUpdate(appointment.id, "completed")}
+          className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
         >
-          <CheckCircle className="h-4 w-4 mr-1" />
+          <CheckCircle className="h-3 w-3" />
           Complete
         </Button>
       );
@@ -117,9 +125,9 @@ export function CalendarView({
           size="sm"
           variant="outline"
           onClick={() => onStatusUpdate(appointment.id, "cancelled")}
-          className="text-red-600 border-red-200 hover:bg-red-50"
+          className="text-red-600 border-red-200 hover:bg-red-50 flex items-center gap-1"
         >
-          <XCircle className="h-4 w-4 mr-1" />
+          <XCircle className="h-3 w-3" />
           Cancel
         </Button>
       );
@@ -132,10 +140,13 @@ export function CalendarView({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Calendar */}
       <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle className="text-2xl">Calendar</CardTitle>
+        <CardHeader className=" px-4 pt-3 pb-0">
+          <CardTitle className="flex items-center text-lg gap-2">
+            <CalendarIcon className="h-5 w-5" />
+            Calendar
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 py-2 space-y-2">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -149,14 +160,20 @@ export function CalendarView({
                 backgroundColor: "#3b82f6",
                 color: "white",
                 fontWeight: "bold",
+                borderRadius: "6px",
               },
             }}
           />
-          <div className="mt-4 space-x-2 flex items-center justify-between">
-            <div className="text-sm font-medium">Legend:</div>
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 bg-blue-500 rounded"></div>
-              <span>Has appointments</span>
+          <div className="mt-6 space-y-3">
+            <div className="text-sm font-medium text-gray-700">Legend:</div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs">
+                <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                <span>Has appointments</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                Click on a date to view appointments
+              </div>
             </div>
           </div>
         </CardContent>
@@ -165,15 +182,35 @@ export function CalendarView({
       {/* Appointments for Selected Date */}
       <Card className="lg:col-span-2">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="text-xl">
             Appointments for{" "}
-            {selectedDate?.toLocaleDateString() || "Select a date"}
+            {selectedDate?.toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }) || "Select a date"}
           </CardTitle>
+          {selectedDateAppointments.length > 0 && (
+            <p className="text-sm text-gray-600">
+              {selectedDateAppointments.length} appointment
+              {selectedDateAppointments.length !== 1 ? "s" : ""} scheduled
+            </p>
+          )}
         </CardHeader>
         <CardContent>
           {selectedDateAppointments.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No appointments scheduled for this date
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <CalendarIcon className="h-16 w-16 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No appointments scheduled
+              </h3>
+              <p className="text-gray-500">
+                No appointments found for this date. Select another date to view
+                appointments.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -182,58 +219,93 @@ export function CalendarView({
                 .map((appointment) => (
                   <div
                     key={appointment.id}
-                    className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-white"
                   >
-                    <div className="flex items-start space-x-4 flex-1">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage
-                          src="/placeholder.svg"
-                          alt={appointment.customerName}
-                        />
-                        <AvatarFallback>
-                          {appointment.customerName
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start space-x-4 flex-1">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage
+                            src="/assets/images/image-placeholder.png"
+                            alt={appointment.customerName}
+                          />
+                          <AvatarFallback className="bg-primary text-white">
+                            {appointment.customerName
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
 
-                      <div className="flex-1">
-                        <h4 className="font-medium">
-                          {appointment.customerName}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {appointment.serviceName}
-                        </p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500 mt-2">
-                          <div className="flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {appointment.time} ({appointment.duration}min)
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-semibold text-lg">
+                                {appointment.customerName}
+                              </h4>
+                              <p className="text-sm text-gray-600 font-medium">
+                                {appointment.serviceName}
+                              </p>
+                            </div>
+                            <Badge
+                              className={`${getStatusColor(
+                                appointment.status
+                              )} border`}
+                            >
+                              {appointment.status.replace("_", " ")}
+                            </Badge>
                           </div>
-                          <div className="flex items-center">
-                            <DollarSign className="h-3 w-3 mr-1" />$
-                            {appointment.price}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div className="flex items-center text-gray-600">
+                              <Clock className="h-4 w-4 mr-2" />
+                              <span>
+                                {appointment.time} ({appointment.duration}min)
+                              </span>
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <DollarSign className="h-4 w-4 mr-2" />
+                              <span className="font-medium">
+                                ${appointment.price}
+                              </span>
+                            </div>
+                            {appointment.customerEmail && (
+                              <div className="flex items-center text-gray-600">
+                                <Mail className="h-4 w-4 mr-2" />
+                                <span className="truncate">
+                                  {appointment.customerEmail}
+                                </span>
+                              </div>
+                            )}
+                            {appointment.customerPhone && (
+                              <div className="flex items-center text-gray-600">
+                                <Phone className="h-4 w-4 mr-2" />
+                                <span>{appointment.customerPhone}</span>
+                              </div>
+                            )}
                           </div>
+
+                          {appointment.notes && (
+                            <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                              <strong>Notes:</strong> {appointment.notes}
+                            </div>
+                          )}
                         </div>
-                        {appointment.customerEmail && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            {appointment.customerEmail}
-                          </p>
-                        )}
-                        {appointment.notes && (
-                          <p className="text-xs text-gray-600 mt-1">
-                            <strong>Notes:</strong> {appointment.notes}
-                          </p>
-                        )}
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end space-y-2">
-                      <Badge className={getStatusColor(appointment.status)}>
-                        {appointment.status.replace("_", " ")}
-                      </Badge>
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap justify-between items-center gap-2 mt-4 pt-3 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onViewDetails(appointment)}
+                        className="flex items-center gap-1"
+                      >
+                        <Eye className="h-3 w-3" />
+                        View Details
+                      </Button>
 
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-2">
                         {getStatusActions(appointment)}
                       </div>
                     </div>

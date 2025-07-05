@@ -189,7 +189,7 @@ export default function EventsPage({ userType = "artisan" }: EventsPageProps) {
               >
                 <div className="relative">
                   <img
-                    src={event.image || "/placeholder.svg?height=200&width=400"}
+                    src={event.image || "/assets/images/image-placeholder.png?height=200&width=400"}
                     alt={event.title}
                     className="w-full h-48 object-cover rounded-t-lg"
                   />

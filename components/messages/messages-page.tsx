@@ -1,214 +1,119 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { MessageList } from "@/components/messages/message-list";
 import { MessageThread } from "@/components/messages/message-thread";
 import { MessageSearch } from "@/components/messages/message-search";
 import { MessageFilters } from "@/components/messages/message-filters";
+import { EmptyState } from "@/components/messages/empty-state";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { cn } from "@/lib/utils";
-import type {
-  Conversation,
-  Message,
-  MessageFilter,
-  MessageAttachment,
-} from "@/types/messages";
+import type { Conversation, MessageFilter } from "@/types/messages";
 import {
-  createMessage,
-  fetchConversations,
-  fetchLastConversations,
-} from "@/actions/dashboard/vendors";
-import { toast } from "sonner";
+  useConversations,
+  useConversationMessages,
+  useSendMessage,
+  useDeleteMessage,
+  useDeleteConversation,
+  useMarkAsRead,
+  useToggleArchive,
+} from "@/hooks/use-messages";
 import { useAuth } from "@/context/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const { currentUser } = useAuth();
   const [activeFilter, setActiveFilter] = useState<MessageFilter>("all");
-  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
 
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [messages, setMessages] = useState<Record<string, Message[]>>({});
+  // Queries
+  const {
+    data: conversations = [],
+    isLoading: conversationsLoading,
+    error: conversationsError,
+    refetch: refetchConversations,
+  } = useConversations();
 
-  const handleFetchLastConversations = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetchLastConversations();
+  const {
+    data: messages = [],
+    isLoading: messagesLoading,
+    error: messagesError,
+  } = useConversationMessages(selectedConversation?.id || null);
 
-      if (!response?.ok) {
-        const errorData = await response?.json();
-        throw new Error(errorData?.message || "Failed to fetch conversations");
-      }
+  // Mutations
+  const sendMessageMutation = useSendMessage();
+  const deleteMessageMutation = useDeleteMessage();
+  const deleteConversationMutation = useDeleteConversation();
+  const markAsReadMutation = useMarkAsRead();
+  const toggleArchiveMutation = useToggleArchive();
 
-      const waitedResponse = await response.json();
-      const data = waitedResponse.data?.all || [];
-
-      const transformedConversations = data.map((conversation: any) => ({
-        id:
-          conversation?.parent_message_id ||
-          Math.random().toString(36).substr(2, 9),
-        customer: {
-          id: conversation?.recipient?.id || "",
-          name: conversation?.recipient?.name || "Unknown User",
-          avatar: conversation?.recipient?.image_url || "/assets/images/image-placeholder.png",
-          email:
-            conversation?.recipient?.email ||
-            conversation?.recipient?.name ||
-            "No email",
-        },
-        lastMessage: {
-          id: "m1",
-          content: conversation?.last_message || "",
-          timestamp: new Date(conversation.time_ago || Date.now()),
-          senderId: conversation?.sender?.id || "",
-          read: false,
-        },
-        unreadCount: 1,
-        status: "active" as const,
-      }));
-
-      setConversations(transformedConversations);
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-      toast.error("Failed to load conversations");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleFetchConversations = useCallback(async () => {
-    if (!selectedConversation?.id) return;
-
-    try {
-      const response = await fetchConversations(selectedConversation?.id);
-
-      if (!response?.ok) {
-        const errorData = await response?.json();
-        console.error("Failed to fetch conversations:", errorData);
-        throw new Error("Fetching conversations failed");
-      }
-
-      const waitedResponse = await response.json();
-      const data = waitedResponse.data;
-      console.log({ data });
-
-      // Only update if we have data and it's an array
-      if (data && Array.isArray(data.messages)) {
-        setMessages((prev) => {
-          // Check if we already have this conversation's messages
-          // const existingMessages = prev[selectedConversation.id] || [];
-
-          // Only update if we have new data
-          if (data.messages.length > 0) {
-            return {
-              ...prev,
-              [selectedConversation.id]: data.messages.map((msg) => ({
-                id: msg.id || Math.random().toString(36).substr(2, 9),
-                content: msg.message || "",
-                timestamp: new Date(msg.time_ago || Date.now()),
-                senderId: msg.sender || "",
-                read: !!msg.is_read,
-                attachments: msg.attachments,
-              })),
-            };
-          }
-          return prev;
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching conversations:", error);
-    }
-  }, [selectedConversation?.id]);
-
-  const handleSendMessage = async (
-    conversationId: string,
-    recipientId: string,
-    content: string,
-    attachments?: MessageAttachment[]
-  ) => {
-    const newMessage: Message = {
-      id: Math.random().toString(36).substr(2, 9),
-      content,
-      timestamp: new Date(),
-      senderId: currentUser?.id, // artisan ID
-      read: true,
-      attachments,
-    };
-
-    console.log({ conversationId, recipientId });
-
-    setMessages((prev) => ({
-      ...prev,
-      [conversationId]: [...(prev[conversationId] || []), newMessage],
-    }));
-
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId
-          ? {
-              ...conv,
-              lastMessage: newMessage,
-            }
-          : conv
-      )
-    );
-
-    try {
-      const form = new FormData();
-      form.append("recipient_id", recipientId.toString());
-      form.append("message", content);
-
-      const response = await createMessage(form);
-      const data = await response?.json();
-      if (data?.status !== true) {
-        toast.error("Failed to add review");
-      }
-    } catch (error) {
-      console.error("Error submitting reply:", error);
-      // toast.error("Failed to submit reply");
+  // Handlers
+  const handleSelectConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    if (conversation.unreadCount > 0) {
+      markAsReadMutation.mutate(conversation.id);
     }
   };
 
-  const handleMarkAsRead = (conversationId: string) => {
-    setMessages((prev) => ({
-      ...prev,
-      [conversationId]: prev[conversationId]?.map((message) => ({
-        ...message,
-        read: true,
-      })),
-    }));
+  const handleSendMessage = async (content: string, attachments?: File[]) => {
+    if (!selectedConversation || !content.trim()) return;
 
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId
-          ? {
-              ...conv,
-              unreadCount: 0,
-              lastMessage: {
-                ...conv.lastMessage,
-                read: true,
-              },
-            }
-          : conv
-      )
-    );
+    try {
+      await sendMessageMutation.mutateAsync({
+        conversationId: selectedConversation.id,
+        recipient_id: selectedConversation.customer.id,
+        message: content.trim(),
+        attachments,
+      });
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
-  const handleArchive = (conversationId: string) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId
-          ? {
-              ...conv,
-              status: conv.status === "archived" ? "active" : "archived",
-            }
-          : conv
-      )
-    );
-    setSelectedConversation(null);
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await deleteMessageMutation.mutateAsync(messageId);
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+    }
   };
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      await deleteConversationMutation.mutateAsync(conversationId);
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete conversation:", error);
+    }
+  };
+
+  const handleArchiveConversation = async (conversationId: string) => {
+    const conversation = conversations.find((c) => c.id === conversationId);
+    if (!conversation) return;
+
+    const isCurrentlyArchived = conversation.status === "archived";
+
+    try {
+      await toggleArchiveMutation.mutateAsync({
+        conversationId,
+        isArchived: !isCurrentlyArchived,
+      });
+
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+      }
+    } catch (error) {
+      console.error("Failed to archive conversation:", error);
+    }
+  };
+
+  // Filter conversations
   const filteredConversations = conversations.filter((conversation) => {
     const matchesSearch = conversation.customer.name
       .toLowerCase()
@@ -222,86 +127,121 @@ export default function MessagesPage() {
     return matchesSearch && matchesFilter;
   });
 
-  useEffect(() => {
-    handleFetchLastConversations();
-  }, [handleFetchLastConversations]); // This runs only once on component mount
+  // Error state
+  if (conversationsError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load conversations. Please try again.
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => refetchConversations()} variant="outline">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
-  // Using a ref to track if we've already fetched for this conversation
-  const fetchedConversationsRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    if (
-      selectedConversation?.id &&
-      !fetchedConversationsRef.current.has(selectedConversation.id)
-    ) {
-      console.log(
-        "Fetching conversation details for:",
-        selectedConversation.id
-      );
-      fetchedConversationsRef.current.add(selectedConversation.id);
-      handleFetchConversations();
-    }
-  }, [selectedConversation?.id, handleFetchConversations]);
-
-  if (loading) {
+  // Loading state
+  if (conversationsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <>
-      <div className="">
-        <div className="flex h-[calc(100vh-65px)] ">
-          <div
-            className={cn(
-              "w-full md:w-80 border-r flex flex-col",
-              selectedConversation && "hidden md:flex"
-            )}
-          >
-            <div className="p-4 border-b space-y-4">
-              <MessageSearch value={searchQuery} onChange={setSearchQuery} />
-              <MessageFilters value={activeFilter} onChange={setActiveFilter} />
+    <div className="h-[calc(100vh-80px)] flex">
+      {/* Conversations Sidebar */}
+      <div
+        className={cn(
+          "w-full md:w-80 border-r flex flex-col bg-background",
+          selectedConversation && "hidden md:flex"
+        )}
+      >
+        {/* Header */}
+        <div className="p-4 border-b space-y-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">Messages</h1>
+            <div className="text-sm text-muted-foreground">
+              {filteredConversations.length} conversations
             </div>
+          </div>
+          <MessageSearch value={searchQuery} onChange={setSearchQuery} />
+          <MessageFilters value={activeFilter} onChange={setActiveFilter} />
+        </div>
+
+        {/* Conversations List */}
+        <div className="flex-1 overflow-hidden">
+          {filteredConversations.length === 0 ? (
+            <EmptyState
+              title="No conversations found"
+              description={
+                searchQuery
+                  ? "Try adjusting your search terms"
+                  : "Start a conversation to see it here"
+              }
+            />
+          ) : (
             <MessageList
               conversations={filteredConversations}
               selectedId={selectedConversation?.id}
-              onSelect={setSelectedConversation}
+              onSelect={handleSelectConversation}
+              onDelete={handleDeleteConversation}
+              onArchive={handleArchiveConversation}
+              isDeleting={deleteConversationMutation.isPending}
             />
-          </div>
-
-          <div
-            className={cn(
-              "flex-1 w-full",
-              !selectedConversation && "hidden md:block"
-            )}
-          >
-            {selectedConversation ? (
-              <MessageThread
-                conversation={selectedConversation}
-                messages={messages[selectedConversation.id] || []}
-                onSendMessage={(content, attachments) =>
-                  handleSendMessage(
-                    selectedConversation.id,
-                    selectedConversation.customer.id,
-                    content,
-                    attachments
-                  )
-                }
-                onBack={() => setSelectedConversation(null)}
-                onMarkAsRead={() => handleMarkAsRead(selectedConversation.id)}
-                onArchive={() => handleArchive(selectedConversation.id)}
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                Select a conversation to start messaging
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
-    </>
+
+      {/* Message Thread */}
+      <div
+        className={cn(
+          "flex-1 flex flex-col bg-background",
+          !selectedConversation && "hidden md:flex"
+        )}
+      >
+        {selectedConversation ? (
+          <>
+            {messagesError ? (
+              <div className="flex-1 flex items-center justify-center">
+                <Alert variant="destructive" className="max-w-md">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Failed to load messages. Please try again.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            ) : (
+              <MessageThread
+                conversation={selectedConversation}
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                onDeleteMessage={handleDeleteMessage}
+                onBack={() => setSelectedConversation(null)}
+                onArchive={() =>
+                  handleArchiveConversation(selectedConversation.id)
+                }
+                isLoading={messagesLoading}
+                isSending={sendMessageMutation.isPending}
+                isDeleting={deleteMessageMutation.isPending}
+                currentUserId={currentUser?.id}
+              />
+            )}
+          </>
+        ) : (
+          <EmptyState
+            title="Select a conversation"
+            description="Choose a conversation from the sidebar to start messaging"
+            className="flex-1"
+          />
+        )}
+      </div>
+    </div>
   );
 }

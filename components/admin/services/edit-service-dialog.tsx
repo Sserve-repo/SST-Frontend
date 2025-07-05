@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ServiceForm } from "./service-form";
-import type { Service } from "@/types/services";
+import type { Service } from "@/types/service";
 import { useToast } from "@/hooks/use-toast";
 import { updateService } from "@/actions/admin/service-api";
 

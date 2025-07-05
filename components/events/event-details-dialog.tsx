@@ -48,7 +48,7 @@ export function EventDetailsDialog({
           {/* Event Image */}
           <div className="relative">
             <img
-              src={event.image || "/placeholder.svg?height=300&width=600"}
+              src={event.image || "/assets/images/image-placeholder.png?height=300&width=600"}
               alt={event.title}
               className="w-full h-64 object-cover rounded-lg"
             />

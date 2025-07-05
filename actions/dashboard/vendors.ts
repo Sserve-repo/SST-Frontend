@@ -193,12 +193,11 @@ export const getOrderDetails = async (id: string) => {
   }
 }
 
-// messages
-
+// Enhanced messages API functions
 export const createMessage = async (payload: FormData) => {
   const token = Cookies.get("accessToken")
   try {
-    const response = await fetch(`${baseUrl}/vendor/dashboard/chat/sendMessage`, {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/sendMessage`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -207,14 +206,15 @@ export const createMessage = async (payload: FormData) => {
     })
     return response
   } catch (error: any) {
-    console.log("Failed to create promotions", error)
+    console.log("Failed to send message", error)
+    throw error
   }
 }
 
-export const deleteMessage = async (messageId: any) => {
+export const deleteMessage = async (messageId: string) => {
   const token = Cookies.get("accessToken")
   try {
-    const response = await fetch(`${baseUrl}/vendor/dashboard/chat/delete/${messageId}`, {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/delete/${messageId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -222,14 +222,31 @@ export const deleteMessage = async (messageId: any) => {
     })
     return response
   } catch (error: any) {
-    console.log("Error deleting promotions", error)
+    console.log("Error deleting message", error)
+    throw error
+  }
+}
+
+export const deleteFullConversation = async (conversationId: string) => {
+  const token = Cookies.get("accessToken")
+  try {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/deleteFullConversation/${conversationId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response
+  } catch (error: any) {
+    console.log("Error deleting conversation", error)
+    throw error
   }
 }
 
 export const fetchLastConversations = async () => {
   const token = Cookies.get("accessToken")
   try {
-    const response = await fetch(`${baseUrl}/vendor/dashboard/chat/getLastMessages`, {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/getLastMessages`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -238,13 +255,14 @@ export const fetchLastConversations = async () => {
     return response
   } catch (error: any) {
     console.log("Error fetching last messages", error)
+    throw error
   }
 }
 
 export const fetchConversations = async (conversationId: string) => {
   const token = Cookies.get("accessToken")
   try {
-    const response = await fetch(`${baseUrl}/vendor/dashboard/chat/getFullConversation/${conversationId}`, {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/getFullConversation/${conversationId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -252,7 +270,8 @@ export const fetchConversations = async (conversationId: string) => {
     })
     return response
   } catch (error: any) {
-    console.log("Error fetching last messages", error)
+    console.log("Error fetching conversation", error)
+    throw error
   }
 }
 

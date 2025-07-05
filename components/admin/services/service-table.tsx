@@ -35,17 +35,12 @@ import { ServiceDetailsDialog } from "./service-details-dialog";
 import { EditServiceDialog } from "./edit-service-dialog";
 import { DeleteServiceDialog } from "./delete-service-dialog";
 import { cn } from "@/lib/utils";
-import type { Service } from "@/types/services";
+import type { Service } from "@/types/service";
 import { useToast } from "@/hooks/use-toast";
-import { updateServiceStatus } from "@/actions/admin/service-api";
-
-// Define ServiceStatus enum if not imported from elsewhere
-export enum ServiceStatus {
-  Approved = "approved",
-  Pending = "pending",
-  Rejected = "rejected",
-  Disabled = "disabled",
-}
+import {
+  updateServiceStatus,
+  updateServiceFeatureStatus,
+} from "@/actions/admin/service-api";
 
 interface ServiceTableProps {
   services: Service[];
@@ -73,9 +68,7 @@ export function ServiceTable({
 }: ServiceTableProps) {
   const [serviceToView, setServiceToView] = useState<Service | null>(null);
   const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
-  const [serviceToDelete, setServiceToDisabled] = useState<Service | null>(
-    null
-  );
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const { toast } = useToast();
@@ -99,14 +92,20 @@ export function ServiceTable({
   const handleSingleAction = async (
     serviceId: string,
     action: "approve" | "reject" | "disable" | "feature",
-    currentStatus?: boolean
+    currentFeatured?: boolean
   ) => {
     setActionLoading(`${action}-${serviceId}`);
 
     try {
-      if (action === "approve" || action === "reject") {
+      if (action === "approve" || action === "reject" || action === "disable") {
+        const statusMap = {
+          approve: "approved",
+          reject: "rejected",
+          disable: "disabled",
+        };
+
         const { error } = await updateServiceStatus({
-          status: action === "approve" ? "approved" : "rejected",
+          status: statusMap[action],
           service_ids: [Number.parseInt(serviceId)],
         });
 
@@ -118,10 +117,10 @@ export function ServiceTable({
           title: "Success",
           description: `Service ${action}d successfully.`,
         });
-      } else if (action === "disable") {
-        const { error } = await updateServiceStatus({
-          status: "disabled",
+      } else if (action === "feature") {
+        const { error } = await updateServiceFeatureStatus({
           service_ids: [Number.parseInt(serviceId)],
+          is_featured: !currentFeatured,
         });
 
         if (error) {
@@ -130,14 +129,8 @@ export function ServiceTable({
 
         toast({
           title: "Success",
-          description: "Service disabled successfully.",
-        });
-      } else if (action === "feature") {
-        // Feature/unfeature logic would go here
-        toast({
-          title: "Success",
           description: `Service ${
-            currentStatus ? "unfeatured" : "featured"
+            currentFeatured ? "unfeatured" : "featured"
           } successfully.`,
         });
       }
@@ -217,17 +210,11 @@ export function ServiceTable({
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          if (
-                            !target.src.includes(
-                              "/assets/images/image-placeholder.png"
-                            )
-                          ) {
-                            target.src =
-                              "/assets/images/image-placeholder.png?height=40&width=40";
+                          if (!target.src.includes("/assets/images/image-placeholder.png")) {
+                            target.src = "/assets/images/image-placeholder.png?height=40&width=40";
                           }
                         }}
                       />
-
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate">{service.name}</p>
                         <p className="text-sm text-muted-foreground line-clamp-1">
@@ -258,13 +245,13 @@ export function ServiceTable({
                     <Badge
                       variant="secondary"
                       className={cn(
-                        service.status === ServiceStatus.Approved.toString() &&
+                        service.status === "approved" &&
                           "bg-green-100 text-green-600",
-                        service.status === ServiceStatus.Pending.toString() &&
+                        service.status === "pending" &&
                           "bg-yellow-100 text-yellow-600",
-                        service.status === ServiceStatus.Rejected.toString() &&
+                        service.status === "rejected" &&
                           "bg-red-100 text-red-600",
-                        service.status === ServiceStatus.Disabled.toString() &&
+                        service.status === "disabled" &&
                           "bg-gray-100 text-gray-600"
                       )}
                     >
@@ -326,8 +313,7 @@ export function ServiceTable({
                           <Edit className="mr-2 h-4 w-4" />
                           Edit Service
                         </DropdownMenuItem>
-                        {service.status ===
-                          ServiceStatus.Pending.toString() && (
+                        {service.status === "pending" && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -362,8 +348,7 @@ export function ServiceTable({
                             </DropdownMenuItem>
                           </>
                         )}
-                        {service.status ===
-                          ServiceStatus.Approved.toString() && (
+                        {service.status === "approved" && (
                           <DropdownMenuItem
                             onClick={() =>
                               handleSingleAction(service.id!, "reject")
@@ -378,8 +363,7 @@ export function ServiceTable({
                             Reject
                           </DropdownMenuItem>
                         )}
-                        {service.status ===
-                          ServiceStatus.Rejected.toString() && (
+                        {service.status === "rejected" && (
                           <DropdownMenuItem
                             onClick={() =>
                               handleSingleAction(service.id!, "approve")
@@ -489,7 +473,7 @@ export function ServiceTable({
 
       <DeleteServiceDialog
         service={serviceToDelete}
-        onOpenChange={(open) => !open && setServiceToDisabled(null)}
+        onOpenChange={(open) => !open && setServiceToDelete(null)}
         onRefresh={onRefresh}
       />
     </>
