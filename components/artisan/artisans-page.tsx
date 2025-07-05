@@ -17,7 +17,7 @@ export function ArtisansPage() {
 
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState<any[]>([]);
-  const [analytics, setAnalytics] = useState<any>({});
+  const [analytics, setAnalytics] = useState<any>(null);
   const [bookingOverview, setBookingOverview] = useState<any[]>([]);
 
   const getGreeting = () => {
@@ -31,44 +31,46 @@ export function ArtisansPage() {
       const response = await getArtisanAnalytics();
       if (!response?.ok) throw Error("Failed to fetch analytics");
 
-      const data = await response.json();
-      const overview = data.data["Overview"];
-      const earnings = data.data["Earning Summary"];
-      const bookingOverview = data.data["Booking Overview"]["bookingOverview"];
-      const analyticsData = data.data["Analytics"];
+      const res = await response.json();
+      const overview = res?.data?.Overview ?? {};
+      const earnings = res?.data?.["Earning Summary"] ?? {};
+      const analyticsData = res?.data?.Analytics ?? { revenueStats: [] };
+      const bookings = res?.data?.["Booking Overview"]?.bookingOverview ?? [];
 
       const transformedAnalytics = [
         {
           title: "Total Services",
-          value: overview?.activeListings ?? 0,
+          value: overview.activeListings ?? 0,
           icon: BriefcaseBusiness,
           color: "text-purple-600",
           bgColor: "bg-purple-100",
         },
         {
           title: "Upcoming Appts",
-          value: overview?.upcomingBookings ?? 0,
+          value: overview.upcomingBookings ?? 0,
           icon: Calendar,
           color: "text-blue-600",
           bgColor: "bg-blue-100",
         },
         {
           title: "Total Reviews",
-          value: overview?.totalReviews ?? 0,
+          value: overview.totalReviews ?? 0,
           icon: Star,
           color: "text-yellow-600",
           bgColor: "bg-yellow-100",
         },
         {
           title: "Average Ratings",
-          value: overview?.averageRating?.toFixed(1) ?? "0.0",
+          value: overview.averageRating
+            ? parseFloat(overview.averageRating).toFixed(1)
+            : "0.0",
           icon: Star,
           color: "text-yellow-600",
           bgColor: "bg-yellow-100",
         },
         {
-          title: "Active Promotions",
-          value: overview?.count ?? 0,
+          title: "Active Discounts",
+          value: overview.activeDiscounts ?? 0,
           icon: Tag,
           color: "text-green-600",
           bgColor: "bg-green-100",
@@ -77,7 +79,7 @@ export function ArtisansPage() {
 
       setStatistics(transformedAnalytics);
       setAnalytics({ earnings, statistics: analyticsData });
-      setBookingOverview(bookingOverview);
+      setBookingOverview(bookings);
     } catch (error) {
       console.error("Dashboard load error:", error);
     } finally {
@@ -121,7 +123,7 @@ export function ArtisansPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-9">
         <div className="md:col-span-1 lg:col-span-6">
-          {loading ? (
+          {loading || !analytics ? (
             <Skeleton className="w-full h-64 rounded-lg" />
           ) : (
             <EarningsSummary analytics={analytics} />
