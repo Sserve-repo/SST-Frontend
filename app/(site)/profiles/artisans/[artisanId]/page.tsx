@@ -3,15 +3,13 @@
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getArtisanProfile } from "@/actions/artisans";
-// import { ReviewCard } from "@/components/ReviewCard";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Calendar, MessageCircle, MapPin, Package } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { replyCustomerReview } from "@/actions/dashboard/artisans";
+// import { replyCustomerReview } from "@/actions/dashboard/artisans";
 import {
   addServiceReview,
   getServiceReviewsReplies,
@@ -149,41 +147,41 @@ const Service = () => {
     handleFetchReview();
   }, [handleFetchReview]);
 
-  const handleReply = async (reviewId: string, replyText: string) => {
-    if (!replyText) {
-      toast("Please enter a response before submitting");
-      return;
-    }
+  // const handleReply = async (reviewId: string, replyText: string) => {
+  //   if (!replyText) {
+  //     toast("Please enter a response before submitting");
+  //     return;
+  //   }
 
-    const form = new FormData();
-    form.append("comment", replyText);
+  //   const form = new FormData();
+  //   form.append("comment", replyText);
 
-    const response = await replyCustomerReview(form, parseInt(reviewId));
-    const data = await response?.json();
+  //   const response = await replyCustomerReview(form, parseInt(reviewId));
+  //   const data = await response?.json();
 
-    if (data?.status !== "success") {
-      toast("Failed to post your response. Please try again");
-      return;
-    }
+  //   if (data?.status !== "success") {
+  //     toast("Failed to post your response. Please try again");
+  //     return;
+  //   }
 
-    const rev = data.data.reviews;
-    setReviewFormData({ review: "", rating: 0 });
-    setActiveReplyIndex(null);
+  //   const rev = data.data.reviews;
+  //   setReviewFormData({ review: "", rating: 0 });
+  //   setActiveReplyIndex(null);
 
-    setReplies(replies);
-    setReviewsData((prev) => [
-      {
-        id: rev?.id,
-        avatar: data?.data?.user?.avatar,
-        username: data?.data?.user.username || "Anonymous",
-        comment: rev?.comment,
-        rating: rev?.rating,
-      },
-      ...prev,
-    ]);
+  //   setReplies(replies);
+  //   setReviewsData((prev) => [
+  //     {
+  //       id: rev?.id,
+  //       avatar: data?.data?.user?.avatar,
+  //       username: data?.data?.user.username || "Anonymous",
+  //       comment: rev?.comment,
+  //       rating: rev?.rating,
+  //     },
+  //     ...prev,
+  //   ]);
 
-    toast("Reply sent...");
-  };
+  //   toast("Reply sent...");
+  // };
 
   const handleSubmitReply = async () => {
     try {

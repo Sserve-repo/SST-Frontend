@@ -40,7 +40,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ServiceReviewPreviewSheet } from "./service-review-preview-sheet";
 
 interface ServiceTableProps {
   services: Service[];

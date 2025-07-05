@@ -24,7 +24,6 @@ import {
   Star,
   Clock,
   DollarSign,
-  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +56,6 @@ import { AppointmentSkeletonList } from "../appointments/appointment-skeleton-li
 import { CreateServiceDialog } from "./create-service-dialog";
 import { EditServicesDialog } from "./edit-services-dialog";
 import { ServiceDetailsDialog } from "./service-details-dialog";
-import { ServiceReviewPreviewSheet } from "./service-review-preview-sheet";
 import {
   getServices,
   deleteServiceListing,
@@ -94,9 +92,6 @@ export default function ServicesPage() {
   const [rowSelection, setRowSelection] = useState({});
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [viewingService, setViewingService] = useState<Service | null>(null);
-  const [reviewingService, setReviewingService] = useState<Service | null>(
-    null
-  );
   const [pagination, setPagination] = useState<PaginationData | null>(null);
 
   const { toast } = useToast();
@@ -262,11 +257,6 @@ export default function ServicesPage() {
     fetchServices(currentPage, debouncedSearchTerm);
   };
 
-  // Handle view reviews
-  const handleViewReviews = (service: Service) => {
-    setReviewingService(service);
-  };
-
   // Get status badge
   const getStatusBadge = (status: ServiceStatus) => {
     const statusConfig = {
@@ -375,10 +365,7 @@ export default function ServicesPage() {
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Service
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleViewReviews(service)}>
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  View Reviews ({service.reviewCount})
-                </DropdownMenuItem>
+
                 <DropdownMenuItem
                   onClick={() => handleDeleteService(service.id)}
                   className="text-red-600"
@@ -622,14 +609,6 @@ export default function ServicesPage() {
           service={viewingService}
           open={true}
           onOpenChange={(open) => !open && setViewingService(null)}
-        />
-      )}
-
-      {reviewingService && (
-        <ServiceReviewPreviewSheet
-          service={reviewingService}
-          open={true}
-          onOpenChange={(open) => !open && setReviewingService(null)}
         />
       )}
     </div>
