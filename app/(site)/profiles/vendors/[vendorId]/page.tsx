@@ -106,13 +106,13 @@ const VendorShop = () => {
                       {`${vendor?.firstname} ${vendor?.lastname}`}
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                      Add to Favorite Artisan
+                      Add to Favorite Vendor
                     </p>
                   </div>
                 </div>
                 <Badge className="flex items-center bg-purple-400 gap-1">
                   <Star className="h-3 w-3" />
-                  Star Artisan
+                  Star Vendor
                 </Badge>
               </div>
 
@@ -264,11 +264,11 @@ const VendorShop = () => {
               </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
                 This vendor hasn&apos;t listed any products yet. Check back
-                later or browse other talented artisans.
+                later or browse other talented vendors.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
-                  onClick={() => router.push("/artisans")}
+                  onClick={() => router.push("/products")}
                   className="bg-[#FF7F00] hover:bg-[#FF7F00]/90"
                 >
                   Browse Other Vendors
