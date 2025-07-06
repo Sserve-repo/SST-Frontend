@@ -4,12 +4,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  MessageCircle,
-  Package,
-  ShoppingCart,
-  Star,
-} from "lucide-react";
+import { MessageCircle, Package, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import { getVendorProfile } from "@/actions/vendors";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +12,7 @@ import router from "next/router";
 import { MessageInitiationModal } from "@/components/messages/message-initiation-modal";
 import { useCart } from "@/context/CartContext";
 import Cookies from "js-cookie";
+import Link from "next/link";
 
 type VendorListing = {
   id: string;
@@ -134,7 +130,7 @@ const VendorShop = () => {
               >
                 <Button className="flex-1">
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Message Seller
+                  Message Vendor
                 </Button>
               </MessageInitiationModal>
 
@@ -144,7 +140,7 @@ const VendorShop = () => {
             </div>
 
             <div className="rounded-lg border p-6">
-              <h2 className="text-lg font-semibold">About this service</h2>
+              <h2 className="text-lg font-semibold">About this Vendor</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {vendor?.vendor_business_details?.business_details}.
               </p>
@@ -194,17 +190,18 @@ const VendorShop = () => {
                       }`}
                     >
                       <div className="relative h-48 overflow-hidden">
-                        <Image
-                          src={
-                            listing.image ||
-                            "/assets/images/tailor.png?height=300&width=400"
-                          }
-                          alt={listing.title}
-                          layout="fill"
-                          objectFit="cover"
-                          className="transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <Link href={`/products/${listing.id}`}>
+                          <Image
+                            src={
+                              listing.image ||
+                              "/assets/images/tailor.png?height=300&width=400"
+                            }
+                            alt={listing.title}
+                            layout="fill"
+                            objectFit="cover"
+                            className="transition-transform duration-500 group-hover:scale-110"
+                          />
+                        </Link>
 
                         {/* Price Badge */}
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -216,10 +213,11 @@ const VendorShop = () => {
 
                       <CardContent className="bg-[#240F2E] text-white p-4 relative overflow-hidden">
                         <div className="relative z-10">
-                          <h3 className="text-lg font-semibold text-[#FF7F00] mb-2 line-clamp-2 group-hover:text-white transition-colors duration-300">
-                            {listing.title}
-                          </h3>
-
+                          <Link href={`/products/${listing.id}`}>
+                            <h3 className="text-lg font-semibold text-[#FF7F00] mb-2 line-clamp-2 group-hover:text-white transition-colors duration-300">
+                              {listing.title}
+                            </h3>
+                          </Link>
                           <Badge
                             variant="secondary"
                             className="mb-3 bg-white/10 text-white border-white/20"

@@ -197,7 +197,7 @@ export const getOrderDetails = async (id: string) => {
 export const createMessage = async (payload: FormData) => {
   const token = Cookies.get("accessToken")
   try {
-    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/sendMessage`, {
+    const response = await fetch(`${baseUrl}/dashboard/chat/sendMessage`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

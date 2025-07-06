@@ -65,6 +65,7 @@ export default function ProductPage() {
   const [sortOption, setSortOption] =
     React.useState<keyof typeof sortOptions>("Most Relevant");
   const [filters, setFilters] = React.useState<FilterParams>({
+    region_id: undefined,
     product_category: undefined,
     product_subcategory: undefined,
     min_price: undefined,
@@ -118,30 +119,30 @@ export default function ProductPage() {
     async (params: FilterParams) => {
       setIsLoading(true);
       try {
-        // Clean the params to remove undefined values
+        // Clean the params to remove undefined values and map to backend format
         const cleanParams = Object.entries(params).reduce(
           (acc, [key, value]) => {
             if (value !== undefined && value !== null && value !== "") {
-              acc[key as keyof FilterParams] = value;
+              // Map frontend filter names to backend API parameter names
+              const backendKey = key === "search" ? "search" : key;
+              acc[backendKey as keyof FilterParams] = value;
             }
             return acc;
           },
-          {} as FilterParams
+          {} as any
         );
 
-        // If no specific filters, fetch all products
-        const hasFilters =
-          cleanParams.product_category ||
-          cleanParams.product_subcategory ||
-          cleanParams.search ||
-          Object.keys(cleanParams).length > 3;
-
-        const response = await getProductByCategorySub({
+        // Build the API call parameters according to the backend format
+        const apiParams = {
           limit: ITEMS_PER_PAGE,
           page: currentPage,
           sort_by: sortOptions[sortOption],
           ...cleanParams,
-        });
+        };
+
+        console.log("Sending params to backend:", apiParams); // Debug log
+
+        const response = await getProductByCategorySub(apiParams);
 
         if (response && response.ok) {
           const data = await response.json();
@@ -153,7 +154,6 @@ export default function ProductPage() {
           setTotalPages(1);
           setTotalProducts(0);
         }
-        console.log(hasFilters);
       } catch (error) {
         console.error("Error fetching products:", error);
         setProducts([]);
@@ -222,10 +222,10 @@ export default function ProductPage() {
 
     // Create clean params object
     const params: FilterParams = {
+      search: filters.search,
       page: currentPage,
       limit: ITEMS_PER_PAGE,
       sort_by: sortOptions[sortOption],
-      search: undefined,
     };
 
     // Add filters only if they have values
@@ -243,7 +243,7 @@ export default function ProductPage() {
       params.product_subcategory = subCategoryId;
     }
 
-    console.log("Sending params to backend:", params); // Debug log
+    console.log("Final params being sent:", params); // Debug log
     fetchProducts(params);
   }, [currentPage, sortOption, filters, searchParams, fetchProducts]);
 
@@ -266,6 +266,7 @@ export default function ProductPage() {
   };
 
   const handleFilterChange = (newFilters: FilterParams) => {
+    console.log("Filter change received:", newFilters); // Debug log
     setFilters(newFilters);
     setCurrentPage(1);
   };
