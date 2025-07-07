@@ -113,7 +113,7 @@ export default function Hero() {
                           </h4>
                           {results.services.map((item: any) => (
                             <Link
-                              href={`/services/${item?.id}`}
+                              href={`/booking?serviceId=${item?.id}`}
                               key={item.title}
                             >
                               <p className="text-gray-700 hover:text-blue-500 cursor-pointer p-2 rounded hover:bg-gray-50">
