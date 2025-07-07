@@ -443,7 +443,7 @@ function FavoritesGrid({ items, removeFromFavorites, type, mixed = false }) {
     if (itemType === "product") {
       router.push(`/products/${item.id}`);
     } else {
-      router.push(`/services/${item.id}`);
+      router.push(`/booking?serviceId=${item.id}`);
     }
   };
 
