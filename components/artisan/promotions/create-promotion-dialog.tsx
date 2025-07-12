@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { createPromotions } from "@/actions/dashboard/vendors";
+import { createPromotions } from "@/actions/dashboard/artisans";
 import type { PromotionFormData } from "@/types/promotions";
 
 const promotionSchema = z.object({
