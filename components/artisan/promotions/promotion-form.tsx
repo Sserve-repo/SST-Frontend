@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -15,11 +14,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -27,71 +21,56 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import type { Promotion } from "@/types/promotions";
+import type { Promotion, PromotionFormData } from "@/types/promotions";
 
 const formSchema = z.object({
-  code: z
-    .string()
-    .min(3, "Code must be at least 3 characters")
-    .max(20, "Code must be less than 20 characters"),
-  type: z.enum(["percentage", "fixed"]),
-  value: z.coerce.number().min(0, "Value must be positive"),
-  startDate: z.date({
-    required_error: "Start date is required",
+  discount_name: z.string().min(1, "Promotion name is required"),
+  discount_type: z.enum(["percentage", "fixed_amount"]),
+  discount_value: z.number().min(0.01, "Discount value must be greater than 0"),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  usage_limit: z.number().min(1, "Usage limit must be at least 1"),
+  description: z.string().min(1, "Description is required"), // <-- FIX HERE
+  status: z.enum(["active", "inactive"], {
+    required_error: "Status is required",
   }),
-  endDate: z.date({
-    required_error: "End date is required",
-  }),
-  usageLimit: z.coerce.number().min(1, "Usage limit must be at least 1"),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .max(200, "Description must be less than 200 characters"),
 });
 
 interface PromotionFormProps {
   promotion?: Promotion;
-  onSubmit: (
-    data: Promotion | Omit<Promotion, "id" | "status" | "usageCount">
-  ) => void;
+  onSubmit: (data: PromotionFormData) => void;
 }
 
 export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      code: promotion?.code || "",
-      type: promotion?.type as any|| "percentage",
-      value: promotion?.value || 0,
-      startDate: promotion?.startDate || new Date(),
-      endDate:
-        promotion?.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default to 7 days from now
-      usageLimit: promotion?.usageLimit || 100,
-      description: promotion?.description || "",
-    },
+    defaultValues: promotion
+      ? {
+          discount_name: promotion.name,
+          discount_type: promotion.type,
+          discount_value: promotion.value,
+          start_date: promotion.startDate.toISOString().split("T")[0],
+          end_date: promotion.endDate.toISOString().split("T")[0],
+          usage_limit: promotion.usageLimit,
+          description: promotion.description,
+          status: promotion.status === "active" ? "active" : "inactive",
+        }
+      : {
+          discount_name: "",
+          discount_type: "percentage",
+          discount_value: 0,
+          start_date: new Date().toISOString().split("T")[0],
+          end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+          usage_limit: 100,
+          description: "",
+          status: "active",
+        },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    if (promotion) {
-      onSubmit({
-        ...values,
-        id: promotion.id,
-        status: promotion.status,
-        usageCount: promotion.usageCount,
-        name: "",
- 
-      });
-    } else {
-      onSubmit({
-        ...values,
-        id: "",
-        status: "draft",
-        usageCount: 0,
-      } as unknown as Promotion);
-    }
+    onSubmit(values);
   };
 
   return (
@@ -99,12 +78,12 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="code"
+          name="discount_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Promotion Code</FormLabel>
+              <FormLabel>Promotion Name</FormLabel>
               <FormControl>
-                <Input placeholder="SUMMER2024" {...field} />
+                <Input placeholder="Summer Deal" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -114,7 +93,7 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="type"
+            name="discount_type"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Discount Type</FormLabel>
@@ -129,7 +108,7 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="percentage">Percentage</SelectItem>
-                    <SelectItem value="fixed">Fixed Amount</SelectItem>
+                    <SelectItem value="fixed_amount">Fixed Amount</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -139,20 +118,18 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
 
           <FormField
             control={form.control}
-            name="value"
+            name="discount_value"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {form.watch("type") === "percentage"
-                    ? "Percentage"
-                    : "Amount"}
+                  {form.watch("discount_type") === "percentage"
+                    ? "Percentage (%)"
+                    : "Fixed Amount"}
                 </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
-                    placeholder={
-                      form.watch("type") === "percentage" ? "10" : "50"
-                    }
+                    placeholder="10"
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -166,39 +143,13 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="startDate"
+            name="start_date"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>Start Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -206,39 +157,13 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
 
           <FormField
             control={form.control}
-            name="endDate"
+            name="end_date"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>End Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -247,7 +172,7 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
 
         <FormField
           control={form.control}
-          name="usageLimit"
+          name="usage_limit"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Usage Limit</FormLabel>
@@ -266,13 +191,35 @@ export function PromotionForm({ promotion, onSubmit }: PromotionFormProps) {
 
         <FormField
           control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Enter promotion details..."
+                  placeholder="Optional description"
                   className="resize-none"
                   {...field}
                 />

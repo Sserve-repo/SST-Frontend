@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { createPromotions } from "@/actions/dashboard/vendors";
+import { createPromotions } from "@/actions/dashboard/artisans";
 import type { PromotionFormData } from "@/types/promotions";
 
 const promotionSchema = z.object({
@@ -71,7 +70,7 @@ export function CreatePromotionDialog({
       end_date: "",
       usage_limit: 100,
       description: "",
-      status: "active", // default status
+      status: "active",
     },
   });
 

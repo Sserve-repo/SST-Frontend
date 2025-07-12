@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ReviewOverview, ReviewStats } from "@/components/reviews/stats";
+import { type ReviewOverview, ReviewStats } from "@/components/reviews/stats";
 import { ReviewSort } from "@/components/reviews/sort";
 import type { Review } from "@/types/reviews";
 import { useToast } from "@/hooks/use-toast";
@@ -11,48 +11,64 @@ import {
 } from "@/actions/dashboard/vendors";
 import { ProductReviewList } from "./product-list";
 
-export default function ProductReviewsPage({ product }) {
+interface ProductReviewsPageProps {
+  product: any;
+}
+
+export default function ProductReviewsPage({
+  product,
+}: ProductReviewsPageProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewOverview, setReviewOverview] = useState<ReviewOverview>({
     averageRating: 0,
     totalReviews: 0,
     ratingCounts: {},
   });
-
   const [sortBy, setSortBy] = useState<"latest" | "rating">("latest");
   const { toast } = useToast();
 
   const handleFetchReview = useCallback(async () => {
-    try {
-      const response = await getCustomerReviews(product?.id);
-      const data = await response?.json();
+    if (!product?.id) return;
 
-      const transformedData = data?.data?.reviews?.map((item: any) => {
-        return {
+    try {
+      const response = await getCustomerReviews(product.id);
+      if (!response?.ok) {
+        throw new Error("Failed to fetch reviews");
+      }
+
+      const data = await response.json();
+      const transformedData =
+        data?.data?.reviews?.map((item: any) => ({
           id: item.id,
-          customerName: item.customer_name,
+          customerName:
+            item.user?.firstname + " " + (item.user?.lastname || ""),
           comment: item.comment,
           rating: item.rating,
-          customerAvatar: item.customer_photo,
-          date: new Date("2024-02-20"),
+          customerAvatar: item.user?.profile_photo || "/placeholder.svg",
+          date: new Date(item.created_at || "2024-02-20"),
           reply: null,
           status: "visible",
-        };
-      });
-      setReviews(transformedData || []);
+        })) || [];
+
+      setReviews(transformedData);
       setReviewOverview({
-        averageRating: data?.data?.ratings_overview?.averageRating,
-        totalReviews: data?.data?.ratings_overview?.totalReviews,
-        ratingCounts: data?.data?.ratings_overview?.ratingCounts,
-      } as any);
-      console.log({ reviewData: transformedData });
+        averageRating: data?.data?.ratings_overview?.averageRating || 0,
+        totalReviews:
+          data?.data?.ratings_overview?.totalReviews || transformedData.length,
+        ratingCounts: data?.data?.ratings_overview?.ratingCounts || {},
+      });
     } catch (error) {
       console.error("Error fetching reviews:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load reviews",
+        variant: "destructive",
+      });
     }
-  }, [product?.id]);
+  }, [product?.id, toast]);
 
   const handleReply = async (reviewId: string, replyText: string) => {
-    if (!replyText) {
+    if (!replyText.trim()) {
       toast({
         title: "Error",
         description: "Please enter a response before submitting.",
@@ -61,40 +77,41 @@ export default function ProductReviewsPage({ product }) {
       return;
     }
 
-    const form = new FormData();
-    form.append("comment", replyText);
+    try {
+      const form = new FormData();
+      form.append("comment", replyText.trim());
 
-    const response = await replyCustomerReview(form, parseInt(reviewId));
-    const data = await response?.json();
+      const response = await replyCustomerReview(
+        form,
+        Number.parseInt(reviewId)
+      );
+      if (!response?.ok) {
+        throw new Error("Failed to post reply");
+      }
 
-    if (data?.status !== "success") {
+      const data = await response.json();
+      if (!data?.status) {
+        throw new Error(data?.message || "Failed to post reply");
+      }
+
+      toast({
+        title: "Reply posted",
+        description: "Your response has been posted successfully.",
+      });
+
+      // Refresh reviews to show the new reply
+      handleFetchReview();
+    } catch (error) {
+      console.error("Error posting reply:", error);
       toast({
         title: "Error",
-        description: "Failed to post your response. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to post your response. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    const review = data.data.reviews;
-    setReviews((prev) => [
-      ...prev,
-      {
-        id: review?.id,
-        customerName: review?.customer_name,
-        comment: review?.comment,
-        rating: review?.rating,
-        customerAvatar: review?.customer_photo,
-        date: new Date("2024-02-20"),
-        reply: null,
-        status: "visible",
-      },
-    ]);
-
-    toast({
-      title: "Reply posted",
-      description: "Your response has been posted successfully.",
-    });
   };
 
   const handleReport = (reviewId: string) => {
@@ -109,7 +126,6 @@ export default function ProductReviewsPage({ product }) {
         return review;
       })
     );
-
     toast({
       title: "Review reported",
       description: "The review has been hidden and reported for review.",

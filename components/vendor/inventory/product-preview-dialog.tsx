@@ -1,17 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ProductPreviewDialogProps {
   product: any;
@@ -24,139 +21,178 @@ export function ProductPreviewDialog({
   open,
   onOpenChange,
 }: ProductPreviewDialogProps) {
-  const [currentImage, setCurrentImage] = useState(0);
+  if (!product) return null;
 
-  const nextImage = () => {
-    setCurrentImage((prev) =>
-      prev === product.images.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const previousImage = () => {
-    setCurrentImage((prev) =>
-      prev === 0 ? product.images.length - 1 : prev - 1
-    );
-  };
+  const images = product.product_images || product.images || [];
+  const price = Number(product.price) || 0;
+  const shippingCost =
+    Number(product.shipping_cost || product.shippingCost) || 0;
+  const stock = Number(product.stock_level || product.stock) || 0;
+  const isPublished = product.status === 1 || product.status === "published";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Product Details</DialogTitle>
+          <DialogTitle>Product Preview</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className="space-y-4">
-            <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
-              <img
-                src={
-                  product?.images[currentImage] ||
-                  product?.image ||
-                  "/assets/images/image-placeholder.png"
-                }
-                alt={product.name}
-                className="absolute h-full w-full object-cover"
-              />
-              {product.images.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute left-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-background/80 backdrop-blur-sm"
-                    onClick={previousImage}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-background/80 backdrop-blur-sm"
-                    onClick={nextImage}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-            <div className="flex gap-2 overflow-auto py-1">
-              {Array(product?.images).map((image: string, index: number) => (
-                <button
-                  key={index}
-                  className={cn(
-                    "relative aspect-square h-16 overflow-hidden rounded-lg border",
-                    currentImage === index &&
-                      "ring-2 ring-primary ring-offset-2"
-                  )}
-                  onClick={() => setCurrentImage(index)}
-                >
-                  <img
-                    src={image[0] || "/assets/images/image-placeholder.png"}
-                    alt={`${product.name} ${index + 1}`}
-                    className="h-full w-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+
+        <div className="">
           <div className="space-y-6">
-            <div>
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">{product.name}</h2>
-                  <p className="text-sm text-muted-foreground">{product.sku}</p>
+            {/* Product Images */}
+            {images.length > 0 && (
+              <div className="space-y-4">
+                <div className="aspect-square overflow-hidden rounded-lg border bg-muted">
+                  <img
+                    src={images[0] || "/placeholder.svg?height=400&width=400"}
+                    alt={product.name || product.title}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src =
+                        "/placeholder.svg?height=400&width=400";
+                    }}
+                  />
                 </div>
-                <Badge
-                  variant={
-                    product.status === "published" ? "default" : "secondary"
-                  }
-                  className="capitalize"
-                >
-                  {product.status == 1? "Approved": "Pending"}
+
+                {images.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {images.slice(1, 5).map((image: string, index: number) => (
+                      <div
+                        key={index}
+                        className="aspect-square overflow-hidden rounded border bg-muted"
+                      >
+                        <img
+                          src={image || "/placeholder.svg?height=100&width=100"}
+                          alt={`${product.name || product.title} ${index + 2}`}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "/placeholder.svg?height=100&width=100";
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Product Info */}
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-bold">
+                  {product.name || product.title}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  SKU: {product.sku}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-3xl font-bold text-green-600">
+                  ${price.toFixed(2)}
+                </div>
+                <Badge variant={isPublished ? "default" : "secondary"}>
+                  {isPublished ? "Published" : "Draft"}
                 </Badge>
               </div>
-              <Separator className="my-4" />
-              <div className="space-y-4">
+            </div>
+
+            <Separator />
+
+            {/* Product Details */}
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3">Product Details</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Category:</span>
+                      <span>{product.category}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Sub-category:
+                      </span>
+                      <span>{product.subCategory}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Stock Level:
+                      </span>
+                      <span
+                        className={
+                          stock <= (product.threshold || 5)
+                            ? "text-red-600 font-medium"
+                            : ""
+                        }
+                      >
+                        {stock} units
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Low Stock Alert:
+                      </span>
+                      <span>{product.threshold || 5} units</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3">Pricing & Shipping</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Product Price:
+                      </span>
+                      <span className="font-medium">${price.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Shipping Cost:
+                      </span>
+                      <span className="font-medium">
+                        ${shippingCost.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2">
+                      <span className="text-muted-foreground">
+                        Total (with shipping):
+                      </span>
+                      <span className="font-bold">
+                        ${(price + shippingCost).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Description */}
+            {product.description && (
+              <>
+                <Separator />
                 <div>
-                  <div className="text-sm text-muted-foreground">Price</div>
-                  <div className="text-2xl font-bold">
-                    {/* ${product?.price?.toFixed(2)} */}
-                  </div>
+                  <h3 className="font-semibold mb-3">Description</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {product.description}
+                  </p>
                 </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">
-                    Stock Level
-                  </div>
-                  <div className="font-medium">
-                    {product?.stock}{" "}
-                    {product?.stock <= product.threshold && (
-                      <Badge variant="destructive" className="ml-2">
-                        Low Stock
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">Category</div>
-                  <div className="font-medium">
-                    {product?.category} / {product.subCategory}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">
-                    Shipping Cost
-                  </div>
-                  <div className="font-medium">
-                    ${product.shippingCost.toFixed(2)}
-                  </div>
-                </div>
+              </>
+            )}
+
+            {/* Timestamps */}
+            <Separator />
+            <div className="text-xs text-muted-foreground">
+              <div>
+                Last updated:{" "}
+                {new Date(
+                  product.updated_at || product.lastUpdated
+                ).toLocaleString()}
               </div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Description</div>
-              <p className="mt-2">{product.description}</p>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Last Updated</div>
-              <div className="mt-2 font-medium">{product.lastUpdated}</div>
             </div>
           </div>
         </div>

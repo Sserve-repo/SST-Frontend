@@ -38,7 +38,7 @@ export function PromotionList({
               <div className="grid gap-6 md:grid-cols-3">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">{promotion.code}</h3>
+                    <h3 className="font-semibold">{promotion.name}</h3>
                     <Badge
                       variant="secondary"
                       className={cn(
@@ -47,7 +47,9 @@ export function PromotionList({
                         promotion.status === "upcoming" &&
                           "bg-blue-100 text-blue-700",
                         promotion.status === "expired" &&
-                          "bg-gray-100 text-gray-700"
+                          "bg-gray-100 text-gray-700",
+                        promotion.status === "disabled" &&
+                          "bg-red-100 text-red-700"
                       )}
                     >
                       {promotion.status}
@@ -63,14 +65,14 @@ export function PromotionList({
                         ? `${promotion.value}%`
                         : `$${promotion.value}`}
                     </p>
-                    {/* <p className="text-sm">
-                      <span className="font-medium">Service:</span>{" "}
-                      {promotion.serviceName}
-                    </p> */}
                     <p className="text-sm">
                       <span className="font-medium">Period:</span>{" "}
-                      {new Date(promotion?.startDate).toLocaleDateString()} -{" "}
-                      {new Date(promotion?.endDate).toLocaleDateString()}
+                      {new Date(promotion.startDate).toLocaleDateString()} -{" "}
+                      {new Date(promotion.endDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">Usage:</span>{" "}
+                      {promotion.usageCount} / {promotion.usageLimit}
                     </p>
                   </div>
                 </div>

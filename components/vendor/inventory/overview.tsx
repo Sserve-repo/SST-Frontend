@@ -1,54 +1,66 @@
 "use client";
 
-import { Archive, Package, ShoppingBag, Tags } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, DollarSign, List } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RiDashboard2Fill } from "react-icons/ri";
 
-export function InventoryOverview({ overview }) {
-  const overviewCards = [
+interface InventoryOverviewProps {
+  overview: any;
+}
+
+export function InventoryOverview({ overview }: InventoryOverviewProps) {
+  const stats = [
     {
       title: "Total Products",
-      value:
-        parseInt(overview?.ActiveProducts) +
-        parseInt(overview?.PendingProducts),
+      value: overview?.TotalProducts || 0,
       icon: Package,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
+      description: "Products in inventory",
+      trend: "+12% from last month",
     },
     {
-      title: "Published",
-      value: overview?.ActiveProducts,
-      icon: ShoppingBag,
-      color: "text-green-500",
-      bgColor: "bg-green-50",
+      title: "Total Categories",
+      value: `${Number(overview?.TotalCategory || 0).toLocaleString()}`,
+      icon: List,
+      description: "Inventory categories",
+      trend: "+8% from last month",
     },
     {
-      title: "Drafts",
-      value: overview?.PendingProducts,
-      icon: Archive,
-      color: "text-yellow-500",
-      bgColor: "bg-yellow-50",
+      title: "Pending Products",
+      value: overview?.PendingProducts || 0,
+      icon: AlertTriangle,
+      description: "Products awaiting approval",
+      trend: "Needs attention",
+      variant: "warning" as const,
     },
     {
-      title: "Categories",
-      value: overview?.TotalCategory,
-      icon: Tags,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
+      title: "Published Products",
+      value: overview?.ActiveProducts || 0,
+      icon: TrendingUp,
+      description: "Live products",
+      trend: "+5% from last month",
     },
   ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {overviewCards.map((card) => (
-        <Card key={card.title}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-            <div className={`rounded-full p-2 ${card.bgColor}`}>
-              <card.icon className={`h-4 w-4 ${card.color}`} />
-            </div>
+      {stats.map((stat) => (
+        <Card key={stat.title}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+            <stat.icon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{card.value}</div>
+            <div className="text-2xl font-bold">{stat.value}</div>
+            <p className="text-xs text-muted-foreground">{stat.description}</p>
+            {/* <p
+              className={`text-xs mt-1 ${
+                stat.variant === "warning"
+                  ? "text-orange-600"
+                  : "text-green-600"
+              }`}
+            >
+              {stat.trend}
+            </p> */}
           </CardContent>
         </Card>
       ))}

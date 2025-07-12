@@ -21,9 +21,9 @@ import {
   Edit,
   Trash2,
   Eye,
-  Star,
   Clock,
   DollarSign,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,10 +56,11 @@ import { AppointmentSkeletonList } from "../appointments/appointment-skeleton-li
 import { CreateServiceDialog } from "./create-service-dialog";
 import { EditServicesDialog } from "./edit-services-dialog";
 import { ServiceDetailsDialog } from "./service-details-dialog";
+import { ServiceReviewPreviewSheet } from "./service-review-preview-sheet";
 import {
   getServices,
-  deleteServiceListing,
   getServiceDetails,
+  deleteServiceListing,
 } from "@/actions/dashboard/artisans";
 import type { Service, ServiceStatus } from "@/types/services";
 
@@ -92,6 +93,9 @@ export default function ServicesPage() {
   const [rowSelection, setRowSelection] = useState({});
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [viewingService, setViewingService] = useState<Service | null>(null);
+  const [reviewingService, setReviewingService] = useState<Service | null>(
+    null
+  );
   const [pagination, setPagination] = useState<PaginationData | null>(null);
 
   const { toast } = useToast();
@@ -139,6 +143,7 @@ export default function ServicesPage() {
       }
 
       const data: ServicesResponse = await response.json();
+      console.log("Fetched services data:", data);
 
       if (data.status && data.data) {
         const servicesList = data.data.serviceListing || data.data || [];
@@ -183,7 +188,6 @@ export default function ServicesPage() {
 
     try {
       const response = await deleteServiceListing(serviceId);
-
       if (response?.ok) {
         toast({
           title: "Success",
@@ -211,7 +215,9 @@ export default function ServicesPage() {
       if (response?.ok) {
         const data = await response.json();
         if (data.status && data.data) {
-          const transformedService = transformService(data.data);
+          const transformedService = transformService(
+            data.data.serviceListing || data.data
+          );
           setViewingService(transformedService);
         }
       }
@@ -232,7 +238,9 @@ export default function ServicesPage() {
       if (response?.ok) {
         const data = await response.json();
         if (data.status && data.data) {
-          const transformedService = transformService(data.data);
+          const transformedService = transformService(
+            data.data.serviceListing || data.data
+          );
           setEditingService(transformedService);
         }
       }
@@ -244,6 +252,11 @@ export default function ServicesPage() {
         variant: "destructive",
       });
     }
+  };
+
+  // Handle view reviews
+  const handleViewReviews = (service: Service) => {
+    setReviewingService(service);
   };
 
   // Handle create service success
@@ -281,7 +294,7 @@ export default function ServicesPage() {
               <AvatarImage
                 src={
                   row.original.images[0] ||
-                  "/assets/images/image-placeholder.png?height=48&width=48"
+                  "/placeholder.svg?height=48&width=48"
                 }
               />
               <AvatarFallback className="rounded-lg">
@@ -318,21 +331,6 @@ export default function ServicesPage() {
         ),
       },
       {
-        accessorKey: "rating",
-        header: "Rating",
-        cell: ({ row }) => (
-          <div className="flex items-center">
-            <Star className="h-4 w-4 mr-1 text-yellow-500 fill-current" />
-            <span className="font-medium">
-              {row.original.rating.toFixed(1)}
-            </span>
-            <span className="text-sm text-gray-500 ml-1">
-              ({row.original.reviewCount})
-            </span>
-          </div>
-        ),
-      },
-      {
         accessorKey: "bookingCount",
         header: "Bookings",
         cell: ({ row }) => (
@@ -349,6 +347,7 @@ export default function ServicesPage() {
         header: "Actions",
         cell: ({ row }) => {
           const service = row.original;
+
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -365,7 +364,10 @@ export default function ServicesPage() {
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Service
                 </DropdownMenuItem>
-
+                <DropdownMenuItem onClick={() => handleViewReviews(service)}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  View Reviews ({service.reviewCount})
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleDeleteService(service.id)}
                   className="text-red-600"
@@ -505,7 +507,6 @@ export default function ServicesPage() {
             {pagination?.total || services.length} total)
           </p>
         </div>
-
         <CreateServiceDialog onSubmit={handleCreateService}>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -515,7 +516,6 @@ export default function ServicesPage() {
       </div>
 
       {/* Filters */}
-
       <div className="p-1.5 rounded">
         <div className="flex flex-col items-center justify-between sm:flex-row gap-4">
           <div className="relative flex-1 max-w-md">
@@ -527,7 +527,6 @@ export default function ServicesPage() {
               className="pl-10"
             />
           </div>
-
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -543,7 +542,6 @@ export default function ServicesPage() {
       </div>
 
       {/* Services Table */}
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -609,6 +607,14 @@ export default function ServicesPage() {
           service={viewingService}
           open={true}
           onOpenChange={(open) => !open && setViewingService(null)}
+        />
+      )}
+
+      {reviewingService && (
+        <ServiceReviewPreviewSheet
+          service={reviewingService}
+          open={true}
+          onOpenChange={(open) => !open && setReviewingService(null)}
         />
       )}
     </div>

@@ -17,13 +17,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use-debounced-search";
 import { CreatePromotionDialog } from "./create-promotion-dialog";
-import { PromotionTable } from "./promotion-table";
+import { PromotionList } from "./promotion-list";
 import {
   getPromotions,
   getPromotionStatuses,
   deletePromotions,
+  updatePromotions,
 } from "@/actions/dashboard/artisans";
-import type { Promotion, PromotionStats as Stats } from "@/types/promotions";
+import type {
+  Promotion,
+  PromotionResponse,
+  PromotionStats as Stats,
+  RawPromotion,
+} from "@/types/promotions";
 
 export default function PromotionsPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
@@ -47,64 +53,65 @@ export default function PromotionsPage() {
   const currentTab = searchParams.get("tab") || "all";
   const itemsPerPage = 10;
 
-  const fetchPromotions = useCallback(async (page = 1, search = "", status = "all") => {
-    try {
-      setLoading(true);
-      const response = await getPromotions(page, itemsPerPage, search);
+  // Transform raw promotion data
+  const transformPromotion = (promo: RawPromotion): Promotion => ({
+    id: String(promo.id),
+    name: promo.discount_name,
+    code: promo.discount_name,
+    type: promo.discount_type,
+    value: Number.parseFloat(promo.discount_value),
+    startDate: new Date(promo.start_date),
+    endDate: new Date(promo.end_date),
+    status: calculateStatus(promo.start_date, promo.end_date, promo.status),
+    usageLimit: promo.usage_limit,
+    usageCount: promo.usage_count ?? 0,
+    description: promo.description ?? "",
+    createdAt: new Date(promo.created_at),
+    updatedAt: new Date(promo.updated_at),
+    totalSavings: 0,
+    conversionRate: 0,
+  });
 
-      if (!response?.ok) {
-        throw new Error("Failed to fetch promotions");
+  const fetchPromotions = useCallback(
+    async (page = 1, search = "", status = "all") => {
+      try {
+        setLoading(true);
+        const response = await getPromotionStatuses();
+
+        if (!response?.ok) {
+          throw new Error("Failed to fetch promotions");
+        }
+
+        const data: PromotionResponse = await response.json();
+        // console.log("Fetched promotions data:", data);
+
+        if (data.status && data.data) {
+          const allRawPromotions = data.data.all.all_discounts || [];
+          const transformedPromotions: Promotion[] =
+            allRawPromotions.map(transformPromotion);
+
+          const filteredPromotions =
+            status === "all"
+              ? transformedPromotions
+              : transformedPromotions.filter((p) => p.status === status);
+
+          setPromotions(filteredPromotions);
+          setTotalPromotions(filteredPromotions.length);
+          setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
+        }
+      } catch (error) {
+        console.error("Error fetching promotions:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load promotions. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-
-      console.log("Fetched promotions data:", data);
-
-      if (data.status && data.data) {
-        const allPromotions = data.data.all_discounts || [];
-
-        const transformedPromotions: Promotion[] = allPromotions.map(
-          (promo: any) => ({
-            id: String(promo.id),
-            name: promo.discount_name,
-            type: promo.discount_type,
-            value: Number(promo.discount_value),
-            startDate: new Date(promo.start_date),
-            endDate: new Date(promo.end_date),
-            status: calculateStatus(
-              promo.start_date,
-              promo.end_date,
-              promo.status
-            ),
-            usageLimit: Number(promo.usage_limit) || 0,
-            usageCount: Number(promo.usage_count) || 0,
-            description: promo.description || "",
-            createdAt: new Date(promo.created_at),
-            updatedAt: new Date(promo.updated_at),
-          })
-        );
-
-        // Filter by status if not "all"
-        const filteredPromotions =
-          status === "all"
-            ? transformedPromotions
-            : transformedPromotions.filter((p) => p.status === status);
-
-        setPromotions(filteredPromotions);
-        setTotalPromotions(filteredPromotions.length);
-        setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
-      }
-    } catch (error) {
-      console.error("Error fetching promotions:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load promotions. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+    },
+    [toast]
+  );
 
   const fetchStats = async () => {
     try {
@@ -119,7 +126,6 @@ export default function PromotionsPage() {
             upcoming: data.data.upcoming?.count || 0,
           });
         }
-
       }
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -172,7 +178,7 @@ export default function PromotionsPage() {
           title: "Success",
           description: "Promotion deleted successfully",
         });
-        fetchStats(); // Refresh stats
+        fetchStats();
       } else {
         throw new Error("Failed to delete promotion");
       }
@@ -181,6 +187,54 @@ export default function PromotionsPage() {
       toast({
         title: "Error",
         description: "Failed to delete promotion. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdatePromotion = async (promotion: Promotion) => {
+    try {
+      const formData = new FormData();
+      formData.append("discount_name", promotion.name);
+      formData.append("discount_type", promotion.type);
+      formData.append("discount_value", promotion.value.toString());
+      formData.append(
+        "start_date",
+        promotion.startDate.toISOString().split("T")[0]
+      );
+      formData.append(
+        "end_date",
+        promotion.endDate.toISOString().split("T")[0]
+      );
+      formData.append("usage_limit", promotion.usageLimit.toString());
+      formData.append("description", promotion.description);
+
+      console.log("Updating promotion with data:", {
+        discount_name: promotion.name,
+        discount_type: promotion.type,
+        discount_value: promotion.value,
+        start_date: promotion.startDate.toISOString().split("T")[0],
+        end_date: promotion.endDate.toISOString().split("T")[0],
+        usage_limit: promotion.usageLimit,
+        description: promotion.description,
+      });
+
+      const response = await updatePromotions(promotion.id, formData);
+      if (response?.ok) {
+        toast({
+          title: "Success",
+          description: "Promotion updated successfully",
+        });
+        fetchPromotions(currentPage, debouncedSearchTerm, currentTab);
+        fetchStats();
+      } else {
+        throw new Error("Failed to update promotion");
+      }
+    } catch (error) {
+      console.error("Error updating promotion:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update promotion. Please try again.",
         variant: "destructive",
       });
     }
@@ -282,7 +336,7 @@ export default function PromotionsPage() {
         />
       </div>
 
-      {/* Tabs and Table */}
+      {/* Tabs and List */}
       <Tabs
         value={currentTab}
         onValueChange={handleTabChange}
@@ -307,19 +361,78 @@ export default function PromotionsPage() {
               <p className="text-gray-500">No promotions found</p>
             </div>
           ) : (
-            <PromotionTable
+            <PromotionList
               promotions={paginatedPromotions}
+              onUpdate={async (id, formData) => {
+                try {
+                  const response = await updatePromotions(id, formData);
+                  if (response?.ok) {
+                    toast({
+                      title: "Success",
+                      description: "Promotion updated successfully",
+                    });
+                    fetchPromotions(
+                      currentPage,
+                      debouncedSearchTerm,
+                      currentTab
+                    );
+                    fetchStats();
+                  } else {
+                    throw new Error("Failed to update promotion");
+                  }
+                } catch (error) {
+                  console.error("Error updating promotion:", error);
+                  toast({
+                    title: "Error",
+                    description:
+                      "Failed to update promotion. Please try again.",
+                    variant: "destructive",
+                  });
+                }
+              }}
               onDelete={handleDeletePromotion}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={totalPromotions}
-              itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
-              loading={loading}
             />
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center space-x-2 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage <= 1}
+          >
+            Previous
+          </Button>
+          <div className="flex items-center space-x-1">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const page = i + 1;
+              return (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(page)}
+                  className="w-8 h-8 p-0"
+                >
+                  {page}
+                </Button>
+              );
+            })}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage >= totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

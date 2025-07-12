@@ -4,9 +4,20 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ReplyDialog } from "./reply-dialog";
-import { ReportDialog } from "./report-dialog";
-import { Star, MessageCircle, Flag } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Star,
+  Flag,
+  ChevronDown,
+  ChevronRight,
+  Send,
+  Loader2,
+} from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import type { Review } from "@/types/reviews";
 import { getCustomerReviewsReply } from "@/actions/dashboard/vendors";
 
@@ -30,37 +41,64 @@ export function ProductReviewList({
   onReport,
   productId,
 }: ProductReviewListProps) {
-  const [reviewToReply, setReviewToReply] = useState<Review | null>(null);
   const [reviewToReport, setReviewToReport] = useState<Review | null>(null);
-  const [activeReplyIndex, setActiveReplyIndex] = useState<number | null>(null);
-  const [reviewRepliesData, setReviewRepliesData] = useState<ReviewData>({
-    id: "",
-    username: "Vendor",
-    comment: "",
-    avatar: "https://i.pravatar.cc/40?img=1",
-  });
+  const [expandedReplies, setExpandedReplies] = useState<
+    Record<string, boolean>
+  >({});
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+  const [submittingReplies, setSubmittingReplies] = useState<
+    Record<string, boolean>
+  >({});
+  const [reviewRepliesData, setReviewRepliesData] = useState<
+    Record<string, ReviewData>
+  >({});
 
   const handleFetchReviewReplies = async (
     productId: number,
     reviewId: number
   ) => {
     try {
-      if (activeReplyIndex === reviewId) {
-        setActiveReplyIndex(null);
+      const reviewIdStr = reviewId.toString();
+
+      if (expandedReplies[reviewIdStr]) {
+        setExpandedReplies((prev) => ({ ...prev, [reviewIdStr]: false }));
       } else {
-        setActiveReplyIndex(reviewId);
+        setExpandedReplies((prev) => ({ ...prev, [reviewIdStr]: true }));
 
-        // Optionally: fetch replies here
-        const response = await getCustomerReviewsReply(productId, reviewId);
-        const data = await response?.json();
-
-        setReviewRepliesData((prev) => ({
-          ...prev,
-          comment: data?.data?.reviews?.comment,
-        }));
+        // Fetch replies if not already loaded
+        if (!reviewRepliesData[reviewIdStr]) {
+          const response = await getCustomerReviewsReply(productId, reviewId);
+          if (response?.ok) {
+            const data = await response.json();
+            setReviewRepliesData((prev) => ({
+              ...prev,
+              [reviewIdStr]: {
+                id: reviewIdStr,
+                username: "Vendor",
+                comment: data?.data?.reviews?.comment || "No reply available",
+                avatar: "https://i.pravatar.cc/40?img=1",
+              },
+            }));
+          }
+        }
       }
     } catch (error) {
       console.error("Error fetching review replies:", error);
+    }
+  };
+
+  const handleReplySubmit = async (reviewId: string) => {
+    const replyText = replyTexts[reviewId]?.trim();
+    if (!replyText) return;
+
+    setSubmittingReplies((prev) => ({ ...prev, [reviewId]: true }));
+
+    try {
+      await onReply(reviewId, replyText);
+      setReplyTexts((prev) => ({ ...prev, [reviewId]: "" }));
+      setExpandedReplies((prev) => ({ ...prev, [reviewId]: false }));
+    } finally {
+      setSubmittingReplies((prev) => ({ ...prev, [reviewId]: false }));
     }
   };
 
@@ -74,7 +112,9 @@ export function ProductReviewList({
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
                     <Avatar>
-                      <AvatarImage src={review.customerAvatar} />
+                      <AvatarImage
+                        src={review.customerAvatar || "/placeholder.svg"}
+                      />
                       <AvatarFallback>{review.customerName[0]}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -99,16 +139,6 @@ export function ProductReviewList({
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    {!review.reply && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setReviewToReply(review)}
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Reply
-                      </Button>
-                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -122,33 +152,101 @@ export function ProductReviewList({
 
                 <p className="text-gray-700">{review.comment}</p>
 
-                {activeReplyIndex === parseInt(review?.id) && (
-                  <div className="mt-4 pl-12 border-l-2">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold">Your Reply</p>
-                        <span className="text-sm text-gray-500">
-                          {/* {review.reply.date.toLocaleDateString()} */}
-                        </span>
-                      </div>
-                      <p className="text-gray-700">
-                        {reviewRepliesData?.comment}
-                      </p>
+                {/* Reply Section */}
+                <div className="space-y-3">
+                  {/* Show existing replies */}
+                  <Collapsible
+                    open={expandedReplies[review.id] || false}
+                    onOpenChange={() =>
+                      handleFetchReviewReplies(
+                        productId,
+                        Number.parseInt(review.id)
+                      )
+                    }
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0 h-auto font-normal text-blue-600 hover:text-blue-800"
+                      >
+                        {expandedReplies[review.id] ? (
+                          <>
+                            <ChevronDown className="h-4 w-4 mr-1" />
+                            Hide Replies
+                          </>
+                        ) : (
+                          <>
+                            <ChevronRight className="h-4 w-4 mr-1" />
+                            See Replies
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-3">
+                      {reviewRepliesData[review.id] && (
+                        <div className="ml-8 p-4 bg-purple-50 rounded-lg border-l-4 border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage
+                                src={
+                                  reviewRepliesData[review.id].avatar ||
+                                  "/placeholder.svg"
+                                }
+                              />
+                              <AvatarFallback className="bg-purple-600 text-white text-xs">
+                                V
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm font-medium text-purple-700">
+                              Vendor Reply
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 ml-8">
+                            {reviewRepliesData[review.id].comment}
+                          </p>
+                        </div>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {/* Reply Form */}
+                  <div className="space-y-3">
+                    <Textarea
+                      placeholder="Write your reply to this review..."
+                      value={replyTexts[review.id] || ""}
+                      onChange={(e) =>
+                        setReplyTexts((prev) => ({
+                          ...prev,
+                          [review.id]: e.target.value,
+                        }))
+                      }
+                      className="min-h-[80px] resize-none"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleReplySubmit(review.id)}
+                        disabled={
+                          submittingReplies[review.id] ||
+                          !replyTexts[review.id]?.trim()
+                        }
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        {submittingReplies[review.id] ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                            Posting...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4 mr-1" />
+                            Post Reply
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
-                )}
-
-                <div className="flex gap-4 mt-2">
-                  <p
-                    onClick={() =>
-                      handleFetchReviewReplies(productId, parseInt(review?.id))
-                    }
-                    className="cursor-pointer text-sm text-blue-500"
-                  >
-                    {activeReplyIndex === parseInt(review?.id)
-                      ? "Hide Replies"
-                      : "See Replies"}
-                  </p>
                 </div>
               </div>
             </CardContent>
@@ -156,25 +254,32 @@ export function ProductReviewList({
         ))}
       </div>
 
-      <ReplyDialog
-        review={reviewToReply}
-        onOpenChange={(open) => !open && setReviewToReply(null)}
-        onReply={(replyText) => {
-          if (reviewToReply) {
-            onReply(reviewToReply.id, replyText);
-            setReviewToReply(null);
-          }
-        }}
-      />
-
-      <ReportDialog
-        review={reviewToReport}
-        onOpenChange={(open) => !open && setReviewToReport(null)}
-        onReport={(id) => {
-          onReport(id);
-          setReviewToReport(null);
-        }}
-      />
+      {/* Report Dialog */}
+      {reviewToReport && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Report Review</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Are you sure you want to report this review? This action will hide
+              the review and flag it for moderation.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setReviewToReport(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  onReport(reviewToReport.id);
+                  setReviewToReport(null);
+                }}
+              >
+                Report
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
