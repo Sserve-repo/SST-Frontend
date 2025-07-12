@@ -23,6 +23,7 @@ type OrderDetailsProps = {
   order: any;
 };
 
+
 const statusStyles = {
   success: "bg-emerald-50 text-emerald-700",
   pending: "bg-purple-50 text-purple-700",

@@ -17,18 +17,11 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 
+
 type OrderDetailsProps = {
   isOpen: boolean;
   onClose: () => void;
   order: any;
-};
-
-const statusStyles = {
-  success: "bg-emerald-50 text-emerald-700",
-  pending: "bg-purple-50 text-purple-700",
-  processing: "bg-purple-50 text-purple-700",
-  cancelled: "bg-red-50 text-red-700",
-  "In Transit": "bg-blue-50 text-blue-700",
 };
 
 export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
@@ -57,12 +50,8 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
         <div className="mt-8 space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl">Status</h3>
-            <span
-              className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
-                statusStyles[order.orderStatus as keyof typeof statusStyles]
-              }`}
-            >
-              order.order_status
+            <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+             order.order_status}
             </span>
           </div>
 

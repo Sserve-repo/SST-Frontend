@@ -23,14 +23,6 @@ type OrderDetailsProps = {
   order: any;
 };
 
-const statusStyles = {
-  success: "bg-emerald-50 text-emerald-700",
-  pending: "bg-purple-50 text-purple-700",
-  processing: "bg-purple-50 text-purple-700",
-  cancelled: "bg-red-50 text-red-700",
-  "In Transit": "bg-blue-50 text-blue-700",
-};
-
 export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
   const [dialog, setDialog] = useState(false);
   const handleRequestRefund = () => {
@@ -59,7 +51,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
             <h3 className="text-xl">Status</h3>
             <span
               className={`inline-flex rounded-lg px-3 py-1 text-[sm] font-medium ${
-                statusStyles[order.orderStatus as keyof typeof statusStyles]
+                statusStyles[orderItem.orderStatus as keyof typeof statusStyles]
               }`}
             >
               order.order_status
