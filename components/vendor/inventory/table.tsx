@@ -18,6 +18,7 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,26 +49,46 @@ import { EditProductDialog } from "./edit-product-dialog";
 import { DeleteProductDialog } from "./delete-product-dialog";
 import { ProductPreviewDialog } from "./product-preview-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ProductReviewsPreviewSheet } from "./product-review-preview-sheet";
+import ProductReviewsPage from "@/components/reviews/product-reviews-page";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Product {
   id: string;
   name: string;
+  title?: string;
   sku: string;
   category: string;
   subCategory: string;
+  category_id?: string | number;
+  sub_category_id?: string | number;
   price: number;
   stock: number;
+  stock_level?: number;
   threshold: number;
-  status: "draft" | "published";
+  status: "draft" | "published" | string | number;
   lastUpdated: string;
+  updated_at?: string;
   description: string;
   images: string[];
   product_images: string[];
   shippingCost: number;
+  shipping_cost?: number;
 }
 
-export function InventoryTable({ inventoryItems }) {
+interface InventoryTableProps {
+  inventoryItems: Product[];
+  onUpdate: () => void;
+}
+
+export function InventoryTable({
+  inventoryItems,
+  onUpdate,
+}: InventoryTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -81,17 +102,45 @@ export function InventoryTable({ inventoryItems }) {
     {
       accessorKey: "name",
       header: "Product",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={row.original.images[0]} alt={row.original.name} />
-            <AvatarFallback>PD</AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-medium">{row.getValue("name")}</div>
-            <div className="text-sm text-muted-foreground">
-              {row.original.sku}
+      cell: ({ row }) => {
+        const product = row.original;
+        const imageUrl =
+          product.images?.[0] ||
+          product.product_images?.[0] ||
+          "/placeholder.svg?height=40&width=40";
+
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={imageUrl || "/placeholder.svg"}
+                alt={product.name || product.title}
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg?height=40&width=40";
+                }}
+              />
+              <AvatarFallback>
+                {(product.name || product.title || "P")
+                  .substring(0, 2)
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium">{product.name || product.title}</div>
+              <div className="text-sm text-muted-foreground">{product.sku}</div>
             </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "category",
+      header: "Category",
+      cell: ({ row }) => (
+        <div>
+          <div className="font-medium">{row.original.category}</div>
+          <div className="text-sm text-muted-foreground">
+            {row.original.subCategory}
           </div>
         </div>
       ),
@@ -100,8 +149,8 @@ export function InventoryTable({ inventoryItems }) {
       accessorKey: "price",
       header: "Price",
       cell: ({ row }) => {
-        const price = Number.parseFloat(row.getValue("price"));
-        const stock = row.original.stock;
+        const price = Number(row.getValue("price")) || 0;
+        const stock = row.original.stock || row.original.stock_level || 0;
         return (
           <div className="space-y-1">
             <div className="font-medium">${price.toFixed(2)}</div>
@@ -116,13 +165,14 @@ export function InventoryTable({ inventoryItems }) {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
+        const status = row.getValue("status");
+        const isPublished = status === "published" || status === 1;
         return (
           <Badge
-            variant={status === "published" ? "default" : "secondary"}
+            variant={isPublished ? "default" : "secondary"}
             className="capitalize"
           >
-            {status}
+            {isPublished ? "Published" : "Draft"}
           </Badge>
         );
       },
@@ -132,18 +182,21 @@ export function InventoryTable({ inventoryItems }) {
       header: "Reviews",
       cell: ({ row }) => {
         return (
-          <div
-            className=" bg-primary text-white inline-flex justify-center text-center rounded-lg w-12"
-            onClick={() => setSelectedProduct(row.original as any)}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSelectedProduct(row.original)}
+            className="flex items-center gap-2"
           >
+            <MessageSquare className="h-4 w-4" />
             View
-          </div>
+          </Button>
         );
       },
     },
     {
       id: "actions",
-      // header: "Actions",
+      header: "Actions",
       cell: ({ row }) => {
         const product = row.original;
         return (
@@ -183,7 +236,7 @@ export function InventoryTable({ inventoryItems }) {
   ];
 
   const table = useReactTable({
-    data: inventoryItems,
+    data: inventoryItems || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -232,6 +285,7 @@ export function InventoryTable({ inventoryItems }) {
           </SelectContent>
         </Select>
       </div>
+
       <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>
@@ -282,6 +336,7 @@ export function InventoryTable({ inventoryItems }) {
           </TableBody>
         </Table>
       </div>
+
       <div className="flex items-center justify-end space-x-2">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
@@ -306,11 +361,13 @@ export function InventoryTable({ inventoryItems }) {
           </Button>
         </div>
       </div>
+
       {editingProduct && (
         <EditProductDialog
           product={editingProduct}
           open={true}
           onOpenChange={() => setEditingProduct(null)}
+          onUpdate={onUpdate}
         />
       )}
       {deletingProduct && (
@@ -318,6 +375,7 @@ export function InventoryTable({ inventoryItems }) {
           product={deletingProduct}
           open={true}
           onOpenChange={() => setDeletingProduct(null)}
+          onDelete={onUpdate}
         />
       )}
       {previewProduct && (
@@ -328,12 +386,24 @@ export function InventoryTable({ inventoryItems }) {
         />
       )}
 
+      {/* Reviews Dialog */}
       {selectedProduct && (
-        <ProductReviewsPreviewSheet
-          product={selectedProduct}
-          open={true}
+        <Dialog
+          open={!!selectedProduct}
           onOpenChange={() => setSelectedProduct(null)}
-        />
+        >
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+            <DialogHeader>
+              <DialogTitle>
+                Product Reviews -{" "}
+                {selectedProduct.name || selectedProduct.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+              <ProductReviewsPage product={selectedProduct} />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

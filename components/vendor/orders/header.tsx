@@ -1,54 +1,70 @@
 "use client";
 
-import { Download, Filter, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DatePickerWithRange } from "@/components/date-range-picker";
+import { Download, Filter, Search } from "lucide-react";
+import { useState } from "react";
 
 export function OrdersHeader() {
-  const handleExport = () => {
-    // Implementation for CSV export
-    console.log("Exporting orders...");
-  };
-
-  const handlePrint = () => {
-    // Implementation for printing
-    console.log("Printing orders...");
-  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-bold text-primary tracking-tight">Orders & Sales</h1>
-        <p className="text-muted-foreground">
-          Manage your orders and track sales performance
-        </p>
-      </div>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-1 items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search orders..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="processing">Processing</SelectItem>
+            <SelectItem value="shipped">Shipped</SelectItem>
+            <SelectItem value="delivered">Delivered</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
+
         <DatePickerWithRange />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              <Filter className="mr-2 h-4 w-4" />
-              Bulk Actions
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleExport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export to CSV
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handlePrint}>
-              <Printer className="mr-2 h-4 w-4" />
-              Print Orders
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 bg-transparent"
+        >
+          <Filter className="h-4 w-4" />
+          More Filters
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 bg-transparent"
+        >
+          <Download className="h-4 w-4" />
+          Export
+        </Button>
       </div>
     </div>
   );

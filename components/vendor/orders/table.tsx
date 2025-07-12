@@ -13,7 +13,24 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  Eye,
+  MoreHorizontal,
+  Printer,
+  Send,
+  Tag,
+  Truck,
+  ArrowUpDown,
+  Package,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -30,10 +47,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { OrderPreviewSheet } from "./preview-sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDate } from "@/lib/order-utils";
 import { getOrderDetails } from "@/actions/dashboard/vendors";
+import { useToast } from "@/hooks/use-toast";
 
 interface Order {
   id: string;
@@ -50,70 +69,123 @@ interface Order {
   items: Array<{
     id: string;
     name: string;
+    product_name?: string;
     price: number;
+    unit_price?: number;
     quantity: number;
+    order_status?: string;
   }>;
   shippingAddress: {
     line1: string;
     line2?: string;
+    address?: string;
     city: string;
     state: string;
     zipCode: string;
+    postal_code?: string;
     country: string;
   };
   shippingMethod: string;
   trackingNumber?: string;
 }
 
-export function OrdersTable({ orders }) {
+interface OrdersTableProps {
+  orders: any[];
+  onRefresh?: () => void | null;
+}
+
+export function OrdersTable({ orders, onRefresh }: OrdersTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
   const transformedOrders = useMemo(() => {
-    return orders?.map((order) => ({
-      id: order?.id,
-      orderNumber: `ORD-${order?.order_no}`,
+    if (!Array.isArray(orders)) return [];
+
+    return orders.map((order) => ({
+      id: String(order?.id || ""),
+      orderNumber: order?.orderNumber || `ORD-${order?.id || ""}`,
       customer: {
-        name: `${order?.customer?.firstname} ${order?.customer?.lastname}`,
-        email: order?.email,
-        avatar: "/assets/images/image-placeholder.png",
+        name: order?.customer?.name || "Unknown Customer",
+        email: order?.customer?.email || "",
+        avatar:
+          order?.customer?.avatar || "/placeholder.svg?height=32&width=32",
       },
-      date: order?.created_at,
-      total: order?.total,
-      status: order?.order_status || "pending",
-      paymentStatus: order?.status,
-      items: [],
-      shippingAddress: {
+      date: order?.date || new Date().toISOString(),
+      total: Number(order?.total) || 0,
+      status: order?.status || "pending",
+      paymentStatus: order?.paymentStatus || "pending",
+      items: Array.isArray(order?.items) ? order.items : [],
+      shippingAddress: order?.shippingAddress || {
         line1: "123 Main St",
         city: "New York",
         state: "NY",
         zipCode: "10001",
         country: "USA",
       },
-      shippingMethod: "Standard Shipping",
+      shippingMethod: order?.shippingMethod || "Standard Shipping",
     }));
   }, [orders]);
 
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: {
+        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        label: "Pending",
+      },
+      paid: {
+        color: "bg-green-100 text-green-800 border-green-200",
+        label: "Paid",
+      },
+      failed: {
+        color: "bg-red-100 text-red-800 border-red-200",
+        label: "Failed",
+      },
+      processing: {
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+        label: "Processing",
+      },
+      shipped: {
+        color: "bg-purple-100 text-purple-800 border-purple-200",
+        label: "Shipped",
+      },
+      delivered: {
+        color: "bg-green-100 text-green-800 border-green-200",
+        label: "Delivered",
+      },
+      cancelled: {
+        color: "bg-red-100 text-red-800 border-red-200",
+        label: "Cancelled",
+      },
+    };
 
-  console.log({ orders });
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    return <Badge className={`${config.color} border`}>{config.label}</Badge>;
+  };
+
   const columns: ColumnDef<Order>[] = [
     {
       accessorKey: "orderNumber",
-      header: "Order Info",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-medium"
+          >
+            Order
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <div className="font-medium">{row.getValue("orderNumber")}</div>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "paymentStatus",
-      header: "Order Info",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <div className="font-medium">{row.getValue("paymentStatus")}</div>
+        <div className="font-medium text-blue-600">
+          {row.getValue("orderNumber")}
         </div>
       ),
     },
@@ -125,18 +197,20 @@ export function OrdersTable({ orders }) {
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={customer?.avatar} />
-              <AvatarFallback>
+              <AvatarImage src={customer?.avatar || "/placeholder.svg"} />
+              <AvatarFallback className="bg-blue-100 text-blue-600">
                 {customer?.name
-                  .split(" ")
+                  ?.split(" ")
                   .map((n) => n[0])
-                  .join("")}
+                  .join("") || "?"}
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">{customer?.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {customer?.email}
+              <div className="font-medium text-gray-900">
+                {customer?.name || "Unknown"}
+              </div>
+              <div className="text-sm text-gray-500">
+                {customer?.email || "No email"}
               </div>
             </div>
           </div>
@@ -145,23 +219,99 @@ export function OrdersTable({ orders }) {
     },
     {
       accessorKey: "total",
-      header: "Total",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-medium"
+          >
+            Total
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       cell: ({ row }) => {
-        const amount = Number.parseFloat(row.getValue("total"));
+        const amount = Number(row.getValue("total")) || 0;
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
         }).format(amount);
 
-        return <div className="font-medium">{formatted}</div>;
+        return <div className="font-medium text-gray-900">{formatted}</div>;
       },
     },
     {
+      accessorKey: "paymentStatus",
+      header: "Payment",
+      cell: ({ row }) => getStatusBadge(row.original.paymentStatus),
+    },
+    {
       accessorKey: "date",
-      header: "Date",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="h-auto p-0 font-medium"
+          >
+            Date
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       cell: ({ row }) => {
         const date = row.getValue("date") as string;
-        return <div className="font-medium">{formatDate(date)}</div>;
+        return (
+          <div className="font-medium text-gray-700">{formatDate(date)}</div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const order = row.original;
+
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleFetchOrderDetail(order.id)}
+              className="h-8 w-8 hover:bg-blue-50"
+              disabled={loading}
+            >
+              <Eye className="h-4 w-4 text-blue-600" />
+            </Button>
+            {/* <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[160px]">
+                <DropdownMenuItem>
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print Invoice
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Send className="mr-2 h-4 w-4" />
+                  Email Invoice
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Tag className="mr-2 h-4 w-4" />
+                  Create Label
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Truck className="mr-2 h-4 w-4" />
+                  Track Order
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu> */}
+          </div>
+        );
       },
     },
   ];
@@ -186,43 +336,71 @@ export function OrdersTable({ orders }) {
   });
 
   const handleFetchOrderDetail = async (id: string) => {
-    const response = await getOrderDetails(id);
-    if (!response?.ok) {
-      throw Error("Error fetching order detail");
-    }
-    const data = await response?.json();
-    console.log({ data });
+    try {
+      setLoading(true);
+      const response = await getOrderDetails(id);
 
-    const order = data.data["Order Details"];
-    setSelectedOrder({
-      id: order?.id,
-      orderNumber: `ORD-${order?.order_no}`,
-      customer: {
-        name: `${order?.customer?.firstname} ${order?.customer?.lastname}`,
-        email: order?.email,
-        avatar: "/assets/images/image-placeholder.png",
-      },
-      date: order?.created_at,
-      total: order?.total,
-      status: order?.order_status || "pending",
-      paymentStatus: order?.status,
-      items: order?.product_items?.map((item: any) => {
-        return {
-          id: item.id,
-          name: item.product_name,
-          price: item.unit_price,
-          quantity: item.quantity,
-        };
-      }),
-      shippingAddress: {
-        line1: order?.delivery_information?.address,
-        city: order?.delivery_information?.city,
-        zipCode: order?.delivery_information?.postal_code,
-        state: order?.delivery_information?.state || null,
-        country: order?.delivery_information?.country || null,
-      },
-      shippingMethod: "Standard Shipping",
-    });
+      if (!response?.ok) {
+        throw new Error("Error fetching order detail");
+      }
+
+      const data = await response.json();
+      const order = data.data["Order Details"];
+
+      setSelectedOrder({
+        id: String(order?.id || ""),
+        orderNumber: `ORD-${order?.order_no || order?.id}`,
+        customer: {
+          name:
+            `${order?.customer?.firstname || ""} ${
+              order?.customer?.lastname || ""
+            }`.trim() || "Unknown Customer",
+          email: order?.email || order?.customer?.email || "",
+          avatar: "/placeholder.svg?height=32&width=32",
+        },
+        date: order?.created_at || new Date().toISOString(),
+        total: Number(order?.total) || 0,
+        status: order?.order_status || "pending",
+        paymentStatus: order?.status || "pending",
+        items: Array.isArray(order?.product_items)
+          ? order.product_items.map((item: any) => ({
+              id: String(item.id || ""),
+              name: item.product_name || "Unknown Product",
+              product_name: item.product_name || "Unknown Product",
+              price: Number(item.unit_price) || 0,
+              unit_price: Number(item.unit_price) || 0,
+              quantity: Number(item.quantity) || 1,
+              order_status: item.order_status || "pending",
+            }))
+          : [],
+        shippingAddress: {
+          line1: order?.delivery_information?.address || "123 Main St",
+          address: order?.delivery_information?.address || "123 Main St",
+          city: order?.delivery_information?.city || "Unknown City",
+          zipCode: order?.delivery_information?.postal_code || "",
+          postal_code: order?.delivery_information?.postal_code || "",
+          state: order?.delivery_information?.state || "",
+          country: order?.delivery_information?.country || "USA",
+        },
+        shippingMethod: "Standard Shipping",
+      });
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load order details. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOrderUpdate = () => {
+    setSelectedOrder(null);
+    if (onRefresh) {
+      onRefresh();
+    }
   };
 
   return (
@@ -250,23 +428,28 @@ export function OrdersTable({ orders }) {
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by paymentStatus" />
+            <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="failed">Failed</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <div className="rounded-lg border bg-card">
+
+      <div className="rounded-lg border bg-card shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b bg-gray-50/50">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className="font-medium text-gray-700"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -284,11 +467,10 @@ export function OrdersTable({ orders }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleFetchOrderDetail(row.original.id)}
+                  className="cursor-pointer hover:bg-gray-50/50 border-b"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-4">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -303,19 +485,23 @@ export function OrdersTable({ orders }) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No orders found.
+                  <div className="flex flex-col items-center justify-center space-y-2">
+                    <Package className="h-8 w-8 text-gray-400" />
+                    <p className="text-gray-500">No orders found.</p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2">
+
+      <div className="flex items-center justify-between">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} order(s) selected.
         </div>
-        <div className="space-x-2">
+        <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             size="sm"
@@ -334,11 +520,13 @@ export function OrdersTable({ orders }) {
           </Button>
         </div>
       </div>
+
       {selectedOrder && (
         <OrderPreviewSheet
           order={selectedOrder}
           open={true}
           onOpenChange={() => setSelectedOrder(null)}
+          onUpdate={handleOrderUpdate}
         />
       )}
     </div>
