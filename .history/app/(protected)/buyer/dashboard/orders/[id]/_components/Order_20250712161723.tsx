@@ -80,7 +80,7 @@
 //   "In Transit": "bg-blue-50 text-blue-700",
 // };
 
-// export default function OrdersDetailPage() {
+// export default function OrdersPage() {
 //   const [order, setOrder] = useState<OrderType | null>(null);
 //   const { id } = useParams();
 
@@ -406,7 +406,7 @@ const statusStyles = {
   "In Transit": "bg-blue-50 text-blue-700",
 };
 
-export default function OrdersDetailPage() {
+export default function OrdersPage() {
   const [order, setOrder] = useState<OrderType | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<OrderItemsType | null>(
     null

@@ -80,7 +80,7 @@
 //   "In Transit": "bg-blue-50 text-blue-700",
 // };
 
-// export default function OrdersDetailPage() {
+// export default function OrdersPage() {
 //   const [order, setOrder] = useState<OrderType | null>(null);
 //   const { id } = useParams();
 
@@ -115,7 +115,7 @@
 //               </h2>
 //               <p className="text-sm text-gray-500">
 //                 { order && `${order["product_items"]?.length} Products`}
-
+              
 //                 {order?.created_at && convertTime(order?.created_at)}
 //               </p>
 //             </div>
@@ -337,6 +337,7 @@
 //   );
 // }
 
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -406,7 +407,7 @@ const statusStyles = {
   "In Transit": "bg-blue-50 text-blue-700",
 };
 
-export default function OrdersDetailPage() {
+export default function OrdersPage() {
   const [order, setOrder] = useState<OrderType | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<OrderItemsType | null>(
     null

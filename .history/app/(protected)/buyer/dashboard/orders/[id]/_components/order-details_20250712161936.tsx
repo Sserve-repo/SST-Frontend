@@ -62,7 +62,7 @@ export function OrderDetails({ isOpen, onClose, order }: OrderDetailsProps) {
                 statusStyles[order.orderStatus as keyof typeof statusStyles]
               }`}
             >
-              {order.orderStatus}
+              {order.order_status}
             </span>
           </div>
 

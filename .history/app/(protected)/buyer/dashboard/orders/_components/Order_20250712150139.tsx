@@ -422,7 +422,7 @@ export default function ProductOrdersPage() {
                   <TableRow
                     key={order.id}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => router.push(`/buyer/dashboard/orders/${order.id}`)}
+                    onClick={() => router.push(`/dashboard/orders/${order.id}`)}
                   >
                     <TableCell className="font-medium">
                       {(orderData.current_page - 1) * orderData.per_page +
