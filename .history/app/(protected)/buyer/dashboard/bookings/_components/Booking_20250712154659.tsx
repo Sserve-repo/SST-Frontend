@@ -144,9 +144,6 @@ export default function BookingsPage() {
       if (finalParams.booking_status) {
         queryParams.append("booking_status", finalParams.booking_status);
       }
-      if (finalParams.payment_status) {
-        queryParams.append("payment_status", finalParams.payment_status);
-      }
       if (finalParams.search) {
         queryParams.append("search", finalParams.search);
       }
@@ -453,7 +450,7 @@ export default function BookingsPage() {
               onValueChange={handleStatusFilterChange}
             >
               <SelectTrigger className="w-full sm:w-[180px] rounded-2xl">
-                <SelectValue placeholder="Payment Status" />
+                <SelectValue placeholder="Booking Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pending">Pending</SelectItem>
@@ -470,9 +467,10 @@ export default function BookingsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="processing">Processing</SelectItem>
+                <SelectItem value="inprogress">In Progress</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
-                <SelectItem value="inprogress">In Progress</SelectItem>
               </SelectContent>
             </Select>
           </div>

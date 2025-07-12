@@ -145,7 +145,7 @@ export default function BookingsPage() {
         queryParams.append("booking_status", finalParams.booking_status);
       }
       if (finalParams.payment_status) {
-        queryParams.append("payment_status", finalParams.payment_status);
+        queryParams.append("booking_status", finalParams.p);
       }
       if (finalParams.search) {
         queryParams.append("search", finalParams.search);

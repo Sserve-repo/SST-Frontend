@@ -114,12 +114,8 @@ export default function OrdersPage() {
                 Order ID No.: {order && order.id}
               </h2>
               <p className="text-sm text-gray-500">
-                {order && order.order_type === "product"
-                  ? `${order["product_items"]?.length} Products`
-                  : order && order.order_type === "service"
-                  ? `${order["service_items"]?.length} Services`
-                  : null}
-                • Order Placed in{" "}
+                { order && `${order["product_items"]?.length} Products`}
+              
                 {order?.created_at && convertTime(order?.created_at)}
               </p>
             </div>

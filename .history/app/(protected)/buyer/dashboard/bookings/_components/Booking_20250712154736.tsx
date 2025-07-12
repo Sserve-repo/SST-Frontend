@@ -144,9 +144,6 @@ export default function BookingsPage() {
       if (finalParams.booking_status) {
         queryParams.append("booking_status", finalParams.booking_status);
       }
-      if (finalParams.payment_status) {
-        queryParams.append("payment_status", finalParams.payment_status);
-      }
       if (finalParams.search) {
         queryParams.append("search", finalParams.search);
       }
@@ -471,8 +468,9 @@ export default function BookingsPage() {
               <SelectContent>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="processing">Processing</SelectItem>
                 <SelectItem value="inprogress">In Progress</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
