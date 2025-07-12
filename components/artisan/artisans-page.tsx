@@ -10,6 +10,7 @@ import { RecentActivity } from "./recent-activity";
 import { getArtisanAnalytics } from "@/actions/dashboard/artisans";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TopServiceOrders } from "./top-service-orders";
 
 export function ArtisansPage() {
   const { currentUser } = useAuth();
@@ -138,7 +139,10 @@ export function ArtisansPage() {
         </div>
       </div>
 
-      <RecentActivity />
+      {/* Top 10 Service Orders - Replaces the last two sections */}
+      <div className="grid gap-6">
+        <TopServiceOrders />
+      </div>
     </main>
   );
 }
