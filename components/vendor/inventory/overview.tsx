@@ -1,8 +1,7 @@
 "use client";
 
-import { Package, TrendingUp, AlertTriangle, DollarSign, List } from "lucide-react";
+import { Package, TrendingUp, AlertTriangle, List } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RiDashboard2Fill } from "react-icons/ri";
 
 interface InventoryOverviewProps {
   overview: any;
