@@ -202,6 +202,8 @@ export const getPromotions = async (page = 1, limit = 10, search = "") => {
         Authorization: `Bearer ${token}`,
       },
     })
+    console.log("Fetching promotions with params:", params.toString())
+    console.log("Response:", response)
     return response
   } catch (error: any) {
     console.log("Failed to fetch promotions", error)
@@ -238,6 +240,23 @@ export const createPromotions = async (payload: FormData) => {
     return response
   } catch (error: any) {
     console.log("Failed to create promotions", error)
+    throw error
+  }
+}
+
+export const updatePromotions = async (promotionId: string, payload: FormData) => {
+  const token = Cookies.get("accessToken")
+  try {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/discount/update/${promotionId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: payload,
+    })
+    return response
+  } catch (error: any) {
+    console.log("Failed to update promotions", error)
     throw error
   }
 }
@@ -423,3 +442,53 @@ export const getAppointmentsPaginated = async (page = 1, limit = 10, search = ""
     throw error
   }
 }
+
+
+export const getServiceCategories = async () => {
+  try {
+    const response = await fetch(`${baseUrl}/general/services/getCategory`);
+    return response;
+  } catch (error: any) {
+    console.log("Form validation failed", error);
+  }
+};
+
+export const getServiceCategoryItems = async () => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getCategoryItems`
+    );
+    const res = await response.json();
+    if (response.ok && response.status === 200) {
+      return res;
+    }
+  } catch (error: any) {
+    console.log("Form validation failed", error);
+  }
+};
+
+export const getServiceCategoryById = async (Id: any) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getCategory/${Id}`
+    );
+    const res = await response.json();
+    if (response.ok && response.status === 200) {
+      return res;
+    }
+  } catch (error: any) {
+    console.log("Form validation failed", error);
+  }
+};
+
+export const getServiceCategoryItemsById = async (catId: any) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/general/services/getCategoryItemsByServiceCategoryId/${catId}`
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Form validation failed", error);
+  }
+};
+

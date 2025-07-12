@@ -9,19 +9,26 @@ export interface Message {
 }
 
 export interface Product {
-    id: string
-    name: string
-    category: string
-    subCategory?: string
-    price: number
-    shippingCost: number
-    stockLevel: number| string
-    description: string
-    images: string[]
-    status: "fully-stocked" | "low-on-stock" | "out-of-stock"| string
-    dateAdded: string
-    views: number| string
-    hasDiscount: boolean
+    id: string;
+    name: string;
+    title?: string;
+    sku: string;
+    category: string;
+    subCategory: string;
+    category_id?: string | number;
+    sub_category_id?: string | number;
+    price: number;
+    stock: number;
+    stock_level?: number;
+    threshold: number;
+    status: "draft" | "published" | string | number;
+    lastUpdated: string;
+    updated_at?: string;
+    description: string;
+    images: string[];
+    product_images: string[];
+    shippingCost: number;
+    shipping_cost?: number;
 }
 
 export interface ChatMessage {
