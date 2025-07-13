@@ -1,52 +1,20 @@
 "use client";
 
-import { MessageCircle, Search, Archive } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import type React from "react";
+import { MessageCircle } from "lucide-react";
 
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon?: "message" | "search" | "archive";
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
-  className?: string;
+  icon?: React.ReactNode;
 }
 
-const icons = {
-  message: MessageCircle,
-  search: Search,
-  archive: Archive,
-};
-
-export function EmptyState({
-  title,
-  description,
-  icon = "message",
-  action,
-  className,
-}: EmptyStateProps) {
-  const Icon = icons[icon];
-
+export function EmptyState({ title, description, icon }: EmptyStateProps) {
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center p-8 text-center",
-        className
-      )}
-    >
-      <div className="rounded-full bg-muted p-4 mb-4">
-        <Icon className="h-8 w-8 text-muted-foreground" />
-      </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground mb-4 max-w-sm">{description}</p>
-      {action && (
-        <Button onClick={action.onClick} variant="outline">
-          {action.label}
-        </Button>
-      )}
+    <div className="flex flex-col items-center justify-center p-8 text-center">
+      {icon || <MessageCircle className="h-12 w-12 text-gray-400 mb-4" />}
+      <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-500 max-w-sm">{description}</p>
     </div>
   );
 }
