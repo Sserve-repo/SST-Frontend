@@ -48,7 +48,7 @@ export const sendMessage = async (recipientId: string, message: string, parentMe
             formData.append("parent_message_id", parentMessageId)
         }
 
-        const response = await fetch(`${baseUrl}/dashboard/chat/send`, {
+        const response = await fetch(`${baseUrl}/dashboard/chat/sendMessage`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`,
