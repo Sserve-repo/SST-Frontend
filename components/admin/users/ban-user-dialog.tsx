@@ -13,34 +13,31 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { updateUserStatus } from "@/actions/admin/user-api";
-import type { User } from "@/types/users";
+import { Loader2 } from "lucide-react";
 
 interface BanUserDialogProps {
-  user: User | null;
+  userId: string | null;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
 export function BanUserDialog({
-  user,
+  userId,
   onOpenChange,
   onSuccess,
 }: BanUserDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleStatusChange = async () => {
-    if (!user) return;
-
-    const newStatus = user.status === "banned" ? "active" : "banned";
-    const action = newStatus === "banned" ? "ban" : "unban";
+  const handleBanUser = async () => {
+    if (!userId) return;
 
     setIsLoading(true);
     try {
       const formData = new FormData();
-      formData.append("active_status", newStatus === "active" ? "1" : "0");
+      formData.append("active_status", "0"); // 0 = banned/inactive
 
-      const { error } = await updateUserStatus(user.id, formData);
+      const { error } = await updateUserStatus(userId, formData);
 
       if (error) {
         throw new Error(error);
@@ -48,56 +45,93 @@ export function BanUserDialog({
 
       toast({
         title: "Success",
-        description: `User ${user.firstName} ${user.lastName} ${action}ned successfully.`,
+        description: "User has been banned successfully.",
       });
 
       onSuccess?.();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: `Failed to ${action} user. Please try again.`,
+        description: "Failed to ban user. Please try again.",
         variant: "destructive",
       });
-      throw new Error(error.toString());
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!user) return null;
+  const handleUnbanUser = async () => {
+    if (!userId) return;
 
-  const isBanned = user.status === "banned";
-  const action = isBanned ? "unban" : "ban";
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("active_status", "1"); // 1 = active
+
+      const { error } = await updateUserStatus(userId, formData);
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      toast({
+        title: "Success",
+        description: "User has been unbanned successfully.",
+      });
+
+      onSuccess?.();
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to unban user. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <AlertDialog open={!!user} onOpenChange={onOpenChange}>
+    <AlertDialog open={!!userId} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{isBanned ? "Unban" : "Ban"} User</AlertDialogTitle>
+          <AlertDialogTitle>Ban/Unban User</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to {action}{" "}
-            <span className="font-medium">
-              {user.firstName} {user.lastName}
-            </span>
-            ?
-            {isBanned
-              ? " This will restore their access to the platform."
-              : " This will prevent them from accessing the platform."}
+            Are you sure you want to change this user&lsquo;s status? This will
+            affect their ability to access the platform.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleStatusChange}
+            onClick={handleBanUser}
             disabled={isLoading}
-            className={
-              isBanned
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-red-600 hover:bg-red-700"
-            }
+            className="bg-red-600 hover:bg-red-700"
           >
-            {isLoading ? `${action}ning...` : `${action} User`}
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Ban User"
+            )}
+          </AlertDialogAction>
+          <AlertDialogAction
+            onClick={handleUnbanUser}
+            disabled={isLoading}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Unban User"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
