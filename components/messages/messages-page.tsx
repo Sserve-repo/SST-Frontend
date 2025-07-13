@@ -1,36 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { MessageList } from "@/components/messages/message-list";
-import { MessageThread } from "@/components/messages/message-thread";
-import { MessageSearch } from "@/components/messages/message-search";
-import { MessageFilters } from "@/components/messages/message-filters";
-import { EmptyState } from "@/components/messages/empty-state";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { cn } from "@/lib/utils";
-import type { Conversation, MessageFilter } from "@/types/messages";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { MessageList } from "./message-list";
+import { MessageThread } from "./message-thread";
+import { MessageFilters } from "./message-filters";
+import { EmptyState } from "./empty-state";
 import {
   useConversations,
   useConversationMessages,
-  useSendMessage,
-  useDeleteMessage,
-  useDeleteConversation,
-  useMarkAsRead,
-  useToggleArchive,
 } from "@/hooks/use-messages";
-import { useAuth } from "@/context/AuthContext";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, MessageCircle, Users, RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import type { Conversation, MessageFilter } from "@/types/messages";
 
 export default function MessagesPage() {
-  const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<MessageFilter>("all");
-  const { currentUser } = useAuth();
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    string | null
+  >(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState<MessageFilter>("all");
+  const [isMobileView, setIsMobileView] = useState(false);
 
-  // Queries
+  // Fetch conversations
   const {
     data: conversations = [],
     isLoading: conversationsLoading,
@@ -38,209 +34,241 @@ export default function MessagesPage() {
     refetch: refetchConversations,
   } = useConversations();
 
+  // Fetch selected conversation messages
   const {
-    data: messages = [],
+    data: conversationData,
     isLoading: messagesLoading,
     error: messagesError,
-  } = useConversationMessages(selectedConversation?.id || null);
+    refetch: refetchMessages,
+  } = useConversationMessages(selectedConversationId);
 
-  // Mutations
-  const sendMessageMutation = useSendMessage();
-  const deleteMessageMutation = useDeleteMessage();
-  const deleteConversationMutation = useDeleteConversation();
-  const markAsReadMutation = useMarkAsRead();
-  const toggleArchiveMutation = useToggleArchive();
+  // Handle mobile responsiveness
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-  // Handlers
+  // Auto-refresh conversations every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchConversations();
+      if (selectedConversationId) {
+        refetchMessages();
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [selectedConversationId, refetchConversations, refetchMessages]);
+
+  // Filter conversations based on search and filter
+  const filteredConversations = conversations.filter(
+    (conversation: Conversation) => {
+      const matchesSearch =
+        !searchTerm ||
+        conversation.customer?.name
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        conversation.last_message
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "unread" && !conversation.is_read) ||
+        (filter === "archived" && conversation.is_archived);
+
+      return matchesSearch && matchesFilter;
+    }
+  );
+
+  // Get stats for filters
+  const stats = {
+    total: conversations.length,
+    unread: conversations.filter((c: Conversation) => !c.is_read).length,
+    archived: conversations.filter((c: Conversation) => c.is_archived).length,
+  };
+
+  // Handle conversation selection
   const handleSelectConversation = (conversation: Conversation) => {
-    setSelectedConversation(conversation);
-    if (conversation.unreadCount > 0) {
-      markAsReadMutation.mutate(conversation.id);
-    }
+    setSelectedConversationId(conversation.id);
   };
 
-  const handleSendMessage = async (content: string, attachments?: File[]) => {
-    if (!selectedConversation || !content.trim()) return;
-
-    try {
-      await sendMessageMutation.mutateAsync({
-        conversationId: selectedConversation.id,
-        recipient_id: selectedConversation.customer.id,
-        message: content.trim(),
-        attachments,
-      });
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
+  // Handle back to conversations (mobile)
+  const handleBackToConversations = () => {
+    setSelectedConversationId(null);
   };
 
-  const handleDeleteMessage = async (messageId: string) => {
+  // Handle refresh
+  const handleRefresh = async () => {
     try {
-      await deleteMessageMutation.mutateAsync(messageId);
-    } catch (error) {
-      console.error("Failed to delete message:", error);
-    }
-  };
-
-  const handleDeleteConversation = async (conversationId: string) => {
-    try {
-      await deleteConversationMutation.mutateAsync(conversationId);
-      if (selectedConversation?.id === conversationId) {
-        setSelectedConversation(null);
+      await refetchConversations();
+      if (selectedConversationId) {
+        await refetchMessages();
       }
+      toast.success("Messages refreshed");
     } catch (error) {
-      console.error("Failed to delete conversation:", error);
+      toast.error("Failed to refresh messages");
     }
   };
 
-  const handleArchiveConversation = async (conversationId: string) => {
-    const conversation = conversations.find((c) => c.id === conversationId);
-    if (!conversation) return;
+  // Find selected conversation data
+  const selectedConversation = conversations.find(
+    (c: Conversation) => c.id === selectedConversationId
+  );
 
-    const isCurrentlyArchived = conversation.status === "archived";
-
-    try {
-      await toggleArchiveMutation.mutateAsync({
-        conversationId,
-        isArchived: !isCurrentlyArchived,
-      });
-
-      if (selectedConversation?.id === conversationId) {
-        setSelectedConversation(null);
-      }
-    } catch (error) {
-      console.error("Failed to archive conversation:", error);
-    }
-  };
-
-  // Filter conversations
-  const filteredConversations = conversations.filter((conversation) => {
-    const matchesSearch = conversation.customer.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
-    const matchesFilter =
-      activeFilter === "all" ||
-      (activeFilter === "unread" && conversation.unreadCount > 0) ||
-      (activeFilter === "archived" && conversation.status === "archived");
-
-    return matchesSearch && matchesFilter;
-  });
-
-  // Error state
   if (conversationsError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load conversations. Please try again.
-          </AlertDescription>
-        </Alert>
-        <Button onClick={() => refetchConversations()} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Retry
-        </Button>
-      </div>
-    );
-  }
-
-  // Loading state
-  if (conversationsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
+      <div className="p-6">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-red-600 mb-4">
+              Failed to load conversations. Please try again.
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-80px)] flex">
-      {/* Conversations Sidebar */}
-      <div
-        className={cn(
-          "w-full md:w-80 border-r flex flex-col bg-background",
-          selectedConversation && "hidden md:flex"
-        )}
-      >
-        {/* Header */}
-        <div className="p-4 border-b space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Messages</h1>
-            <div className="text-sm text-muted-foreground">
-              {filteredConversations.length} conversations
-            </div>
+    <div className="h-[calc(100vh-4rem)] flex flex-col">
+      {/* Header */}
+      <div className="p-6 border-b bg-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-primary">Messages</h1>
+            {/* <p className="text-gray-600 mt-1">
+              Manage your conversations with customers
+            </p> */}
           </div>
-          <MessageSearch value={searchQuery} onChange={setSearchQuery} />
-          <MessageFilters value={activeFilter} onChange={setActiveFilter} />
-        </div>
-
-        {/* Conversations List */}
-        <div className="flex-1 overflow-hidden">
-          {filteredConversations.length === 0 ? (
-            <EmptyState
-              title="No conversations found"
-              description={
-                searchQuery
-                  ? "Try adjusting your search terms"
-                  : "Start a conversation to see it here"
-              }
-            />
-          ) : (
-            <MessageList
-              conversations={filteredConversations}
-              selectedId={selectedConversation?.id}
-              onSelect={handleSelectConversation}
-              onDelete={handleDeleteConversation}
-              onArchive={handleArchiveConversation}
-              isDeleting={deleteConversationMutation.isPending}
-            />
-          )}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={conversationsLoading}
+            >
+              <RefreshCw
+                className={cn(
+                  "h-4 w-4 mr-2",
+                  conversationsLoading && "animate-spin"
+                )}
+              />
+              Refresh
+            </Button>
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <MessageCircle className="h-3 w-3" />
+              {stats.total} Total
+            </Badge>
+            {stats.unread > 0 && (
+              <Badge className="flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                {stats.unread} Unread
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Message Thread */}
-      <div
-        className={cn(
-          "flex-1 flex flex-col bg-background",
-          !selectedConversation && "hidden md:flex"
-        )}
-      >
-        {selectedConversation ? (
-          <>
-            {messagesError ? (
-              <div className="flex-1 flex items-center justify-center">
-                <Alert variant="destructive" className="max-w-md">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Failed to load messages. Please try again.
-                  </AlertDescription>
-                </Alert>
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Conversations Sidebar */}
+        <div
+          className={cn(
+            "w-full md:w-80 border-r bg-white flex flex-col",
+            isMobileView && selectedConversationId && "hidden"
+          )}
+        >
+          {/* Search and Filters */}
+          <div className="p-4 border-b space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search conversations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <MessageFilters value={filter} onChange={setFilter} />
+          </div>
+
+          {/* Conversations List */}
+          <div className="flex-1 overflow-y-auto">
+            {conversationsLoading ? (
+              <div className="p-4 space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 p-3 animate-pulse"
+                  >
+                    <div className="h-12 w-12 bg-gray-200 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+                      <div className="h-3 bg-gray-200 rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <MessageThread
-                conversation={selectedConversation}
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                onDeleteMessage={handleDeleteMessage}
-                onBack={() => setSelectedConversation(null)}
-                onArchive={() =>
-                  handleArchiveConversation(selectedConversation.id)
+            ) : filteredConversations.length === 0 ? (
+              <EmptyState
+                title={
+                  searchTerm ? "No conversations found" : "No messages yet"
                 }
-                isLoading={messagesLoading}
-                isSending={sendMessageMutation.isPending}
-                isDeleting={deleteMessageMutation.isPending}
-                currentUserId={currentUser?.id}
+                description={
+                  searchTerm
+                    ? "Try adjusting your search terms"
+                    : "Your conversations will appear here when customers message you"
+                }
+              />
+            ) : (
+              <MessageList
+                conversations={filteredConversations}
+                selectedId={selectedConversationId}
+                onSelect={handleSelectConversation}
+                onDelete={() => {}}
+                onArchive={() => {}}
               />
             )}
-          </>
-        ) : (
-          <EmptyState
-            title="Select a conversation"
-            description="Choose a conversation from the sidebar to start messaging"
-            className="flex-1"
-          />
-        )}
+          </div>
+        </div>
+
+        {/* Message Thread */}
+        <div
+          className={cn(
+            "flex-1 flex flex-col",
+            isMobileView && !selectedConversationId && "hidden"
+          )}
+        >
+          {selectedConversationId && selectedConversation ? (
+            <MessageThread
+              conversation={selectedConversation}
+              conversationData={conversationData || null}
+              isLoading={messagesLoading}
+              onBack={handleBackToConversations}
+              onMessageSent={() => {
+                // Refresh conversations and messages after sending
+                refetchConversations();
+                refetchMessages();
+              }}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-gray-50">
+              <EmptyState
+                title="Select a conversation"
+                description="Choose a conversation from the sidebar to start messaging"
+                icon={<MessageCircle className="h-12 w-12 text-gray-400" />}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
