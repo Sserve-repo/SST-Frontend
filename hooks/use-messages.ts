@@ -1,264 +1,203 @@
+"use client"
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
     getLastMessages,
     getFullConversation,
     sendMessage,
-    deleteMessage,
     deleteFullConversation,
-    type SendMessagePayload,
+    deleteMessage,
+    markMessageAsRead,
+    archiveConversation,
 } from "@/actions/messages-api"
+import type {
+    Conversation,
+    ConversationData,
+    SendMessageRequest,
+    MessageResponse,
+    ConversationResponse,
+} from "@/types/messages"
 import { toast } from "sonner"
-import type { Conversation, Message } from "@/types/messages"
 
-// Query keys
-export const messageKeys = {
-    all: ["messages"] as const,
-    conversations: () => [...messageKeys.all, "conversations"] as const,
-    conversation: (id: string) => [...messageKeys.all, "conversation", id] as const,
-}
+// Transform raw conversation data to match our types
+const transformConversation = (rawConversation: any): Conversation => ({
+    id: rawConversation.parent_message_id.toString(),
+    parent_message_id: rawConversation.parent_message_id,
+    sender: rawConversation.sender,
+    recipient: rawConversation.recipient,
+    customer: {
+        id: rawConversation.recipient?.id || rawConversation.sender?.id,
+        name: rawConversation.recipient?.name || rawConversation.sender?.name || "Unknown User",
+        avatar: rawConversation.recipient?.image || rawConversation.sender?.image,
+    },
+    lastMessage: {
+        content: rawConversation.last_message || "No messages yet",
+        timestamp: new Date(rawConversation.time_ago),
+    },
+    last_message: rawConversation.last_message,
+    time_ago: rawConversation.time_ago,
+    is_read: rawConversation.is_read,
+    is_archived: rawConversation.is_archived,
+    status: rawConversation.is_archived ? "archived" : "active",
+    unreadCount: rawConversation.is_read ? 0 : 1,
+    message_count: rawConversation.message_count || 0,
+})
 
-// Transform API data to our types
-const transformConversations = (apiData: any[]): Conversation[] => {
-    return apiData.map((conversation) => ({
-        id: conversation.parent_message_id?.toString() || Math.random().toString(36).substr(2, 9),
-        customer: {
-            id: conversation.recipient?.id?.toString() || "",
-            name: conversation.recipient?.name || "Unknown User",
-            avatar: conversation.recipient?.image || "/placeholder.svg?height=40&width=40",
-            email: conversation.recipient?.email || conversation.recipient?.name || "No email",
-        },
-        lastMessage: {
-            id: "last",
-            content: conversation.last_message || "",
-            timestamp: new Date(conversation.time_ago || Date.now()),
-            senderId: conversation.sender?.id?.toString() || "",
-            read: conversation.is_read || false,
-        },
-        unreadCount: conversation.is_read ? 0 : 1,
-        status: conversation.is_archived ? "archived" : "active",
-    }))
-}
-
-const transformMessages = (apiData: any[]): Message[] => {
-    return apiData.map((msg, index) => ({
-        id: `msg-${index}-${Date.now()}`,
-        content: msg.message || "",
-        timestamp: new Date(msg.time_ago || Date.now()),
-        senderId: msg.sender?.toString() || "",
-        read: msg.is_read || false,
-        attachments: msg.attachments || [],
-    }))
-}
-
-// Hook to fetch conversations
 export function useConversations() {
     return useQuery({
-        queryKey: messageKeys.conversations(),
-        queryFn: async () => {
+        queryKey: ["conversations"],
+        queryFn: async (): Promise<Conversation[]> => {
             const response = await getLastMessages()
-            return transformConversations(response.data.all)
+            if (!response?.ok) {
+                throw new Error("Failed to fetch conversations")
+            }
+
+            const data: MessageResponse = await response.json()
+            if (!data.status || !data.data?.all) {
+                throw new Error(data.message || "Failed to fetch conversations")
+            }
+            console.log("Fetched conversations:", data)
+            return data.data.all.map(transformConversation)
         },
-        staleTime: 30000, // 30 seconds
-        refetchInterval: 60000, // Refetch every minute
-        retry: 3,
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        refetchInterval: 30000, // Refetch every 30 seconds
+        staleTime: 10000, // Consider data stale after 10 seconds
     })
 }
 
-// Hook to fetch conversation messages
 export function useConversationMessages(conversationId: string | null) {
     return useQuery({
-        queryKey: messageKeys.conversation(conversationId || ""),
-        queryFn: async () => {
-            if (!conversationId) return []
+        queryKey: ["conversation-messages", conversationId],
+        queryFn: async (): Promise<ConversationData> => {
+            if (!conversationId) {
+                return {
+                    participant: { sender: [], recipient: [] },
+                    messages: [],
+                }
+            }
+            console.log(`Fetching messages for conversation ID: ${conversationId}`)
+            console.log("Using conversation ID:", conversationId)
             const response = await getFullConversation(conversationId)
-            return transformMessages(response.data.messages)
+            if (!response?.ok) {
+                throw new Error("Failed to fetch conversation messages")
+            }
+
+            const data: ConversationResponse = await response.json()
+            if (!data.status || !data.data) {
+                throw new Error(data.message || "Failed to fetch conversation messages")
+            }
+            console.log("Fetched conversation messages:", data)
+            return data.data
         },
         enabled: !!conversationId,
-        staleTime: 10000, // 10 seconds
-        retry: 3,
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        refetchInterval: 10000, // Refetch every 10 seconds when active
     })
 }
 
-// Hook to send message
 export function useSendMessage() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: async (payload: SendMessagePayload & { conversationId: string }) => {
-            const { conversationId, ...messagePayload } = payload
-            return await sendMessage(messagePayload)
+        mutationFn: async ({ recipientId, message, parentMessageId }: SendMessageRequest) => {
+            const response = await sendMessage(recipientId, message, parentMessageId)
+            if (!response?.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.message || "Failed to send message")
+            }
+            return response.json()
         },
-        onMutate: async (variables) => {
-            // Cancel outgoing refetches
-            await queryClient.cancelQueries({ queryKey: messageKeys.conversation(variables.conversationId) })
-            await queryClient.cancelQueries({ queryKey: messageKeys.conversations() })
-
-            // Snapshot previous values
-            const previousMessages = queryClient.getQueryData(messageKeys.conversation(variables.conversationId))
-            const previousConversations = queryClient.getQueryData(messageKeys.conversations())
-
-            // Optimistically update messages
-            const optimisticMessage: Message = {
-                id: `temp-${Date.now()}`,
-                content: variables.message,
-                timestamp: new Date(),
-                senderId: "current-user", // This should be the current user's ID
-                read: true,
-                attachments: [],
-            }
-
-            queryClient.setQueryData(messageKeys.conversation(variables.conversationId), (old: Message[] | undefined) => [
-                ...(old || []),
-                optimisticMessage,
-            ])
-
-            // Update conversations list
-            queryClient.setQueryData(messageKeys.conversations(), (old: Conversation[] | undefined) => {
-                if (!old) return []
-                return old.map((conv) =>
-                    conv.id === variables.conversationId
-                        ? {
-                            ...conv,
-                            lastMessage: optimisticMessage,
-                            unreadCount: 0,
-                        }
-                        : conv,
-                )
-            })
-
-            return { previousMessages, previousConversations }
+        onSuccess: () => {
+            // Invalidate and refetch conversations and messages
+            queryClient.invalidateQueries({ queryKey: ["conversations"] })
+            queryClient.invalidateQueries({ queryKey: ["conversation-messages"] })
         },
-        onError: (error, variables, context) => {
-            // Revert optimistic updates
-            if (context?.previousMessages) {
-                queryClient.setQueryData(messageKeys.conversation(variables.conversationId), context.previousMessages)
-            }
-            if (context?.previousConversations) {
-                queryClient.setQueryData(messageKeys.conversations(), context.previousConversations)
-            }
+        onError: (error: Error) => {
             toast.error(error.message || "Failed to send message")
-        },
-        onSuccess: (data, variables) => {
-            // Invalidate and refetch to get the real data
-            queryClient.invalidateQueries({ queryKey: messageKeys.conversation(variables.conversationId) })
-            queryClient.invalidateQueries({ queryKey: messageKeys.conversations() })
-            toast.success("Message sent successfully")
         },
     })
 }
 
-// Hook to delete message
+export function useDeleteConversation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (conversationId: string) => {
+            const response = await deleteFullConversation(conversationId)
+            if (!response?.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.message || "Failed to delete conversation")
+            }
+            return response.json()
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["conversations"] })
+            toast.success("Conversation deleted successfully")
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to delete conversation")
+        },
+    })
+}
+
 export function useDeleteMessage() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: deleteMessage,
+        mutationFn: async (messageId: string) => {
+            const response = await deleteMessage(messageId)
+            if (!response?.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.message || "Failed to delete message")
+            }
+            return response.json()
+        },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: messageKeys.all })
+            queryClient.invalidateQueries({ queryKey: ["conversations"] })
+            queryClient.invalidateQueries({ queryKey: ["conversation-messages"] })
             toast.success("Message deleted successfully")
         },
-        onError: (error) => {
+        onError: (error: Error) => {
             toast.error(error.message || "Failed to delete message")
         },
     })
 }
 
-// Hook to delete conversation
-export function useDeleteConversation() {
-    const queryClient = useQueryClient()
-
-    return useMutation({
-        mutationFn: deleteFullConversation,
-        onMutate: async (conversationId) => {
-            // Cancel outgoing refetches
-            await queryClient.cancelQueries({ queryKey: messageKeys.conversations() })
-
-            // Snapshot previous value
-            const previousConversations = queryClient.getQueryData(messageKeys.conversations())
-
-            // Optimistically remove conversation
-            queryClient.setQueryData(messageKeys.conversations(), (old: Conversation[] | undefined) => {
-                if (!old) return []
-                return old.filter((conv) => conv.id !== conversationId)
-            })
-
-            return { previousConversations }
-        },
-        onError: (error, conversationId, context) => {
-            // Revert optimistic update
-            if (context?.previousConversations) {
-                queryClient.setQueryData(messageKeys.conversations(), context.previousConversations)
-            }
-            toast.error(error.message || "Failed to delete conversation")
-        },
-        onSuccess: () => {
-            toast.success("Conversation deleted successfully")
-        },
-    })
-}
-
-// Hook to mark conversation as read
-export function useMarkAsRead() {
-    const queryClient = useQueryClient()
-
-    return useMutation({
-        mutationFn: async (conversationId: string) => {
-            // Optimistic update
-            queryClient.setQueryData(messageKeys.conversations(), (old: Conversation[] | undefined) => {
-                if (!old) return []
-                return old.map((conv) =>
-                    conv.id === conversationId
-                        ? {
-                            ...conv,
-                            unreadCount: 0,
-                            lastMessage: { ...conv.lastMessage, read: true },
-                        }
-                        : conv,
-                )
-            })
-
-            // Update messages as read
-            queryClient.setQueryData(messageKeys.conversation(conversationId), (old: Message[] | undefined) => {
-                if (!old) return []
-                return old.map((msg) => ({ ...msg, read: true }))
-            })
-        },
-        onError: (error, conversationId) => {
-            // Revert on error
-            queryClient.invalidateQueries({ queryKey: messageKeys.conversations() })
-            queryClient.invalidateQueries({ queryKey: messageKeys.conversation(conversationId) })
-            toast.error("Failed to mark as read")
-        },
-    })
-}
-
-// Hook to toggle archive status
-export function useToggleArchive() {
+export function useArchiveConversation() {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: async ({ conversationId, isArchived }: { conversationId: string; isArchived: boolean }) => {
-            // Optimistic update
-            queryClient.setQueryData(messageKeys.conversations(), (old: Conversation[] | undefined) => {
-                if (!old) return []
-                return old.map((conv) =>
-                    conv.id === conversationId
-                        ? {
-                            ...conv,
-                            status: isArchived ? "archived" : "active",
-                        }
-                        : conv,
-                )
-            })
-        },
-        onError: (error) => {
-            queryClient.invalidateQueries({ queryKey: messageKeys.conversations() })
-            toast.error("Failed to update conversation")
+            const response = await archiveConversation(conversationId, isArchived)
+            if (!response?.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.message || "Failed to archive conversation")
+            }
+            return response.json()
         },
         onSuccess: (_, { isArchived }) => {
-            toast.success(isArchived ? "Conversation archived" : "Conversation unarchived")
+            queryClient.invalidateQueries({ queryKey: ["conversations"] })
+            toast.success(`Conversation ${isArchived ? "archived" : "unarchived"} successfully`)
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to archive conversation")
+        },
+    })
+}
+
+export function useMarkAsRead() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async (messageId: string) => {
+            const response = await markMessageAsRead(messageId)
+            if (!response?.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.message || "Failed to mark message as read")
+            }
+            return response.json()
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["conversations"] })
+            queryClient.invalidateQueries({ queryKey: ["conversation-messages"] })
         },
     })
 }
