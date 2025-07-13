@@ -1,4 +1,5 @@
-import PromotionsPage from "@/components/promotions/promotions-page";
+
+import { VendorPromotionsPage } from "@/components/vendor/promotions/promotions-page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 export default function Promotions() {
   return (
     <>
-      <PromotionsPage />
+      <VendorPromotionsPage />
     </>
   );
 }
