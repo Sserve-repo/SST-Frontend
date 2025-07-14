@@ -19,5 +19,5 @@ export const getUserType = (user_type: string) => {
     ? "buyer"
     : user_type == "4"
     ? "artisan"
-    : "admin";
+    : null;
 };
