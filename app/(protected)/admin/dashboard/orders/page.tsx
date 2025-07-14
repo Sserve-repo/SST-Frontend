@@ -67,6 +67,8 @@ export default function OrdersPage() {
         search: filters.search || undefined,
       });
 
+      console.log("Fetching orders data:", data, filters);
+
       if (apiError) throw new Error(apiError);
 
       if (data) {

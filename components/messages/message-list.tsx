@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +29,7 @@ import {
 
 interface MessageListProps {
   conversations: Conversation[];
-  selectedId?: string;
+  selectedId?: string | null;
   onSelect: (conversation: Conversation) => void;
   onDelete: (conversationId: string) => void;
   onArchive: (conversationId: string) => void;
@@ -94,7 +93,7 @@ export function MessageList({
               <div
                 key={conversation.id}
                 className={cn(
-                  "flex items-center gap-3 p-4 hover:bg-muted/50 cursor-pointer transition-colors",
+                  "flex items-center gap-3 p-4 hover:bg-muted/50 cursor-pointer transition-colors group",
                   isSelected && "bg-muted",
                   isArchived && "opacity-60"
                 )}
@@ -143,7 +142,6 @@ export function MessageList({
                       </span>
                     </div>
                   </div>
-
                   <div className="flex items-center justify-between">
                     <p
                       className={cn(

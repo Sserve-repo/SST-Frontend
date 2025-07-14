@@ -1,7 +1,7 @@
 export interface Message {
     id: string
     sender: number
-    recipient?: number
+    recipient: number
     message: string
     time_ago: string
     is_read: boolean
@@ -10,45 +10,59 @@ export interface Message {
     updated_at: string
 }
 
+export interface Participant {
+    id: number
+    name: string
+    image: string | null
+    email?: string
+    user_type?: string
+}
+
 export interface Conversation {
+    id: string
     parent_message_id: number
-    recipient: {
+    sender: Participant
+    recipient: Participant
+    customer: {
         id: number
-        name: string | null
-        image: string | null
+        name: string
+        avatar: string | null
     }
-    sender: {
-        id: number
-        name: string | null
-        image: string | null
+    lastMessage: {
+        content: string
+        timestamp: Date
     }
     last_message: string
     time_ago: string
     is_read: boolean
     is_archived: boolean
+    status: "active" | "archived"
+    unreadCount: number
+    message_count?: number
 }
 
-export interface ConversationDetails {
+export interface ConversationData {
     participant: {
-        sender: Array<{
-            id: number
-            name: string
-            image: string | null
-        }>
-        recipient: Array<{
-            id: number
-            name: string
-            image: string | null
-        }>
+        sender: Participant[]
+        recipient: Participant[]
     }
-    messages: Array<{
-        sender: number
-        message: string
-        time_ago: string
-        is_read: boolean
-        is_archived: boolean
-    }>
+    messages: Message[]
 }
+
+export interface SendMessageRequest {
+    recipientId: string
+    message: string
+    parentMessageId?: string
+}
+
+export interface MessageStats {
+    total: number
+    unread: number
+    archived: number
+    today: number
+}
+
+export type MessageFilter = "all" | "unread" | "archived"
 
 export interface MessageResponse {
     status: boolean
@@ -65,19 +79,7 @@ export interface ConversationResponse {
     status: boolean
     status_code: number
     message: string
-    data: ConversationDetails
+    data: ConversationData
     token: null
     debug: null
-}
-
-export interface MessageFilters {
-    search?: string
-    isRead?: boolean
-    isArchived?: boolean
-}
-
-export interface MessageStats {
-    total: number
-    unread: number
-    archived: number
 }

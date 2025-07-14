@@ -48,7 +48,7 @@ export default function BookingDetailPage() {
       if (apiError) {
         throw new Error(apiError);
       }
-
+      console.log("Fetched booking data:", data);
       if (data) {
         setBooking(data);
       }
@@ -295,7 +295,7 @@ export default function BookingDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {booking.customer?.user_photo && (
+            {/* {booking.customer?.user_photo && (
               <div className="flex items-center gap-3">
                 <img
                   src={booking.customer.user_photo || "/assets/images/image-placeholder.png"}
@@ -303,18 +303,16 @@ export default function BookingDetailPage() {
                   className="w-16 h-16 rounded-full object-cover"
                 />
               </div>
-            )}
+            )} */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Name:</span>
-              <span className="font-medium">
-                {booking.customer?.firstname} {booking.customer?.lastname}
-              </span>
+              <span className="font-medium">{booking.customer_name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email:</span>
-              <span>{booking.customer?.email}</span>
+              <span>{booking.customer_email}</span>
             </div>
-            {booking.customer?.phone && (
+            {/* {booking.customer?.phone && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Phone:</span>
                 <span>{booking.customer.phone}</span>
@@ -325,7 +323,7 @@ export default function BookingDetailPage() {
                 <span className="text-muted-foreground">Address:</span>
                 <span>{booking.customer.address}</span>
               </div>
-            )}
+            )} */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Customer ID:</span>
               <span>#{booking.user_id}</span>
@@ -342,7 +340,7 @@ export default function BookingDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {booking.artisan?.user_photo && (
+            {/* {booking.artisan?.user_photo && (
               <div className="flex items-center gap-3">
                 <img
                   src={booking.artisan.user_photo || "/assets/images/image-placeholder.png"}
@@ -350,18 +348,16 @@ export default function BookingDetailPage() {
                   className="w-16 h-16 rounded-full object-cover"
                 />
               </div>
-            )}
+            )} */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Name:</span>
-              <span className="font-medium">
-                {booking.artisan?.firstname} {booking.artisan?.lastname}
-              </span>
+              <span className="font-medium">{booking.artisan_name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email:</span>
-              <span>{booking.artisan?.email}</span>
+              <span>{booking.artisan_email}</span>
             </div>
-            {booking.artisan?.phone && (
+            {/* {booking.artisan?.phone && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Phone:</span>
                 <span>{booking.artisan.phone}</span>
@@ -378,7 +374,7 @@ export default function BookingDetailPage() {
                 <span className="text-muted-foreground">Specialization:</span>
                 <span>{booking.artisan.specialization}</span>
               </div>
-            )}
+            )} */}
             <div className="flex justify-between">
               <span className="text-muted-foreground">Artisan ID:</span>
               <span>#{booking.artisan_id}</span>

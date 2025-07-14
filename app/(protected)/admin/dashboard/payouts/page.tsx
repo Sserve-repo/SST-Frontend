@@ -51,17 +51,17 @@ export default function PayoutsPage() {
       setError(null);
 
       const { data, error: apiError } = await getPendingPayouts();
-
-      if (apiError || !data?.data?.data.Payout) {
+      console.log("Fetching pending payouts data:", data);
+      if (apiError || !data?.data?.pendingPayouts) {
         throw new Error(apiError || "Failed to fetch pending payouts");
       }
 
-      const payoutData = data.data.data.Payout;
-      setPendingPayouts(payoutData.allPending || []);
+      const payoutData = data.data;
+      setPendingPayouts(payoutData.pendingPayouts || []);
 
       setStats((prev) => ({
         ...prev,
-        totalPending: payoutData.allPending?.length || 0,
+        totalPending: payoutData.pendingPayouts?.length || 0,
         pendingAmount: payoutData.totalPendingPayout || 0,
         completedAmount: payoutData.totalCompletedPayout || 0,
       }));

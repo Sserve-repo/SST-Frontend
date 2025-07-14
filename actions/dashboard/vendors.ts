@@ -215,6 +215,23 @@ export const createPromotions = async (payload: FormData) => {
   }
 }
 
+export const updatePromotions = async (promotionId: string, payload: FormData) => {
+  const token = Cookies.get("accessToken")
+  try {
+    const response = await fetch(`${baseUrl}/vendor/dashboard/discount/update/${promotionId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: payload,
+    })
+    return response
+  } catch (error: any) {
+    console.log("Failed to update promotions", error)
+    throw error
+  }
+}
+
 export const deletePromotions = async (promotionId: any) => {
   const token = Cookies.get("accessToken")
   try {

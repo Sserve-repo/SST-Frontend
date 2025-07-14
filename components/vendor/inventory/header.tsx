@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import { AddProductDialog } from "./add-product-dialog";
 import { ImportDialog } from "./import-dialog";
 

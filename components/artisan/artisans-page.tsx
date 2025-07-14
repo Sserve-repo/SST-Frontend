@@ -33,6 +33,7 @@ export function ArtisansPage() {
       if (!response?.ok) throw Error("Failed to fetch analytics");
 
       const res = await response.json();
+      console.log("Artisan analytics data:", res);
       const overview = res?.data?.Overview ?? {};
       const earnings = res?.data?.["Earning Summary"] ?? {};
       const analyticsData = res?.data?.Analytics ?? { revenueStats: [] };

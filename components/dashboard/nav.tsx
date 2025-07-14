@@ -167,7 +167,7 @@ const getNavItems = (userType: string) => {
 const getSettingsHref = (userType: string) => {
   switch (userType) {
     case "1": // Admin
-      return "/admin/dashboard/profile-setting";
+      return "/admin/dashboard/settings";
     case "3": // Vendor
       return "/vendor/dashboard/settings";
     case "4": // Artisan

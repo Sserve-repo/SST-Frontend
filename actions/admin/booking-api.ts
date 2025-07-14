@@ -78,6 +78,10 @@ export interface BookingDetailResponse {
     status: string
     created_at: string
     updated_at: string
+    artisan_email: string
+    artisan_name: string
+    customer_email: string
+    customer_name: string
     customer: {
         id: number
         firstname: string
