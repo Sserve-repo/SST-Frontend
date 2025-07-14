@@ -1083,7 +1083,7 @@ export default function UnifiedProfileSettings({
                               : "Select available dates"}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-80 p-0" align="start">
                           <Calendar
                             mode="multiple"
                             selected={selectedDates}
