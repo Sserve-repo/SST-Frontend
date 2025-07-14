@@ -98,7 +98,8 @@ export function CreateServiceDialog({
       const response = await getServiceCategories();
       if (response && response.ok) {
         const data = await response.json();
-        setServiceCategories(data.data || []);
+        console.log("Service categories data:", data);
+        setServiceCategories(data.data["Service Category"] || []);
       }
     } catch (error) {
       console.error("Error fetching service categories:", error);
@@ -110,7 +111,8 @@ export function CreateServiceDialog({
       const response = await getServiceCategoryItemsById(catId);
       if (response && response.ok) {
         const data = await response.json();
-        setServiceCategoryItems(data.data || []);
+        console.log("Service category items data:", data);
+        setServiceCategoryItems(data.data["Service Category Item By ID"] || []);
       }
     } catch (error) {
       console.error("Error fetching service category items:", error);
@@ -241,15 +243,16 @@ export function CreateServiceDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {serviceCategories.map((item) => (
-                            <SelectItem
-                              key={item.id}
-                              className="h-11 rounded-lg px-3"
-                              value={item.id.toString()}
-                            >
-                              {item.name}
-                            </SelectItem>
-                          ))}
+                          {Array.isArray(serviceCategories) &&
+                            serviceCategories.map((item) => (
+                              <SelectItem
+                                key={item.id}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
+                              >
+                                {item.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -272,15 +275,16 @@ export function CreateServiceDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {serviceCategoryItems.map((item) => (
-                            <SelectItem
-                              key={item.id}
-                              className="h-11 rounded-lg px-3"
-                              value={item.id.toString()}
-                            >
-                              {item.name}
-                            </SelectItem>
-                          ))}
+                          {Array.isArray(serviceCategoryItems) &&
+                            serviceCategoryItems.map((item) => (
+                              <SelectItem
+                                key={item.id}
+                                className="h-11 rounded-lg px-3"
+                                value={item.id.toString()}
+                              >
+                                {item.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
