@@ -231,7 +231,7 @@ export function ProductReviewList({
                           submittingReplies[review.id] ||
                           !replyTexts[review.id]?.trim()
                         }
-                        className="bg-purple-600 hover:bg-purple-700"
+                        className="bg-primary hover:bg-primary/90"
                       >
                         {submittingReplies[review.id] ? (
                           <>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star, DollarSign, Calendar } from "lucide-react";
+import { Star, Calendar } from "lucide-react";
 import { getOrders } from "@/actions/dashboard/artisans";
 
 interface ServiceOrder {

@@ -42,23 +42,20 @@ export default function PayoutsPage() {
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
   const { toast } = useToast();
 
   const fetchPendingPayouts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
       const { data, error: apiError } = await getPendingPayouts();
-      console.log("Fetching pending payouts data:", data);
+
       if (apiError || !data?.data?.pendingPayouts) {
         throw new Error(apiError || "Failed to fetch pending payouts");
       }
 
       const payoutData = data.data;
       setPendingPayouts(payoutData.pendingPayouts || []);
-
       setStats((prev) => ({
         ...prev,
         totalPending: payoutData.pendingPayouts?.length || 0,
@@ -79,19 +76,16 @@ export default function PayoutsPage() {
     try {
       setLoading(true);
       setError(null);
-
       const { data, error: apiError } = await getCompletedPayouts();
 
-      if (apiError || !data?.data?.data?.Payout) {
+      if (apiError || !data?.completedPayouts) {
         throw new Error(apiError || "Failed to fetch completed payouts");
       }
 
-      const payoutData = data.data.data?.Payout;
-      setCompletedPayouts(payoutData.allCompleted || []);
-
+      setCompletedPayouts(data.completedPayouts || []);
       setStats((prev) => ({
         ...prev,
-        totalCompleted: payoutData.allCompleted?.length || 0,
+        totalCompleted: data.completedPayouts?.length || 0,
       }));
     } catch (err) {
       console.error("Error fetching completed payouts:", err);
@@ -113,11 +107,10 @@ export default function PayoutsPage() {
 
   const handleProcessPayout = async (userId: number) => {
     setIsProcessing(true);
-
     try {
       const { data, error: apiError } = await processPayout(userId);
 
-      if (apiError || !data?.data?.data?.payout) {
+      if (apiError || !data?.payout) {
         throw new Error(apiError || "Failed to process payout");
       }
 
@@ -126,7 +119,6 @@ export default function PayoutsPage() {
         description: "Payout processed successfully.",
       });
 
-      // Refresh data
       await fetchPendingPayouts();
       if (activeTab === "completed") {
         await fetchCompletedPayouts();
@@ -151,26 +143,46 @@ export default function PayoutsPage() {
     [updateFilters]
   );
 
-  // Filter payouts based on search and type
   const filteredPendingPayouts = pendingPayouts.filter((payout) => {
     const matchesSearch = filters.search
-      ? (payout.vendor_name || payout.artisan_name || "")
-          .toLowerCase()
-          .includes(filters.search.toLowerCase())
+      ? payout.user_name.toLowerCase().includes(filters.search.toLowerCase())
       : true;
-    const matchesType = filters.status ? payout.type === filters.status : true;
+    const matchesType = filters.type
+      ? payout.payout_type === filters.type
+      : true;
     return matchesSearch && matchesType;
   });
 
   const filteredCompletedPayouts = completedPayouts.filter((payout) => {
     const matchesSearch = filters.search
-      ? (payout.vendor_name || payout.artisan_name || "")
-          .toLowerCase()
-          .includes(filters.search.toLowerCase())
+      ? payout.user_name.toLowerCase().includes(filters.search.toLowerCase())
       : true;
-    const matchesType = filters.status ? payout.type === filters.status : true;
+    const matchesType = filters.type ? payout.type === filters.type : true;
     return matchesSearch && matchesType;
   });
+
+  const itemsPerPage = 10;
+  const currentPage = Number.parseInt(filters.page as string) || 1;
+  const totalPendingPages = Math.ceil(
+    filteredPendingPayouts.length / itemsPerPage
+  );
+  const totalCompletedPages = Math.ceil(
+    filteredCompletedPayouts.length / itemsPerPage
+  );
+
+  const paginatedPendingPayouts = filteredPendingPayouts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const paginatedCompletedPayouts = filteredCompletedPayouts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    updateFilters({ ...filters, page: page.toString() });
+  };
 
   return (
     <div className="space-y-6">
@@ -221,12 +233,15 @@ export default function PayoutsPage() {
             </div>
           ) : (
             <PayoutTable
-              payouts={filteredPendingPayouts}
+              payouts={paginatedPendingPayouts}
               type="pending"
               onProcessPayout={handleProcessPayout}
               isProcessing={isProcessing}
               selectedIds={selectedIds}
               onSelectedIdsChange={setSelectedIds}
+              currentPage={currentPage}
+              totalPages={totalPendingPages}
+              onPageChange={handlePageChange}
             />
           )}
         </TabsContent>
@@ -249,10 +264,13 @@ export default function PayoutsPage() {
             </div>
           ) : (
             <PayoutTable
-              payouts={filteredCompletedPayouts}
+              payouts={paginatedCompletedPayouts}
               type="completed"
               selectedIds={selectedIds}
               onSelectedIdsChange={setSelectedIds}
+              currentPage={currentPage}
+              totalPages={totalCompletedPages}
+              onPageChange={handlePageChange}
             />
           )}
         </TabsContent>

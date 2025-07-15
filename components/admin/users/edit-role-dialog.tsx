@@ -47,17 +47,17 @@ export function EditRoleDialog({
   const [permissions, setPermissions] = useState<GroupedPermissions>({});
   const { toast } = useToast();
 
-    const fetchPermissions = useCallback(async () => {
+  const fetchPermissions = useCallback(async () => {
     setPermissionsLoading(true);
     try {
       const { data, error } = await getPermissions();
-
+      console.log("Fetching permissions data:", data.data.Permissions);
       if (error) {
         throw new Error(error);
       }
 
-      if (data?.Permissions) {
-        setPermissions(data.Permissions);
+      if (data?.data.Permissions) {
+        setPermissions(data.data.Permissions);
       }
     } catch (error) {
       console.error("Failed to fetch permissions:", error);
@@ -78,8 +78,6 @@ export function EditRoleDialog({
       fetchPermissions();
     }
   }, [role, fetchPermissions]);
-
-
 
   const handlePermissionChange = (permissionName: string, checked: boolean) => {
     setSelectedPermissions((prev) =>
@@ -193,7 +191,7 @@ export function EditRoleDialog({
                             <Checkbox
                               id={`category-${category}`}
                               checked={allSelected}
-                              ref={(el:any) => {
+                              ref={(el: any) => {
                                 if (el)
                                   el.indeterminate =
                                     someSelected && !allSelected;

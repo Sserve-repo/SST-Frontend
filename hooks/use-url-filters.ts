@@ -9,6 +9,7 @@ interface FilterState {
     search: string
     page: string
     limit: string
+    type?: string
 }
 
 export function useUrlFilters() {

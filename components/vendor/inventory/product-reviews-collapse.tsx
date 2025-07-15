@@ -349,7 +349,7 @@ export function ProductReviewsCollapse({
                                     disabled={
                                       submittingReply || !replyText.trim()
                                     }
-                                    className="bg-purple-600 hover:bg-purple-700"
+                                    className="bg-primary hover:bg-primary/90"
                                   >
                                     {submittingReply ? (
                                       <>

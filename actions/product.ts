@@ -164,6 +164,7 @@ export async function getProducts() {
         description: "Sample product description",
         shippingCost: 10,
         hasDiscount: false,
+        
       })),
   };
 }

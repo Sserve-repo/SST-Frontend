@@ -29,6 +29,9 @@ export interface Product {
     product_images: string[];
     shippingCost: number;
     shipping_cost?: number;
+    dateAdded: string;
+    stockLevel: number | string;
+    views: number;
 }
 
 export interface ChatMessage {

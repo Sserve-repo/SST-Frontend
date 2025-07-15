@@ -19,7 +19,7 @@ export function PayoutStats({ stats }: PayoutStatsProps) {
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
@@ -42,7 +42,7 @@ export function PayoutStats({ stats }: PayoutStatsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-green-600">
-            {stats.totalCompleted}
+             {formatCurrency(stats.completedAmount)}
           </div>
           <p className="text-xs text-muted-foreground">
             Successfully processed
@@ -63,7 +63,7 @@ export function PayoutStats({ stats }: PayoutStatsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             Completed Amount
@@ -78,7 +78,7 @@ export function PayoutStats({ stats }: PayoutStatsProps) {
             Total processed amount
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

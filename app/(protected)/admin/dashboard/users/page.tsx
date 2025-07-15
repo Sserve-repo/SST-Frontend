@@ -76,6 +76,7 @@ export default function UsersRolesPage() {
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [banningUserId, setBanningUserId] = useState<string | null>(null);
+  const [isBanDialogOpen, setIsBanDialogOpen] = useState(false);
 
   // Role states
   const [viewingRoleId, setViewingRoleId] = useState<string | null>(null);
@@ -173,9 +174,9 @@ export default function UsersRolesPage() {
   const getUserTypeLabel = (type: string) => {
     const types: Record<string, string> = {
       "1": "Admin",
-      "2": "Vendor",
-      "3": "Artisan",
-      "4": "Buyer",
+      "2": "Buyer",
+      "3": "Vendor",
+      "4": "Artisan",
     };
     return types[type] || type;
   };
@@ -192,7 +193,7 @@ export default function UsersRolesPage() {
       verified: user.verified_status === "1" ? "Verified" : "Unverified",
       photo: user.user_photo,
       createdAt: user.created_at || "N/A",
-      role: user.role?.name || "No Role",
+      role: user.role_name || "None",
     })) || [];
 
   const formattedRoles: RoleTableItem[] =
@@ -246,11 +247,11 @@ export default function UsersRolesPage() {
       header: "Name",
       cell: ({ row }) => {
         const name = row.getValue("name") as string;
-        const email = row.getValue("email") as string;
+        // const email = row.getValue("email") as string;
         return (
           <div>
             <div className="font-medium">{name}</div>
-            <div className="text-sm text-muted-foreground">{email}</div>
+            {/* <div className="text-sm text-muted-foreground">{email}</div> */}
           </div>
         );
       },
@@ -307,20 +308,31 @@ export default function UsersRolesPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setViewingUserId(user.id)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => setSelectedUser(user)}>
                 <UserCog className="mr-2 h-4 w-4" />
                 Assign Role
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  console.log("Set Viewing ID:", user.id);
+                  setViewingUserId(user.id);
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setEditingUserId(user.id)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit User
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setBanningUserId(user.id)}>
+              <DropdownMenuItem
+                onClick={() => {
+                  setBanningUserId(user.id);
+                  setIsBanDialogOpen(true);
+                }}
+              >
                 <UserX className="mr-2 h-4 w-4" />
                 Ban User
               </DropdownMenuItem>
@@ -586,7 +598,7 @@ export default function UsersRolesPage() {
 
       {/* User Dialogs */}
       <ViewUserDialog
-        user={allUsers.find((u) => u.id == viewingUserId) as any}
+        userId={viewingUserId}
         onOpenChange={(open) => !open && setViewingUserId(null)}
       />
 
@@ -611,8 +623,18 @@ export default function UsersRolesPage() {
       />
 
       <BanUserDialog
-        user={(allUsers.find((u) => u.id == banningUserId) as any) ?? null}
-        onOpenChange={(open) => !open && setBanningUserId(null)}
+        user={
+          banningUserId
+            ? allUsersData?.users?.find(
+                (u: any) => u.id?.toString() === banningUserId
+              )
+            : null
+        }
+        open={isBanDialogOpen}
+        onOpenChange={(open) => {
+          setIsBanDialogOpen(open);
+          if (!open) setBanningUserId(null);
+        }}
         onSuccess={handleUserSuccess}
       />
 

@@ -60,7 +60,7 @@ export function PromotionTable({
   totalItems,
   itemsPerPage,
   onPageChange,
-  loading,
+  // loading,
 }: PromotionTableProps) {
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(
     null

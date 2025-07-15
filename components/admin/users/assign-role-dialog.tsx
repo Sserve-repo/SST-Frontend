@@ -73,7 +73,7 @@ export function AssignRoleDialog({
 
   return (
     <Dialog open={!!user} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-full max-w-md">
         <DialogHeader>
           <DialogTitle>Assign Role</DialogTitle>
         </DialogHeader>
@@ -105,7 +105,7 @@ export function AssignRoleDialog({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

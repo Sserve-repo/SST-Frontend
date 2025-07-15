@@ -15,12 +15,10 @@ import {
   DollarSign,
   Loader2,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type {
-  PendingPayout,
-  CompletedPayout,
-} from "@/actions/admin/payout-api";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +29,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import type {
+  PendingPayout,
+  CompletedPayout,
+} from "@/actions/admin/payout-api";
 
 interface PayoutTableProps {
   payouts: (PendingPayout | CompletedPayout)[];
@@ -39,6 +41,9 @@ interface PayoutTableProps {
   isProcessing?: boolean;
   selectedIds: string[];
   onSelectedIdsChange: (ids: string[]) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export function PayoutTable({
@@ -46,62 +51,56 @@ export function PayoutTable({
   type,
   onProcessPayout,
   isProcessing = false,
-  // selectedIds,
-  // onSelectedIdsChange,
+  currentPage = 1,
+  totalPages = 1,
+  onPageChange,
 }: PayoutTableProps) {
   const [payoutToProcess, setPayoutToProcess] = useState<PendingPayout | null>(
     null
   );
   const [showProcessDialog, setShowProcessDialog] = useState(false);
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string) => {
+    const numAmount =
+      typeof amount === "string" ? Number.parseFloat(amount) : amount;
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(amount);
+    }).format(numAmount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
+
+  const getUserId = (payout: PendingPayout | CompletedPayout): number => {
+    return payout.user_id;
   };
 
-  const getUserId = (payout: PendingPayout | CompletedPayout) => {
-    return payout.vendor_id || payout.artisan_id || 0;
+  const getUserName = (payout: PendingPayout | CompletedPayout): string => {
+    return payout.user_name;
   };
 
-  const getUserName = (payout: PendingPayout | CompletedPayout) => {
-    return payout.vendor_name || payout.artisan_name || "Unknown";
+  const getPayoutType = (payout: PendingPayout | CompletedPayout): string => {
+    return payout.type || payout.payout_type;
   };
 
-  const getLatestDate = (payout: PendingPayout | CompletedPayout) => {
-    return payout.latest_order_date || payout.latest_booking_date || "";
+  const getTotalAmount = (payout: PendingPayout | CompletedPayout): number => {
+    return typeof payout.total_amount === "string"
+      ? Number.parseFloat(payout.total_amount)
+      : payout.total_amount;
   };
 
-  const getOrderCount = (payout: PendingPayout | CompletedPayout) => {
-    return payout.total_orders || payout.total_bookings || 0;
+  const getOrderCount = (payout: PendingPayout | CompletedPayout): number => {
+    return payout.total_items || 0;
   };
 
-  // const toggleAll = () => {
-  //   if (selectedIds.length === payouts.length) {
-  //     onSelectedIdsChange([]);
-  //   } else {
-  //     onSelectedIdsChange(
-  //       payouts.map((payout) => getUserId(payout).toString())
-  //     );
-  //   }
-  // };
-
-  // const toggleOne = (id: string) => {
-  //   if (selectedIds.includes(id)) {
-  //     onSelectedIdsChange(selectedIds.filter((payoutId) => payoutId !== id));
-  //   } else {
-  //     onSelectedIdsChange([...selectedIds, id]);
-  //   }
-  // };
+  const getLatestDate = (payout: PendingPayout | CompletedPayout): string => {
+    return payout.latest_date || "";
+  };
 
   const handleProcessPayout = (payout: PendingPayout) => {
     setPayoutToProcess(payout);
@@ -110,7 +109,7 @@ export function PayoutTable({
 
   const confirmProcessPayout = () => {
     if (payoutToProcess && onProcessPayout) {
-      onProcessPayout(getUserId(payoutToProcess));
+      onProcessPayout(payoutToProcess.user_id);
       setShowProcessDialog(false);
       setPayoutToProcess(null);
     }
@@ -118,19 +117,10 @@ export function PayoutTable({
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              {/* <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={
-                    selectedIds.length === payouts.length && payouts.length > 0
-                  }
-                  onCheckedChange={toggleAll}
-                  disabled={isProcessing}
-                />
-              </TableHead> */}
               <TableHead>User</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Orders/Bookings</TableHead>
@@ -144,7 +134,7 @@ export function PayoutTable({
             {payouts.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={7}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No payouts found
@@ -152,24 +142,22 @@ export function PayoutTable({
               </TableRow>
             ) : (
               payouts.map((payout, index) => {
-                const userId = getUserId(payout).toString();
+                const userId = getUserId(payout);
+                const userName = getUserName(payout);
+                const payoutType = getPayoutType(payout);
+                const amount = getTotalAmount(payout);
+                const date = getLatestDate(payout);
+
                 return (
                   <TableRow
                     key={`${userId}-${index}`}
                     className={isProcessing ? "opacity-50" : ""}
                   >
-                    {/* <TableCell>
-                      <Checkbox
-                        checked={selectedIds.includes(userId)}
-                        onCheckedChange={() => toggleOne(userId)}
-                        disabled={isProcessing}
-                      />
-                    </TableCell> */}
                     <TableCell>
                       <div>
-                        <p className="font-medium">{getUserName(payout)}</p>
+                        <p className="font-medium">{userName}</p>
                         <p className="text-sm text-muted-foreground">
-                          ID: {getUserId(payout)}
+                          ID: {userId}
                         </p>
                       </div>
                     </TableCell>
@@ -177,24 +165,20 @@ export function PayoutTable({
                       <Badge
                         variant="secondary"
                         className={cn(
-                          payout.type === "product" &&
+                          payoutType === "product" &&
                             "bg-blue-100 text-blue-600",
-                          payout.type === "service" &&
+                          payoutType === "service" &&
                             "bg-purple-100 text-purple-600"
                         )}
                       >
-                        {payout.type}
+                        {payoutType}
                       </Badge>
                     </TableCell>
                     <TableCell>{getOrderCount(payout)}</TableCell>
                     <TableCell className="font-medium">
-                      {formatCurrency(payout.total_amount)}
+                      {formatCurrency(amount)}
                     </TableCell>
-                    <TableCell>
-                      {getLatestDate(payout)
-                        ? formatDate(getLatestDate(payout))
-                        : "N/A"}
-                    </TableCell>
+                    <TableCell>{date ? formatDate(date) : "N/A"}</TableCell>
                     <TableCell>
                       <Badge
                         variant="secondary"
@@ -207,10 +191,10 @@ export function PayoutTable({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {type === "pending" && onProcessPayout && (
+                      {type === "pending" && onProcessPayout ? (
                         <Button
-                          variant={"outline"}
-                          size={"sm"}
+                          variant="outline"
+                          size="sm"
                           onClick={() =>
                             handleProcessPayout(payout as PendingPayout)
                           }
@@ -223,52 +207,12 @@ export function PayoutTable({
                           )}
                           Process Payout
                         </Button>
-                      )}
-                      {type === "completed" && (
-                        <Button variant={"outline"} size={"sm"} disabled>
+                      ) : (
+                        <Button variant="outline" size="sm" disabled>
                           <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
                           Completed
                         </Button>
                       )}
-                      {/* <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            disabled={isProcessing}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          {type === "pending" && onProcessPayout && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleProcessPayout(payout as PendingPayout)
-                              }
-                              disabled={isProcessing}
-                            >
-                              {isProcessing ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              ) : (
-                                <DollarSign className="mr-2 h-4 w-4 text-green-600" />
-                              )}
-                              Process Payout
-                            </DropdownMenuItem>
-                          )}
-                          {type === "completed" && (
-                            <DropdownMenuItem disabled>
-                              <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
-                              Completed
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu> */}
                     </TableCell>
                   </TableRow>
                 );
@@ -278,15 +222,47 @@ export function PayoutTable({
         </Table>
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && onPageChange && (
+        <div className="flex items-center justify-between mt-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
       <AlertDialog open={showProcessDialog} onOpenChange={setShowProcessDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Process Payout</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to process the payout for{" "}
-              {payoutToProcess && getUserName(payoutToProcess)} of{" "}
-              {payoutToProcess && formatCurrency(payoutToProcess.total_amount)}?
-              This action cannot be undone.
+              <strong>{payoutToProcess && getUserName(payoutToProcess)}</strong>{" "}
+              of{" "}
+              <strong>
+                {payoutToProcess &&
+                  formatCurrency(getTotalAmount(payoutToProcess))}
+              </strong>
+              ? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

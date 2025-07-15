@@ -90,11 +90,10 @@ interface UnifiedProfileSettingsProps {
   showBankDetails?: boolean;
 }
 
-export default function UnifiedProfileSettings({
-  userType = "buyer",
-  showBusinessInfo = false,
-  showBankDetails = false,
-}: UnifiedProfileSettingsProps) {
+export default function UnifiedProfileSettings({}: // userType = "buyer",
+// showBusinessInfo = false,
+// showBankDetails = false,
+UnifiedProfileSettingsProps) {
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -385,6 +384,7 @@ export default function UnifiedProfileSettings({
     setLoading(true);
     try {
       // Implementation for billing details update
+      console.log("Billing details submitted:", data);
       toast.success("Billing details updated successfully");
     } catch (error) {
       console.error("Error updating billing details:", error);
@@ -398,6 +398,7 @@ export default function UnifiedProfileSettings({
     setLoading(true);
     try {
       // Implementation for payment method update
+      console.log("Billing details submitted:", data);
       toast.success("Payment method updated successfully");
     } catch (error) {
       console.error("Error updating payment method:", error);

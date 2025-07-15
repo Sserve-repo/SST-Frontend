@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { Promotion, PromotionFormData } from "@/types/promotions";
+import { updatePromotions } from "@/actions/dashboard/vendors";
 
 const promotionSchema = z.object({
   discount_name: z.string().min(1, "Promotion name is required"),
@@ -86,11 +87,14 @@ export function EditPromotionDialog({
     }
   }, [promotion, open, form]);
 
-  const onSubmit = async (data: PromotionFormData) => {
+  const onSubmit = async (data) => {
     try {
       setLoading(true);
       // Here you would call your update API
-      // const response = await updatePromotion(promotion.id, data)
+      const response = await updatePromotions(promotion.id, data)
+      if (!response.ok) {
+        throw new Error("Failed to update promotion");
+      }
 
       toast({
         title: "Success",
@@ -284,7 +288,7 @@ export function EditPromotionDialog({
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 {loading ? "Updating..." : "Update Promotion"}
               </Button>

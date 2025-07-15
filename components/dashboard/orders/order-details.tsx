@@ -96,7 +96,7 @@ export function OrderDetails({
                   Reject Request
                 </Button>
                 <Button
-                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  className="flex-1 bg-primary hover:bg-primary/90"
                   onClick={() => setShowRefundDialog(true)}
                   disabled={isLoading}
                 >
@@ -122,7 +122,7 @@ export function OrderDetails({
               Back
             </Button>
             <Button
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-primary hover:bg-primary/90"
               onClick={async () => {
                 await onAcceptOrder(order.id)
                 setShowRefundDialog(false)

@@ -16,20 +16,17 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useDebounce } from "@/hooks/use-debounced-search";
 import { CreatePromotionDialog } from "./create-promotion-dialog";
 import { PromotionTable } from "./promotion-table";
 import {
-  getPromotions,
   getPromotionStatuses,
   deletePromotions,
 } from "@/actions/dashboard/vendors";
-import type { Promotion, PromotionStats as Stats } from "@/types/promotions";
-import { PromotionList } from "./promotion-list";
+import type { Promotion, PromotionStats } from "@/types/promotions";
 
 export function VendorPromotionsPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState<PromotionStats>({
     all: 0,
     active: 0,
     expired: 0,
@@ -39,95 +36,12 @@ export function VendorPromotionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalPromotions, setTotalPromotions] = useState(0);
+  const itemsPerPage = 10;
 
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const currentTab = searchParams.get("tab") || "all";
-  const itemsPerPage = 10;
-
-  const fetchPromotions = useCallback(
-    async (page = 1, search = "", status = "all") => {
-      try {
-        setLoading(true);
-        const response = await getPromotions(page, itemsPerPage, search);
-
-        if (!response?.ok) {
-          throw new Error("Failed to fetch promotions");
-        }
-
-        const data = await response.json();
-        console.log("Fetched promotions data:", data);
-
-        if (data.status && data.data) {
-          const allPromotions = data.data.productDiscount || [];
-
-          const transformedPromotions: Promotion[] = allPromotions.map(
-            (promo: any) => ({
-              id: String(promo.id),
-              name: promo.discount_name,
-              type: promo.discount_type,
-              value: Number(promo.discount_value),
-              startDate: new Date(promo.start_date),
-              endDate: new Date(promo.end_date),
-              status: calculateStatus(
-                promo.start_date,
-                promo.end_date,
-                promo.status
-              ),
-              usageLimit: Number(promo.usage_limit) || 0,
-              usageCount: Number(promo.usage_count) || 0,
-              description: promo.description || "",
-              createdAt: new Date(promo.created_at),
-              updatedAt: new Date(promo.updated_at),
-            })
-          );
-
-          // Filter by status if not "all"
-          const filteredPromotions =
-            status === "all"
-              ? transformedPromotions
-              : transformedPromotions.filter((p) => p.status === status);
-
-          setPromotions(filteredPromotions);
-          setTotalPromotions(filteredPromotions.length);
-          setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
-        }
-      } catch (error) {
-        console.error("Error fetching promotions:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load promotions. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [toast]
-  );
-
-  const fetchStats = useCallback(async () => {
-    try {
-      const response = await getPromotionStatuses();
-      if (response?.ok) {
-        const data = await response.json();
-        if (data.status && data.data) {
-          setStats({
-            all: data.data.all_discounts?.length || 0,
-            active: data.data.active?.count || 0,
-            expired: data.data.expired?.count || 0,
-            upcoming: data.data.upcoming?.count || 0,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-    }
-  }, []);
 
   const calculateStatus = (
     startDate: string,
@@ -144,13 +58,72 @@ export function VendorPromotionsPage() {
     return "active";
   };
 
+  const mapDiscountsToPromotions = (discounts: any[]): Promotion[] => {
+    return discounts.map((promo) => ({
+      id: String(promo.id),
+      name: promo.discount_name,
+      type: promo.discount_type,
+      value: Number(promo.discount_value),
+      startDate: new Date(promo.start_date),
+      endDate: new Date(promo.end_date),
+      status: calculateStatus(promo.start_date, promo.end_date, promo.status),
+      usageLimit: Number(promo.usage_limit) || 0,
+      usageCount: Number(promo.usage_count) || 0,
+      description: promo.description || "",
+      createdAt: new Date(promo.created_at),
+      updatedAt: new Date(promo.updated_at),
+    }));
+  };
+
+  const fetchPromotionsAndStats = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await getPromotionStatuses();
+      if (response?.ok) {
+        const data = await response.json();
+        if (data.status && data.data) {
+          const { all_discounts, active, expired, upcoming } = data.data;
+
+          setStats({
+            all: all_discounts?.count || 0,
+            active: active?.count || 0,
+            expired: expired?.count || 0,
+            upcoming: upcoming?.count || 0,
+          });
+
+          const allMapped = {
+            all: mapDiscountsToPromotions(all_discounts?.discounts || []),
+            active: mapDiscountsToPromotions(active?.discounts || []),
+            expired: mapDiscountsToPromotions(expired?.discounts || []),
+            upcoming: mapDiscountsToPromotions(upcoming?.discounts || []),
+          };
+
+          const tab = searchParams.get("tab") || "all";
+          const filtered = allMapped[tab as keyof typeof allMapped] || [];
+          const searchLower = searchTerm.toLowerCase();
+          const searched = filtered.filter((p) =>
+            p.name.toLowerCase().includes(searchLower)
+          );
+
+          setPromotions(searched);
+          setTotalPages(Math.ceil(searched.length / itemsPerPage));
+        }
+      }
+    } catch (error) {
+      console.error("Error loading promotions:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch promotions.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [searchParams, searchTerm, toast]);
+
   useEffect(() => {
-    const page = Number(searchParams.get("page")) || 1;
-    const tab = searchParams.get("tab") || "all";
-    setCurrentPage(page);
-    fetchPromotions(page, debouncedSearchTerm, tab);
-    fetchStats();
-  }, [debouncedSearchTerm, searchParams, fetchPromotions, fetchStats]);
+    fetchPromotionsAndStats();
+  }, [fetchPromotionsAndStats]);
 
   const handleTabChange = (tab: string) => {
     const params = new URLSearchParams(searchParams);
@@ -159,39 +132,25 @@ export function VendorPromotionsPage() {
     router.push(`?${params.toString()}`);
   };
 
-  const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", page.toString());
-    if (searchTerm) params.set("search", searchTerm);
-    router.push(`?${params.toString()}`);
-  };
-
   const handleDeletePromotion = async (promotionId: string) => {
     try {
       const response = await deletePromotions(promotionId);
       if (response?.ok) {
-        setPromotions(promotions.filter((p) => p.id !== promotionId));
         toast({
           title: "Success",
-          description: "Promotion deleted successfully",
+          description: "Promotion deleted.",
         });
-        fetchStats();
-      } else {
-        throw new Error("Failed to delete promotion");
-      }
-    } catch (error) {
-      console.error("Error deleting promotion:", error);
+        fetchPromotionsAndStats();
+      } else throw new Error();
+    } catch (err) {
+      console.error("Failed to delete promotion:", err);
+      
       toast({
         title: "Error",
-        description: "Failed to delete promotion. Please try again.",
+        description: "Failed to delete promotion.",
         variant: "destructive",
       });
     }
-  };
-
-  const handleCreatePromotion = () => {
-    fetchPromotions(currentPage, debouncedSearchTerm, currentTab);
-    fetchStats();
   };
 
   const paginatedPromotions = promotions.slice(
@@ -206,78 +165,46 @@ export function VendorPromotionsPage() {
           <h1 className="text-2xl font-bold text-primary">
             Promotions & Discounts
           </h1>
-          <p className="text-gray-500">
-            Manage your promotional campaigns and discount codes
-          </p>
+          <p className="text-gray-500">Manage your promotional campaigns</p>
         </div>
-
-        <CreatePromotionDialog onSuccess={handleCreatePromotion}>
-          <Button className="bg-purple-600 hover:bg-purple-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Promotion
+        <CreatePromotionDialog onSuccess={fetchPromotionsAndStats}>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Plus className="mr-2 h-4 w-4" /> Create Promotion
           </Button>
         </CreatePromotionDialog>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Promotions
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.all}</div>
-            <p className="text-xs text-muted-foreground">All promotions</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.active}
-            </div>
-            <p className="text-xs text-muted-foreground">Currently running</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
-            <Calendar className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {stats.upcoming}
-            </div>
-            <p className="text-xs text-muted-foreground">Scheduled</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expired</CardTitle>
-            <Clock className="h-4 w-4 text-gray-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-600">
-              {stats.expired}
-            </div>
-            <p className="text-xs text-muted-foreground">Past promotions</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Promotions"
+          count={stats.all}
+          Icon={TrendingUp}
+        />
+        <StatCard
+          title="Active"
+          count={stats.active}
+          Icon={CheckCircle}
+          color="text-green-600"
+        />
+        <StatCard
+          title="Upcoming"
+          count={stats.upcoming}
+          Icon={Calendar}
+          color="text-blue-600"
+        />
+        <StatCard
+          title="Expired"
+          count={stats.expired}
+          Icon={Clock}
+          color="text-gray-600"
+        />
       </div>
 
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             placeholder="Search promotions..."
             value={searchTerm}
@@ -291,13 +218,9 @@ export function VendorPromotionsPage() {
         </Button>
       </div>
 
-      {/* Tabs and Table */}
-      <Tabs
-        value={currentTab}
-        onValueChange={handleTabChange}
-        className="space-y-4"
-      >
-        <TabsList className="grid w-full grid-cols-4">
+      {/* Tabs */}
+      <Tabs value={currentTab} onValueChange={handleTabChange}>
+        <TabsList className="grid grid-cols-4 w-full">
           <TabsTrigger value="all">All ({stats.all})</TabsTrigger>
           <TabsTrigger value="active">Active ({stats.active})</TabsTrigger>
           <TabsTrigger value="upcoming">
@@ -308,75 +231,64 @@ export function VendorPromotionsPage() {
 
         <TabsContent value={currentTab}>
           {loading ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <div className="flex justify-center items-center min-h-[300px]">
+              <div className="animate-spin h-8 w-8 border-b-2 border-purple-600 rounded-full" />
             </div>
           ) : promotions.length === 0 ? (
             <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <div className="text-center space-y-2">
-                  <h3 className="text-lg font-semibold">No promotions found</h3>
-                  <p className="text-gray-500">
-                    {searchTerm
-                      ? "Try adjusting your search terms"
-                      : "Create your first promotion to get started"}
-                  </p>
-                  {!searchTerm && (
-                    <CreatePromotionDialog onSuccess={handleCreatePromotion}>
-                      <Button className="mt-4 bg-purple-600 hover:bg-purple-700">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Promotion
-                      </Button>
-                    </CreatePromotionDialog>
-                  )}
-                </div>
+              <CardContent className="py-12 text-center space-y-2">
+                <h3 className="text-lg font-semibold">No promotions found</h3>
+                <p className="text-gray-500">
+                  Try adjusting your search or create one
+                </p>
+                <CreatePromotionDialog onSuccess={fetchPromotionsAndStats}>
+                  <Button className="mt-4 bg-primary hover:bg-primary/90">
+                    <Plus className="h-4 w-4 mr-2" /> Create Promotion
+                  </Button>
+                </CreatePromotionDialog>
               </CardContent>
             </Card>
           ) : (
-            // <PromotionList
-            //   promotions={paginatedPromotions}
-            //   onUpdate={async (id, formData) => {
-            //     try {
-            //       const response = await updatePromotions(id, formData);
-            //       if (response?.ok) {
-            //         toast({
-            //           title: "Success",
-            //           description: "Promotion updated successfully",
-            //         });
-            //         fetchPromotions(
-            //           currentPage,
-            //           debouncedSearchTerm,
-            //           currentTab
-            //         );
-            //         fetchStats();
-            //       } else {
-            //         throw new Error("Failed to update promotion");
-            //       }
-            //     } catch (error) {
-            //       console.error("Error updating promotion:", error);
-            //       toast({
-            //         title: "Error",
-            //         description:
-            //           "Failed to update promotion. Please try again.",
-            //         variant: "destructive",
-            //       });
-            //     }
-            //   }}
-            //   onDelete={handleDeletePromotion}
-            // />
             <PromotionTable
               promotions={paginatedPromotions}
               onDelete={handleDeletePromotion}
               currentPage={currentPage}
               totalPages={totalPages}
-              totalItems={totalPromotions}
+              totalItems={promotions.length}
               itemsPerPage={itemsPerPage}
-              onPageChange={handlePageChange}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+              }}
               loading={loading}
             />
           )}
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function StatCard({
+  title,
+  count,
+  Icon,
+  color,
+}: {
+  title: string;
+  count: number;
+  Icon: React.ElementType;
+  color?: string;
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row justify-between items-center w-full space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className={`h-4 w-4 ${color || "text-muted-foreground"}`} />
+      </CardHeader>
+      <CardContent>
+        <div className={`text-2xl font-bold ${color || ""}`}>{count}</div>
+        <p className="text-xs text-muted-foreground">{title}</p>
+      </CardContent>
+    </Card>
   );
 }

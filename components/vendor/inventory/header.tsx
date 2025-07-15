@@ -22,10 +22,10 @@ export function InventoryHeader({ onRefresh }: InventoryHeaderProps) {
     setTimeout(() => setRefreshing(false), 500); // Small delay for UX
   };
 
-  const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log("Export inventory");
-  };
+  // const handleExport = () => {
+  //   // TODO: Implement export functionality
+  //   console.log("Export inventory");
+  // };
 
   return (
     <>
@@ -61,7 +61,7 @@ export function InventoryHeader({ onRefresh }: InventoryHeaderProps) {
 
           <Button
             onClick={() => setAddProductOpen(true)}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-primary hover:bg-primary/90"
             size="sm"
           >
             <Plus className="mr-2 h-4 w-4" />

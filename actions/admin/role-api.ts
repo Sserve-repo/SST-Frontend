@@ -208,7 +208,7 @@ export async function deleteRole(id: string) {
     const response = await fetch(
       `${baseUrl}/admin/dashboard/user/role/destroy/${id}`,
       {
-        method: "DELETE",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

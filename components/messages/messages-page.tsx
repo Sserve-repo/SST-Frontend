@@ -49,6 +49,7 @@ export default function MessagesPage() {
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
+    // Cleanup listener on unmount
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -110,9 +111,31 @@ export default function MessagesPage() {
       }
       toast.success("Messages refreshed");
     } catch (error) {
+      console.error("Failed to refresh messages:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
       toast.error("Failed to refresh messages");
     }
   };
+
+  if (messagesError) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-red-600 mb-4">
+              Failed to load messages. Please try again.
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Find selected conversation data
   const selectedConversation = conversations.find(

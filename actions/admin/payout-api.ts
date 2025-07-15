@@ -1,41 +1,40 @@
 import { apiRequest } from "@/hooks/use-api"
 
 export interface PendingPayout {
-    vendor_id?: number
-    artisan_id?: number
-    vendor_name?: string
-    artisan_name?: string
+    user_id: number
+    user_name: string
+    payout_type: "product" | "service"
     type: "product" | "service"
-    total_orders?: number
-    total_bookings?: number
-    total_amount: number
-    latest_order_date?: string
-    latest_booking_date?: string
+    total_items: number
+    total_amount: string
+    latest_date: string
 }
 
 export interface CompletedPayout {
-    vendor_id?: number
-    artisan_id?: number
-    vendor_name?: string
-    artisan_name?: string
+    user_id: number
+    user_name: string
+    payout_type: "product" | "service"
     type: "product" | "service"
-    total_orders?: number
-    total_bookings?: number
-    total_amount: number
-    latest_order_date?: string
-    latest_booking_date?: string
+    total_items: number
+    total_amount: string
+    latest_date: string
 }
 
+// These interfaces represent the full API response structure
 export interface PendingPayoutResponse {
     status: boolean
     status_code: number
     message: string
     data: {
-        Payout: {
+        data: {
             totalPendingPayout: number
             totalCompletedPayout: number
-            allPending: PendingPayout[]
+            pendingPayouts: PendingPayout[]
         }
+        current_page: number
+        last_page: number
+        per_page: number
+        total: number
     }
     token: null
     debug: null
@@ -46,9 +45,11 @@ export interface CompletedPayoutResponse {
     status_code: number
     message: string
     data: {
-        Payout: {
-            allCompleted: CompletedPayout[]
-        }
+        current_page: number
+        last_page: number
+        per_page: number
+        total: number
+        completedPayouts: CompletedPayout[]
     }
     token: null
     debug: null
@@ -74,12 +75,46 @@ export interface ProcessPayoutResponse {
     debug: null
 }
 
+// These interfaces represent what apiRequest actually returns (just the data property)
+interface PendingPayoutData {
+    data: {
+        totalPendingPayout: number
+        totalCompletedPayout: number
+        pendingPayouts: PendingPayout[]
+    }
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+}
+
+interface CompletedPayoutData {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+    completedPayouts: CompletedPayout[]
+}
+
+interface ProcessPayoutData {
+    payout: {
+        id: number
+        user_id: string
+        total_amount: number
+        method: string
+        status: string
+        paid_at: string
+        created_at: string
+        updated_at: string
+    }
+}
+
 export async function getPendingPayouts() {
     try {
-        const response = await apiRequest<PendingPayoutResponse>("/admin/dashboard/payout/pendingPayout")
+        const response = await apiRequest<PendingPayoutData>("/admin/dashboard/payout/pendingPayout")
         return {
-            data: response,
-            error: null,
+            data: response.data,
+            error: response.error,
         }
     } catch (error) {
         console.error("Error fetching pending payouts:", error)
@@ -92,10 +127,10 @@ export async function getPendingPayouts() {
 
 export async function getCompletedPayouts() {
     try {
-        const response = await apiRequest<CompletedPayoutResponse>("/admin/dashboard/payout/completedPayout")
+        const response = await apiRequest<CompletedPayoutData>("/admin/dashboard/payout/completedPayout")
         return {
-            data: response,
-            error: null,
+            data: response.data,
+            error: response.error,
         }
     } catch (error) {
         console.error("Error fetching completed payouts:", error)
@@ -111,14 +146,19 @@ export async function processPayout(userId: number) {
         const formData = new FormData()
         formData.append("user_id", userId.toString())
 
-        const response = await apiRequest<ProcessPayoutResponse>("/admin/dashboard/payout/processPayout", {
+        console.log("Processing payout for user ID:", userId)
+
+        const response = await apiRequest<ProcessPayoutData>("/admin/dashboard/payout/processPayout", {
             method: "POST",
             body: formData,
+            isFormData: true,
         })
 
+        console.log("Processing payout response:", response)
+
         return {
-            data: response,
-            error: null,
+            data: response.data,
+            error: response.error,
         }
     } catch (error) {
         console.error("Error processing payout:", error)

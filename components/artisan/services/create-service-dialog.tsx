@@ -43,25 +43,19 @@ import {
 } from "@/actions/dashboard/artisans";
 
 const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Service title must be at least 2 characters.",
-  }),
-  category: z.string().min(1, {
-    message: "Category is required.",
-  }),
-  subCategory: z.string().min(1, {
-    message: "Sub-category is required.",
-  }),
-  price: z.string().min(1, {
-    message: "Price is required.",
-  }),
-  duration: z.string().min(1, {
-    message: "Duration is required.",
-  }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }),
+  title: z
+    .string()
+    .min(2, { message: "Service title must be at least 2 characters." }),
+  category: z.string().min(1, { message: "Category is required." }),
+  subCategory: z.string().min(1, { message: "Sub-category is required." }),
+  price: z.string().min(1, { message: "Price is required." }),
+  duration: z.string().min(1, { message: "Duration is required." }),
+  description: z
+    .string()
+    .min(10, { message: "Description must be at least 10 characters." }),
   status: z.enum(["0", "1"]).default("0"),
+  start_time: z.string().min(1, { message: "Start time is required." }),
+  end_time: z.string().min(1, { message: "End time is required." }),
 });
 
 interface CreateServiceDialogProps {
@@ -90,6 +84,8 @@ export function CreateServiceDialog({
       duration: "",
       description: "",
       status: "0",
+      start_time: "",
+      end_time: "",
     },
   });
 
@@ -147,6 +143,8 @@ export function CreateServiceDialog({
       formData.append("service_duration", values.duration);
       formData.append("description", values.description);
       formData.append("status", values.status);
+      formData.append("start_time", values.start_time);
+      formData.append("end_time", values.end_time);
 
       // Add images
       images.forEach((image, index) => {
@@ -329,6 +327,35 @@ export function CreateServiceDialog({
                   )}
                 />
               </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="start_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Time</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="end_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Time</FormLabel>
+                      <FormControl>
+                        <Input type="time" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="description"
@@ -439,7 +466,7 @@ export function CreateServiceDialog({
               </Button>
               <Button
                 type="submit"
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-primary hover:bg-primary/90"
                 disabled={loading}
               >
                 {loading ? "Creating..." : "Create Service"}

@@ -19,7 +19,7 @@ import { useDebounce } from "@/hooks/use-debounced-search";
 import { CreatePromotionDialog } from "./create-promotion-dialog";
 import { PromotionList } from "./promotion-list";
 import {
-  getPromotions,
+  // getPromotions,
   getPromotionStatuses,
   deletePromotions,
   updatePromotions,
@@ -43,7 +43,7 @@ export default function PromotionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalPromotions, setTotalPromotions] = useState(0);
+  // const [totalPromotions, setTotalPromotions] = useState(0);
 
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -76,6 +76,10 @@ export default function PromotionsPage() {
     async (page = 1, search = "", status = "all") => {
       try {
         setLoading(true);
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        if (search) params.set("search", search);
+        if (status && status !== "all") params.set("status", status);
         const response = await getPromotionStatuses();
 
         if (!response?.ok) {
@@ -96,7 +100,7 @@ export default function PromotionsPage() {
               : transformedPromotions.filter((p) => p.status === status);
 
           setPromotions(filteredPromotions);
-          setTotalPromotions(filteredPromotions.length);
+          // setTotalPromotions(filteredPromotions.length);
           setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
         }
       } catch (error) {
@@ -192,53 +196,53 @@ export default function PromotionsPage() {
     }
   };
 
-  const handleUpdatePromotion = async (promotion: Promotion) => {
-    try {
-      const formData = new FormData();
-      formData.append("discount_name", promotion.name);
-      formData.append("discount_type", promotion.type);
-      formData.append("discount_value", promotion.value.toString());
-      formData.append(
-        "start_date",
-        promotion.startDate.toISOString().split("T")[0]
-      );
-      formData.append(
-        "end_date",
-        promotion.endDate.toISOString().split("T")[0]
-      );
-      formData.append("usage_limit", promotion.usageLimit.toString());
-      formData.append("description", promotion.description);
+  // const handleUpdatePromotion = async (promotion: Promotion) => {
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("discount_name", promotion.name);
+  //     formData.append("discount_type", promotion.type);
+  //     formData.append("discount_value", promotion.value.toString());
+  //     formData.append(
+  //       "start_date",
+  //       promotion.startDate.toISOString().split("T")[0]
+  //     );
+  //     formData.append(
+  //       "end_date",
+  //       promotion.endDate.toISOString().split("T")[0]
+  //     );
+  //     formData.append("usage_limit", promotion.usageLimit.toString());
+  //     formData.append("description", promotion.description);
 
-      console.log("Updating promotion with data:", {
-        discount_name: promotion.name,
-        discount_type: promotion.type,
-        discount_value: promotion.value,
-        start_date: promotion.startDate.toISOString().split("T")[0],
-        end_date: promotion.endDate.toISOString().split("T")[0],
-        usage_limit: promotion.usageLimit,
-        description: promotion.description,
-      });
+  //     console.log("Updating promotion with data:", {
+  //       discount_name: promotion.name,
+  //       discount_type: promotion.type,
+  //       discount_value: promotion.value,
+  //       start_date: promotion.startDate.toISOString().split("T")[0],
+  //       end_date: promotion.endDate.toISOString().split("T")[0],
+  //       usage_limit: promotion.usageLimit,
+  //       description: promotion.description,
+  //     });
 
-      const response = await updatePromotions(promotion.id, formData);
-      if (response?.ok) {
-        toast({
-          title: "Success",
-          description: "Promotion updated successfully",
-        });
-        fetchPromotions(currentPage, debouncedSearchTerm, currentTab);
-        fetchStats();
-      } else {
-        throw new Error("Failed to update promotion");
-      }
-    } catch (error) {
-      console.error("Error updating promotion:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update promotion. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  //     const response = await updatePromotions(promotion.id, formData);
+  //     if (response?.ok) {
+  //       toast({
+  //         title: "Success",
+  //         description: "Promotion updated successfully",
+  //       });
+  //       fetchPromotions(currentPage, debouncedSearchTerm, currentTab);
+  //       fetchStats();
+  //     } else {
+  //       throw new Error("Failed to update promotion");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating promotion:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to update promotion. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
   const handleCreatePromotion = () => {
     fetchPromotions(currentPage, debouncedSearchTerm, currentTab);
