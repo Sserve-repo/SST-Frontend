@@ -36,9 +36,9 @@ interface UserTableProps {
 export function UserTable({ users, roles = [], onRefresh }: UserTableProps) {
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
-  const [userToBan, setUserToBan] = useState<User | null>(null);
+  const [userToBan, setUserToBan] = useState<any | null>(null);
   const [userToAssignRole, setUserToAssignRole] = useState<User | null>(null);
-  const [userToView, setUserToView] = useState<User | null>(null);
+  const [userToView, setUserToView] = useState<string | null>(null);
 
   return (
     <>
@@ -106,7 +106,7 @@ export function UserTable({ users, roles = [], onRefresh }: UserTableProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setUserToView(user)}>
+                      <DropdownMenuItem onClick={() => setUserToView(user.id)}>
                         <Eye className="mr-2 h-4 w-4" />
                         View Details
                       </DropdownMenuItem>
@@ -142,7 +142,7 @@ export function UserTable({ users, roles = [], onRefresh }: UserTableProps) {
       </div>
 
       <ViewUserDialog
-        user={userToView}
+        userId={userToView}
         onOpenChange={(open) => !open && setUserToView(null)}
       />
 
@@ -170,6 +170,7 @@ export function UserTable({ users, roles = [], onRefresh }: UserTableProps) {
         user={userToBan}
         onOpenChange={(open) => !open && setUserToBan(null)}
         onSuccess={onRefresh}
+        open={!!userToBan}
       />
     </>
   );
