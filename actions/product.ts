@@ -160,6 +160,7 @@ export async function getProducts() {
             ? "fully-stocked"
             : "out-of-stock",
         views: "20.8k",
+        
         images: ["/assets/images/image-placeholder.png"],
         description: "Sample product description",
         shippingCost: 10,
