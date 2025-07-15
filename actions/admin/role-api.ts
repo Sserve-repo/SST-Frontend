@@ -235,7 +235,7 @@ export async function assignRoleToUser(userId: string, roleId: string) {
     formData.append("role_id", roleId);
 
     const response = await fetch(
-      `${baseUrl}/admin/dashboard/user/assign-role/${userId}`,
+      `${baseUrl}/admin/dashboard/user/assignRole/${userId}`,
       {
         method: "POST",
         headers: {
