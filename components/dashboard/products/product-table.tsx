@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  // DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -63,8 +63,8 @@ const getStatusColor = (status: Product["status"]) => {
 
 export function ProductTable({
   products,
-  onEdit,
-  onDelete,
+  // onEdit,
+  // onDelete,
 }: ProductTableProps) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
