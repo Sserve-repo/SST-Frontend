@@ -1,55 +1,18 @@
 export interface Product {
   is_favorite: any;
-
+  id: number;
   user_id: number;
   title: string;
-
+  price: string;
   stock_level: number;
   shipping_cost: string;
   product_category_id: number;
   product_category_items_id: number;
-
+  description: string;
   image: string;
   created_at: string;
   updated_at: string;
-   id: string;
-  name: string;
-  price: number;
-  category: string;
-  subCategory?: string;
-  stock?: number;
-  threshold?: number;
-  sku?: string;
-  dateAdded: string;
-  stockLevel?: string;
-  status: string;
-  views: number;
-  images: string[];
-  description: string;
-  shippingCost: number;
-  hasDiscount: boolean;
-  
 }
-
-// interface Product {
-//   id: string;
-//   name: string;
-//   price: number;
-//   category: string;
-//   subCategory?: string;
-//   stock?: number;
-//   threshold?: number;
-//   sku?: string;
-//   dateAdded: string;
-//   stockLevel?: string;
-//   status: string;
-//   views: number;
-//   images: string[];
-//   description: string;
-//   shippingCost: number;
-//   hasDiscount: boolean;
-// }
-
 
 export interface ProductFormData {
   name: string;
