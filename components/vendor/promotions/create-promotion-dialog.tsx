@@ -302,7 +302,7 @@ export function CreatePromotionDialog({
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 {loading ? "Creating..." : "Create Promotion"}
               </Button>

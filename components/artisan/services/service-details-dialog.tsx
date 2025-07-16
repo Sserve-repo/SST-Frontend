@@ -19,6 +19,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+<<<<<<< HEAD
+=======
+// import { ScrollArea } from "@/components/ui/scroll-area";
+>>>>>>> origin/lastest-update
 import type { Service } from "@/types/services";
 import Image from "next/image";
 

@@ -8,9 +8,13 @@ export interface Service {
   price: number;
   duration: number;
   category: string;
+  category_id?: number;
+  sub_category_id?: number;
   status: ServiceStatus;
   images: string[];
   availability: ServiceAvailability[];
+  start_time?: string;
+  end_time?: string;
   rating: number;
   featured?: boolean;
   location?: string;

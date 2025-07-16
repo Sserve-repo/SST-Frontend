@@ -23,7 +23,7 @@ import { updateUser, getUserById } from "@/actions/admin/user-api";
 import { X, Upload } from "lucide-react";
 
 interface EditUserDialogProps {
-  user:any
+  user: any;
   userId: string | null;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -44,31 +44,34 @@ export function EditUserDialog({
     email: "",
     phone: "",
     user_type: "",
+    active_status: "",
   });
+
   const { toast } = useToast();
 
-    const fetchUser =  useCallback(async() => {
+  const fetchUser = useCallback(async () => {
     if (!userId) return;
 
     setFetchingUser(true);
     try {
       const { data, error } = await getUserById(userId);
-
+      console.log("Fetched user data:", data);
       if (error) {
         throw new Error(error);
       }
 
       if (data) {
         setFormData({
-          firstname: data.firstname || "",
-          lastname: data.lastname || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          user_type: data.user_type || "",
+          firstname: data.data.firstname || "",
+          lastname: data.data.lastname || "",
+          email: data.data.email || "",
+          phone: data.data.phone || "",
+          user_type: data.data.user_type || "",
+          active_status: data.data.active_status?.toString() || "", // 👈 ensure it's a string
         });
 
-        if (data.user_photo) {
-          setPhotoPreview(data.user_photo);
+        if (data.data.user_photo) {
+          setPhotoPreview(data.data.user_photo);
         }
       }
     } catch (error) {
@@ -81,15 +84,13 @@ export function EditUserDialog({
     } finally {
       setFetchingUser(false);
     }
-  },[toast, userId]);
+  }, [toast, userId]);
 
   useEffect(() => {
     if (userId) {
       fetchUser();
     }
   }, [userId, fetchUser]);
-
-
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -163,16 +164,6 @@ export function EditUserDialog({
     }
   };
 
-  // const getUserTypeLabel = (type: string) => {
-  //   const types: Record<string, string> = {
-  //     "1": "Admin",
-  //     "2": "Vendor",
-  //     "3": "Artisan",
-  //     "4": "Buyer",
-  //   };
-  //   return types[type] || type;
-  // };
-
   return (
     <Dialog open={!!userId} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -193,7 +184,9 @@ export function EditUserDialog({
                 {photoPreview ? (
                   <div className="relative">
                     <img
-                      src={photoPreview || "/assets/images/image-placeholder.png"}
+                      src={
+                        photoPreview || "/assets/images/image-placeholder.png"
+                      }
                       alt="Profile preview"
                       className="w-20 h-20 rounded-full object-cover"
                     />
@@ -242,6 +235,7 @@ export function EditUserDialog({
                   required
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="lastname">Last Name *</Label>
                 <Input
@@ -270,6 +264,7 @@ export function EditUserDialog({
                   required
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
                 <Input
@@ -296,9 +291,26 @@ export function EditUserDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="1">Admin</SelectItem>
-                  <SelectItem value="2">Vendor</SelectItem>
-                  <SelectItem value="3">Artisan</SelectItem>
-                  <SelectItem value="4">Buyer</SelectItem>
+                  <SelectItem value="2">Buyer</SelectItem>
+                  <SelectItem value="3">Vendor</SelectItem>
+                  <SelectItem value="4">Artisan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="active_status">Active Status *</Label>
+              <Select
+                value={formData.active_status}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, active_status: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select active status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Active</SelectItem>
+                  <SelectItem value="0">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>

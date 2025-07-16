@@ -134,7 +134,7 @@ Sample Product,Electronics,Phones,299.99,50,A great product,https://example.com/
             <Button
               onClick={handleImport}
               disabled={!file || uploading}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-primary hover:bg-primary/90"
             >
               <Upload className="mr-2 h-4 w-4" />
               {uploading ? "Importing..." : "Import Products"}

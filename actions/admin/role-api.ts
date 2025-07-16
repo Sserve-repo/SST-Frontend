@@ -208,7 +208,7 @@ export async function deleteRole(id: string) {
     const response = await fetch(
       `${baseUrl}/admin/dashboard/user/role/destroy/${id}`,
       {
-        method: "DELETE",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -235,7 +235,7 @@ export async function assignRoleToUser(userId: string, roleId: string) {
     formData.append("role_id", roleId);
 
     const response = await fetch(
-      `${baseUrl}/admin/dashboard/user/assign-role/${userId}`,
+      `${baseUrl}/admin/dashboard/user/assignRole/${userId}`,
       {
         method: "POST",
         headers: {

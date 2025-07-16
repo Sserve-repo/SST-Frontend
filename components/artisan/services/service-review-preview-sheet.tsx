@@ -13,6 +13,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -177,6 +178,7 @@ export function ServiceReviewPreviewSheet({
             <MessageSquare className="h-5 w-5" />
             Reviews for {service.name}
           </SheetTitle>
+          <SheetDescription>View and manage customer reviews.</SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-4">

@@ -44,6 +44,7 @@ export function CreateUserDialog({
     user_type: "",
     password: "",
     password_confirmation: "",
+    active_status: "",
   });
   const { toast } = useToast();
 
@@ -66,31 +67,31 @@ export function CreateUserDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (
-      !formData.firstname ||
-      !formData.lastname ||
-      !formData.email ||
-      !formData.user_type ||
-      !formData.password
-    ) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (formData.password !== formData.password_confirmation) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    // if (
+    //   !formData.firstname ||
+    //   !formData.lastname ||
+    //   !formData.email ||
+    //   !formData.user_type ||
+    //   !formData.password 
+    // ) {
+    //   toast({
+    //     title: "Error",
+    //     description: "Please fill in all required fields.",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
+    
+    // if (formData.password !== formData.password_confirmation) {
+    //   toast({
+    //     title: "Error",
+    //     description: "Passwords do not match.",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
+    
+    console.log("Submitting user data:", formData, photoFile);
     setLoading(true);
     try {
       const form = new FormData();
@@ -122,6 +123,7 @@ export function CreateUserDialog({
         user_type: "",
         password: "",
         password_confirmation: "",
+        active_status: "",
       });
       setPhotoFile(null);
       setPhotoPreview(null);
@@ -260,6 +262,23 @@ export function CreateUserDialog({
                 <SelectItem value="2">Vendor</SelectItem>
                 <SelectItem value="3">Artisan</SelectItem>
                 <SelectItem value="4">Buyer</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="active_status">Active Status *</Label>
+            <Select
+              value={formData.active_status}
+              onValueChange={(value) =>
+                setFormData({ ...formData, active_status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Active</SelectItem>
+                <SelectItem value="0">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </div>

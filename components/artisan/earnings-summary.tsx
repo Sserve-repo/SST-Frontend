@@ -58,7 +58,7 @@ export function EarningsSummary({ analytics }) {
               </div>
             ))}
           </div>
-          <div className="h-[200px]">
+          <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={revenueData}>
                 <CartesianGrid strokeDasharray="4 4" />

@@ -19,6 +19,10 @@ import { useDebounce } from "@/hooks/use-debounced-search";
 import { CreatePromotionDialog } from "./create-promotion-dialog";
 import { PromotionList } from "./promotion-list";
 import {
+<<<<<<< HEAD
+=======
+  // getPromotions,
+>>>>>>> origin/lastest-update
   getPromotionStatuses,
   deletePromotions,
   updatePromotions,
@@ -42,7 +46,7 @@ export default function PromotionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalPromotions, setTotalPromotions] = useState(0);
+  // const [totalPromotions, setTotalPromotions] = useState(0);
 
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -76,6 +80,10 @@ export default function PromotionsPage() {
       try {
         console.log(page, search)
         setLoading(true);
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        if (search) params.set("search", search);
+        if (status && status !== "all") params.set("status", status);
         const response = await getPromotionStatuses();
 
         if (!response?.ok) {
@@ -96,7 +104,7 @@ export default function PromotionsPage() {
               : transformedPromotions.filter((p) => p.status === status);
 
           setPromotions(filteredPromotions);
-          setTotalPromotions(filteredPromotions.length);
+          // setTotalPromotions(filteredPromotions.length);
           setTotalPages(Math.ceil(filteredPromotions.length / itemsPerPage));
         }
       } catch (error) {

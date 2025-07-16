@@ -23,7 +23,7 @@ export interface ProductFormData {
   stockLevel: number | string;
   description: string;
   images: string[];
-  hasDiscount: boolean;
+  hasDiscount?: boolean;
 }
 
 export interface ProductResponse {

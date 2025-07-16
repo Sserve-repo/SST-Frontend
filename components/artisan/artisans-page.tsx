@@ -5,11 +5,18 @@ import { BriefcaseBusiness, Calendar, Star, Tag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { StatsCards } from "./stats-card";
 import { EarningsSummary } from "./earnings-summary";
+<<<<<<< HEAD
 import { BookingsCalendar } from "./bookings-calender";
+=======
+// import { BookingsCalendar } from "./bookings-calender";
+// import { RecentActivity } from "./recent-activity";
+>>>>>>> origin/lastest-update
 import { getArtisanAnalytics } from "@/actions/dashboard/artisans";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TopServiceOrders } from "./top-service-orders";
+// import { TopServiceOrders } from "./top-service-orders";
+import { LatestBookings } from "./analytics/latest-bookings";
+import { ArtisanReviews } from "./analytics/artisan-reviews";
 
 export function ArtisansPage() {
   const { currentUser } = useAuth();
@@ -18,7 +25,7 @@ export function ArtisansPage() {
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
-  const [bookingOverview, setBookingOverview] = useState<any[]>([]);
+  // const [bookingOverview, setBookingOverview] = useState<any[]>([]);
 
   const getGreeting = () => {
     if (currentHour < 12) return "Good morning";
@@ -29,15 +36,26 @@ export function ArtisansPage() {
   const handleFetchOverview = async () => {
     try {
       const response = await getArtisanAnalytics();
-      if (!response?.ok) throw Error("Failed to fetch analytics");
+      if (!response?.ok) throw new Error("Failed to fetch analytics");
 
       const res = await response.json();
       console.log("Artisan analytics data:", res);
-      const overview = res?.data?.Overview ?? {};
-      const earnings = res?.data?.["Earning Summary"] ?? {};
-      const analyticsData = res?.data?.Analytics ?? { revenueStats: [] };
-      const bookings = res?.data?.["Booking Overview"]?.bookingOverview ?? [];
 
+      const d = res.data;
+
+      // Overview summary stats
+      const overview = d.Overview ?? {};
+
+      // Earning summary
+      const earnings = d["Earning Summary"] ?? {};
+
+      // Analytics (revenueStats etc)
+      const analyticsData = d.Analytics ?? { revenueStats: [] };
+
+      // Booking overview array
+      // const bookings = d["Booking Overview"]?.bookingOverview ?? [];
+
+      // Transform stats cards
       const transformedAnalytics = [
         {
           title: "Total Services",
@@ -78,9 +96,17 @@ export function ArtisansPage() {
         },
       ];
 
+      // Normalize analytics to pass to components
+      const normalizedAnalytics = {
+        ...analyticsData, // revenueStats, orderTrends, etc.
+        latestBooking: d["Latest Booking"]?.latestBooking || [],
+        latestReviews: d["Latest Reviews"]?.latestReviews || [],
+        // You can add other normalized keys if needed
+      };
+
       setStatistics(transformedAnalytics);
-      setAnalytics({ earnings, statistics: analyticsData });
-      setBookingOverview(bookings);
+      setAnalytics({ earnings, statistics: normalizedAnalytics });
+      // setBookingOverview(bookings);
     } catch (error) {
       console.error("Dashboard load error:", error);
     } finally {
@@ -134,15 +160,23 @@ export function ArtisansPage() {
           {loading ? (
             <Skeleton className="w-full h-64 rounded-lg" />
           ) : (
-            <BookingsCalendar bookingOverview={bookingOverview} />
+            // <BookingsCalendar bookingOverview={bookingOverview} />
+            <ArtisanReviews
+              reviews={analytics?.statistics?.latestReviews || []}
+            />
           )}
         </div>
       </div>
 
       {/* Top 10 Service Orders - Replaces the last two sections */}
-      <div className="grid gap-6">
-        <TopServiceOrders />
-      </div>
+      {loading ? (
+        <Skeleton className="w-full h-64 rounded-lg" />
+      ) : (
+        // <div className="grid gap-6 md:grid-cols-2">
+        <LatestBookings bookings={analytics?.statistics?.latestBooking || []} />
+
+        // </div>
+      )}
     </main>
   );
 }

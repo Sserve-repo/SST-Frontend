@@ -235,6 +235,11 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
             bottom: "auto",
             border: "none",
             maxWidth: "600px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto",
             width: "100%",
             maxHeight: "95vh",
             overflow: "visible", // disable outer overflow
@@ -252,12 +257,12 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
               ref={ref}
               {...props}
               className={cn(
-                "relative rounded-2xl bg-white shadow-lg",
+                "relative rounded-2xl w-full bg-white shadow-lg",
                 props.className
               )}
               style={{ maxHeight: "95vh", overflow: "hidden" }}
             >
-              <div className="p-6 overflow-y-auto max-h-[95vh]">{children}</div>
+              <div className="p-6 overflow-y-auto w-full max-h-[95vh]">{children}</div>
 
               {!hideCloseButton && (
                 <button

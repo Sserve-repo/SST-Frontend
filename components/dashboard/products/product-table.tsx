@@ -16,17 +16,37 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  // DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types";
 
 interface ProductTableProps {
-  products: Product[];
+  products: IncompleteProduct[];
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
 }
+
+interface IncompleteProduct {
+  id: string;
+  name: string;
+  dateAdded: string;
+  price: number;
+  category: string;
+  stockLevel: string;
+  status: string;
+  views: string;
+  images: string[];
+  description: string;
+  shippingCost: number;
+  hasDiscount: boolean;
+}
+// interface ProductTableProps {
+//   products: IncompleteProduct[];
+//   onEdit: (product: IncompleteProduct) => void;
+//   onDelete: (product: IncompleteProduct) => void;
+// }
 
 const getStatusColor = (status: Product["status"]) => {
   switch (status) {
@@ -43,8 +63,8 @@ const getStatusColor = (status: Product["status"]) => {
 
 export function ProductTable({
   products,
-  onEdit,
-  onDelete,
+  // onEdit,
+  // onDelete,
 }: ProductTableProps) {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
@@ -129,7 +149,7 @@ export function ProductTable({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onEdit(product)}>
+                  {/* <DropdownMenuItem onClick={() => onEdit(product)}>
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -137,7 +157,7 @@ export function ProductTable({
                     onClick={() => onDelete(product)}
                   >
                     Delete
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>
