@@ -18,6 +18,7 @@ export function ArtisansPage() {
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
+  // const [bookingOverview, setBookingOverview] = useState<any[]>([]);
 
   const getGreeting = () => {
     if (currentHour < 12) return "Good morning";

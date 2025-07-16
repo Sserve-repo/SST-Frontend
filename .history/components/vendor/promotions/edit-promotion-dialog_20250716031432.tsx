@@ -53,7 +53,6 @@ export function EditPromotionDialog({
   promotion,
   open,
   onOpenChange,
-  // onSuccess,
 }: EditPromotionDialogProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -95,7 +94,7 @@ export function EditPromotionDialog({
     try {
       setLoading(true);
       // Here you would call your update API
-      const response = await updatePromotions((promotion as any)?.id, data)
+      const response = await updatePromotions((promotion as any)?.id, data);
       if (!response.ok) {
         throw new Error("Failed to update promotion");
       }
@@ -104,7 +103,7 @@ export function EditPromotionDialog({
         title: "Success",
         description: "Promotion updated successfully",
       });
-      
+
       onOpenChange(false);
     } catch (error) {
       console.error("Error updating promotion:", error);
@@ -184,9 +183,17 @@ export function EditPromotionDialog({
                     <FormControl>
                       <Input
                         type="number"
-                        step={form.watch("discount_type") === "percentage" ? "1" : "0.01"}
+                        step={
+                          form.watch("discount_type") === "percentage"
+                            ? "1"
+                            : "0.01"
+                        }
                         min="0"
-                        max={form.watch("discount_type") === "percentage" ? "100" : undefined}
+                        max={
+                          form.watch("discount_type") === "percentage"
+                            ? "100"
+                            : undefined
+                        }
                         placeholder="0"
                         {...field}
                         onChange={(e) => {

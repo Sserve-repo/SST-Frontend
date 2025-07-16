@@ -5,9 +5,12 @@ import { BriefcaseBusiness, Calendar, Star, Tag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { StatsCards } from "./stats-card";
 import { EarningsSummary } from "./earnings-summary";
+// import { BookingsCalendar } from "./bookings-calender";
+// import { RecentActivity } from "./recent-activity";
 import { getArtisanAnalytics } from "@/actions/dashboard/artisans";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+// import { TopServiceOrders } from "./top-service-orders";
 import { LatestBookings } from "./analytics/latest-bookings";
 import { ArtisanReviews } from "./analytics/artisan-reviews";
 
@@ -18,6 +21,7 @@ export function ArtisansPage() {
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
+  // const [bookingOverview, setBookingOverview] = useState<any[]>([]);
 
   const getGreeting = () => {
     if (currentHour < 12) return "Good morning";

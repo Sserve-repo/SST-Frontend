@@ -106,6 +106,14 @@ export function BanUserDialog({
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
+<<<<<<< HEAD
+      console.log(error)
+      toast({
+        title: "Error",
+        description: "Failed to unban user. Please try again.",
+        variant: "destructive",
+      });
+=======
       console.error("Failed to unban user:", error);
       if (error instanceof Error) {
         toast({
@@ -114,6 +122,7 @@ export function BanUserDialog({
           variant: "destructive",
         });
       }
+>>>>>>> origin/lastest-update
     } finally {
       setIsLoading(false);
     }

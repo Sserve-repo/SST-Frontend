@@ -19,7 +19,10 @@ import { useDebounce } from "@/hooks/use-debounced-search";
 import { CreatePromotionDialog } from "./create-promotion-dialog";
 import { PromotionList } from "./promotion-list";
 import {
+<<<<<<< HEAD
+=======
   // getPromotions,
+>>>>>>> origin/lastest-update
   getPromotionStatuses,
   deletePromotions,
   updatePromotions,
@@ -75,7 +78,7 @@ export default function PromotionsPage() {
   const fetchPromotions = useCallback(
     async (page = 1, search = "", status = "all") => {
       try {
-        console.log(page, search);
+        console.log(page, search)
         setLoading(true);
         const params = new URLSearchParams();
         params.set("page", String(page));
@@ -113,6 +116,7 @@ export default function PromotionsPage() {
         });
       } finally {
         setLoading(false);
+        console.log(totalPromotions)
       }
     },
     [toast]

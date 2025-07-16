@@ -75,7 +75,7 @@ export default function PromotionsPage() {
   const fetchPromotions = useCallback(
     async (page = 1, search = "", status = "all") => {
       try {
-        console.log(page, search);
+        console.log(page, search)
         setLoading(true);
         const params = new URLSearchParams();
         params.set("page", String(page));

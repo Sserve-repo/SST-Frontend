@@ -72,6 +72,16 @@ export function ViewUserDialog({ userId, onOpenChange }: ViewUserDialogProps) {
         throw new Error(apiError);
       }
 
+<<<<<<< HEAD
+      setUser(data?.user || data);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch user details.",
+        variant: "destructive",
+      });
+=======
       if (data) {
         setUser(data.data);
       }
@@ -80,6 +90,7 @@ export function ViewUserDialog({ userId, onOpenChange }: ViewUserDialogProps) {
       setError(
         err instanceof Error ? err.message : "Failed to load user details"
       );
+>>>>>>> origin/lastest-update
     } finally {
       setLoading(false);
     }

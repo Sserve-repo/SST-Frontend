@@ -102,6 +102,7 @@ UnifiedProfileSettingsProps) {
   const [activeTab, setActiveTab] = useState("profile");
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const { setAuth } = useAuth();
+  // console.log(userType, showBankDetails, showBusinessInfo)
 
   const form = useForm<ProfileUpdateData>({
     defaultValues: {

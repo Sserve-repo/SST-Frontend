@@ -53,7 +53,6 @@ export function EditPromotionDialog({
   promotion,
   open,
   onOpenChange,
-  // onSuccess,
 }: EditPromotionDialogProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();

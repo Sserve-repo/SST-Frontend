@@ -167,7 +167,7 @@ export function UserTable({ users, roles = [], onRefresh }: UserTableProps) {
       />
 
       <BanUserDialog
-        user={userToBan}
+        userId={userToBan?.id as string}
         onOpenChange={(open) => !open && setUserToBan(null)}
         onSuccess={onRefresh}
         open={!!userToBan}
