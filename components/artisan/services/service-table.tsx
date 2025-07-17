@@ -272,16 +272,18 @@ export function ServiceTable({
         </Pagination>
       )}
 
-      <EditServicesDialog
-        service={isEditDialogOpen ? serviceToEdit as any : null}
-        onOpenChange={handleEditDialogClose}
-        onUpdate={handleServiceUpdate as any}
-      />
+      {serviceToEdit && (
+        <EditServicesDialog
+          service={serviceToEdit}
+          onOpenChange={handleEditDialogClose}
+          onUpdate={handleServiceUpdate}
+        />
+      )}
 
       <DeleteServiceDialog
-        service={isDeleteDialogOpen ? serviceToDelete  as any: null}
+        service={isDeleteDialogOpen ? serviceToDelete : null}
         onOpenChange={handleDeleteDialogClose}
-        onDelete={handleServiceDelete as any}
+        onDelete={handleServiceDelete}
       />
     </>
   );
