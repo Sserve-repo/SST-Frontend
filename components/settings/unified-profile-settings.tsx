@@ -148,7 +148,7 @@ UnifiedProfileSettingsProps) {
   const identityForm = useForm<VendorIdentityData>({
     defaultValues: {
       document_type: "",
-      document: undefined as any,
+      document: undefined as unknown as File,
     },
   });
 
