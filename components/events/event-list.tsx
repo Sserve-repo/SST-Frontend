@@ -2,14 +2,13 @@ import { EventCard } from "./event-card";
 import type { Event } from "@/types/events";
 
 interface EventListProps {
-  // events: Event[]
-  events: any;
+  events: Event[];
   onEventClick: (event: Event) => void;
 }
 
 export function EventList({ events, onEventClick }: EventListProps) {
   const sortedEvents = [...events].sort(
-    (a, b) => a.date.getTime() - b.date.getTime()
+    (a, b) => a.startDate.getTime() - b.startDate.getTime()
   );
 
   return (
