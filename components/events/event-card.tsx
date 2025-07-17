@@ -8,12 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-// import type { Event } from "@/types/events";
+import type { Event } from "@/types/events";
 
 interface EventCardProps {
-  // event: Event
-  event: any;
-
+  event: Event;
   onClick: () => void;
 }
 
@@ -34,7 +32,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
           )}
         >
           {event.status === "upcoming" &&
-            `${event.capacity - event.registered} spots left`}
+            `${event.capacity - event.attendeeCount} spots left`}
           {event.status === "ongoing" && "Ongoing"}
           {event.status === "completed" && "Completed"}
           {event.status === "cancelled" && "Cancelled"}
@@ -44,7 +42,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
       <CardHeader>
         <div className="space-y-1">
           <h3 className="font-semibold text-lg leading-tight">{event.title}</h3>
-          <p className="text-sm text-gray-500">{event.shortDescription}</p>
+          <p className="text-sm text-gray-500">{event.description}</p>
         </div>
       </CardHeader>
 
@@ -52,11 +50,11 @@ export function EventCard({ event, onClick }: EventCardProps) {
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-500" />
-            <span>{event.date.toLocaleDateString()}</span>
+            <span>{event.startDate.toLocaleDateString()}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-gray-500" />
-            <span>{event.duration} minutes</span>
+            <span>{event.startTime} - {event.endTime}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-gray-500" />
@@ -67,7 +65,7 @@ export function EventCard({ event, onClick }: EventCardProps) {
 
       <CardFooter className="flex items-center justify-between">
         <Button
-          variant={event.status === "full" ? "secondary" : "default"}
+          variant={event.capacity <= event.attendeeCount ? "secondary" : "default"}
           onClick={onClick}
           disabled={event.status === "completed"}
         >
