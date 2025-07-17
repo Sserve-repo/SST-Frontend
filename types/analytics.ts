@@ -50,14 +50,36 @@ export interface EarningsData {
   monthly: MonthlyEarnings[];
 }
 
+export interface SalesAnalyticsData {
+  revenue?: Array<{
+    month: number;
+    total_revenue: string | number;
+  }>;
+  revenueStats?: Array<{
+    month: number;
+    total_revenue: string | number;
+  }>;
+  orderTrends?: Array<{
+    month: number;
+    total_orders: string | number;
+  }>;
+  topProducts?: Array<{
+    product_name: string;
+    total_sold: string | number;
+    month: number;
+  }>;
+}
+
 export interface AnalyticsData {
-  revenue: any;
-  users: any;
-  engagement: unknown;
+  revenue?: SalesAnalyticsData['revenue'];
+  users?: unknown;
+  engagement?: unknown;
   overview: OverviewMetrics;
   traffic?: TrafficData;
-  services: ServicesAnalytics | any;
+  services: ServicesAnalytics;
   earnings?: EarningsData;
+  orderTrends?: SalesAnalyticsData['orderTrends'];
+  topProducts?: SalesAnalyticsData['topProducts'];
 }
 
 export type RevenueData = {
