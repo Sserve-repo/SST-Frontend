@@ -10,11 +10,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-// import type { Event } from "@/types/events";
+import type { Event } from "@/types/events";
 
 interface RegistrationDialogProps {
-  // event: Event
-  event: any;
+  event: Event;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
@@ -33,8 +32,8 @@ export function RegistrationDialog({
           <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to register for &quot;{event.title}&quot;? The
-            event costs ${event.price} and will take place on{" "}
-            {event.date.toLocaleDateString()}.
+            event will take place on{" "}
+            {event.startDate.toLocaleDateString()}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
