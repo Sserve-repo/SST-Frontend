@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { SalesAnalyticsData } from "@/types/analytics";
 import {
   BarChart,
   Bar,
@@ -22,12 +23,24 @@ import {
 // import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Package, Users, Star, DollarSign } from "lucide-react";
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipPayload {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
         <p className="font-medium text-gray-900">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: {entry.value}
           </p>
@@ -38,23 +51,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function SalesAnalytics({ analytics }: { analytics: any }) {
-  const [activeChart, setActiveChart] = useState("overview");
+const monthNames = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-  const monthNames = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+export function SalesAnalytics({ analytics }: { analytics: SalesAnalyticsData }) {
+  const [activeChart, setActiveChart] = useState("overview");
 
   const colors = [
     "#8884d8",
@@ -70,16 +83,16 @@ export function SalesAnalytics({ analytics }: { analytics: any }) {
   ];
 
   const revenueData = useMemo(() => {
-    return (analytics?.revenueStats || []).map((item: any) => ({
+    return (analytics?.revenueStats || []).map((item) => ({
       month: monthNames[item.month - 1] || `Month ${item.month}`,
-      revenue: parseFloat(item.total_revenue || 0),
+      revenue: parseFloat(String(item.total_revenue || 0)),
     }));
   }, [analytics?.revenueStats]);
 
   const orderTrends = useMemo(() => {
-    return (analytics?.orderTrends || []).map((item: any) => ({
+    return (analytics?.orderTrends || []).map((item) => ({
       month: monthNames[item.month - 1] || `Month ${item.month}`,
-      orders: parseInt(item.total_orders || 0),
+      orders: parseInt(String(item.total_orders || 0)),
     }));
   }, [analytics?.orderTrends]);
 
@@ -87,7 +100,7 @@ export function SalesAnalytics({ analytics }: { analytics: any }) {
     const grouped: Record<string, number> = {};
     for (const item of analytics?.topProducts || []) {
       const name = item.product_name || "Unknown Product";
-      const sales = parseInt(item.total_sold || 0);
+      const sales = parseInt(String(item.total_sold || 0));
       grouped[name] = (grouped[name] || 0) + sales;
     }
     return Object.entries(grouped)
@@ -100,7 +113,7 @@ export function SalesAnalytics({ analytics }: { analytics: any }) {
     const grouped: Record<string, number> = {};
     for (const item of analytics?.topProducts || []) {
       const month = monthNames[item.month - 1] || `Month ${item.month}`;
-      grouped[month] = (grouped[month] || 0) + parseInt(item.total_sold || 0);
+      grouped[month] = (grouped[month] || 0) + parseInt(String(item.total_sold || 0));
     }
     return Object.entries(grouped).map(([month, sales]) => ({ month, sales }));
   }, [analytics?.topProducts]);
