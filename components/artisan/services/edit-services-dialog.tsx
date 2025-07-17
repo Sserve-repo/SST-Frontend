@@ -61,7 +61,7 @@ const formSchema = z.object({
 interface EditServicesDialogProps {
   service: Service;
   onOpenChange: (open: boolean) => void;
-  onUpdate: () => void;
+  onUpdate: (service: Service) => void;
 }
 
 export function EditServicesDialog({
@@ -189,7 +189,22 @@ export function EditServicesDialog({
             title: "Success",
             description: "Service updated successfully",
           });
-          onUpdate();
+          // Create updated service object with form values
+          const updatedService: Service = {
+            ...service,
+            name: values.title,
+            title: values.title,
+            category_id: parseInt(values.category),
+            sub_category_id: parseInt(values.subCategory),
+            price: parseFloat(values.price),
+            duration: parseInt(values.duration),
+            description: values.description,
+            status: values.status === "1" ? "active" : "inactive",
+            start_time: values.start_time,
+            end_time: values.end_time,
+            updatedAt: new Date(),
+          };
+          onUpdate(updatedService);
           onOpenChange(false);
         } else {
           throw new Error(result.message || "Failed to update service");
