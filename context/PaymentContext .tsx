@@ -12,12 +12,14 @@ type FormDataType = {
   address: string;
   city: string;
   email: string;
-  fullname: string;
+  phone_number: string;
+  firstname: string;
+  lastname: string;
   phone: string;
   postalCode: string;
   provinceId: string;
   dates: string;
-  homeService: boolean;
+  home_service: boolean;
   listingId: string;
 };
 
@@ -35,12 +37,14 @@ const defaultFormData: FormDataType = {
   address: "",
   city: "",
   email: "",
-  fullname: "",
+  phone_number: "",
+  firstname: "",
+  lastname: "",
   phone: "",
   postalCode: "",
   provinceId: "",
   dates: "",
-  homeService: false,
+  home_service: false,
   listingId: "",
 };
 
@@ -78,8 +82,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({
       setFormData((prev) => {
         const updatedForm = {
           ...prev,
-          [name]: value,
-          homeService: checked,
+          home_service: checked,
         };
         localStorage.setItem("formData", JSON.stringify(updatedForm));
         return updatedForm;

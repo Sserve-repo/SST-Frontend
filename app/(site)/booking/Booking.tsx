@@ -19,15 +19,15 @@ import {
 import "react-datepicker/dist/react-datepicker.css";
 
 import Cookies from "js-cookie";
-import { StripeServicePaymentForm } from "./StripeServicePaymentForm";
 import BookingOrderSummary from "@/app/(site)/booking/BookingOrderSummary";
 import { usePaymentProvider } from "@/context/PaymentContext ";
 import { toast } from "sonner";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { Label } from "./ui/label";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { getServiceDetail } from "@/actions/service";
+import { Label } from "@/components/ui/label";
+import { StripeServicePaymentForm } from "@/components/StripeServicePaymentForm";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -322,64 +322,77 @@ export default function BookingForm() {
                     <div className="flex gap-4">
                       <input
                         type="checkbox"
-                        name="homeService"
+                        name="home_service"
                         onChange={handleInputChange}
-                        checked={formData.homeService || false}
+                        checked={formData.home_service || false}
                       />
 
                       <label>Yes, I want Home Services </label>
                     </div>
                   </div>
 
-                  {formData.homeService ? (
-                    <>
-                      <div className="border rounded-lg p-4">
-                        <h2 className="font-bold text-lg mb-4">
-                          1. Contact Information
-                        </h2>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              Full Name*
-                            </label>
-                            <input
-                              type="text"
-                              name="fullname"
-                              value={formData.fullname}
-                              onChange={handleInputChange}
-                              placeholder="John Pearson"
-                              className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              Email*
-                            </label>
-                            <input
-                              type="email"
-                              name="email"
-                              value={formData.email}
-                              onChange={handleInputChange}
-                              placeholder="name@example.com"
-                              className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              Phone Number
-                            </label>
-                            <input
-                              type="tel"
-                              name="phone"
-                              value={formData.phone}
-                              onChange={handleInputChange}
-                              placeholder="+1 (555) 123-4567"
-                              className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
-                            />
-                          </div>
-                        </div>
+                  <div className="border rounded-lg p-4">
+                    <h2 className="font-bold text-lg mb-4">
+                      1. Contact Information
+                    </h2>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Firstname*
+                        </label>
+                        <input
+                          type="text"
+                          name="firstname"
+                          value={formData.firstname || ""}
+                          onChange={handleInputChange}
+                          placeholder="John"
+                          className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                        />
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Lastname*
+                        </label>
+                        <input
+                          type="text"
+                          name="lastname"
+                          value={formData.lastname || ""}
+                          onChange={handleInputChange}
+                          placeholder="Pearson"
+                          className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Email*
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email || ""}
+                          onChange={handleInputChange}
+                          placeholder="name@example.com"
+                          className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          name="phone_number"
+                          value={formData.phone_number || ""}
+                          onChange={handleInputChange}
+                          placeholder="+1 (555) 123-4567"
+                          className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 h-12 border pl-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
+                  {formData.home_service ? (
+                    <>
                       {/* Shipping Information */}
                       <div className="border rounded-lg p-4">
                         <h2 className="font-bold text-lg mb-4">

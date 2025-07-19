@@ -3,6 +3,7 @@ import React, { useMemo, useState, useEffect } from "react";
 interface ServiceDetails {
   price: number;
   total_tax_rate: number;
+  total_amount: number;
 }
 
 interface Service {
@@ -48,10 +49,7 @@ const BookingOrderSummary: React.FC<{ service: Service | null }> = ({
           <span>
             $
             {processedData
-              ? (
-                  parseFloat(`${processedData.price}`) +
-                  parseFloat(`${processedData.total_tax_rate}`)
-                ).toFixed(2)
+              ? parseFloat(`${processedData?.total_amount}`).toFixed(2)
               : "0.00"}
           </span>
         </div>
