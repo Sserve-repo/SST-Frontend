@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -46,7 +46,9 @@ import {
   getProductCategories,
   getProductCategoryItemsById,
   updateProduct,
+  getProductDetails,
 } from "@/actions/dashboard/vendors";
+import type { Product } from "@/types/product";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -77,18 +79,19 @@ const formSchema = z.object({
 });
 
 interface EditProductDialogProps {
-  product: any;
+  productId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: () => void;
+  onUpdate: (product: Product) => void;
 }
 
 export function EditProductDialog({
-  product,
+  productId,
   open,
   onOpenChange,
   onUpdate,
 }: EditProductDialogProps) {
+  const [product, setProduct] = useState<Product | null>(null);
   const [productCategories, setProductCategories] = useState<any[]>([]);
   const [productCategoryItems, setProductCategoryItems] = useState<any[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -116,61 +119,7 @@ export function EditProductDialog({
     },
   });
 
-  useEffect(() => {
-    if (product && open) {
-      const categoryId = String(
-        product.category?.id || product.category_id || ""
-      );
-      const subCategoryId = String(
-        product.subCategory?.id || product.sub_category_id || ""
-      );
-
-      form.reset({
-        name: product.title || product.name || "",
-        category: categoryId,
-        subCategory: subCategoryId,
-        price: String(product.price || ""),
-        shippingCost: String(
-          product.shipping_cost || product.shippingCost || ""
-        ),
-        stock: String(product.stock_level || product.stock || ""),
-        threshold: String(product.threshold || "5"),
-        description: product.description || "",
-        status:
-          product.status === 1 || product.status === "published" ? "1" : "0",
-      });
-
-      const productImages: { file: File | null; preview: string }[] = [];
-      if (
-        Array.isArray(product.product_images) &&
-        product.product_images.length > 0
-      ) {
-        productImages.push(
-          ...product.product_images.map((img: any) => ({
-            file: null,
-            preview: typeof img === "string" ? img : img.image || img,
-          }))
-        );
-      } else if (Array.isArray(product.images) && product.images.length > 0) {
-        productImages.push(
-          ...product.images.map((img: any) => ({
-            file: null,
-            preview: typeof img === "string" ? img : img.image || img,
-          }))
-        );
-      } else if (product.image) {
-        productImages.push({ file: null, preview: product.image });
-      }
-
-      setImages(productImages);
-
-      if (categoryId) {
-        handlefetchProductCatItems(categoryId);
-      }
-    }
-  }, [product, open, form]);
-
-  const handleFetchProductCategory = async () => {
+  const handleFetchProductCategory = useCallback(async () => {
     try {
       setCategoriesLoading(true);
       const response = await getProductCategories();
@@ -188,29 +137,147 @@ export function EditProductDialog({
     } finally {
       setCategoriesLoading(false);
     }
-  };
+  }, [toast]);
 
-  const handlefetchProductCatItems = async (catId: string) => {
+  const handlefetchProductCatItems = useCallback(
+    async (catId: string) => {
+      try {
+        setSubCategoriesLoading(true);
+        const response = await getProductCategoryItemsById(catId);
+        if (response && response.ok) {
+          const data = await response.json();
+          setProductCategoryItems(
+            data.data["Products Category Item By ID"] || []
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching category items:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load subcategories",
+          variant: "destructive",
+        });
+      } finally {
+        setSubCategoriesLoading(false);
+      }
+    },
+    [toast]
+  );
+
+  // Fetch fresh product data from API
+  const fetchProductData = useCallback(async () => {
+    if (!productId || !open) return;
+
     try {
-      setSubCategoriesLoading(true);
-      const response = await getProductCategoryItemsById(catId);
-      if (response && response.ok) {
+      setLoading(true);
+      console.log("Fetching fresh product data for ID:", productId);
+
+      const response = await getProductDetails(productId);
+      if (response?.ok) {
         const data = await response.json();
-        setProductCategoryItems(
-          data.data["Products Category Item By ID"] || []
-        );
+        console.log("Fetched product details for edit:", data);
+
+        if (data.status && data.data) {
+          const productData = data.data.productListing || data.data;
+          setProduct(productData);
+        } else {
+          throw new Error(data.message || "Failed to fetch product details");
+        }
+      } else {
+        throw new Error("Failed to fetch product details");
       }
     } catch (error) {
-      console.error("Error fetching category items:", error);
+      console.error("Error fetching product details:", error);
       toast({
         title: "Error",
-        description: "Failed to load subcategories",
+        description: "Failed to load product details.",
         variant: "destructive",
       });
     } finally {
-      setSubCategoriesLoading(false);
+      setLoading(false);
     }
-  };
+  }, [productId, open, toast]);
+
+  useEffect(() => {
+    fetchProductData();
+  }, [fetchProductData]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (product && open) {
+        console.log("Initializing edit form with product data:", product);
+
+        // Fetch categories first
+        handleFetchProductCategory();
+
+        // Extract category ID from API response - prioritize direct field names from API
+        const categoryId =
+          product.product_category_id?.toString() ||
+          product.category?.id?.toString() ||
+          "";
+        const subCategoryId =
+          product.product_category_items_id?.toString() ||
+          product.subcategory?.id?.toString() ||
+          "";
+
+        console.log(
+          "Extracted category ID:",
+          categoryId,
+          "subCategory ID:",
+          subCategoryId
+        );
+
+        if (categoryId) {
+          await handlefetchProductCatItems(categoryId);
+        }
+
+        form.reset({
+          name: product.title || "",
+          category: categoryId,
+          subCategory: subCategoryId.toString() || "",
+          price: String(product.price || ""),
+          shippingCost: String(product.shipping_cost || ""),
+          stock: String(product.stock_level || ""),
+          threshold: "5", // Default threshold
+          description: product.description || "",
+          status: String(product.status) === "1" ? "1" : "0", // Ensure it's "0" or "1"
+        });
+
+        // Handle product images from API response - ensure we always have at least one image
+        const productImages: { file: File | null; preview: string }[] = [];
+
+        // Add main product image if it exists
+        if (product.image && product.image.trim() !== "") {
+          productImages.push({ file: null, preview: product.image });
+        }
+
+        // Handle product_images array from API
+        if (product.product_images && Array.isArray(product.product_images)) {
+          product.product_images.forEach((img: any) => {
+            if (img.image && img.image !== product.image) {
+              productImages.push({ file: null, preview: img.image });
+            }
+          });
+        }
+
+        // If no images, add an empty image slot to prevent the API error
+        if (productImages.length === 0) {
+          productImages.push({ file: null, preview: "" });
+        }
+
+        setImages(productImages);
+        console.log("Set product images:", productImages);
+      }
+    };
+
+    init();
+  }, [
+    product,
+    open,
+    form,
+    handleFetchProductCategory,
+    handlefetchProductCatItems,
+  ]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -249,9 +316,17 @@ export function EditProductDialog({
       formData.append("description", values.description);
       formData.append("status", values.status);
 
-      // Handle images - only add new files, not existing URLs
+      // Handle images - send only new file uploads
+      // For edit operations, we should only send new images, not existing ones
       const newImages = images.filter((image) => image.file !== null);
-      if (newImages.length > 0) {
+
+      if (newImages.length === 0 && images.length > 0) {
+        const existingImage = images[0]; // fallback to first existing image
+        const response = await fetch(existingImage.preview);
+        const blob = await response.blob();
+        const filename = `existing-image-${Date.now()}.jpg`; // backend might expect a name
+        formData.append("images[0]", blob, filename);
+      } else {
         newImages.forEach((image, index) => {
           if (image.file) {
             formData.append(`images[${index}]`, image.file);
@@ -259,7 +334,22 @@ export function EditProductDialog({
         });
       }
 
-      const response = await updateProduct(product.id, formData);
+      // Only append new image files to FormData
+      newImages.forEach((image, index) => {
+        if (image.file) {
+          formData.append(`images[${index}]`, image.file);
+        }
+      });
+
+      // Don't send anything for existing images in edit mode
+      // The backend should preserve existing images automatically
+
+      if (!product) {
+        console.error("No product data available for update");
+        return;
+      }
+
+      const response = await updateProduct(String(product.id), formData);
 
       if (response?.ok) {
         const result = await response.json();
@@ -268,7 +358,21 @@ export function EditProductDialog({
             title: "Success",
             description: "Product updated successfully",
           });
-          onUpdate();
+
+          // Create updated product object
+          const updatedProduct: Product = {
+            ...product,
+            title: values.name,
+            product_category_id: parseInt(values.category),
+            product_category_items_id: parseInt(values.subCategory),
+            price: values.price,
+            shipping_cost: values.shippingCost,
+            stock_level: parseInt(values.stock),
+            description: values.description,
+            updated_at: new Date().toISOString(),
+          };
+
+          onUpdate(updatedProduct);
           onOpenChange(false);
         } else {
           throw new Error(result.message || "Failed to update product");
@@ -294,7 +398,7 @@ export function EditProductDialog({
     if (open) {
       handleFetchProductCategory();
     }
-  }, [open]);
+  }, [open, handleFetchProductCategory]);
 
   useEffect(() => {
     return () => {
@@ -304,7 +408,7 @@ export function EditProductDialog({
         }
       });
     };
-  }, []);
+  }, [images]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -584,7 +688,7 @@ export function EditProductDialog({
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
