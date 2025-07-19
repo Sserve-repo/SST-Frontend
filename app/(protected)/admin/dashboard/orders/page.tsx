@@ -84,10 +84,9 @@ export default function OrdersPage() {
           ? data.orders.map((order: Order) => ({
               id: String(order.id),
               orderNo: order.order_no,
-              customer:
-                order.customer?.firstname && order.customer?.lastname
-                  ? `${order.customer.firstname} ${order.customer.lastname}`
-                  : "Unknown Customer",
+              customer: order.customer_name
+                ? `${order.customer_name}`
+                : "Unknown Customer",
               items: Array.isArray(order.product_items)
                 ? order.product_items.length
                 : 0,
