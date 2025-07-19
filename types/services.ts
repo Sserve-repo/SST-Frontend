@@ -7,21 +7,47 @@ export interface Service {
   description: string;
   price: number;
   duration: number;
+  service_duration?: number;
   category: string;
   category_id?: number;
   sub_category_id?: number;
-  status: ServiceStatus;
+  service_category_id?: number;
+  service_category_items_id?: number;
+  status: ServiceStatus | number | string;
   images: string[];
+  image?: string;
+  service_images?: Array<{
+    id: number;
+    user_id: number;
+    service_listing_detail_id: number;
+    image: string;
+    created_at: string;
+    updated_at: string;
+  }>;
+  service_category?: {
+    id: number;
+    name: string;
+  };
+  service_category_item?: {
+    id: number;
+    name: string;
+  };
   availability: ServiceAvailability[];
+  available_dates?: string[];
   start_time?: string;
   end_time?: string;
+  home_service_availability?: string | number;
   rating: number;
   featured?: boolean;
+  is_featured?: number;
   location?: string;
   reviewCount: number;
   bookingCount: number;
   createdAt: Date;
   updatedAt: Date;
+  user_id?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ServiceAvailability {
