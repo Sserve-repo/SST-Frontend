@@ -1,6 +1,5 @@
 import Hero from "@/components/landing/Hero";
 import Section2 from "@/components/landing/Section2";
-// import Section4 from "@/components/landing/Section4";
 import Section7 from "@/components/landing/Section7";
 import Section8 from "@/components/landing/Section8";
 import Section9 from "@/components/landing/Section9";
@@ -11,7 +10,7 @@ import RecommendedArtisans from "@/components/landing/recommended-artisans";
 
 export default function Home() {
   return (
-    <div className=" w-full">
+    <div className="w-full">
       <Hero />
       <Section2 />
       <RecommendedArtisans />
