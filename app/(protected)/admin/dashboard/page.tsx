@@ -1,11 +1,4 @@
 import { Suspense } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { StatsOverview } from "@/components/admin/stats-overview";
 import { RevenueChart } from "@/components/admin/revenue-chart";
 import { TopServices } from "@/components/admin/top-services";
@@ -23,84 +16,77 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      <Suspense fallback={<div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <CardSkeleton key={i} />
-        ))}
-      </div>}>
+      <Suspense
+        fallback={
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
+        }
+      >
         <StatsOverview />
       </Suspense>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="md:col-span-2 lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Revenue</CardTitle>
-            <CardDescription>
-              Your revenue over the last 6 months
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<ChartSkeleton />}>
-              <RevenueChart />
-            </Suspense>
-          </CardContent>
-        </Card>
+        <div className="md:col-span-2 lg:col-span-4">
+          <Suspense fallback={<ChartSkeleton />}>
+            <RevenueChart />
+          </Suspense>
+        </div>
 
-        <Card className="md:col-span-1 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Top Services</CardTitle>
-            <CardDescription>
-              Your most popular services this month
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<div className="space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-8 bg-gray-200 rounded animate-pulse"></div>
-              ))}
-            </div>}>
-              <TopServices />
-            </Suspense>
-          </CardContent>
-        </Card>
+        <div className="md:col-span-1 lg:col-span-3">
+          <Suspense
+            fallback={
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-8 bg-gray-200 rounded animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            }
+          >
+            <QuickActions />
+          </Suspense>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="md:col-span-2 lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Top Products</CardTitle>
-            <CardDescription>
-              Your best-selling products this month
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<div className="space-y-2">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-8 bg-gray-200 rounded animate-pulse"></div>
-              ))}
-            </div>}>
-              <TopProducts />
-            </Suspense>
-          </CardContent>
-        </Card>
+        <div className="md:col-span-2 lg:col-span-4">
+          <Suspense
+            fallback={
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-8 bg-gray-200 rounded animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            }
+          >
+            <TopProducts />
+          </Suspense>
+        </div>
 
-        <Card className="md:col-span-1 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Manage your business efficiently
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<div className="space-y-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-10 bg-gray-200 rounded animate-pulse"></div>
-              ))}
-            </div>}>
-              <QuickActions />
-            </Suspense>
-          </CardContent>
-        </Card>
+        <div className="md:col-span-1 lg:col-span-3">
+          <Suspense
+            fallback={
+              <div className="space-y-2">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-10 bg-gray-200 rounded animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            }
+          >
+            <TopServices />
+          </Suspense>
+        </div>
       </div>
     </div>
   );
