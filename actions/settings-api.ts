@@ -18,6 +18,163 @@ function getAuthToken(): string | null {
     return Cookies.get("accessToken") || null;
 }
 
+// View/Fetch functions for settings
+export async function viewBusinessDetails(userType: 'artisan' | 'vendor'): Promise<{
+    data: BusinessDetails | null
+    error: string | null
+}> {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            return { data: null, error: "No authentication token found" }
+        }
+
+        const response = await fetch(`${baseUrl}/${userType}/dashboard/settings/viewBusinessDetails`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const result = await response.json();
+        return { data: result.data || null, error: null };
+    } catch (error) {
+        console.error("Error fetching business details:", error);
+        return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function viewBusinessPolicy(): Promise<{
+    data: BusinessPolicy | null
+    error: string | null
+}> {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            return { data: null, error: "No authentication token found" }
+        }
+
+        const response = await fetch(`${baseUrl}/artisan/dashboard/settings/viewBusinessPolicy`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const result = await response.json();
+        return { data: result.data || null, error: null };
+    } catch (error) {
+        console.error("Error fetching business policy:", error);
+        return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function viewServiceAreaAvailability(): Promise<{
+    data: ServiceAreaAvailability | null
+    error: string | null
+}> {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            return { data: null, error: "No authentication token found" }
+        }
+
+        const response = await fetch(`${baseUrl}/artisan/dashboard/settings/viewServiceAreaAvailability`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const result = await response.json();
+        return { data: result.data || null, error: null };
+    } catch (error) {
+        console.error("Error fetching service area availability:", error);
+        return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function viewShippingPolicy(): Promise<{
+    data: ShippingPolicy | null
+    error: string | null
+}> {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            return { data: null, error: "No authentication token found" }
+        }
+
+        const response = await fetch(`${baseUrl}/vendor/dashboard/settings/viewShippingPolicy`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const result = await response.json();
+        return { data: result.data || null, error: null };
+    } catch (error) {
+        console.error("Error fetching shipping policy:", error);
+        return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function viewVendorIdentity(): Promise<{
+    data: VendorIdentity | null
+    error: string | null
+}> {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            return { data: null, error: "No authentication token found" }
+        }
+
+        const response = await fetch(`${baseUrl}/vendor/dashboard/settings/viewVendorIdentity`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const result = await response.json();
+        return { data: result.data || null, error: null };
+    } catch (error) {
+        console.error("Error fetching vendor identity:", error);
+        return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
+export async function viewArtisanIdentity(): Promise<{
+    data: VendorIdentity | null
+    error: string | null
+}> {
+    try {
+        const token = getAuthToken();
+        if (!token) {
+            return { data: null, error: "No authentication token found" }
+        }
+
+        const response = await fetch(`${baseUrl}/artisan/dashboard/settings/viewArtisanIdentity`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const result = await response.json();
+        return { data: result.data || null, error: null };
+    } catch (error) {
+        console.error("Error fetching artisan identity:", error);
+        return { data: null, error: error instanceof Error ? error.message : "Unknown error" };
+    }
+}
+
 // Service Area Availability (Artisan)
 export async function updateServiceAreaAvailability(data: ServiceAreaAvailabilityData): Promise<{
     data: ServiceAreaAvailability | null
