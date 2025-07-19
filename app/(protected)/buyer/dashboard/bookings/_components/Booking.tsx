@@ -324,6 +324,13 @@ export default function BookingsPage() {
     handleFetchBookings(newFilters);
   };
 
+    const handlePaymentStatusFilterChange = (value: string) => {
+    const newFilters = { ...filters, payment_status: value, page: 1 };
+    setFilters(newFilters);
+    handleFetchBookings(newFilters);
+  };
+
+
   const handleSearch = () => {
     const newFilters = { ...filters, search: searchTerm, page: 1 };
     setFilters(newFilters);
@@ -450,7 +457,7 @@ export default function BookingsPage() {
 
             <Select
               value={filters.payment_status || ""}
-              onValueChange={handleStatusFilterChange}
+              onValueChange={handlePaymentStatusFilterChange}
             >
               <SelectTrigger className="w-full sm:w-[180px] rounded-2xl">
                 <SelectValue placeholder="Payment Status" />

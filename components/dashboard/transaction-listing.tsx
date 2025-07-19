@@ -30,7 +30,7 @@ export type TransactionType = {
   updated_at: string;
 };
 
-export function TransactionList({ className, overview }: OverviewProps) {
+export function TransactionList({ className, overview, tab }: OverviewProps) {
   const router = useRouter();
   const transaction = overview?.Transaction;
 
@@ -45,7 +45,7 @@ export function TransactionList({ className, overview }: OverviewProps) {
             <p>Recent Transaction Details</p>
             <MdOutlineArrowOutward
               className="ml-auto hover:cursor-pointer"
-              onClick={() => router.push(`/buyer/dashboard/orders/`)}
+              onClick={() => router.push(`/buyer/dashboard/orders`)}
             />
           </CardTitle>
         </CardHeader>
@@ -77,7 +77,13 @@ export function TransactionList({ className, overview }: OverviewProps) {
                     <TableRow
                       key={transaction.id}
                       onClick={() =>
-                        router.push(`/dashboard/orders/${transaction?.id}`)
+                        tab == "product"
+                          ? router.push(
+                              `/buyer/dashboard/orders/${transaction?.id}`
+                            )
+                          : router.push(
+                              `/buyer/dashboard/bookings`
+                            )
                       }
                       className="border-none cursor-pointer"
                     >
@@ -95,7 +101,13 @@ export function TransactionList({ className, overview }: OverviewProps) {
                       </TableCell>
                       <TableCell
                         onClick={() =>
-                          router.push(`/dashboard/orders/${transaction?.id}`)
+                          tab == "product"
+                            ? router.push(
+                                `/buyer/dashboard/orders/${transaction?.id}`
+                              )
+                            : router.push(
+                                `/buyer/dashboard/bookings`
+                              )
                         }
                         className="text-orange-400"
                       >

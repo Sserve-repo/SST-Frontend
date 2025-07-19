@@ -5,7 +5,7 @@ export const confirmPaymentPayload = (data) => {
   requestPayload.append("address", data.address);
   requestPayload.append("firstname", data.fullname);
   requestPayload.append("lastname", data.fullname);
-  requestPayload.append("province_id", data.provinceId);
+  requestPayload.append("home_service", data.provinceId);
   requestPayload.append("city", data.city);
   requestPayload.append("postal_code", data.postalCode);
 
@@ -20,12 +20,17 @@ export const confirmServicePaymentPayload = (data) => {
 
   requestPayload.append("orderId", data.orderId);
   requestPayload.append("paymentIntentId", data.paymentIntentId);
-  requestPayload.append("address", data.address);
-  requestPayload.append("firstname", data.fullname);
-  requestPayload.append("lastname", data.fullname);
-  requestPayload.append("province_id", data.provinceId);
-  requestPayload.append("city", data.city);
-  requestPayload.append("postal_code", data.postalCode);
+  requestPayload.append("email", data.email);
+  requestPayload.append("firstname", data.firsname);
+  requestPayload.append("lastname", data.lastname);
+  requestPayload.append("phone_number", data.phone_number);
+  if (data.home_service) {
+    requestPayload.append("address", data.address);
+    requestPayload.append("province_id", data.provinceId);
+    requestPayload.append("city", data.city);
+    requestPayload.append("postal_code", data.postalCode);
+  }
+  requestPayload.append("home_service", data.home_service ? "1" : "0");
   requestPayload.append("booked_date", date);
   requestPayload.append("booked_time", time);
   requestPayload.append("listingId", data.listingId);

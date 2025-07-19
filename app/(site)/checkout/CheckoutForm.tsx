@@ -328,60 +328,63 @@ export default function CheckoutForm() {
     }
   };
 
-  const createStripePaymentIntent = useCallback(async (isRetry = false) => {
-    try {
-      setIsLoadingPayment(true);
-      setPaymentError(null);
+  const createStripePaymentIntent = useCallback(
+    async (isRetry = false) => {
+      try {
+        setIsLoadingPayment(true);
+        setPaymentError(null);
 
-      const response = await createPaymentIntent();
+        const response = await createPaymentIntent();
 
-      if (response.ok) {
-        const data = await response.json();
+        if (response.ok) {
+          const data = await response.json();
 
-        if (data.data && data.data["clientSecret"]) {
-          setClientSecret(data.data["clientSecret"]);
-          setCheckoutData(data.data);
-          setRetryCount(0); // Reset retry count on success
+          if (data.data && data.data["clientSecret"]) {
+            setClientSecret(data.data["clientSecret"]);
+            setCheckoutData(data.data);
+            setRetryCount(0); // Reset retry count on success
+          } else {
+            throw new Error("Invalid payment response: Missing client secret");
+          }
         } else {
-          throw new Error("Invalid payment response: Missing client secret");
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message || `Payment setup failed (${response.status})`
+          );
         }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `Payment setup failed (${response.status})`
-        );
+      } catch (error: any) {
+        console.error("Error creating payment intent:", error);
+
+        let errorMessage = "Unable to initialize payment system. ";
+
+        if (error.message.includes("client secret")) {
+          errorMessage += "Payment configuration is missing.";
+        } else if (error.message.includes("401")) {
+          errorMessage += "Please log in to continue.";
+        } else if (
+          error.message.includes("network") ||
+          error.message.includes("fetch")
+        ) {
+          errorMessage += "Please check your internet connection.";
+        } else {
+          errorMessage += "Please try again or contact support.";
+        }
+
+        setPaymentError(errorMessage);
+
+        // Auto-retry logic (max 2 retries)
+        if (!isRetry && retryCount < 2) {
+          setRetryCount((prev) => prev + 1);
+          setTimeout(() => {
+            createStripePaymentIntent(true);
+          }, 2000 * (retryCount + 1)); // Exponential backoff
+        }
+      } finally {
+        setIsLoadingPayment(false);
       }
-    } catch (error: any) {
-      console.error("Error creating payment intent:", error);
-
-      let errorMessage = "Unable to initialize payment system. ";
-
-      if (error.message.includes("client secret")) {
-        errorMessage += "Payment configuration is missing.";
-      } else if (error.message.includes("401")) {
-        errorMessage += "Please log in to continue.";
-      } else if (
-        error.message.includes("network") ||
-        error.message.includes("fetch")
-      ) {
-        errorMessage += "Please check your internet connection.";
-      } else {
-        errorMessage += "Please try again or contact support.";
-      }
-
-      setPaymentError(errorMessage);
-
-      // Auto-retry logic (max 2 retries)
-      if (!isRetry && retryCount < 2) {
-        setRetryCount((prev) => prev + 1);
-        setTimeout(() => {
-          createStripePaymentIntent(true);
-        }, 2000 * (retryCount + 1)); // Exponential backoff
-      }
-    } finally {
-      setIsLoadingPayment(false);
-    }
-  }, [retryCount]);
+    },
+    [retryCount]
+  );
 
   const handleRetryPayment = () => {
     setRetryCount(0);
@@ -478,10 +481,25 @@ export default function CheckoutForm() {
                   </label>
                   <input
                     type="text"
-                    name="fullname"
-                    value={formData.fullname}
+                    name="firstname"
+                    value={formData.firstname}
                     onChange={handleInputChange}
-                    placeholder="John Pearson"
+                    placeholder="John"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#502266] focus:border-[#502266] h-12 border px-3"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name*
+                  </label>
+                  <input
+                    type="text"
+                    name="lastname"
+                    value={formData.lastname}
+                    onChange={handleInputChange}
+                    placeholder="Pearson"
                     className="w-full rounded-lg border-gray-300 shadow-sm focus:ring-[#502266] focus:border-[#502266] h-12 border px-3"
                     required
                   />
