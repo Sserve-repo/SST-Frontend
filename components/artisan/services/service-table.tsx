@@ -54,9 +54,8 @@ export function ServiceTable({
   onDelete,
   isLoading = false,
 }: ServiceTableProps) {
-  const [serviceToEdit, setServiceToEdit] = useState<Service | null>(null);
+  const [serviceToEditId, setServiceToEditId] = useState<string | null>(null);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("latest");
@@ -64,8 +63,7 @@ export function ServiceTable({
   const perPage = 5;
 
   const handleEditClick = (service: Service) => {
-    setServiceToEdit(service);
-    setIsEditDialogOpen(true);
+    setServiceToEditId(service.id);
   };
 
   const handleDeleteClick = (service: Service) => {
@@ -74,8 +72,7 @@ export function ServiceTable({
   };
 
   const handleEditDialogClose = () => {
-    setIsEditDialogOpen(false);
-    setTimeout(() => setServiceToEdit(null), 150);
+    setTimeout(() => setServiceToEditId(null), 150);
   };
 
   const handleDeleteDialogClose = () => {
@@ -95,14 +92,14 @@ export function ServiceTable({
 
   const filteredServices = useMemo(() => {
     const filtered = services.filter((s) =>
-      s.name.toLowerCase().includes(searchTerm.toLowerCase())
+      (s.name || s.title || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const sorted = [...filtered].sort((a, b) => {
       if (sortBy === "price-asc") return Number(a.price) - Number(b.price);
       if (sortBy === "price-desc") return Number(b.price) - Number(a.price);
       if (sortBy === "status")
-        return (a.status ?? "").localeCompare(b.status ?? "");
+        return String(a.status ?? "").localeCompare(String(b.status ?? ""));
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
@@ -181,7 +178,7 @@ export function ServiceTable({
                             ? service.images[0]
                             : "/assets/images/image-placeholder.png"
                         }
-                        alt={service.name}
+                        alt={service.title || service.name}
                         className="h-10 w-10 rounded-md object-cover bg-muted"
                         onError={(e) =>
                           (e.currentTarget.src =
@@ -189,7 +186,7 @@ export function ServiceTable({
                         }
                       />
                       <div className="truncate max-w-[200px]">
-                        <div className="font-medium">{service.name}</div>
+                        <div className="font-medium">{service.title || service.name}</div>
                         <div className="text-sm text-muted-foreground truncate">
                           {service.description}
                         </div>
@@ -272,9 +269,10 @@ export function ServiceTable({
         </Pagination>
       )}
 
-      {serviceToEdit && (
+      {serviceToEditId && (
         <EditServicesDialog
-          service={serviceToEdit}
+          serviceId={serviceToEditId}
+          open={!!serviceToEditId}
           onOpenChange={handleEditDialogClose}
           onUpdate={handleServiceUpdate}
         />
