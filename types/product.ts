@@ -10,6 +10,22 @@ export interface Product {
   product_category_items_id: number;
   description: string;
   image: string;
+  status: number | string;
+  is_featured?: number;
+  product_discount_id?: number | null;
+  product_images?: Array<{
+    id: number;
+    product_listing_detail_id: number;
+    image: string;
+  }>;
+  category?: {
+    id: number;
+    name: string;
+  };
+  subcategory?: {
+    id: number;
+    name: string;
+  };
   created_at: string;
   updated_at: string;
 }
