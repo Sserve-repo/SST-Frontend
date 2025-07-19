@@ -1,4 +1,3 @@
-
 import { VendorPromotionsPage } from "@/components/vendor/promotions/promotions-page";
 import { Metadata } from "next";
 
