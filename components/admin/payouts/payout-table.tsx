@@ -85,7 +85,7 @@ export function PayoutTable({
   };
 
   const getPayoutType = (payout: PendingPayout | CompletedPayout): string => {
-    return payout.type || payout.payout_type;
+    return payout.payout;
   };
 
   const getTotalAmount = (payout: PendingPayout | CompletedPayout): number => {
