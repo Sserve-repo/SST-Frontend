@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import People from "../../assets/images/many.png";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
@@ -39,8 +38,10 @@ const Section7 = () => {
       <div className="w-full lg:w-auto">
         <Image
           className="hidden lg:block object-cover"
-          src={People}
+          src="/assets/images/many.png"
           alt="many"
+          width={500}
+          height={400}
         />
       </div>
     </div>

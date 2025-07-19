@@ -53,7 +53,7 @@ export function EditPromotionDialog({
   promotion,
   open,
   onOpenChange,
-  // onSuccess,
+  onSuccess,
 }: EditPromotionDialogProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -91,11 +91,21 @@ export function EditPromotionDialog({
     }
   }, [promotion, open, form]);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: z.infer<typeof promotionSchema>) => {
     try {
       setLoading(true);
-      // Here you would call your update API
-      const response = await updatePromotions((promotion as any)?.id, data)
+      
+      const formData = new FormData();
+      formData.append("discount_name", data.discount_name);
+      formData.append("discount_type", data.discount_type);
+      formData.append("discount_value", data.discount_value.toString());
+      formData.append("start_date", data.start_date);
+      formData.append("end_date", data.end_date);
+      formData.append("usage_limit", data.usage_limit.toString());
+      formData.append("description", data.description || "");
+      formData.append("status", data.status);
+      
+      const response = await updatePromotions(promotion!.id, formData);
       if (!response.ok) {
         throw new Error("Failed to update promotion");
       }
@@ -105,6 +115,7 @@ export function EditPromotionDialog({
         description: "Promotion updated successfully",
       });
       
+      onSuccess(Number(promotion!.id), formData);
       onOpenChange(false);
     } catch (error) {
       console.error("Error updating promotion:", error);

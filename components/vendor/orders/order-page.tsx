@@ -5,7 +5,6 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { OrdersOverview } from "./overview";
 import { OrdersTable } from "./table";
 import { OrdersTableSkeleton } from "./table-skeleton";
-import { SalesAnalytics } from "./sales-analytics";
 import { getOrders } from "@/actions/dashboard/vendors";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw } from "lucide-react";
@@ -14,7 +13,6 @@ import { Button } from "@/components/ui/button";
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [overview, setOverview] = useState({});
-  const [analytics, setAnalytics] = useState({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
@@ -45,7 +43,7 @@ export default function OrdersPage() {
         }
 
         // Extract data properly
-        const { Analytics = {}, Orders = [], ...Overview } = data.data;
+        const { Orders = [], ...Overview } = data.data;
 
         // Transform orders data
         const transformedOrders = Array.isArray(Orders)
@@ -84,7 +82,6 @@ export default function OrdersPage() {
           : [];
 
         setOrders(transformedOrders);
-        setAnalytics(Analytics);
         setOverview(Overview);
 
         if (showRefreshLoader) {
@@ -153,15 +150,10 @@ export default function OrdersPage() {
       {/* <OrdersHeader /> */}
       <OrdersOverview overview={overview} />
 
-      <div className="grid gap-6 md:grid-cols-9">
-        <div className="md:col-span-6">
-          <Suspense fallback={<OrdersTableSkeleton />}>
-            <OrdersTable orders={orders} onRefresh={handleRefresh} />
-          </Suspense>
-        </div>
-        <div className="md:col-span-3">
-          <SalesAnalytics analytics={analytics} />
-        </div>
+      <div className="w-full">
+        <Suspense fallback={<OrdersTableSkeleton />}>
+          <OrdersTable orders={orders} onRefresh={handleRefresh} />
+        </Suspense>
       </div>
     </div>
   );

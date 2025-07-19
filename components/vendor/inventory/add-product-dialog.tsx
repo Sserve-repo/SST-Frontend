@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -80,7 +80,7 @@ const formSchema = z
       message: "Description must be at least 10 characters.",
     }),
     applyDiscount: z.boolean().default(false),
-    status: z.enum(["draft", "published"]).default("draft"),
+    status: z.enum(["0", "1"]).default("0"),
   })
   .refine(
     (data) => {
@@ -133,7 +133,7 @@ export function AddProductDialog({
       description: "",
       discountId: "",
       applyDiscount: false,
-      status: "draft",
+      status: "0",
     },
   });
 
@@ -171,7 +171,7 @@ export function AddProductDialog({
       formData.append("shipping_cost", values.shippingCost);
       formData.append("product_category_id", values.category);
       formData.append("product_category_items_id", values.subCategory);
-      formData.append("status", values.status === "published" ? "1" : "0");
+      formData.append("status", values.status === "1" ? "1" : "0");
 
       if (values.applyDiscount && values.discountId) {
         formData.append("discount_id", values.discountId);
@@ -226,7 +226,7 @@ export function AddProductDialog({
     }
   };
 
-  const handleFetchProductCategory = async () => {
+  const handleFetchProductCategory = useCallback(async () => {
     try {
       setCategoriesLoading(true);
       const response = await getProductCategories();
@@ -247,7 +247,7 @@ export function AddProductDialog({
     } finally {
       setCategoriesLoading(false);
     }
-  };
+  }, [toast]);
 
   const handlefetchProductCatItems = async (catId: string) => {
     try {
@@ -274,7 +274,7 @@ export function AddProductDialog({
     }
   };
 
-  const handleFetchPromotions = async () => {
+  const handleFetchPromotions = useCallback(async () => {
     try {
       const response = await getPromotions();
 
@@ -314,7 +314,7 @@ export function AddProductDialog({
     } catch (error) {
       console.error("Error fetching promotions:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -325,7 +325,7 @@ export function AddProductDialog({
       handleFetchProductCategory();
       handleFetchPromotions();
     }
-  }, [open, form]);
+  }, [open, form, handleFetchProductCategory, handleFetchPromotions]);
 
   useEffect(() => {
     return () => {
@@ -333,7 +333,7 @@ export function AddProductDialog({
         URL.revokeObjectURL(image.preview);
       });
     };
-  }, []);
+  }, [images]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -681,15 +681,15 @@ export function AddProductDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Product Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue="draft">
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="0">Draft</SelectItem>
+                        <SelectItem value="1">Published</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

@@ -27,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Pagination,
   PaginationContent,
@@ -60,8 +59,8 @@ export function PromotionTable({
   totalItems,
   itemsPerPage,
   onPageChange,
-  // loading,
-}: PromotionTableProps) {
+}: // loading,
+PromotionTableProps) {
   const [selectedPromotion, setSelectedPromotion] = useState<Promotion | null>(
     null
   );
@@ -143,170 +142,160 @@ export function PromotionTable({
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Promotions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Usage</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {promotions.map((promotion) => (
-                  <TableRow key={promotion.id}>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium">{promotion.name}</div>
-                        {promotion.description && (
-                          <div className="text-sm text-muted-foreground line-clamp-1">
-                            {promotion.description}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {promotion.type === "percentage" ? (
-                          <Percent className="h-4 w-4 text-blue-600" />
-                        ) : (
-                          <DollarSign className="h-4 w-4 text-green-600" />
-                        )}
-                        <span className="capitalize">
-                          {promotion.type.replace("_", " ")}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {formatValue(promotion.type, promotion.value)}
+      <div className="">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Duration</TableHead>
+                <TableHead>Usage</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {promotions.map((promotion) => (
+                <TableRow key={promotion.id}>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="font-medium">{promotion.name}</div>
+                      {promotion.description && (
+                        <div className="text-sm text-muted-foreground line-clamp-1">
+                          {promotion.description}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {promotion.type === "percentage" ? (
+                        <Percent className="h-4 w-4 text-blue-600" />
+                      ) : (
+                        <DollarSign className="h-4 w-4 text-green-600" />
+                      )}
+                      <span className="capitalize">
+                        {promotion.type.replace("_", " ")}
                       </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <div>{formatDate(promotion.startDate)}</div>
-                          <div className="text-muted-foreground">
-                            to {formatDate(promotion.endDate)}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div className="font-medium">
-                          {promotion.usageCount} / {promotion.usageLimit}
-                        </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium">
+                      {formatValue(promotion.type, promotion.value)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div>{formatDate(promotion.startDate)}</div>
                         <div className="text-muted-foreground">
-                          {promotion.usageLimit > 0
-                            ? `${Math.round(
-                                (promotion.usageCount / promotion.usageLimit) *
-                                  100
-                              )}% used`
-                            : "Unlimited"}
+                          to {formatDate(promotion.endDate)}
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(promotion.status)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleView(promotion)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleEdit(promotion)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(promotion)}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {startIndex} to {endIndex} of {totalItems} promotions
-              </div>
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() =>
-                        currentPage > 1 && onPageChange(currentPage - 1)
-                      }
-                      className={
-                        currentPage <= 1
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => onPageChange(page)}
-                          isActive={currentPage === page}
-                          className="cursor-pointer"
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm">
+                      <div className="font-medium">
+                        {promotion.usageCount} / {promotion.usageLimit}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {promotion.usageLimit > 0
+                          ? `${Math.round(
+                              (promotion.usageCount / promotion.usageLimit) *
+                                100
+                            )}% used`
+                          : "Unlimited"}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(promotion.status)}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(promotion)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(promotion)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(promotion)}
+                          className="text-red-600 focus:text-red-600"
                         >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                  )}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() =>
-                        currentPage < totalPages &&
-                        onPageChange(currentPage + 1)
-                      }
-                      className={
-                        currentPage >= totalPages
-                          ? "pointer-events-none opacity-50"
-                          : "cursor-pointer"
-                      }
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {startIndex} to {endIndex} of {totalItems} promotions
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() =>
+                      currentPage > 1 && onPageChange(currentPage - 1)
+                    }
+                    className={
+                      currentPage <= 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => onPageChange(page)}
+                        isActive={currentPage === page}
+                        className="cursor-pointer"
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() =>
+                      currentPage < totalPages && onPageChange(currentPage + 1)
+                    }
+                    className={
+                      currentPage >= totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
+      </div>
 
       {/* Dialogs */}
       {selectedPromotion && (

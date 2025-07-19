@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import Referrer from "../../assets/images/referrer.svg";
 import { Button } from "../ui/button";
 
 const Section9 = () => {
@@ -31,7 +30,7 @@ const Section9 = () => {
             </Button>
           </div>
           <div className="hidden lg:block">
-            <Image src={Referrer} alt="Referrer" width={400} height={400} />
+            <Image src="/assets/images/referrer.svg" alt="Referrer" width={400} height={400} />
           </div>
         </div>
       </div>

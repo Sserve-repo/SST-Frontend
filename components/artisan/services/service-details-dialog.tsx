@@ -74,7 +74,7 @@ export function ServiceDetailsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span className="text-xl font-semibold">Service Details</span>
-            {getStatusBadge(service.status)}
+            {getStatusBadge(String(service.status))}
           </DialogTitle>
         </DialogHeader>
 
@@ -170,7 +170,7 @@ export function ServiceDetailsDialog({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
-                    {getStatusBadge(service.status)}
+                    {getStatusBadge(String(service.status))}
                   </div>
                 </CardContent>
               </Card>

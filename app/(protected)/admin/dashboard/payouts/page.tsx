@@ -49,18 +49,25 @@ export default function PayoutsPage() {
       setLoading(true);
       setError(null);
       const { data, error: apiError } = await getPendingPayouts();
-
-      if (apiError || !data?.data?.pendingPayouts) {
+      console.log("Fetching pending payouts:", data, apiError);
+      
+      if (apiError || !data) {
         throw new Error(apiError || "Failed to fetch pending payouts");
       }
 
-      const payoutData:any = (data as any).data;
-      setPendingPayouts(payoutData.pendingPayouts || []);
+      console.log("Fetched pending payouts data:", data);
+      
+      // Access the correct data structure based on the API response
+      const pendingPayoutsData = data.pendingPayouts || [];
+      const totalPendingPayout = data.totalPendingPayout || 0;
+      const totalCompletedPayout = data.totalCompletedPayout || 0;
+      
+      setPendingPayouts(pendingPayoutsData);
       setStats((prev) => ({
         ...prev,
-        totalPending: payoutData.pendingPayouts?.length || 0,
-        pendingAmount: payoutData.totalPendingPayout || 0,
-        completedAmount: payoutData.totalCompletedPayout || 0,
+        totalPending: pendingPayoutsData.length,
+        pendingAmount: totalPendingPayout,
+        completedAmount: totalCompletedPayout,
       }));
     } catch (err) {
       console.error("Error fetching pending payouts:", err);
@@ -77,15 +84,21 @@ export default function PayoutsPage() {
       setLoading(true);
       setError(null);
       const { data, error: apiError } = await getCompletedPayouts();
+      console.log("Fetching completed payouts:", data, apiError);
 
-      if (apiError || !data?.completedPayouts) {
+      if (apiError || !data) {
         throw new Error(apiError || "Failed to fetch completed payouts");
       }
 
-      setCompletedPayouts(data.completedPayouts || []);
+      console.log("Fetched completed payouts data:", data);
+      
+      // Access the correct data structure
+      const completedPayoutsData = data.completedPayouts || [];
+      
+      setCompletedPayouts(completedPayoutsData);
       setStats((prev) => ({
         ...prev,
-        totalCompleted: data.completedPayouts?.length || 0,
+        totalCompleted: completedPayoutsData.length,
       }));
     } catch (err) {
       console.error("Error fetching completed payouts:", err);
@@ -97,13 +110,74 @@ export default function PayoutsPage() {
     }
   }, []);
 
+  // Fetch both pending and completed payouts for accurate stats
+  const fetchAllPayouts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch both pending and completed payouts
+      const [pendingResult, completedResult] = await Promise.all([
+        getPendingPayouts(),
+        getCompletedPayouts()
+      ]);
+
+      console.log("Fetching all payouts:", { pendingResult, completedResult });
+
+      // Handle pending payouts
+      if (pendingResult.error || !pendingResult.data) {
+        console.error("Error fetching pending payouts:", pendingResult.error);
+      } else {
+        const pendingData = pendingResult.data.pendingPayouts || [];
+        const totalPendingPayout = pendingResult.data.totalPendingPayout || 0;
+        const totalCompletedPayout = pendingResult.data.totalCompletedPayout || 0;
+        
+        setPendingPayouts(pendingData);
+        setStats(prev => ({
+          ...prev,
+          totalPending: pendingData.length,
+          pendingAmount: totalPendingPayout,
+          completedAmount: totalCompletedPayout,
+        }));
+      }
+
+      // Handle completed payouts
+      if (completedResult.error || !completedResult.data) {
+        console.error("Error fetching completed payouts:", completedResult.error);
+      } else {
+        const completedData = completedResult.data.completedPayouts || [];
+        
+        setCompletedPayouts(completedData);
+        setStats(prev => ({
+          ...prev,
+          totalCompleted: completedData.length,
+        }));
+      }
+
+    } catch (err) {
+      console.error("Error fetching all payouts:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch payouts"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial data fetch
   useEffect(() => {
-    if (activeTab === "pending") {
+    fetchAllPayouts();
+  }, [fetchAllPayouts]);
+
+  // Handle tab changes - no need to refetch if data is already loaded
+  useEffect(() => {
+    // Only refetch if we don't have data for the current tab
+    if (activeTab === "pending" && pendingPayouts.length === 0) {
       fetchPendingPayouts();
-    } else {
+    } else if (activeTab === "completed" && completedPayouts.length === 0) {
       fetchCompletedPayouts();
     }
-  }, [activeTab, fetchPendingPayouts, fetchCompletedPayouts]);
+  }, [activeTab, pendingPayouts.length, completedPayouts.length, fetchPendingPayouts, fetchCompletedPayouts]);
 
   const handleProcessPayout = async (userId: number) => {
     setIsProcessing(true);
@@ -119,10 +193,8 @@ export default function PayoutsPage() {
         description: "Payout processed successfully.",
       });
 
-      await fetchPendingPayouts();
-      if (activeTab === "completed") {
-        await fetchCompletedPayouts();
-      }
+      // Refresh all payouts to update stats and move processed payout to completed
+      await fetchAllPayouts();
     } catch (err) {
       console.error("Error processing payout:", err);
       toast({
@@ -148,7 +220,7 @@ export default function PayoutsPage() {
       ? payout.user_name.toLowerCase().includes(filters.search.toLowerCase())
       : true;
     const matchesType = filters.type
-      ? payout.payout_type === filters.type
+      ? payout.payout === filters.type
       : true;
     return matchesSearch && matchesType;
   });
@@ -157,7 +229,7 @@ export default function PayoutsPage() {
     const matchesSearch = filters.search
       ? payout.user_name.toLowerCase().includes(filters.search.toLowerCase())
       : true;
-    const matchesType = filters.type ? payout.type === filters.type : true;
+    const matchesType = filters.type ? payout.payout === filters.type : true;
     return matchesSearch && matchesType;
   });
 

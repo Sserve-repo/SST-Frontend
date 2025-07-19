@@ -56,6 +56,7 @@ const formSchema = z.object({
   status: z.enum(["0", "1"]).default("0"),
   start_time: z.string().min(1, { message: "Start time is required." }),
   end_time: z.string().min(1, { message: "End time is required." }),
+  home_service_availability: z.enum(["0", "1"]).default("0"),
 });
 
 interface CreateServiceDialogProps {
@@ -86,6 +87,7 @@ export function CreateServiceDialog({
       status: "0",
       start_time: "",
       end_time: "",
+      home_service_availability: "0",
     },
   });
 
@@ -145,6 +147,7 @@ export function CreateServiceDialog({
       formData.append("status", values.status);
       formData.append("start_time", values.start_time);
       formData.append("end_time", values.end_time);
+      formData.append("home_service_availability", values.home_service_availability);
 
       // Add images
       images.forEach((image, index) => {
@@ -163,6 +166,8 @@ export function CreateServiceDialog({
           setOpen(false);
           form.reset();
           setImages([]);
+          setServiceCategories([]);
+          setServiceCategoryItems([]);
           onSubmit();
         } else {
           throw new Error(result.message || "Failed to create service");
@@ -439,15 +444,36 @@ export function CreateServiceDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue="0">
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="0">Draft</SelectItem>
                         <SelectItem value="1">Active</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="home_service_availability"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Home Service Available</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue="0">
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select availability" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="0">No</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

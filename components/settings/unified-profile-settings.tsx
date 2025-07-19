@@ -4,6 +4,8 @@ import type React from "react";
 
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,6 +73,12 @@ import {
   updateShippingPolicy,
   updateVendorIdentity,
   updateBusinessDetails,
+  viewBusinessDetails,
+  viewBusinessPolicy,
+  viewServiceAreaAvailability,
+  viewShippingPolicy,
+  viewVendorIdentity,
+  viewArtisanIdentity,
 } from "@/actions/settings-api";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
@@ -83,6 +91,58 @@ import {
   ShippingPolicyData,
   VendorIdentityData,
 } from "@/types/settings";
+
+// Validation schemas
+const profileSchema = z.object({
+  firstname: z.string().min(2, "First name must be at least 2 characters"),
+  lastname: z.string().min(2, "Last name must be at least 2 characters"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  address: z.string().min(5, "Address must be at least 5 characters"),
+  twofa_status: z.string(),
+  email_status: z.string(),
+});
+
+const serviceAreaSchema = z.object({
+  available_dates: z.array(z.string()).min(1, "Please select at least one available date"),
+  start_time: z.string().min(1, "Start time is required"),
+  end_time: z.string().min(1, "End time is required"),
+  longitude: z.string().min(1, "Longitude is required"),
+  latitude: z.string().min(1, "Latitude is required"),
+  home_service_availability: z.string(),
+  service_duration: z.string().optional(),
+});
+
+const businessPolicySchema = z.object({
+  booking_details: z.string().min(10, "Booking details must be at least 10 characters"),
+  cancelling_policy: z.string().min(10, "Cancelling policy must be at least 10 characters"),
+});
+
+const shippingPolicySchema = z.object({
+  user_email: z.string().email("Please enter a valid email address"),
+  shipping_option: z.string().min(1, "Please select a shipping option"),
+  from_day: z.string().min(1, "From day is required"),
+  to_day: z.string().min(1, "To day is required"),
+  return_policy: z.string().min(10, "Return policy must be at least 10 characters"),
+  shipping_cost: z.string().min(1, "Shipping cost is required"),
+});
+
+const identitySchema = z.object({
+  document_type: z.string().min(1, "Please select a document type"),
+  document: z.any().optional(),
+});
+
+const businessDetailsSchema = z.object({
+  business_details: z.string().min(10, "Business details must be at least 10 characters"),
+  business_email: z.string().email("Please enter a valid business email"),
+  business_phone: z.string().min(10, "Please enter a valid phone number"),
+  business_name: z.string().min(2, "Business name must be at least 2 characters"),
+  product_category_id: z.string().min(1, "Please select a product category"),
+  product_region_id: z.string().min(1, "Please select a product region"),
+  city: z.string().min(2, "City must be at least 2 characters"),
+  province_id: z.string().min(1, "Please select a province"),
+  postal_code: z.string().min(5, "Please enter a valid postal code"),
+});
 
 interface UnifiedProfileSettingsProps {
   userType?: "admin" | "vendor" | "artisan" | "buyer";
@@ -104,6 +164,7 @@ UnifiedProfileSettingsProps) {
   const { setAuth } = useAuth();
 
   const form = useForm<ProfileUpdateData>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
       firstname: "",
       lastname: "",
@@ -116,6 +177,7 @@ UnifiedProfileSettingsProps) {
   });
 
   const serviceAreaForm = useForm<ServiceAreaAvailabilityData>({
+    resolver: zodResolver(serviceAreaSchema),
     defaultValues: {
       available_dates: [],
       start_time: "",
@@ -128,6 +190,7 @@ UnifiedProfileSettingsProps) {
   });
 
   const businessForm = useForm<BusinessPolicyData>({
+    resolver: zodResolver(businessPolicySchema),
     defaultValues: {
       booking_details: "",
       cancelling_policy: "",
@@ -135,6 +198,7 @@ UnifiedProfileSettingsProps) {
   });
 
   const shippingForm = useForm<ShippingPolicyData & { user_email: string }>({
+    resolver: zodResolver(shippingPolicySchema),
     defaultValues: {
       user_email: "",
       shipping_option: "",
@@ -146,6 +210,7 @@ UnifiedProfileSettingsProps) {
   });
 
   const identityForm = useForm<VendorIdentityData>({
+    resolver: zodResolver(identitySchema),
     defaultValues: {
       document_type: "",
       document: undefined as unknown as File,
@@ -169,6 +234,7 @@ UnifiedProfileSettingsProps) {
   });
 
   const businessDetailsForm = useForm<BusinessDetailsData>({
+    resolver: zodResolver(businessDetailsSchema),
     defaultValues: {
       business_details: "",
       business_email: "",
@@ -212,9 +278,142 @@ UnifiedProfileSettingsProps) {
     }
   }, [form, shippingForm]);
 
+  const fetchBusinessDetails = useCallback(async (userType: 'artisan' | 'vendor') => {
+    try {
+      const { data, error } = await viewBusinessDetails(userType);
+      if (data && !error) {
+        businessDetailsForm.reset({
+          business_details: data.business_details || "",
+          business_email: data.business_email || "",
+          business_phone: data.business_phone || "",
+          business_name: data.business_name || "",
+          product_category_id: data.product_category_id || "",
+          product_region_id: data.product_region_id || "",
+          city: data.city || "",
+          province_id: data.province_id || "",
+          postal_code: data.postal_code || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching business details:", error);
+    }
+  }, [businessDetailsForm]);
+
+  const fetchServiceAreaAvailability = useCallback(async () => {
+    try {
+      const { data, error } = await viewServiceAreaAvailability();
+      if (data && !error) {
+        serviceAreaForm.reset({
+          available_dates: data.available_dates || [],
+          start_time: data.start_time || "",
+          end_time: data.end_time || "",
+          longitude: data.longitude || "",
+          latitude: data.latitude || "",
+          home_service_availability: data.home_service_availability || "0",
+          service_duration: data.service_duration || "",
+        });
+        // Set selected dates for calendar
+        if (data.available_dates) {
+          const dates = data.available_dates.map(dateStr => new Date(dateStr));
+          setSelectedDates(dates);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching service area availability:", error);
+    }
+  }, [serviceAreaForm]);
+
+  const fetchBusinessPolicy = useCallback(async () => {
+    try {
+      const { data, error } = await viewBusinessPolicy();
+      if (data && !error) {
+        businessForm.reset({
+          booking_details: data.booking_details || "",
+          cancelling_policy: data.cancelling_policy || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching business policy:", error);
+    }
+  }, [businessForm]);
+
+  const fetchShippingPolicy = useCallback(async () => {
+    try {
+      const { data, error } = await viewShippingPolicy();
+      if (data && !error) {
+        shippingForm.reset({
+          user_email: shippingForm.getValues("user_email"), // Keep current email
+          shipping_option: data.shipping_option || "",
+          from_day: data.from_day || "",
+          to_day: data.to_day || "",
+          return_policy: data.return_policy || "",
+          shipping_cost: data.shipping_cost || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching shipping policy:", error);
+    }
+  }, [shippingForm]);
+
+  const fetchVendorIdentity = useCallback(async () => {
+    try {
+      const { data, error } = await viewVendorIdentity();
+      if (data && !error) {
+        identityForm.reset({
+          document_type: data.document_type || "",
+          document: undefined as unknown as File,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching vendor identity:", error);
+    }
+  }, [identityForm]);
+
+  const fetchArtisanIdentity = useCallback(async () => {
+    try {
+      const { data, error } = await viewArtisanIdentity();
+      if (data && !error) {
+        identityForm.reset({
+          document_type: data.document_type || "",
+          document: undefined as unknown as File,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching artisan identity:", error);
+    }
+  }, [identityForm]);
+
+  const fetchAllSettings = useCallback(async () => {
+    await fetchUserProfile();
+    
+    // Determine user type based on current path or props
+    const currentPath = window.location.pathname;
+    const isVendor = currentPath.includes('/vendor/');
+    const isArtisan = currentPath.includes('/artisan/');
+    
+    if (isVendor) {
+      await fetchBusinessDetails('vendor');
+      await fetchShippingPolicy();
+      await fetchVendorIdentity();
+    } else if (isArtisan) {
+      await fetchBusinessDetails('artisan');
+      await fetchServiceAreaAvailability();
+      await fetchBusinessPolicy();
+      await fetchArtisanIdentity();
+    }
+  }, [
+    fetchUserProfile,
+    fetchBusinessDetails,
+    fetchServiceAreaAvailability,
+    fetchBusinessPolicy,
+    fetchShippingPolicy,
+    fetchVendorIdentity,
+    fetchArtisanIdentity,
+  ]);
+
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    fetchAllSettings();
+  }, [fetchAllSettings]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1135,7 +1334,7 @@ UnifiedProfileSettingsProps) {
                       <Building className="h-5 w-5 mr-2" />
                       Business Policy
                     </CardTitle>
-                  </CardHeader>
+                  </CardHeader>–
                   <CardContent className="space-y-6">
                     <FormField
                       control={businessForm.control}
@@ -1220,7 +1419,7 @@ UnifiedProfileSettingsProps) {
                             <FormLabel>Shipping Option</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -1369,7 +1568,7 @@ UnifiedProfileSettingsProps) {
                           <FormLabel>Document Type</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -1553,7 +1752,7 @@ UnifiedProfileSettingsProps) {
                             <FormLabel>Province</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -1599,7 +1798,7 @@ UnifiedProfileSettingsProps) {
                             <FormLabel>Product Category</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -1641,7 +1840,7 @@ UnifiedProfileSettingsProps) {
                             <FormLabel>Product Region</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>

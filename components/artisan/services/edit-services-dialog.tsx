@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -39,6 +39,7 @@ import {
   updateServiceListing,
   getServiceCategories,
   getServiceCategoryItemsById,
+  getServiceDetails,
 } from "@/actions/dashboard/artisans";
 import type { Service } from "@/types/services";
 
@@ -56,19 +57,23 @@ const formSchema = z.object({
   status: z.enum(["0", "1"]).default("0"),
   start_time: z.string().min(1, { message: "Start time is required." }),
   end_time: z.string().min(1, { message: "End time is required." }),
+  home_service_availability: z.enum(["0", "1"]).default("0"),
 });
 
 interface EditServicesDialogProps {
-  service: Service;
+  serviceId: string;
+  open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (service: Service) => void;
 }
 
 export function EditServicesDialog({
-  service,
+  serviceId,
+  open,
   onOpenChange,
   onUpdate,
 }: EditServicesDialogProps) {
+  const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(false);
   const [serviceCategories, setServiceCategories] = useState<any[]>([]);
   const [serviceCategoryItems, setServiceCategoryItems] = useState<any[]>([]);
@@ -89,33 +94,121 @@ export function EditServicesDialog({
       status: "0",
       start_time: "",
       end_time: "",
+      home_service_availability: "0",
     },
   });
 
+  // Fetch fresh service data from API
+  const fetchServiceData = useCallback(async () => {
+    if (!serviceId || !open) return;
+
+    try {
+      setLoading(true);
+      console.log("Fetching fresh service data for ID:", serviceId);
+
+      const response = await getServiceDetails(serviceId);
+      if (response?.ok) {
+        const data = await response.json();
+        console.log("Fetched service details for edit:", data);
+
+        if (data.status && data.data) {
+          const serviceData = data.data.serviceListing || data.data;
+          setService(serviceData);
+        } else {
+          throw new Error(data.message || "Failed to fetch service details");
+        }
+      } else {
+        throw new Error("Failed to fetch service details");
+      }
+    } catch (error) {
+      console.error("Error fetching service details:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load service details.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [serviceId, open, toast]);
+
+  useEffect(() => {
+    fetchServiceData();
+  }, [fetchServiceData]);
+
   // Initialize form with service data
   useEffect(() => {
-    if (service) {
-      console.log("Initializing form with service data:", service);
-      form.reset({
-        title: service.title || service.name || "",
-        category: service.category_id?.toString() || "",
-        subCategory: service.sub_category_id?.toString() || "",
-        price: String(service.price || ""),
-        duration: String(service.duration || ""),
-        description: service.description || "",
-        status: service.status === "active" ? "1" : "0",
-        start_time: service.start_time || "",
-        end_time: service.end_time || "",
-      });
+    const init = async () => {
+      if (service) {
+        console.log("Initializing form with service data:", service);
 
-      const serviceImages =
-        service.images?.map((img) => ({
-          file: null,
-          preview: img,
-        })) || [];
+        // Fetch categories first
+        handleFetchServiceCategories();
 
-      setImages(serviceImages);
-    }
+        // Extract category ID from API response - use direct field names from API
+        const categoryId =
+          service.service_category_id?.toString() ||
+          service.service_category?.id?.toString() ||
+          service.category_id?.toString() ||
+          "";
+        const subCategoryId =
+          service.service_category_items_id?.toString() ||
+          service.service_category_item?.id?.toString() ||
+          service.sub_category_id?.toString() ||
+          "";
+
+        console.log(
+          "Extracted category ID:",
+          categoryId,
+          "subCategory ID:",
+          subCategoryId
+        );
+
+        // Fetch subcategories if category exists
+        if (categoryId) {
+          await handleFetchServiceCategoryItems(categoryId);
+        }
+
+        form.reset({
+          title: service.title || service.name || "",
+          category: categoryId,
+          subCategory: subCategoryId,
+          price: String(service.price || ""),
+          duration: String(service.service_duration || service.duration || ""),
+          description: service.description || "",
+          status: String(service.status) === "1" ? "1" : "0", // Ensure it's "0" or "1"
+          start_time: service.start_time || "",
+          end_time: service.end_time || "",
+          home_service_availability:
+            String(service.home_service_availability) === "1" ? "1" : "0",
+        });
+
+        // Handle service images from API response
+        const serviceImages: { file: File | null; preview: string }[] = [];
+        if (service.image && service.image.trim() !== "") {
+          serviceImages.push({ file: null, preview: service.image });
+        }
+        if (service.service_images && Array.isArray(service.service_images)) {
+          service.service_images.forEach((img: any) => {
+            if (img.image && img.image !== service.image) {
+              serviceImages.push({ file: null, preview: img.image });
+            }
+          });
+        }
+        // Legacy images support
+        if (service.images && Array.isArray(service.images)) {
+          service.images.forEach((img: string) => {
+            if (img && !serviceImages.some((si) => si.preview === img)) {
+              serviceImages.push({ file: null, preview: img });
+            }
+          });
+        }
+
+        setImages(serviceImages);
+        console.log("Set service images:", serviceImages);
+      }
+    };
+    init();
   }, [service, form]);
 
   const handleFetchServiceCategories = async () => {
@@ -172,6 +265,10 @@ export function EditServicesDialog({
       formData.append("status", values.status);
       formData.append("start_time", values.start_time);
       formData.append("end_time", values.end_time);
+      formData.append(
+        "home_service_availability",
+        values.home_service_availability
+      );
 
       // Add images
       images.forEach((image, index) => {
@@ -179,6 +276,11 @@ export function EditServicesDialog({
           formData.append(`images[${index}]`, image.file);
         }
       });
+
+      if (!service) {
+        console.error("No service data available for update");
+        return;
+      }
 
       const response = await updateServiceListing(service.id, formData);
 
@@ -479,12 +581,33 @@ export function EditServicesDialog({
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="0">Draft</SelectItem>
                         <SelectItem value="1">Active</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="home_service_availability"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Home Service Available</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select availability" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="0">No</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

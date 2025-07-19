@@ -88,7 +88,7 @@ export default function PromotionsPage() {
         }
 
         const data: PromotionResponse = await response.json();
-        // console.log("Fetched promotions data:", data);
+        console.log("Fetched promotions data:", data);
 
         if (data.status && data.data) {
           const allRawPromotions = data.data.all.all_discounts || [];

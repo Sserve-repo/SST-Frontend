@@ -3,8 +3,7 @@ import { apiRequest } from "@/hooks/use-api"
 export interface PendingPayout {
     user_id: number
     user_name: string
-    payout_type: "product" | "service"
-    type: "product" | "service"
+    payout: "product" | "service"
     total_items: number
     total_amount: string
     latest_date: string
@@ -13,8 +12,7 @@ export interface PendingPayout {
 export interface CompletedPayout {
     user_id: number
     user_name: string
-    payout_type: "product" | "service"
-    type: "product" | "service"
+    payout: "product" | "service"
     total_items: number
     total_amount: string
     latest_date: string
@@ -77,11 +75,9 @@ export interface ProcessPayoutResponse {
 
 // These interfaces represent what apiRequest actually returns (just the data property)
 interface PendingPayoutData {
-    data: {
-        totalPendingPayout: number
-        totalCompletedPayout: number
-        pendingPayouts: PendingPayout[]
-    }
+    pendingPayouts: PendingPayout[]
+    totalPendingPayout: number
+    totalCompletedPayout: number
     current_page: number
     last_page: number
     per_page: number

@@ -7,6 +7,7 @@ export interface OrderItem {
     local_id: string
     vendor_id: number
     product_listing_detail_id: number
+    customer_name: string
     quantity: number
     currency: string
     unit_price: number
@@ -29,6 +30,7 @@ export interface Order {
     user_id: number
     total: string
     vendor_tax: string
+    customer_name: string
     customer: {
         id: number
         firstname: string
