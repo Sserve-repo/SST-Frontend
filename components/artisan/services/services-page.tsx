@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   type ColumnDef,
@@ -91,7 +91,7 @@ export default function ServicesPage() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [viewingService, setViewingService] = useState<Service | null>(null);
   const [reviewingService, setReviewingService] = useState<Service | null>(
     null
@@ -130,10 +130,18 @@ export default function ServicesPage() {
     bookingCount: Number(service.booking_count) || 0,
     createdAt: new Date(service.created_at || Date.now()),
     updatedAt: new Date(service.updated_at || Date.now()),
+    // Preserve original API fields for edit dialog
+    service_category_id: service.service_category_id,
+    service_category_items_id: service.service_category_items_id,
+    service_duration: service.service_duration,
+    image: service.image,
+    start_time: service.start_time,
+    end_time: service.end_time,
+    home_service_availability: service.home_service_availability,
   });
 
   // Fetch services function
-  const fetchServices = async (page: number, search: string) => {
+  const fetchServices = useCallback(async (page: number, search: string) => {
     try {
       setLoading(true);
       const response = await getServices(page, 10, search);
@@ -163,7 +171,7 @@ export default function ServicesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   // Effect for fetching services
   useEffect(() => {
@@ -181,7 +189,7 @@ export default function ServicesPage() {
   };
 
   // Handle delete service
-  const handleDeleteService = async (serviceId: string) => {
+  const handleDeleteService = useCallback(async (serviceId: string) => {
     if (!confirm("Are you sure you want to delete this service?")) {
       return;
     }
@@ -206,14 +214,15 @@ export default function ServicesPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [toast, fetchServices, currentPage, debouncedSearchTerm]);
 
   // Handle view service
-  const handleViewService = async (serviceId: string) => {
+  const handleViewService = useCallback(async (serviceId: string) => {
     try {
       const response = await getServiceDetails(serviceId);
       if (response?.ok) {
         const data = await response.json();
+        console.log("Fetched service details:", data);
         if (data.status && data.data) {
           const transformedService = transformService(
             data.data.serviceListing || data.data
@@ -229,30 +238,12 @@ export default function ServicesPage() {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   // Handle edit service
-  const handleEditService = async (serviceId: string) => {
-    try {
-      const response = await getServiceDetails(serviceId);
-      if (response?.ok) {
-        const data = await response.json();
-        if (data.status && data.data) {
-          const transformedService = transformService(
-            data.data.serviceListing || data.data
-          );
-          setEditingService(transformedService);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching service details:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load service details.",
-        variant: "destructive",
-      });
-    }
-  };
+  const handleEditService = useCallback((serviceId: string) => {
+    setEditingServiceId(serviceId);
+  }, []);
 
   // Handle view reviews
   const handleViewReviews = (service: Service) => {
@@ -266,7 +257,7 @@ export default function ServicesPage() {
 
   // Handle update service success
   const handleUpdateService = () => {
-    setEditingService(null);
+    setEditingServiceId(null);
     fetchServices(currentPage, debouncedSearchTerm);
   };
 
@@ -280,6 +271,16 @@ export default function ServicesPage() {
 
     const config = statusConfig[status] || statusConfig.inactive;
     return <Badge className={config.color}>{config.label}</Badge>;
+  };
+
+  const mapStatusToServiceStatus = (status: string | number): ServiceStatus => {
+    const statusStr = String(status);
+    if (statusStr === "1") return "active";
+    if (statusStr === "0") return "inactive";
+    if (statusStr === "draft") return "draft";
+    if (statusStr === "active") return "active";
+    if (statusStr === "inactive") return "inactive";
+    return "inactive"; // default
   };
 
   // Memoized columns definition
@@ -340,7 +341,7 @@ export default function ServicesPage() {
       {
         accessorKey: "status",
         header: "Status",
-        cell: ({ row }) => getStatusBadge(row.original.status),
+        cell: ({ row }) => getStatusBadge(mapStatusToServiceStatus(row.original.status)),
       },
       {
         id: "actions",
@@ -381,7 +382,7 @@ export default function ServicesPage() {
         },
       },
     ],
-    []
+    [handleDeleteService, handleEditService, handleViewService]
   );
 
   // Filtered services
@@ -594,10 +595,11 @@ export default function ServicesPage() {
       <PaginationComponent />
 
       {/* Dialogs */}
-      {editingService && (
+      {editingServiceId && (
         <EditServicesDialog
-          service={editingService}
-          onOpenChange={(open) => !open && setEditingService(null)}
+          serviceId={editingServiceId}
+          open={!!editingServiceId}
+          onOpenChange={(open) => !open && setEditingServiceId(null)}
           onUpdate={handleUpdateService}
         />
       )}
