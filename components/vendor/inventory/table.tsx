@@ -364,7 +364,7 @@ export function InventoryTable({
 
       {editingProduct && (
         <EditProductDialog
-          product={editingProduct}
+          productId={editingProduct.id.toString()}
           open={true}
           onOpenChange={() => setEditingProduct(null)}
           onUpdate={onUpdate}
