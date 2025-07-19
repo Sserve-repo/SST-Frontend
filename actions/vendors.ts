@@ -137,3 +137,4 @@ export const getVendorProfile = async (vendorId) => {
     console.log("failed to fetch vendor profile", error);
   }
 };
+
