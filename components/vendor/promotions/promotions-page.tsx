@@ -9,7 +9,6 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
-  Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,9 +80,15 @@ export function VendorPromotionsPage() {
       const response = await getPromotionStatuses();
       if (response?.ok) {
         const data = await response.json();
+        console.log("Fetched promotions stats:", data);
         if (data.status && data.data) {
           const { all_discounts, active, expired, upcoming } = data.data;
-
+          console.log("Fetched promotions data:", {
+            all_discounts,
+            active,
+            expired,
+            upcoming,
+          });
           setStats({
             all: all_discounts?.count || 0,
             active: active?.count || 0,
@@ -144,7 +149,7 @@ export function VendorPromotionsPage() {
       } else throw new Error();
     } catch (err) {
       console.error("Failed to delete promotion:", err);
-      
+
       toast({
         title: "Error",
         description: "Failed to delete promotion.",
@@ -201,33 +206,30 @@ export function VendorPromotionsPage() {
         />
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-4">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search promotions..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" />
-          Filter
-        </Button>
-      </div>
-
       {/* Tabs */}
       <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList className="grid grid-cols-4 w-full">
-          <TabsTrigger value="all">All ({stats.all})</TabsTrigger>
-          <TabsTrigger value="active">Active ({stats.active})</TabsTrigger>
-          <TabsTrigger value="upcoming">
-            Upcoming ({stats.upcoming})
-          </TabsTrigger>
-          <TabsTrigger value="expired">Expired ({stats.expired})</TabsTrigger>
-        </TabsList>
+        <div className="flex w-full items-center justify-between mb-4">
+          {/* Search */}
+          <div className="flex items-center gap-4 w-full">
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search promotions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          <TabsList className="grid grid-cols-4 w-full">
+            <TabsTrigger value="all">All ({stats.all})</TabsTrigger>
+            <TabsTrigger value="active">Active ({stats.active})</TabsTrigger>
+            <TabsTrigger value="upcoming">
+              Upcoming ({stats.upcoming})
+            </TabsTrigger>
+            <TabsTrigger value="expired">Expired ({stats.expired})</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value={currentTab}>
           {loading ? (
