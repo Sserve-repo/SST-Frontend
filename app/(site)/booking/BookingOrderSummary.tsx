@@ -4,6 +4,7 @@ interface ServiceDetails {
   price: number;
   total_tax_rate: number;
   total_amount: number;
+  cancelling_policy?: string;
 }
 
 interface Service {
@@ -53,6 +54,11 @@ const BookingOrderSummary: React.FC<{ service: Service | null }> = ({
               : "0.00"}
           </span>
         </div>
+      </div>
+
+      <div className="flex flex-col justify-between mb-2 text-sm pt-6">
+        <span className="font-bold">Cancellation Policy:</span>
+        <span>{processedData?.cancelling_policy}</span>
       </div>
     </div>
   );

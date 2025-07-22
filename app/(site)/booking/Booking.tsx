@@ -28,6 +28,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getServiceDetail } from "@/actions/service";
 import { Label } from "@/components/ui/label";
 import { StripeServicePaymentForm } from "@/components/StripeServicePaymentForm";
+import { googleApiKey } from "@/config/constant";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -47,6 +48,7 @@ export default function BookingForm() {
   const [provinces, setProvinces] = useState([]);
   const { formData, setFormData, handleInputChange } = usePaymentProvider();
   const [paymentError, setPaymentError] = useState("");
+  const [address, setAddress] = useState("");
 
   const handleGetProvinces = useCallback(async () => {
     const response = await getProvinces();
@@ -89,6 +91,11 @@ export default function BookingForm() {
         setService(data.data);
         setCheckoutData(data.data);
 
+         getAddressFromCoordinates(
+        data.data["Service Details"]?.latitude,
+        data.data["Service Details"]?.longitude
+      );
+
         setFormData((prev) => ({
           ...prev,
           listingId: data?.data["Service Details"]?.id || "",
@@ -97,6 +104,30 @@ export default function BookingForm() {
     },
     [setFormData]
   );
+
+  const getAddressFromCoordinates = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleApiKey}`
+      );
+      const data = await response.json();
+
+      if (response.ok && data.results.length > 0) {
+        const address = data.results[0].formatted_address;
+        console.log("Resolved address:", address);
+        setAddress(address ?? "No address found");
+      } else {
+        console.log("No address found for provided coordinates.");
+        setAddress("No address found");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error during reverse geocoding:", error);
+      setAddress("No address found");
+      return null;
+    }
+  };
+
 
   useEffect(() => {
     if (!Cookies.get("accessToken")) router.push("/auth/login");
@@ -200,9 +231,7 @@ export default function BookingForm() {
                           </Label>
                           <p className="text-gray-800 flex items-center gap-1">
                             <MapPin className="w-4 h-4 text-gray-500" />
-                            {capitalizeFirstLetter(
-                              service["Service Details"]?.booking_details
-                            ) || "Location not specified"}
+                            {address}
                           </p>
                         </div>
                       </div>

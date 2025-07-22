@@ -492,3 +492,21 @@ export const getServiceCategoryItemsById = async (catId: any) => {
   }
 };
 
+
+// Enhanced messages API functions
+export const createArtisanMessage = async (payload: FormData) => {
+  const token = Cookies.get("accessToken")
+  try {
+    const response = await fetch(`${baseUrl}/artisan/dashboard/chat/sendMessage`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: payload,
+    })
+    return response
+  } catch (error: any) {
+    console.log("Failed to send message", error)
+    throw error
+  }
+}

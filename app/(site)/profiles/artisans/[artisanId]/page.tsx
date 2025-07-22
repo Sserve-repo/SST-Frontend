@@ -1,24 +1,14 @@
-import React, { Suspense } from "react";
+"use client";
+
+import React, { Suspense, useEffect, useState } from "react";
 import { getArtisanProfile } from "@/actions/artisans";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Calendar, MessageCircle, MapPin, Package } from "lucide-react";
 import Image from "next/image";
-import { notFound } from "next/navigation";
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-type ArtisanListing = {
-  id: string;
-  image: string;
-  price: number;
-  title: string;
-  description: string;
-  service_category?: any;
-  rating?: number;
-  is_favorite?: boolean;
-};
+import { notFound, useParams } from "next/navigation";
+import { ArtisanMessageInitiationModal } from "@/components/messages/artisan-message-initiation-modal";
 
 type ReviewData = {
   id: string;
@@ -29,70 +19,52 @@ type ReviewData = {
   rating: number;
 };
 
-interface ArtisanProfilePageProps {
-  params: {
-    artisanId: string;
-  };
-}
+export default function ArtisanProfilePage() {
+  const params = useParams();
+  const artisanId = params?.artisanId as string;
 
-// Server-side data fetching
-async function getArtisanData(artisanId: string) {
-  try {
-    const response = await getArtisanProfile(artisanId);
-    if (!response?.ok) {
-      return null;
+  const [artisan, setArtisan] = useState<any>(null);
+  const [reviews, setReviews] = useState<ReviewData[]>([]);
+
+  const handleGetArtisan = async (id: string) => {
+    try {
+      const response = await getArtisanProfile(id);
+      if (!response?.ok) {
+        throw new Error("Failed to fetch artisan data");
+      }
+      const data = await response.json();
+
+      setArtisan(data.data["Artisan Business profile"]);
+
+      const rev =
+        data.data["Artisan Reviews"]?.map((item: any) => ({
+          id: item.id,
+          username: item.customer_name,
+          comment: item.comment,
+          rating: item.rating,
+          avatar: item.customer_photo,
+        })) || [];
+      setReviews(rev);
+    } catch (error) {
+      console.error("Failed to fetch artisan:", error);
+      notFound();
+    } finally {
     }
-    
-    const data = await response.json();
-    return {
-      artisan: data.data["Artisan Business profile"],
-      reviews: data.data["Artisan Reviews"]?.map((item: any) => ({
-        id: item.id,
-        username: item.customer_name,
-        comment: item.comment,
-        rating: item.rating,
-        avatar: item.customer_photo,
-      })) || []
-    };
-  } catch (error) {
-    console.error("Error fetching artisan profile:", error);
-    return null;
-  }
-}
-
-// Static metadata generation
-export async function generateMetadata({ params }: ArtisanProfilePageProps) {
-  const data = await getArtisanData(params.artisanId);
-  
-  if (!data) {
-    return {
-      title: "Artisan Not Found",
-      description: "The artisan profile you're looking for doesn't exist."
-    };
-  }
-
-  const { artisan } = data;
-  
-  return {
-    title: `${artisan?.firstname} ${artisan?.lastname} - Professional Artisan`,
-    description: `Discover ${artisan?.firstname}'s professional artisan services. ${artisan?.artisan_business_details?.business_details || 'Quality services with attention to detail and customer satisfaction.'}`,
-    keywords: `artisan, ${artisan?.artisan_business_details?.service_category?.name}, ${artisan?.artisan_business_details?.city}`,
-    openGraph: {
-      title: `${artisan?.firstname} ${artisan?.lastname} - Professional Artisan`,
-      description: artisan?.artisan_business_details?.business_details || 'Quality services with attention to detail and customer satisfaction.',
-      images: [artisan?.artisan_business_details?.image || '/assets/images/tailor.png'],
-    },
   };
-}
 
-export default async function ArtisanProfilePage({ params }: ArtisanProfilePageProps) {
-  const data = await getArtisanData(params.artisanId);
-  
-  if (!data) {
-    notFound();
+  useEffect(() => {
+    if (artisanId) {
+      handleGetArtisan(artisanId);
+    }
+  }, [artisanId]);
+
+  if (!artisan) {
+    return (
+      <div className="py-32 text-center text-gray-500">
+        Loading artisan details...
+      </div>
+    );
   }
-
-  const { artisan, reviews } = data;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -166,9 +138,17 @@ export default async function ArtisanProfilePage({ params }: ArtisanProfilePageP
                 </Badge>
               </div>
 
-              <div className="mt-4 w-full bg-[#502266] hover:bg-[#502266]/90 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Message Artisan
+              <div className="mt-4 w-full  text-white px-4 py-2 rounded-md flex items-center justify-center gap-2">
+                <ArtisanMessageInitiationModal
+                  recipientId={artisan?.id}
+                  recipientName={artisan.name || "Artisan"}
+                  serviceName={"Artisan Inquiry"}
+                >
+                  <Button className="flex-1">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Message Artisan
+                  </Button>
+                </ArtisanMessageInitiationModal>
               </div>
 
               <p className="mt-2 text-center text-xs text-gray-600">
@@ -260,8 +240,8 @@ export default async function ArtisanProfilePage({ params }: ArtisanProfilePageP
                         className="mb-3 bg-white/10 text-white border-white/20"
                       >
                         {listing.service_category?.name ||
-                          artisan?.artisan_business_details
-                            ?.service_category?.name ||
+                          artisan?.artisan_business_details?.service_category
+                            ?.name ||
                           "Service"}
                       </Badge>
 
@@ -300,10 +280,7 @@ export default async function ArtisanProfilePage({ params }: ArtisanProfilePageP
                 This artisan hasn&apos;t listed any services yet. Check back
                 later or browse other talented artisans.
               </p>
-              <Button
-                className="bg-[#FF7F00] hover:bg-[#FF7F00]/90"
-                asChild
-              >
+              <Button className="bg-[#FF7F00] hover:bg-[#FF7F00]/90" asChild>
                 <a href="/artisans">Browse Other Artisans</a>
               </Button>
             </div>
@@ -319,7 +296,9 @@ export default async function ArtisanProfilePage({ params }: ArtisanProfilePageP
                 <div key={review.id} className="border-t pt-6">
                   <div className="flex items-start space-x-4">
                     <Image
-                      src={review.avatar || "/assets/images/avatar-placeholder.png"}
+                      src={
+                        review.avatar || "/assets/images/avatar-placeholder.png"
+                      }
                       alt={review.username}
                       width={40}
                       height={40}
@@ -347,7 +326,9 @@ export default async function ArtisanProfilePage({ params }: ArtisanProfilePageP
                 </div>
               ))
             ) : (
-              <p className="text-gray-500">No reviews yet. Be the first to leave a review!</p>
+              <p className="text-gray-500">
+                No reviews yet. Be the first to leave a review!
+              </p>
             )}
           </div>
         </section>

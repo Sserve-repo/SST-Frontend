@@ -1,69 +1,51 @@
-import React, { Suspense } from "react";
+"use client";
+
+import React, { Suspense, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Package, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import { getVendorProfile } from "@/actions/vendors";
 import { Card, CardContent } from "@/components/ui/card";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
+import { MessageInitiationModal } from "@/components/messages/message-initiation-modal";
 
-interface VendorProfilePageProps {
-  params: {
-    vendorId: string;
-  };
-}
+export default function VendorProfilePage() {
+  const [vendor, setVendor] = useState<any>(null);
+  const params = useParams();
+  const vendorId = params?.vendorId as string;
 
-// Server-side data fetching
-async function getVendorData(vendorId: string) {
-  try {
-    const response = await getVendorProfile(vendorId);
-    if (!response?.ok) {
-      return null;
+  const handleFetchingVendorData = async () => {
+    try {
+      const response = await getVendorProfile(vendorId);
+
+      if (!response?.ok || response?.status !== 200) {
+        throw new Error("Failed to fetch vendor profile");
+      }
+
+      const data = await response?.json();
+      if (data?.data?.["Vendor Business profile"]) {
+        setVendor(data?.data["Vendor Business profile"]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch vendor profile", error);
+      notFound();
     }
-    
-    const data = await response.json();
-    return {
-      vendor: data.data["Vendor Business profile"],
-    };
-  } catch (error) {
-    console.error("Error fetching vendor profile:", error);
-    return null;
-  }
-}
-
-// Static metadata generation
-export async function generateMetadata({ params }: VendorProfilePageProps) {
-  const data = await getVendorData(params.vendorId);
-  
-  if (!data) {
-    return {
-      title: "Vendor Not Found",
-      description: "The vendor profile you're looking for doesn't exist."
-    };
-  }
-
-  const { vendor } = data;
-  
-  return {
-    title: `${vendor?.firstname} ${vendor?.lastname} - Professional Vendor`,
-    description: `Shop from ${vendor?.firstname}'s professional vendor store. ${vendor?.vendor_business_details?.business_details || 'Quality products with great customer service.'}`,
-    keywords: `vendor, ${vendor?.vendor_business_details?.vendor_category?.name}, ${vendor?.vendor_business_details?.city}`,
-    openGraph: {
-      title: `${vendor?.firstname} ${vendor?.lastname} - Professional Vendor`,
-      description: vendor?.vendor_business_details?.business_details || 'Quality products with great customer service.',
-      images: [vendor?.vendor_business_details?.image || '/assets/images/vendor-placeholder.png'],
-    },
   };
-}
 
-export default async function VendorProfilePage({ params }: VendorProfilePageProps) {
-  const data = await getVendorData(params.vendorId);
-  
-  if (!data) {
-    notFound();
+  useEffect(() => {
+    if (vendorId) {
+      handleFetchingVendorData();
+    }
+  }, [vendorId]);
+
+  if (!vendor) {
+    return (
+      <div className="py-32 text-center text-gray-500">
+        Loading vendor profile...
+      </div>
+    );
   }
-
-  const { vendor } = data;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -97,7 +79,7 @@ export default async function VendorProfilePage({ params }: VendorProfilePagePro
                   <Image
                     src={
                       vendor?.vendor_business_details?.image ||
-                      "/assets/images/vendor-placeholder.png"
+                      "/assets/images/avatar-placeholder.png"
                     }
                     alt="Profile"
                     width={60}
@@ -108,9 +90,7 @@ export default async function VendorProfilePage({ params }: VendorProfilePagePro
                     <h1 className="text-xl font-semibold text-[#502266]">
                       {`${vendor?.firstname} ${vendor?.lastname}`}
                     </h1>
-                    <p className="text-sm text-gray-600">
-                      Professional Vendor
-                    </p>
+                    <p className="text-sm text-gray-600">Professional Vendor</p>
                   </div>
                 </div>
                 <Badge className="flex items-center bg-[#FF7F00] hover:bg-[#FF7F00]/90 gap-1">
@@ -134,9 +114,17 @@ export default async function VendorProfilePage({ params }: VendorProfilePagePro
                 </Badge>
               </div>
 
-              <div className="mt-4 w-full bg-[#502266] hover:bg-[#502266]/90 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Message Vendor
+              <div className="mt-4 w-full  text-white px-4 py-2 rounded-md flex items-center justify-center gap-2">
+                <MessageInitiationModal
+                  recipientId={vendor?.id}
+                  recipientName={vendor.name || "Artisan"}
+                  productName={"Artisan Inquiry"}
+                >
+                  <Button className="flex-1">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Message Vendor
+                  </Button>
+                </MessageInitiationModal>
               </div>
 
               <p className="mt-2 text-center text-xs text-gray-600">
@@ -261,10 +249,7 @@ export default async function VendorProfilePage({ params }: VendorProfilePagePro
                 This vendor hasn&apos;t listed any products yet. Check back
                 later or browse other vendors.
               </p>
-              <Button
-                className="bg-[#FF7F00] hover:bg-[#FF7F00]/90"
-                asChild
-              >
+              <Button className="bg-[#FF7F00] hover:bg-[#FF7F00]/90" asChild>
                 <a href="/vendors">Browse Other Vendors</a>
               </Button>
             </div>
