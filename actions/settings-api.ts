@@ -38,6 +38,7 @@ export async function viewBusinessDetails(userType: 'artisan' | 'vendor'): Promi
         });
 
         const result = await response.json();
+        console.log("Business Details Response:", result);
         return { data: result.data || null, error: null };
     } catch (error) {
         console.error("Error fetching business details:", error);
@@ -142,6 +143,7 @@ export async function viewVendorIdentity(): Promise<{
         });
 
         const result = await response.json();
+        console.log("Vendor Identity Response:", result);
         return { data: result.data || null, error: null };
     } catch (error) {
         console.error("Error fetching vendor identity:", error);
@@ -291,8 +293,8 @@ export async function updateShippingPolicy(data: ShippingPolicyData & { user_ema
         const formData = new FormData()
         formData.append("user_email", data.user_email)
         formData.append("shipping_option", data.shipping_option)
-        formData.append("from_day", data.from_day)
-        formData.append("to_day", data.to_day)
+        formData.append("from_day", data.from_date)
+        formData.append("to_day", data.to_date)
         formData.append("return_policy", data.return_policy)
         formData.append("shipping_cost", data.shipping_cost)
 
