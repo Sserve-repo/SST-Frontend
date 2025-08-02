@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MdReplay } from "react-icons/md";
-import { getOrderlist } from "@/actions/dashboard/buyer";
+import { getBookinglist } from "@/actions/dashboard/buyer";
 import { useRouter } from "next/navigation";
 import { convertTime } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export default function OrdersPage() {
   const [orderData, setOrderData] = useState<OrderType | null>(null);
   const router = useRouter();
   const handleFetchOrders = async () => {
-    const response = await getOrderlist();
+    const response = await getBookinglist();
     if (response && response.ok) {
       const data = await response.json();
       setOrderData(data.data["orders"]);
