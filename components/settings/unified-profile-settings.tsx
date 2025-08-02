@@ -667,7 +667,9 @@ UnifiedProfileSettingsProps) {
 
   const onBillingSubmit = async (billingData: BillingDetailsData) => {
     setLoading(true);
-    console.log("Billing data:", billingData);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Billing data:", billingData);
+    }
     try {
       // Implementation for billing details update
       toast.success("Billing details updated successfully");
