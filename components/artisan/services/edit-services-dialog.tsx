@@ -37,8 +37,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   updateServiceListing,
-  getServiceCategories,
-  getServiceCategoryItemsById,
+  // getServiceCategories,
+  // getServiceCategoryItemsById,
   getServiceDetails,
 } from "@/actions/dashboard/artisans";
 import type { Service } from "@/types/services";
@@ -47,14 +47,14 @@ const formSchema = z.object({
   title: z
     .string()
     .min(2, { message: "Service title must be at least 2 characters." }),
-  category: z.string().min(1, { message: "Category is required." }),
-  subCategory: z.string().min(1, { message: "Sub-category is required." }),
+  // category: z.string().min(1, { message: "Category is required." }),
+  // subCategory: z.string().min(1, { message: "Sub-category is required." }),
   price: z.string().min(1, { message: "Price is required." }),
   duration: z.string().min(1, { message: "Duration is required." }),
   description: z
     .string()
     .min(10, { message: "Description must be at least 10 characters." }),
-  status: z.enum(["0", "1"]).default("0"),
+  // status: z.enum(["0", "1"]).default("0"),
   start_time: z.string().min(1, { message: "Start time is required." }),
   end_time: z.string().min(1, { message: "End time is required." }),
   home_service_availability: z.enum(["0", "1"]).default("0"),
@@ -75,8 +75,8 @@ export function EditServicesDialog({
 }: EditServicesDialogProps) {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(false);
-  const [serviceCategories, setServiceCategories] = useState<any[]>([]);
-  const [serviceCategoryItems, setServiceCategoryItems] = useState<any[]>([]);
+  // const [serviceCategories, setServiceCategories] = useState<any[]>([]);
+  // const [serviceCategoryItems, setServiceCategoryItems] = useState<any[]>([]);
   const [images, setImages] = useState<
     { file: File | null; preview: string }[]
   >([]);
@@ -86,12 +86,12 @@ export function EditServicesDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      category: "",
-      subCategory: "",
+      // category: "",
+      // subCategory: "",
       price: "",
       duration: "",
       description: "",
-      status: "0",
+      // status: "0",
       start_time: "",
       end_time: "",
       home_service_availability: "0",
@@ -143,7 +143,7 @@ export function EditServicesDialog({
         console.log("Initializing form with service data:", service);
 
         // Fetch categories first
-        handleFetchServiceCategories();
+        // handleFetchServiceCategories();
 
         // Extract category ID from API response - use direct field names from API
         const categoryId =
@@ -165,18 +165,18 @@ export function EditServicesDialog({
         );
 
         // Fetch subcategories if category exists
-        if (categoryId) {
-          await handleFetchServiceCategoryItems(categoryId);
-        }
+        // if (categoryId) {
+        //   await handleFetchServiceCategoryItems(categoryId);
+        // }
 
         form.reset({
           title: service.title || service.name || "",
-          category: categoryId,
-          subCategory: subCategoryId,
+          // category: categoryId,
+          // subCategory: subCategoryId,
           price: String(service.price || ""),
           duration: String(service.service_duration || service.duration || ""),
           description: service.description || "",
-          status: String(service.status) === "1" ? "1" : "0", // Ensure it's "0" or "1"
+          // status: String(service.status) === "1" ? "1" : "0", // Ensure it's "0" or "1"
           start_time: service.start_time || "",
           end_time: service.end_time || "",
           home_service_availability:
@@ -211,29 +211,29 @@ export function EditServicesDialog({
     init();
   }, [service, form]);
 
-  const handleFetchServiceCategories = async () => {
-    try {
-      const response = await getServiceCategories();
-      if (response && response.ok) {
-        const data = await response.json();
-        setServiceCategories(data.data["Service Category"] || []);
-      }
-    } catch (error) {
-      console.error("Error fetching service categories:", error);
-    }
-  };
+  // const handleFetchServiceCategories = async () => {
+  //   try {
+  //     const response = await getServiceCategories();
+  //     if (response && response.ok) {
+  //       const data = await response.json();
+  //       setServiceCategories(data.data["Service Category"] || []);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching service categories:", error);
+  //   }
+  // };
 
-  const handleFetchServiceCategoryItems = async (catId: string) => {
-    try {
-      const response = await getServiceCategoryItemsById(catId);
-      if (response && response.ok) {
-        const data = await response.json();
-        setServiceCategoryItems(data.data["Service Category Item By ID"] || []);
-      }
-    } catch (error) {
-      console.error("Error fetching service category items:", error);
-    }
-  };
+  // const handleFetchServiceCategoryItems = async (catId: string) => {
+  //   try {
+  //     const response = await getServiceCategoryItemsById(catId);
+  //     if (response && response.ok) {
+  //       const data = await response.json();
+  //       setServiceCategoryItems(data.data["Service Category Item By ID"] || []);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching service category items:", error);
+  //   }
+  // };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -257,12 +257,12 @@ export function EditServicesDialog({
       const formData = new FormData();
 
       formData.append("title", values.title);
-      formData.append("category_id", values.category);
-      formData.append("sub_category_id", values.subCategory);
+      // formData.append("category_id", values.category);
+      // formData.append("sub_category_id", values.subCategory);
       formData.append("price", values.price);
       formData.append("service_duration", values.duration);
       formData.append("description", values.description);
-      formData.append("status", values.status);
+      // formData.append("status", values.status);
       formData.append("start_time", values.start_time);
       formData.append("end_time", values.end_time);
       formData.append(
@@ -296,12 +296,12 @@ export function EditServicesDialog({
             ...service,
             name: values.title,
             title: values.title,
-            category_id: parseInt(values.category),
-            sub_category_id: parseInt(values.subCategory),
+            // category_id: parseInt(values.category),
+            // sub_category_id: parseInt(values.subCategory),
             price: parseFloat(values.price),
             duration: parseInt(values.duration),
             description: values.description,
-            status: values.status === "1" ? "active" : "inactive",
+            // status: values.status === "1" ? "active" : "inactive",
             start_time: values.start_time,
             end_time: values.end_time,
             updatedAt: new Date(),
@@ -327,9 +327,9 @@ export function EditServicesDialog({
     }
   }
 
-  useEffect(() => {
-    handleFetchServiceCategories();
-  }, []);
+  // useEffect(() => {
+  //   handleFetchServiceCategories();
+  // }, []);
 
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
@@ -359,7 +359,7 @@ export function EditServicesDialog({
                   </FormItem>
                 )}
               />
-              <div className="grid gap-4 sm:grid-cols-2">
+              {/* <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="category"
@@ -428,7 +428,7 @@ export function EditServicesDialog({
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -572,7 +572,7 @@ export function EditServicesDialog({
                   Max. file size: 25MB. Supported formats: JPEG, PNG, WebP
                 </p>
               </div>
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -592,7 +592,7 @@ export function EditServicesDialog({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name="home_service_availability"
