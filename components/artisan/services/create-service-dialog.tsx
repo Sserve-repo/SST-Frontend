@@ -25,35 +25,35 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   createServiceListing,
-  getServiceCategories,
-  getServiceCategoryItemsById,
+  // getServiceCategories,
+  // getServiceCategoryItemsById,
 } from "@/actions/dashboard/artisans";
 
 const formSchema = z.object({
   title: z
     .string()
     .min(2, { message: "Service title must be at least 2 characters." }),
-  category: z.string().min(1, { message: "Category is required." }),
-  subCategory: z.string().min(1, { message: "Sub-category is required." }),
+  // category: z.string().min(1, { message: "Category is required." }),
+  // subCategory: z.string().min(1, { message: "Sub-category is required." }),
   price: z.string().min(1, { message: "Price is required." }),
   duration: z.string().min(1, { message: "Duration is required." }),
   description: z
     .string()
     .min(10, { message: "Description must be at least 10 characters." }),
-  status: z.enum(["0", "1"]).default("0"),
+  // status: z.enum(["0", "1"]).default("0"),
   start_time: z.string().min(1, { message: "Start time is required." }),
   end_time: z.string().min(1, { message: "End time is required." }),
   home_service_availability: z.enum(["0", "1"]).default("0"),
@@ -70,8 +70,8 @@ export function CreateServiceDialog({
 }: CreateServiceDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [serviceCategories, setServiceCategories] = useState<any[]>([]);
-  const [serviceCategoryItems, setServiceCategoryItems] = useState<any[]>([]);
+  // const [serviceCategories, setServiceCategories] = useState<any[]>([]);
+  // const [serviceCategoryItems, setServiceCategoryItems] = useState<any[]>([]);
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const { toast } = useToast();
 
@@ -79,43 +79,43 @@ export function CreateServiceDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      category: "",
-      subCategory: "",
+      // category: "",
+      // subCategory: "",
       price: "",
       duration: "",
       description: "",
-      status: "0",
+      // status: "0",
       start_time: "",
       end_time: "",
       home_service_availability: "0",
     },
   });
 
-  const handleFetchServiceCategories = async () => {
-    try {
-      const response = await getServiceCategories();
-      if (response && response.ok) {
-        const data = await response.json();
-        console.log("Service categories data:", data);
-        setServiceCategories(data.data["Service Category"] || []);
-      }
-    } catch (error) {
-      console.error("Error fetching service categories:", error);
-    }
-  };
+  // const handleFetchServiceCategories = async () => {
+  //   try {
+  //     const response = await getServiceCategories();
+  //     if (response && response.ok) {
+  //       const data = await response.json();
+  //       console.log("Service categories data:", data);
+  //       setServiceCategories(data.data["Service Category"] || []);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching service categories:", error);
+  //   }
+  // };
 
-  const handleFetchServiceCategoryItems = async (catId: string) => {
-    try {
-      const response = await getServiceCategoryItemsById(catId);
-      if (response && response.ok) {
-        const data = await response.json();
-        console.log("Service category items data:", data);
-        setServiceCategoryItems(data.data["Service Category Item By ID"] || []);
-      }
-    } catch (error) {
-      console.error("Error fetching service category items:", error);
-    }
-  };
+  // const handleFetchServiceCategoryItems = async (catId: string) => {
+  //   try {
+  //     const response = await getServiceCategoryItemsById(catId);
+  //     if (response && response.ok) {
+  //       const data = await response.json();
+  //       console.log("Service category items data:", data);
+  //       setServiceCategoryItems(data.data["Service Category Item By ID"] || []);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching service category items:", error);
+  //   }
+  // };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -139,12 +139,12 @@ export function CreateServiceDialog({
       const formData = new FormData();
 
       formData.append("title", values.title);
-      formData.append("category_id", values.category);
-      formData.append("sub_category_id", values.subCategory);
+      // formData.append("category_id", values.category);
+      // formData.append("sub_category_id", values.subCategory);
       formData.append("price", values.price);
       formData.append("service_duration", values.duration);
       formData.append("description", values.description);
-      formData.append("status", values.status);
+      // formData.append("status", values.status);
       formData.append("start_time", values.start_time);
       formData.append("end_time", values.end_time);
       formData.append("home_service_availability", values.home_service_availability);
@@ -166,8 +166,8 @@ export function CreateServiceDialog({
           setOpen(false);
           form.reset();
           setImages([]);
-          setServiceCategories([]);
-          setServiceCategoryItems([]);
+          // setServiceCategories([]);
+          // setServiceCategoryItems([]);
           onSubmit();
         } else {
           throw new Error(result.message || "Failed to create service");
@@ -190,9 +190,9 @@ export function CreateServiceDialog({
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    if (newOpen) {
-      handleFetchServiceCategories();
-    }
+    // if (newOpen) {
+    //   handleFetchServiceCategories();
+    // }
   };
 
   return (
@@ -225,7 +225,7 @@ export function CreateServiceDialog({
                   </FormItem>
                 )}
               />
-              <div className="grid gap-4 sm:grid-cols-2">
+              {/* <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="category"
@@ -294,7 +294,7 @@ export function CreateServiceDialog({
                     </FormItem>
                   )}
                 />
-              </div>
+              </div> */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -438,7 +438,7 @@ export function CreateServiceDialog({
                   Max. file size: 25MB. Supported formats: JPEG, PNG, WebP
                 </p>
               </div>
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -458,8 +458,8 @@ export function CreateServiceDialog({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-              <FormField
+              /> */}
+              {/* <FormField
                 control={form.control}
                 name="home_service_availability"
                 render={({ field }) => (
@@ -479,7 +479,7 @@ export function CreateServiceDialog({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
             <DialogFooter>
               <Button
