@@ -317,11 +317,10 @@ export default function CheckoutForm() {
   const handleGetProvinces = async () => {
     try {
       const response = await getProvinces();
-      if (response && response.ok) {
-        const data = await response.json();
-        setProvinces(data.data["Provinces"]);
+      if (response.data && !response.error) {
+        setProvinces(response.data.data["Provinces"]);
       } else {
-        console.warn("Failed to fetch provinces");
+        console.warn("Failed to fetch provinces:", response.error);
       }
     } catch (error) {
       console.error("Error fetching provinces:", error);
