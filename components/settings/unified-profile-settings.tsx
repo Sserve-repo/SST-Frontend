@@ -181,7 +181,9 @@ UnifiedProfileSettingsProps) {
   const [provinces, setProvinces] = useState<any[]>([]);
   const [productCategories, setProductCategories] = useState<any[]>([]);
   const [productRegions, setProductRegions] = useState<any[]>([]);
-  const [currentIdentityDoc, setCurrentIdentityDoc] = useState<string | null>(null);
+  const [currentIdentityDoc, setCurrentIdentityDoc] = useState<string | null>(
+    null
+  );
   const { setAuth } = useAuth();
 
   const form = useForm<ProfileUpdateData>({
@@ -303,17 +305,17 @@ UnifiedProfileSettingsProps) {
     async (userType: "artisan" | "vendor") => {
       try {
         const { data, error } = await viewBusinessDetails(userType);
-        console.log("Business details data:", data);
+        // console.log("Business details data:", data);
         if (data && !error) {
           businessDetailsForm.reset({
             business_details: data.business_details || "",
             business_email: data.business_email || "",
             business_phone: data.business_phone || "",
             business_name: data.business_name || "",
-            product_category_id: data.product_category_id || "",
-            product_region_id: data.product_region_id || "",
+            product_category_id: String(data.product_category_id || ""),
+            product_region_id: String(data.product_region_id || ""),
             city: data.city || "",
-            province_id: data.province_id || "",
+            province_id: String(data.province_id || ""),
             postal_code: data.postal_code || "",
           });
         }
@@ -327,7 +329,7 @@ UnifiedProfileSettingsProps) {
   const fetchServiceAreaAvailability = useCallback(async () => {
     try {
       const { data, error } = await viewServiceAreaAvailability();
-      console.log("Service area availability data:", data);
+      // console.log("Service area availability data:", data);
       if (data && !error) {
         serviceAreaForm.reset({
           available_dates: data.available_dates || [],
@@ -368,7 +370,7 @@ UnifiedProfileSettingsProps) {
   const fetchShippingPolicy = useCallback(async () => {
     try {
       const { data, error } = await viewShippingPolicy();
-      console.log("Shipping policy data:", data);
+      // console.log("Shipping policy data:", data);
       if (data && !error) {
         shippingForm.reset({
           user_email: shippingForm.getValues("user_email"),
@@ -387,14 +389,16 @@ UnifiedProfileSettingsProps) {
   const fetchVendorIdentity = useCallback(async () => {
     try {
       const { data, error } = await viewVendorIdentity();
-      console.log("Vendor identity data:", data);
-      
+      // console.log("Vendor identity data:", data);
+
       if (data && !error) {
         identityForm.reset({
           document_type: data.document_type || "",
           document: undefined as unknown as File,
         });
-        setCurrentIdentityDoc(typeof data.document === 'string' ? data.document : null);
+        setCurrentIdentityDoc(
+          typeof data.document === "string" ? data.document : null
+        );
       }
     } catch (error) {
       console.error("Error fetching vendor identity:", error);
@@ -409,7 +413,9 @@ UnifiedProfileSettingsProps) {
           document_type: data.document_type || "",
           document: undefined as unknown as File,
         });
-        setCurrentIdentityDoc(typeof data.document === 'string' ? data.document : null);
+        setCurrentIdentityDoc(
+          typeof data.document === "string" ? data.document : null
+        );
       }
     } catch (error) {
       console.error("Error fetching artisan identity:", error);
@@ -418,24 +424,39 @@ UnifiedProfileSettingsProps) {
 
   const fetchDropdownData = useCallback(async () => {
     try {
-      // Fetch provinces
-      const provincesResponse = await getProvinces();
-      if (provincesResponse?.ok) {
-        const provincesData = await provincesResponse.json();
-        setProvinces(provincesData.data || []);
+      // Fetch product categories
+      const categoriesResult = await getProductCategories();
+      // console.log("Product Categories API Result:", categoriesResult);
+      if (!categoriesResult.error && categoriesResult.data) {
+        const categoriesArray = categoriesResult.data["Products Category"];
+        // console.log("Processed categories array:", categoriesArray);
+        setProductCategories(categoriesArray);
+      } else {
+        console.error("Categories fetch error:", categoriesResult.error);
+        setProductCategories([]);
       }
 
-      // Fetch product categories
-      const { data: categoriesData } = await getProductCategories();
-      if (categoriesData?.status) {
-        setProductCategories(categoriesData.data["Products Category"] || []);
+      // Fetch provinces
+      const provincesResult = await getProvinces();
+      // console.log("Provinces API Result:", provincesResult);
+      if (provincesResult.data && !provincesResult.error) {
+        // Handle the actual API response structure
+        const provincesArray = provincesResult.data.data?.Provinces || [];
+        // console.log("Processed provinces array:", provincesArray);
+        setProvinces(Array.isArray(provincesArray) ? provincesArray : []);
+      } else {
+        console.error("Provinces fetch error:", provincesResult.error);
       }
 
       // Fetch product regions
-      const regionsResponse = await getRegions();
-      if (regionsResponse?.ok) {
-        const regionsData = await regionsResponse.json();
-        setProductRegions(regionsData.data || []);
+      const regionsResult = await getRegions();
+      // console.log("Regions API Result:", regionsResult);
+      if (regionsResult.data && !regionsResult.error) {
+        const regionsArray = regionsResult.data.data["Products Region"] || [];
+        // console.log("Processed regions array:", regionsArray);
+        setProductRegions(Array.isArray(regionsArray) ? regionsArray : []);
+      } else {
+        console.error("Regions fetch error:", regionsResult.error);
       }
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
@@ -601,8 +622,10 @@ UnifiedProfileSettingsProps) {
   ) => {
     setLoading(true);
     try {
+      // console.log("Shipping form data being submitted:", data);
       const { data: result, token, error } = await updateShippingPolicy(data);
       if (error) {
+        console.error("Shipping policy update error:", error);
         toast.error(error);
         return;
       }
@@ -610,6 +633,8 @@ UnifiedProfileSettingsProps) {
       if (result && token) {
         setAuth(true, currentUser!, token);
         toast.success("Shipping policy updated successfully");
+        // Refresh the data after successful update
+        await fetchShippingPolicy();
       }
     } catch (error) {
       console.error("Error updating shipping policy:", error);
@@ -640,12 +665,11 @@ UnifiedProfileSettingsProps) {
     }
   };
 
-  const onBillingSubmit = async (data: BillingDetailsData) => {
+  const onBillingSubmit = async (billingData: BillingDetailsData) => {
     setLoading(true);
-    console.log(data);
+    console.log("Billing data:", billingData);
     try {
       // Implementation for billing details update
-      console.log("Billing details submitted:", data);
       toast.success("Billing details updated successfully");
     } catch (error) {
       console.error("Error updating billing details:", error);
@@ -655,13 +679,12 @@ UnifiedProfileSettingsProps) {
     }
   };
 
-  const onPaymentSubmit = async (data: PaymentMethodData) => {
+  const onPaymentSubmit = async (paymentData: PaymentMethodData) => {
     setLoading(true);
-    console.log(data);
+    console.log("Payment data:", paymentData);
 
     try {
       // Implementation for payment method update
-      console.log("Billing details submitted:", data);
       toast.success("Payment method updated successfully");
     } catch (error) {
       console.error("Error updating payment method:", error);
@@ -674,8 +697,10 @@ UnifiedProfileSettingsProps) {
   const onBusinessDetailsSubmit = async (data: BusinessDetailsData) => {
     setLoading(true);
     try {
+      // console.log("Submitting business details:", data);
       const { data: result, token, error } = await updateBusinessDetails(data);
       if (error) {
+        console.error("Business details update error:", error);
         toast.error(error);
         return;
       }
@@ -683,6 +708,10 @@ UnifiedProfileSettingsProps) {
       if (result && token) {
         setAuth(true, currentUser!, token);
         toast.success("Business details updated successfully");
+        // Refresh the data after successful update
+        await fetchBusinessDetails(
+          window.location.pathname.includes("/vendor/") ? "vendor" : "artisan"
+        );
       }
     } catch (error) {
       console.error("Error updating business details:", error);
@@ -1681,7 +1710,12 @@ UnifiedProfileSettingsProps) {
                                       type="button"
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => window.open(currentIdentityDoc, '_blank')}
+                                      onClick={() =>
+                                        window.open(
+                                          currentIdentityDoc,
+                                          "_blank"
+                                        )
+                                      }
                                     >
                                       <Eye className="h-4 w-4 mr-2" />
                                       View
@@ -1691,9 +1725,10 @@ UnifiedProfileSettingsProps) {
                                       variant="outline"
                                       size="sm"
                                       onClick={() => {
-                                        const link = document.createElement('a');
+                                        const link =
+                                          document.createElement("a");
                                         link.href = currentIdentityDoc;
-                                        link.download = 'identity-document';
+                                        link.download = "identity-document";
                                         link.click();
                                       }}
                                     >
@@ -1859,11 +1894,15 @@ UnifiedProfileSettingsProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {provinces.map((province) => (
-                                  <SelectItem key={province.id} value={String(province.id)}>
-                                    {province.name}
-                                  </SelectItem>
-                                ))}
+                                {Array.isArray(provinces) &&
+                                  provinces.map((province) => (
+                                    <SelectItem
+                                      key={province.id}
+                                      value={String(province.id)}
+                                    >
+                                      {province.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -1889,11 +1928,15 @@ UnifiedProfileSettingsProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {productCategories.map((category) => (
-                                  <SelectItem key={category.id} value={String(category.id)}>
-                                    {category.name}
-                                  </SelectItem>
-                                ))}
+                                {Array.isArray(productCategories) &&
+                                  productCategories.map((category) => (
+                                    <SelectItem
+                                      key={category.id}
+                                      value={String(category.id)}
+                                    >
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -1916,11 +1959,15 @@ UnifiedProfileSettingsProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {productRegions.map((region) => (
-                                  <SelectItem key={region.id} value={String(region.id)}>
-                                    {region.name}
-                                  </SelectItem>
-                                ))}
+                                {Array.isArray(productRegions) &&
+                                  productRegions.map((region) => (
+                                    <SelectItem
+                                      key={region.id}
+                                      value={String(region.id)}
+                                    >
+                                      {region.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
