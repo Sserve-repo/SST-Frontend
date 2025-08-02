@@ -290,13 +290,21 @@ export async function updateShippingPolicy(data: ShippingPolicyData & { user_ema
             return { data: null, token: null, error: "No authentication token found" }
         }
 
+        console.log("Shipping policy data being sent:", data);
+
         const formData = new FormData()
         formData.append("user_email", data.user_email)
         formData.append("shipping_option", data.shipping_option)
-        formData.append("from_day", data.from_date)
-        formData.append("to_day", data.to_date)
+        formData.append("from_date", data.from_date)
+        formData.append("to_date", data.to_date)
         formData.append("return_policy", data.return_policy)
         formData.append("shipping_cost", data.shipping_cost)
+
+        // Log the FormData content for debugging
+        console.log("Shipping Policy FormData entries:");
+        formData.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+        });
 
         const response = await fetch(`${baseUrl}/vendor/dashboard/settings/updateShippingPolicy`, {
             method: "POST",
@@ -307,6 +315,7 @@ export async function updateShippingPolicy(data: ShippingPolicyData & { user_ema
         })
 
         const result = await response.json()
+        console.log("Shipping policy API response:", result);
 
         if (!response.ok) {
             return { data: null, token: null, error: result.message || "Failed to update shipping policy" }
@@ -386,6 +395,8 @@ export async function updateBusinessDetails(data: BusinessDetailsData): Promise<
             return { data: null, token: null, error: "No authentication token found" }
         }
 
+        console.log("Business details data being sent:", data);
+
         const formData = new FormData()
         formData.append("business_details", data.business_details)
         formData.append("business_email", data.business_email)
@@ -397,6 +408,14 @@ export async function updateBusinessDetails(data: BusinessDetailsData): Promise<
         formData.append("province_id", data.province_id)
         formData.append("postal_code", data.postal_code)
 
+        // Log the FormData content for debugging
+        console.log("FormData entries:");
+        const formDataArray: [string, FormDataEntryValue][] = [];
+        formData.forEach((value, key) => {
+            formDataArray.push([key, value]);
+            console.log(`${key}: ${value}`);
+        });
+
         const response = await fetch(`${baseUrl}/vendor/dashboard/settings/updateBusinessDetails`, {
             method: "POST",
             headers: {
@@ -406,6 +425,7 @@ export async function updateBusinessDetails(data: BusinessDetailsData): Promise<
         })
 
         const result = await response.json()
+        console.log("Business details API response:", result);
 
         if (!response.ok) {
             return { data: null, token: null, error: result.message || "Failed to update business details" }
