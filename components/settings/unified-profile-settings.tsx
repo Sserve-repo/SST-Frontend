@@ -681,7 +681,9 @@ UnifiedProfileSettingsProps) {
 
   const onPaymentSubmit = async (paymentData: PaymentMethodData) => {
     setLoading(true);
-    console.log("Payment data:", paymentData);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Payment data:", paymentData);
+    }
 
     try {
       // Implementation for payment method update
