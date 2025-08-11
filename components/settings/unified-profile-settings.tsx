@@ -57,6 +57,8 @@ import {
   CalendarIcon,
   Home,
   Globe,
+  Eye,
+  Download,
 } from "lucide-react";
 import {
   getUserProfile,
@@ -80,6 +82,9 @@ import {
   viewVendorIdentity,
   viewArtisanIdentity,
 } from "@/actions/settings-api";
+import { getProvinces } from "@/actions/provinces";
+import { getProductCategories } from "@/actions/admin/categories";
+import { getRegions } from "@/actions/product";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "../ui/loading-spinner";
@@ -104,7 +109,9 @@ const profileSchema = z.object({
 });
 
 const serviceAreaSchema = z.object({
-  available_dates: z.array(z.string()).min(1, "Please select at least one available date"),
+  available_dates: z
+    .array(z.string())
+    .min(1, "Please select at least one available date"),
   start_time: z.string().min(1, "Start time is required"),
   end_time: z.string().min(1, "End time is required"),
   longitude: z.string().min(1, "Longitude is required"),
@@ -114,16 +121,22 @@ const serviceAreaSchema = z.object({
 });
 
 const businessPolicySchema = z.object({
-  booking_details: z.string().min(10, "Booking details must be at least 10 characters"),
-  cancelling_policy: z.string().min(10, "Cancelling policy must be at least 10 characters"),
+  booking_details: z
+    .string()
+    .min(10, "Booking details must be at least 10 characters"),
+  cancelling_policy: z
+    .string()
+    .min(10, "Cancelling policy must be at least 10 characters"),
 });
 
 const shippingPolicySchema = z.object({
   user_email: z.string().email("Please enter a valid email address"),
   shipping_option: z.string().min(1, "Please select a shipping option"),
-  from_day: z.string().min(1, "From day is required"),
-  to_day: z.string().min(1, "To day is required"),
-  return_policy: z.string().min(10, "Return policy must be at least 10 characters"),
+  from_date: z.string().min(1, "From day is required"),
+  to_date: z.string().min(1, "To day is required"),
+  return_policy: z
+    .string()
+    .min(10, "Return policy must be at least 10 characters"),
   shipping_cost: z.string().min(1, "Shipping cost is required"),
 });
 
@@ -133,10 +146,14 @@ const identitySchema = z.object({
 });
 
 const businessDetailsSchema = z.object({
-  business_details: z.string().min(10, "Business details must be at least 10 characters"),
+  business_details: z
+    .string()
+    .min(10, "Business details must be at least 10 characters"),
   business_email: z.string().email("Please enter a valid business email"),
   business_phone: z.string().min(10, "Please enter a valid phone number"),
-  business_name: z.string().min(2, "Business name must be at least 2 characters"),
+  business_name: z
+    .string()
+    .min(2, "Business name must be at least 2 characters"),
   product_category_id: z.string().min(1, "Please select a product category"),
   product_region_id: z.string().min(1, "Please select a product region"),
   city: z.string().min(2, "City must be at least 2 characters"),
@@ -161,6 +178,12 @@ UnifiedProfileSettingsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [provinces, setProvinces] = useState<any[]>([]);
+  const [productCategories, setProductCategories] = useState<any[]>([]);
+  const [productRegions, setProductRegions] = useState<any[]>([]);
+  const [currentIdentityDoc, setCurrentIdentityDoc] = useState<string | null>(
+    null
+  );
   const { setAuth } = useAuth();
 
   const form = useForm<ProfileUpdateData>({
@@ -202,8 +225,8 @@ UnifiedProfileSettingsProps) {
     defaultValues: {
       user_email: "",
       shipping_option: "",
-      from_day: "",
-      to_day: "",
+      from_date: "",
+      to_date: "",
       return_policy: "",
       shipping_cost: "",
     },
@@ -278,30 +301,35 @@ UnifiedProfileSettingsProps) {
     }
   }, [form, shippingForm]);
 
-  const fetchBusinessDetails = useCallback(async (userType: 'artisan' | 'vendor') => {
-    try {
-      const { data, error } = await viewBusinessDetails(userType);
-      if (data && !error) {
-        businessDetailsForm.reset({
-          business_details: data.business_details || "",
-          business_email: data.business_email || "",
-          business_phone: data.business_phone || "",
-          business_name: data.business_name || "",
-          product_category_id: data.product_category_id || "",
-          product_region_id: data.product_region_id || "",
-          city: data.city || "",
-          province_id: data.province_id || "",
-          postal_code: data.postal_code || "",
-        });
+  const fetchBusinessDetails = useCallback(
+    async (userType: "artisan" | "vendor") => {
+      try {
+        const { data, error } = await viewBusinessDetails(userType);
+        // console.log("Business details data:", data);
+        if (data && !error) {
+          businessDetailsForm.reset({
+            business_details: data.business_details || "",
+            business_email: data.business_email || "",
+            business_phone: data.business_phone || "",
+            business_name: data.business_name || "",
+            product_category_id: String(data.product_category_id || ""),
+            product_region_id: String(data.product_region_id || ""),
+            city: data.city || "",
+            province_id: String(data.province_id || ""),
+            postal_code: data.postal_code || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching business details:", error);
       }
-    } catch (error) {
-      console.error("Error fetching business details:", error);
-    }
-  }, [businessDetailsForm]);
+    },
+    [businessDetailsForm]
+  );
 
   const fetchServiceAreaAvailability = useCallback(async () => {
     try {
       const { data, error } = await viewServiceAreaAvailability();
+      // console.log("Service area availability data:", data);
       if (data && !error) {
         serviceAreaForm.reset({
           available_dates: data.available_dates || [],
@@ -314,7 +342,9 @@ UnifiedProfileSettingsProps) {
         });
         // Set selected dates for calendar
         if (data.available_dates) {
-          const dates = data.available_dates.map(dateStr => new Date(dateStr));
+          const dates = data.available_dates.map(
+            (dateStr) => new Date(dateStr)
+          );
           setSelectedDates(dates);
         }
       }
@@ -340,12 +370,13 @@ UnifiedProfileSettingsProps) {
   const fetchShippingPolicy = useCallback(async () => {
     try {
       const { data, error } = await viewShippingPolicy();
+      // console.log("Shipping policy data:", data);
       if (data && !error) {
         shippingForm.reset({
-          user_email: shippingForm.getValues("user_email"), // Keep current email
+          user_email: shippingForm.getValues("user_email"),
           shipping_option: data.shipping_option || "",
-          from_day: data.from_day || "",
-          to_day: data.to_day || "",
+          from_date: String(data.from_date || ""),
+          to_date: String(data.to_date || ""),
           return_policy: data.return_policy || "",
           shipping_cost: data.shipping_cost || "",
         });
@@ -358,11 +389,16 @@ UnifiedProfileSettingsProps) {
   const fetchVendorIdentity = useCallback(async () => {
     try {
       const { data, error } = await viewVendorIdentity();
+      // console.log("Vendor identity data:", data);
+
       if (data && !error) {
         identityForm.reset({
           document_type: data.document_type || "",
           document: undefined as unknown as File,
         });
+        setCurrentIdentityDoc(
+          typeof data.document === "string" ? data.document : null
+        );
       }
     } catch (error) {
       console.error("Error fetching vendor identity:", error);
@@ -377,32 +413,78 @@ UnifiedProfileSettingsProps) {
           document_type: data.document_type || "",
           document: undefined as unknown as File,
         });
+        setCurrentIdentityDoc(
+          typeof data.document === "string" ? data.document : null
+        );
       }
     } catch (error) {
       console.error("Error fetching artisan identity:", error);
     }
   }, [identityForm]);
 
+  const fetchDropdownData = useCallback(async () => {
+    try {
+      // Fetch product categories
+      const categoriesResult = await getProductCategories();
+      // console.log("Product Categories API Result:", categoriesResult);
+      if (!categoriesResult.error && categoriesResult.data) {
+        const categoriesArray = categoriesResult.data["Products Category"];
+        // console.log("Processed categories array:", categoriesArray);
+        setProductCategories(categoriesArray);
+      } else {
+        console.error("Categories fetch error:", categoriesResult.error);
+        setProductCategories([]);
+      }
+
+      // Fetch provinces
+      const provincesResult = await getProvinces();
+      // console.log("Provinces API Result:", provincesResult);
+      if (provincesResult.data && !provincesResult.error) {
+        // Handle the actual API response structure
+        const provincesArray = provincesResult.data.data?.Provinces || [];
+        // console.log("Processed provinces array:", provincesArray);
+        setProvinces(Array.isArray(provincesArray) ? provincesArray : []);
+      } else {
+        console.error("Provinces fetch error:", provincesResult.error);
+      }
+
+      // Fetch product regions
+      const regionsResult = await getRegions();
+      // console.log("Regions API Result:", regionsResult);
+      if (regionsResult.data && !regionsResult.error) {
+        const regionsArray = regionsResult.data.data["Products Region"] || [];
+        // console.log("Processed regions array:", regionsArray);
+        setProductRegions(Array.isArray(regionsArray) ? regionsArray : []);
+      } else {
+        console.error("Regions fetch error:", regionsResult.error);
+      }
+    } catch (error) {
+      console.error("Error fetching dropdown data:", error);
+    }
+  }, []);
+
   const fetchAllSettings = useCallback(async () => {
     await fetchUserProfile();
-    
+    await fetchDropdownData();
+
     // Determine user type based on current path or props
     const currentPath = window.location.pathname;
-    const isVendor = currentPath.includes('/vendor/');
-    const isArtisan = currentPath.includes('/artisan/');
-    
+    const isVendor = currentPath.includes("/vendor/");
+    const isArtisan = currentPath.includes("/artisan/");
+
     if (isVendor) {
-      await fetchBusinessDetails('vendor');
+      await fetchBusinessDetails("vendor");
       await fetchShippingPolicy();
       await fetchVendorIdentity();
     } else if (isArtisan) {
-      await fetchBusinessDetails('artisan');
+      await fetchBusinessDetails("artisan");
       await fetchServiceAreaAvailability();
       await fetchBusinessPolicy();
       await fetchArtisanIdentity();
     }
   }, [
     fetchUserProfile,
+    fetchDropdownData,
     fetchBusinessDetails,
     fetchServiceAreaAvailability,
     fetchBusinessPolicy,
@@ -540,8 +622,10 @@ UnifiedProfileSettingsProps) {
   ) => {
     setLoading(true);
     try {
+      // console.log("Shipping form data being submitted:", data);
       const { data: result, token, error } = await updateShippingPolicy(data);
       if (error) {
+        console.error("Shipping policy update error:", error);
         toast.error(error);
         return;
       }
@@ -549,6 +633,8 @@ UnifiedProfileSettingsProps) {
       if (result && token) {
         setAuth(true, currentUser!, token);
         toast.success("Shipping policy updated successfully");
+        // Refresh the data after successful update
+        await fetchShippingPolicy();
       }
     } catch (error) {
       console.error("Error updating shipping policy:", error);
@@ -579,12 +665,13 @@ UnifiedProfileSettingsProps) {
     }
   };
 
-  const onBillingSubmit = async (data: BillingDetailsData) => {
+  const onBillingSubmit = async (billingData: BillingDetailsData) => {
     setLoading(true);
-    console.log(data)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Billing data:", billingData);
+    }
     try {
       // Implementation for billing details update
-      console.log("Billing details submitted:", data);
       toast.success("Billing details updated successfully");
     } catch (error) {
       console.error("Error updating billing details:", error);
@@ -594,13 +681,14 @@ UnifiedProfileSettingsProps) {
     }
   };
 
-  const onPaymentSubmit = async (data: PaymentMethodData) => {
+  const onPaymentSubmit = async (paymentData: PaymentMethodData) => {
     setLoading(true);
-        console.log(data)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Payment data:", paymentData);
+    }
 
     try {
       // Implementation for payment method update
-      console.log("Billing details submitted:", data);
       toast.success("Payment method updated successfully");
     } catch (error) {
       console.error("Error updating payment method:", error);
@@ -613,8 +701,10 @@ UnifiedProfileSettingsProps) {
   const onBusinessDetailsSubmit = async (data: BusinessDetailsData) => {
     setLoading(true);
     try {
+      // console.log("Submitting business details:", data);
       const { data: result, token, error } = await updateBusinessDetails(data);
       if (error) {
+        console.error("Business details update error:", error);
         toast.error(error);
         return;
       }
@@ -622,6 +712,10 @@ UnifiedProfileSettingsProps) {
       if (result && token) {
         setAuth(true, currentUser!, token);
         toast.success("Business details updated successfully");
+        // Refresh the data after successful update
+        await fetchBusinessDetails(
+          window.location.pathname.includes("/vendor/") ? "vendor" : "artisan"
+        );
       }
     } catch (error) {
       console.error("Error updating business details:", error);
@@ -1334,7 +1428,8 @@ UnifiedProfileSettingsProps) {
                       <Building className="h-5 w-5 mr-2" />
                       Business Policy
                     </CardTitle>
-                  </CardHeader>–
+                  </CardHeader>
+                  –
                   <CardContent className="space-y-6">
                     <FormField
                       control={businessForm.control}
@@ -1466,7 +1561,7 @@ UnifiedProfileSettingsProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={shippingForm.control}
-                        name="from_day"
+                        name="from_date"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Delivery From (days)</FormLabel>
@@ -1487,7 +1582,7 @@ UnifiedProfileSettingsProps) {
                       />
                       <FormField
                         control={shippingForm.control}
-                        name="to_day"
+                        name="to_date"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Delivery To (days)</FormLabel>
@@ -1605,19 +1700,62 @@ UnifiedProfileSettingsProps) {
                         <FormItem>
                           <FormLabel>Upload Document</FormLabel>
                           <FormControl>
-                            <div className="flex items-center gap-4">
-                              <Input
-                                type="file"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    field.onChange(file);
-                                  }
-                                }}
-                                className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
-                              />
-                              <Upload className="h-4 w-4 text-muted-foreground" />
+                            <div className="space-y-4">
+                              {currentIdentityDoc && (
+                                <div className="flex items-center justify-between p-4 border rounded-lg bg-muted">
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">
+                                      Current Document
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() =>
+                                        window.open(
+                                          currentIdentityDoc,
+                                          "_blank"
+                                        )
+                                      }
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      View
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        const link =
+                                          document.createElement("a");
+                                        link.href = currentIdentityDoc;
+                                        link.download = "identity-document";
+                                        link.click();
+                                      }}
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />
+                                      Download
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-4">
+                                <Input
+                                  type="file"
+                                  accept=".pdf,.jpg,.jpeg,.png"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      field.onChange(file);
+                                    }
+                                  }}
+                                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                                />
+                                <Upload className="h-4 w-4 text-muted-foreground" />
+                              </div>
                             </div>
                           </FormControl>
                           <FormDescription>
@@ -1760,27 +1898,15 @@ UnifiedProfileSettingsProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="1">Alberta</SelectItem>
-                                <SelectItem value="2">
-                                  British Columbia
-                                </SelectItem>
-                                <SelectItem value="3">Manitoba</SelectItem>
-                                <SelectItem value="4">New Brunswick</SelectItem>
-                                <SelectItem value="5">
-                                  Newfoundland and Labrador
-                                </SelectItem>
-                                <SelectItem value="6">
-                                  Northwest Territories
-                                </SelectItem>
-                                <SelectItem value="7">Nova Scotia</SelectItem>
-                                <SelectItem value="8">Nunavut</SelectItem>
-                                <SelectItem value="9">Ontario</SelectItem>
-                                <SelectItem value="10">
-                                  Prince Edward Island
-                                </SelectItem>
-                                <SelectItem value="11">Quebec</SelectItem>
-                                <SelectItem value="12">Saskatchewan</SelectItem>
-                                <SelectItem value="13">Yukon</SelectItem>
+                                {Array.isArray(provinces) &&
+                                  provinces.map((province) => (
+                                    <SelectItem
+                                      key={province.id}
+                                      value={String(province.id)}
+                                    >
+                                      {province.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -1806,26 +1932,15 @@ UnifiedProfileSettingsProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="1">
-                                  Electronics & Technology
-                                </SelectItem>
-                                <SelectItem value="2">
-                                  Fashion & Clothing
-                                </SelectItem>
-                                <SelectItem value="3">Home & Garden</SelectItem>
-                                <SelectItem value="4">
-                                  Sports & Outdoors
-                                </SelectItem>
-                                <SelectItem value="5">Books & Media</SelectItem>
-                                <SelectItem value="6">
-                                  Health & Beauty
-                                </SelectItem>
-                                <SelectItem value="7">Automotive</SelectItem>
-                                <SelectItem value="8">
-                                  Food & Beverages
-                                </SelectItem>
-                                <SelectItem value="9">Arts & Crafts</SelectItem>
-                                <SelectItem value="10">Baby & Kids</SelectItem>
+                                {Array.isArray(productCategories) &&
+                                  productCategories.map((category) => (
+                                    <SelectItem
+                                      key={category.id}
+                                      value={String(category.id)}
+                                    >
+                                      {category.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -1848,14 +1963,15 @@ UnifiedProfileSettingsProps) {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="1">North America</SelectItem>
-                                <SelectItem value="2">Europe</SelectItem>
-                                <SelectItem value="3">Asia Pacific</SelectItem>
-                                <SelectItem value="4">Latin America</SelectItem>
-                                <SelectItem value="5">
-                                  Middle East & Africa
-                                </SelectItem>
-                                <SelectItem value="6">Global</SelectItem>
+                                {Array.isArray(productRegions) &&
+                                  productRegions.map((region) => (
+                                    <SelectItem
+                                      key={region.id}
+                                      value={String(region.id)}
+                                    >
+                                      {region.name}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />

@@ -8,9 +8,25 @@ export const getRegions = async () => {
     const response = await fetch(
       `${baseUrl}/general/products/getProductRegion`
     );
-    return response;
+    console.log("fetching regions response status:", response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log("regions raw data:", data);
+    
+    return {
+      data: data,
+      error: null
+    };
   } catch (error: any) {
     console.log("failed to fetch regions", error);
+    return {
+      data: null,
+      error: error.message || "Failed to fetch regions"
+    };
   }
 };
 

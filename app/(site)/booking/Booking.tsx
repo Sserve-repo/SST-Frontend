@@ -52,9 +52,10 @@ export default function BookingForm() {
 
   const handleGetProvinces = useCallback(async () => {
     const response = await getProvinces();
-    if (response && response.ok) {
-      const data = await response.json();
-      setProvinces(data.data["Provinces"]);
+    if (response.data && !response.error) {
+      setProvinces(response.data.data["Provinces"]);
+    } else {
+      console.warn("Failed to fetch provinces:", response.error);
     }
   }, []);
 

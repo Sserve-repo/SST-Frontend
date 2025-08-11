@@ -25,8 +25,8 @@ export interface ShippingPolicy {
     id?: number
     user_id?: number
     shipping_option: string
-    from_day: string
-    to_day: string
+    from_date: number
+    to_date: number
     return_policy: string
     shipping_cost: string
     created_at?: string
@@ -59,8 +59,8 @@ export interface BusinessPolicyData {
 
 export interface ShippingPolicyData {
     shipping_option: string
-    from_day: string
-    to_day: string
+    from_date: string
+    to_date: string
     return_policy: string
     shipping_cost: string
 }

@@ -679,7 +679,7 @@ export function EditProductDialog({
                 </p>
               </div>
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="status"
                 render={({ field }) => (
@@ -699,7 +699,7 @@ export function EditProductDialog({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
 
             <DialogFooter className="gap-2">

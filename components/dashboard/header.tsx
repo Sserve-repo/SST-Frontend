@@ -1,5 +1,13 @@
 "use client";
-
+import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
+import { useAuth } from "@/context/AuthContext";
+// import CartIcon from "../CartIcon";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+// import { Button } from "../ui/button";
+// import { Bell } from "lucide-react";
+// import { Badge } from "../ui/badge";
+// import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -12,45 +20,45 @@ import {
 // import { Input } from "@/components/ui/input";
 // import { Search } from "lucide-react";
 import { BsList } from "react-icons/bs";
-import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
-import { useAuth } from "@/context/AuthContext";
-import CartIcon from "../CartIcon";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "../ui/button";
-import { Bell } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { useState } from "react";
 
 export function Header() {
   const { toggleSidebar } = useSidebarToggle();
   const { currentUser, logOut } = useAuth();
-  console.log({currentUser})
+  console.log({ currentUser });
   const router = useRouter();
-    const [notifications, setNotifications] = useState([
-      {
-        id: 1,
-        title: "New Order #1234",
-        description: "Order received for Product A",
-        time: "2 mins ago",
-        read: false,
-      },
-      {
-        id: 2,
-        title: "Low Stock Alert",
-        description: "Product B is running low on stock",
-        time: "1 hour ago",
-        read: false,
-      },
-    ]);
-  
-    const unreadCount = notifications.filter((n) => !n.read).length;
-  
-  
-    const markAllRead = () => {
-      setNotifications(notifications.map((n) => ({ ...n, read: true })));
-    };
-  
+    // Mock notifications data - replace with real data from your API
+  // const [notifications, setNotifications] = useState([
+  //   {
+  //     id: 1,
+  //     title: "New order received",
+  //     message: "You have received a new order #1234",
+  //     time: "2 min ago",
+  //     read: false,
+  //     type: "order",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Payment confirmed",
+  //     message: "Payment for order #1233 has been confirmed",
+  //     time: "1 hour ago",
+  //     read: true,
+  //     type: "payment",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "New review",
+  //     message: "You received a 5-star review",
+  //     time: "3 hours ago",
+  //     read: false,
+  //     type: "review",
+  //   },
+  // ]);
+
+  // const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // const markAllRead = () => {
+  //   setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  // };
 
   const getUserType = (user_type: string) => {
     return user_type === "3"
@@ -60,6 +68,21 @@ export function Header() {
       : user_type === "4"
       ? "Artisan"
       : null;
+  };
+
+  const getSettingsHref = (userType: string) => {
+    switch (userType) {
+      case "1": // Admin
+        return "/admin/dashboard/settings";
+      case "3": // Vendor
+        return "/vendor/dashboard/settings";
+      case "4": // Artisan
+        return "/artisan/dashboard/settings/profile";
+      case "2": // Buyer
+        return "/buyer/dashboard/profile-setting";
+      default:
+        return "/dashboard/profile-setting";
+    }
   };
 
   return (
@@ -89,50 +112,54 @@ export function Header() {
         {/* Actions */}
         <div className="flex items-center space-x-6">
           {/* Cart */}
-          <div className="relative">
+          {/* <div className="relative">
             <CartIcon />
           </div>
 
           <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="relative rounded-full">
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <Badge
-                  variant="destructive"
-                  className="absolute -right-1 -top-1 h-4 w-4 p-0 text-xs flex items-center justify-center"
-                >
-                  {unreadCount}
-                </Badge>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="flex items-center justify-between">
-              Notifications
-              <Button variant="ghost" size="sm" onClick={markAllRead}>
-                Mark all read
-              </Button>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {notifications.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                className="flex flex-col items-start gap-1 p-4"
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="relative rounded-full"
               >
-                <div className="flex w-full justify-between">
-                  <span className="font-medium">{notification.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {notification.time}
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -right-1 -top-1 h-4 w-4 p-0 text-xs flex items-center justify-center"
+                  >
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuLabel className="flex items-center justify-between">
+                Notifications
+                <Button variant="ghost" size="sm" onClick={markAllRead}>
+                  Mark all read
+                </Button>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {notifications.map((notification) => (
+                <DropdownMenuItem
+                  key={notification.id}
+                  className="flex flex-col items-start gap-1 p-4"
+                >
+                  <div className="flex w-full justify-between">
+                    <span className="font-medium">{notification.title}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {notification.time}
+                    </span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {notification.description}
                   </span>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {notification.description}
-                </span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu> */}
 
           {/* User Menu */}
           <DropdownMenu>
@@ -170,7 +197,7 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <Link href={"/dashboard/profile-setting"}>
+              <Link href={getSettingsHref(currentUser?.user_type || "2")}>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
