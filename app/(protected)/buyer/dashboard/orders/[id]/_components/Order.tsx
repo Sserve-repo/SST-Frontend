@@ -78,7 +78,58 @@ export default function Order() {
         const response = await getOrderDetail(params.id as string);
         
         if (response.data && !response.error) {
-          setOrder(response.data);
+          const api = response.data as any;
+
+          // Normalize order status variant used in badges
+          const normalizeStatus = (s?: string) => {
+            if (!s) return "pending";
+            const v = String(s).toLowerCase();
+            return v === "in_transit" ? "intransit" : v;
+          };
+
+          // Transform API response (snake_case) to component's camelCase types
+          const transformed: OrderType = {
+            id: String(api.id ?? ""),
+            orderNo: String(api.order_no ?? api.orderNo ?? ""),
+            userId: String(api.user_id ?? api.userId ?? ""),
+            total: String(api.total ?? "0"),
+            vendorTax: String(api.vendor_tax ?? api.vendorTax ?? "0"),
+            shippingCost: String(api.shipping_cost ?? api.shippingCost ?? "0"),
+            cartTotal: String(api.cart_total ?? api.cartTotal ?? "0"),
+            status: String(api.status ?? "pending"),
+            createdAt: String(api.created_at ?? api.createdAt ?? ""),
+            updatedAt: String(api.updated_at ?? api.updatedAt ?? ""),
+            orderType: String(api.order_type ?? api.orderType ?? "product"),
+            productItems: Array.isArray(api.product_items ?? api.productItems)
+              ? (api.product_items ?? api.productItems).map((it: any) => ({
+                  id: String(it.id ?? ""),
+                  orderId: String(it.order_id ?? it.orderId ?? ""),
+                  userId: String(it.user_id ?? it.userId ?? ""),
+                  localId: String(it.local_id ?? it.localId ?? ""),
+                  vendorId: String(it.vendor_id ?? it.vendorId ?? ""),
+                  productListingDetailId: String(
+                    it.product_listing_detail_id ?? it.productListingDetailId ?? ""
+                  ),
+                  quantity: String(it.quantity ?? "0"),
+                  currency: String(it.currency ?? ""),
+                  unitPrice: String(it.unit_price ?? it.unitPrice ?? "0"),
+                  totalAmount: String(it.total_amount ?? it.totalAmount ?? "0"),
+                  bookingStatus: it.booking_status ?? it.bookingStatus,
+                  orderStatus: normalizeStatus(
+                    it.order_status ?? it.orderStatus ?? it.status
+                  ),
+                  orderType: String(it.order_type ?? it.orderType ?? "product"),
+                  status: String(it.status ?? ""),
+                  createdAt: String(it.created_at ?? it.createdAt ?? api.created_at ?? ""),
+                  updatedAt: String(it.updated_at ?? it.updatedAt ?? ""),
+                  address: String(it.address ?? ""),
+                  productName: String(it.product_name ?? it.productName ?? ""),
+                  vendorName: String(it.vendor_name ?? it.vendorName ?? ""),
+                }))
+              : [],
+          };
+
+          setOrder(transformed);
         } else {
           setError(response.error || "Failed to fetch order details");
         }
@@ -136,7 +187,7 @@ export default function Order() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center py-4">
           <div className="relative flex flex-1 gap-x-2">
             <p className="">
-              {order && convertTime(order.productItems[0]?.createdAt)}
+              {order && convertTime(order.productItems?.[0]?.createdAt || order.createdAt)}
             </p>
             <p className="bg-green-100 text-green-600 rounded-2xl px-2">
               {order &&
