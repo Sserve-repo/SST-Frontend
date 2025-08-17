@@ -32,7 +32,7 @@ export type TransactionType = {
 
 export function TransactionList({ className, overview, tab }: OverviewProps) {
   const router = useRouter();
-  const transaction = overview?.Transaction;
+  const transaction = overview?.Transactions || overview?.Transaction;
 
   return (
     <>
@@ -45,7 +45,11 @@ export function TransactionList({ className, overview, tab }: OverviewProps) {
             <p>Recent Transaction Details</p>
             <MdOutlineArrowOutward
               className="ml-auto hover:cursor-pointer"
-              onClick={() => router.push(`/buyer/dashboard/orders`)}
+              onClick={() =>
+                tab === "products"
+                  ? router.push(`/buyer/dashboard/orders`)
+                  : router.push(`/buyer/dashboard/bookings`)
+              }
             />
           </CardTitle>
         </CardHeader>
@@ -77,13 +81,11 @@ export function TransactionList({ className, overview, tab }: OverviewProps) {
                     <TableRow
                       key={transaction.id}
                       onClick={() =>
-                        tab == "product"
+                        tab === "products"
                           ? router.push(
                               `/buyer/dashboard/orders/${transaction?.id}`
                             )
-                          : router.push(
-                              `/buyer/dashboard/bookings`
-                            )
+                          : router.push(`/buyer/dashboard/bookings`)
                       }
                       className="border-none cursor-pointer"
                     >
@@ -101,13 +103,11 @@ export function TransactionList({ className, overview, tab }: OverviewProps) {
                       </TableCell>
                       <TableCell
                         onClick={() =>
-                          tab == "product"
+                          tab === "products"
                             ? router.push(
                                 `/buyer/dashboard/orders/${transaction?.id}`
                               )
-                            : router.push(
-                                `/buyer/dashboard/bookings`
-                              )
+                            : router.push(`/buyer/dashboard/bookings`)
                         }
                         className="text-orange-400"
                       >
