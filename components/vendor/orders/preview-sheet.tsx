@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { updateOrderItemStatus } from "@/actions/dashboard/vendors";
+import { Button } from "@/components/ui/button";
+import { updateOrderItemStatus, updateOrderShipping } from "@/actions/dashboard/vendors";
 import { Loader2, Package, MapPin, CreditCard } from "lucide-react";
 
 interface OrderPreviewSheetProps {
@@ -44,6 +45,8 @@ export function OrderPreviewSheet({
     return initialStatuses;
   });
   const [updating, setUpdating] = useState<{ [key: string]: boolean }>({});
+  const [shippingStatus, setShippingStatus] = useState<string>(order?.status || "pending");
+  const [trackingId, setTrackingId] = useState<string>(order?.trackingNumber || "");
   const { toast } = useToast();
 
   const updateStatus = async (itemId: string, newStatus: string) => {
@@ -86,6 +89,23 @@ export function OrderPreviewSheet({
       });
     } finally {
       setUpdating((prev) => ({ ...prev, [itemId]: false }));
+    }
+  };
+
+  const handleUpdateShipping = async () => {
+    try {
+      setUpdating((prev) => ({ ...prev, shipping: true }));
+      const response = await updateOrderShipping(order.id, shippingStatus, trackingId);
+      if (response?.ok) {
+        toast({ title: "Updated", description: "Shipping updated" });
+        if (onUpdate) onUpdate();
+      } else {
+        throw new Error("Failed to update shipping");
+      }
+    } catch (error) {
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    } finally {
+      setUpdating((prev) => ({ ...prev, shipping: false }));
     }
   };
 
@@ -283,6 +303,41 @@ export function OrderPreviewSheet({
                 <div className="text-gray-600 mt-2 pt-2 border-t">
                   <span className="font-medium">Method:</span>{" "}
                   {order?.shippingMethod || "Standard Shipping"}
+                </div>
+                <div className="grid sm:grid-cols-2 gap-2 mt-3">
+                  <div>
+                    <label className="text-xs text-gray-600">Shipping Status</label>
+                    <Select value={shippingStatus} onValueChange={setShippingStatus}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="intransit">In Transit</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600">Tracking ID</label>
+                    <input
+                      className="w-full border rounded-md px-3 py-2"
+                      placeholder="Enter tracking ID"
+                      value={trackingId}
+                      onChange={(e) => setTrackingId(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <Button onClick={handleUpdateShipping} disabled={!!updating.shipping} className="w-full sm:w-auto">
+                    {updating.shipping ? (
+                      <span className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Updating…</span>
+                    ) : (
+                      "Update Shipping"
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
