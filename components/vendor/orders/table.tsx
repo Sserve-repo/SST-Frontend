@@ -41,6 +41,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDate } from "@/lib/order-utils";
 import { getOrderDetails } from "@/actions/dashboard/vendors";
 import { useToast } from "@/hooks/use-toast";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 interface Order {
   id: string;
@@ -119,7 +120,8 @@ export function OrdersTable({ orders, onRefresh }: OrdersTableProps) {
     }));
   }, [orders]);
 
-  const getStatusBadge = (status: string) => {
+  // Payment badge remains simple paid/pending/failed
+  const getPaymentBadge = (status: string) => {
     const statusConfig = {
       pending: {
         color: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -133,27 +135,51 @@ export function OrdersTable({ orders, onRefresh }: OrdersTableProps) {
         color: "bg-red-100 text-red-800 border-red-200",
         label: "Failed",
       },
-      processing: {
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-        label: "Processing",
-      },
-      shipped: {
-        color: "bg-purple-100 text-purple-800 border-purple-200",
-        label: "Shipped",
-      },
-      delivered: {
-        color: "bg-green-100 text-green-800 border-green-200",
-        label: "Delivered",
-      },
-      cancelled: {
-        color: "bg-red-100 text-red-800 border-red-200",
-        label: "Cancelled",
-      },
-    };
+    } as const;
+    const key = (status || "pending").toLowerCase() as keyof typeof statusConfig;
+    const cfg = statusConfig[key] || statusConfig.pending;
+    return <Badge className={`${cfg.color} border`}>{cfg.label}</Badge>;
+  };
 
-    const config =
-      statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge className={`${config.color} border`}>{config.label}</Badge>;
+  // Order status mapping per provided constants
+  const getOrderStatusBadge = (status: string | number) => {
+    const normalize = (s: any) =>
+      typeof s === "number" ? String(s) : String(s || "").toLowerCase();
+    const code = normalize(status);
+    let label = "Pending";
+    switch (code) {
+      case "1":
+      case "approved":
+      case "published":
+      case "active":
+        label = "Approved"; // Published
+        break;
+      case "2":
+      case "rejected":
+      case "inactive":
+        label = "Rejected";
+        break;
+      case "0":
+      case "pending":
+      case "unpublished":
+        label = "Pending"; // Unpublished
+        break;
+      case "3":
+      case "disable":
+      case "disabled":
+        label = "Disabled";
+        break;
+      default:
+        label = capitalizeFirstLetter(code);
+    }
+    const colorMap: Record<string, string> = {
+      Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      Approved: "bg-green-100 text-green-800 border-green-200",
+      Rejected: "bg-red-100 text-red-800 border-red-200",
+      Disabled: "bg-gray-200 text-gray-700 border-gray-300",
+    };
+    const color = colorMap[label] || "bg-gray-100 text-gray-800 border-gray-200";
+    return <Badge className={`${color} border`}>{label}</Badge>;
   };
 
   const columns: ColumnDef<Order>[] = [
@@ -232,7 +258,12 @@ export function OrdersTable({ orders, onRefresh }: OrdersTableProps) {
     {
       accessorKey: "paymentStatus",
       header: "Payment",
-      cell: ({ row }) => getStatusBadge(row.original.paymentStatus),
+      cell: ({ row }) => getPaymentBadge(row.original.paymentStatus),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => getOrderStatusBadge(row.original.status as any),
     },
     {
       accessorKey: "date",
@@ -348,8 +379,8 @@ export function OrdersTable({ orders, onRefresh }: OrdersTableProps) {
         },
         date: order?.created_at || new Date().toISOString(),
         total: Number(order?.total) || 0,
-        status: order?.order_status || "pending",
-        paymentStatus: order?.status || "pending",
+  status: order?.order_status ?? order?.status ?? "pending",
+  paymentStatus: order?.payment_status || order?.status || "pending",
         items: Array.isArray(order?.product_items)
           ? order.product_items.map((item: any) => ({
               id: String(item.id || ""),
@@ -370,7 +401,8 @@ export function OrdersTable({ orders, onRefresh }: OrdersTableProps) {
           state: order?.delivery_information?.state || "",
           country: order?.delivery_information?.country || "USA",
         },
-        shippingMethod: "Standard Shipping",
+  shippingMethod: "Standard Shipping",
+  trackingNumber: order?.tracking_id || order?.tracking_number || "",
       });
     } catch (error) {
       console.error("Error fetching order details:", error);

@@ -137,6 +137,24 @@ export default function AppointmentsPage() {
         "Unknown Customer",
       customerEmail: orders.customer?.email || orders.user?.email || "",
       customerPhone: orders.customer?.phone || orders.user?.phone || "",
+      customerAddress:
+        orders.customer?.address ||
+        orders.user?.address ||
+        orders.google_address ||
+        orders.location ||
+        "",
+      customerLatitude:
+        typeof orders.customer?.latitude === "number"
+          ? orders.customer.latitude
+          : typeof orders.latitude === "number"
+          ? orders.latitude
+          : undefined,
+      customerLongitude:
+        typeof orders.customer?.longitude === "number"
+          ? orders.customer.longitude
+          : typeof orders.longitude === "number"
+          ? orders.longitude
+          : undefined,
       service,
       serviceName: service.name,
       serviceId: service.id,

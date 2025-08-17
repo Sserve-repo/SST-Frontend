@@ -296,6 +296,35 @@ export const updateOrderItemStatus = async (itemId: string, status: string) => {
   }
 }
 
+// Update overall shipping status and tracking ID for an order
+export const updateOrderShipping = async (
+  orderId: string,
+  shipping_status: string,
+  tracking_id: string
+) => {
+  const token = Cookies.get("accessToken");
+  try {
+    const formData = new FormData();
+    formData.append("shipping_status", shipping_status);
+    formData.append("tracking_id", tracking_id);
+
+    // Assumption: backend exposes this endpoint to update shipping
+    const response = await fetch(
+      `${baseUrl}/vendor/dashboard/orderManagement/updateShippingStatus/${orderId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log("Failed to update order shipping", error);
+  }
+};
+
 // Enhanced messages API functions
 export const createMessage = async (payload: FormData) => {
   const token = Cookies.get("accessToken")

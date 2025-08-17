@@ -60,8 +60,8 @@ export default function OrdersPage() {
               },
               date: order.created_at || new Date().toISOString(),
               total: Number(order.total) || 0,
-              status: order.order_status || "pending",
-              paymentStatus: order.status || "pending",
+              status: order.order_status ?? order.status ?? "pending",
+              paymentStatus: order.payment_status || order.status || "pending",
               items: Array.isArray(order.product_items)
                 ? order.product_items.map((item: any) => ({
                     id: String(item.id || ""),

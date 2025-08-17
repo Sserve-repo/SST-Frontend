@@ -84,6 +84,12 @@ export function AppointmentListView({
           <div>
             <p className="font-medium">{appointment.customerName}</p>
             <p className="text-sm text-gray-500">{appointment.customerEmail}</p>
+            {appointment.customerPhone && (
+              <p className="text-sm text-gray-500">{appointment.customerPhone}</p>
+            )}
+            {appointment.customerAddress && (
+              <p className="text-sm text-gray-500">{appointment.customerAddress}</p>
+            )}
           </div>
         </TableCell>
         <TableCell>
