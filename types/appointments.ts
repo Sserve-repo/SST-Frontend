@@ -21,6 +21,9 @@ export interface Appointment {
   customerName: string
   customerEmail: string
   customerPhone: string
+  customerAddress?: string
+  customerLatitude?: number
+  customerLongitude?: number
   service: AppointmentService
   serviceName: string
   serviceId: string
