@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import {
   User,
   Mail,
@@ -30,6 +31,7 @@ import {
   XCircle,
   PlayCircle,
   Clock2,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/appointments";
@@ -51,6 +53,9 @@ export function AppointmentDetailsDialog({
   const [showReschedule, setShowReschedule] = useState(false);
   const [newDate, setNewDate] = useState<Date | undefined>();
   const [newTime, setNewTime] = useState<string>("");
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+  });
 
   if (!appointment) return null;
 
@@ -126,7 +131,7 @@ export function AppointmentDetailsDialog({
           </DialogHeader>
 
           <div className="space-y-8 px-1 pb-2">
-            {/* Status */}
+            {/* Customer Info */}
             <div className="flex justify-center">
               <Badge
                 className={cn(
@@ -158,6 +163,11 @@ export function AppointmentDetailsDialog({
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
+                    {appointment.customerAddress && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" /> {appointment.customerAddress}
+                      </span>
+                    )}
                 <div>
                   <p className="font-semibold text-lg">
                     {appointment.customerName}
@@ -208,6 +218,54 @@ export function AppointmentDetailsDialog({
                 />
               </div>
             </section>
+
+            {/* Location (Google Address + Map) */}
+            {(appointment.customerAddress || (appointment.customerLatitude && appointment.customerLongitude)) && (
+              <section className="space-y-4">
+                <h3 className="text-lg font-semibold text-muted-foreground">
+                  Location
+                </h3>
+                <div className="rounded-xl border p-4 bg-muted/30 space-y-3">
+                  {appointment.customerAddress && (
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <MapPin className="h-4 w-4" />
+                      <span className="break-words">{appointment.customerAddress}</span>
+                    </div>
+                  )}
+                  {appointment.customerLatitude && appointment.customerLongitude ? (
+                    isLoaded ? (
+                      <div className="h-56 w-full overflow-hidden rounded-lg border">
+                        <GoogleMap
+                          zoom={14}
+                          center={{
+                            lat: appointment.customerLatitude,
+                            lng: appointment.customerLongitude,
+                          }}
+                          mapContainerStyle={{ width: "100%", height: "100%" }}
+                          options={{ streetViewControl: false, mapTypeControl: false }}
+                        >
+                          <Marker
+                            position={{
+                              lat: appointment.customerLatitude,
+                              lng: appointment.customerLongitude,
+                            }}
+                          />
+                        </GoogleMap>
+                      </div>
+                    ) : (
+                      <a
+                        className="text-blue-600 underline text-sm"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`https://maps.google.com/?q=${appointment.customerLatitude},${appointment.customerLongitude}`}
+                      >
+                        Open in Google Maps
+                      </a>
+                    )
+                  ) : null}
+                </div>
+              </section>
+            )}
 
             {/* Appointment Time */}
             <section className="space-y-4">
