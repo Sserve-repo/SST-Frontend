@@ -53,8 +53,12 @@ export function AppointmentDetailsDialog({
   const [showReschedule, setShowReschedule] = useState(false);
   const [newDate, setNewDate] = useState<Date | undefined>();
   const [newTime, setNewTime] = useState<string>("");
+  const googleKey =
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+    process.env.NEXT_PUBLIC_GOOGLE_API_KEY ||
+    "";
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: googleKey,
   });
 
   if (!appointment) return null;
