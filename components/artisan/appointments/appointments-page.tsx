@@ -143,18 +143,18 @@ export default function AppointmentsPage() {
         orders.google_address ||
         orders.location ||
         "",
-      customerLatitude:
-        typeof orders.customer?.latitude === "number"
-          ? orders.customer.latitude
-          : typeof orders.latitude === "number"
-          ? orders.latitude
-          : undefined,
-      customerLongitude:
-        typeof orders.customer?.longitude === "number"
-          ? orders.customer.longitude
-          : typeof orders.longitude === "number"
-          ? orders.longitude
-          : undefined,
+      customerLatitude: (() => {
+        const cand =
+          orders.customer?.latitude ?? orders.latitude ?? orders.customer?.lat ?? orders.lat;
+        const num = typeof cand === "string" ? Number(cand) : cand;
+        return typeof num === "number" && !Number.isNaN(num) ? num : undefined;
+      })(),
+      customerLongitude: (() => {
+        const cand =
+          orders.customer?.longitude ?? orders.longitude ?? orders.customer?.lng ?? orders.lng;
+        const num = typeof cand === "string" ? Number(cand) : cand;
+        return typeof num === "number" && !Number.isNaN(num) ? num : undefined;
+      })(),
       service,
       serviceName: service.name,
       serviceId: service.id,
