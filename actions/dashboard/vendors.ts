@@ -277,13 +277,20 @@ export const getOrderDetails = async (id: string) => {
   }
 }
 
-export const updateOrderItemStatus = async (itemId: string, status: string) => {
+export const updateOrderItemStatus = async (
+  itemId: string,
+  status: string,
+  trackingNo?: string,
+  shippingPlatform?: string
+) => {
   const token = Cookies.get("accessToken")
   try {
     const formData = new FormData()
     formData.append("order_status", status)
+    if (trackingNo) formData.append("tracking_no", trackingNo)
+    if (shippingPlatform) formData.append("shipping_platform", shippingPlatform)
 
-    const response = await fetch(`${baseUrl}/vendor/dashboard/orderManagement/updateOrderItemStatus/${itemId}`, {
+  const response = await fetch(`${baseUrl}/vendor/dashboard/orderManagement/updateOrderItemStatus/${itemId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -297,33 +304,7 @@ export const updateOrderItemStatus = async (itemId: string, status: string) => {
 }
 
 // Update overall shipping status and tracking ID for an order
-export const updateOrderShipping = async (
-  orderId: string,
-  shipping_status: string,
-  tracking_id: string
-) => {
-  const token = Cookies.get("accessToken");
-  try {
-    const formData = new FormData();
-    formData.append("shipping_status", shipping_status);
-    formData.append("tracking_id", tracking_id);
-
-    // Assumption: backend exposes this endpoint to update shipping
-    const response = await fetch(
-      `${baseUrl}/vendor/dashboard/orderManagement/updateShippingStatus/${orderId}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      }
-    );
-    return response;
-  } catch (error: any) {
-    console.log("Failed to update order shipping", error);
-  }
-};
+// Note: Order-level shipping updates were removed in favor of per-item updates via updateOrderItemStatus.
 
 // Enhanced messages API functions
 export const createMessage = async (payload: FormData) => {
