@@ -41,6 +41,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "../ui/loading-spinner";
+import LocationAutocomplete from "./LocationAutocomplete";
 
 interface UnifiedProfileSettingsProps {
   userType?: "admin" | "vendor" | "artisan" | "buyer";
@@ -61,6 +62,7 @@ export default function UnifiedProfileSettings({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const { setAuth } = useAuth();
+  const [coords, setCoords] = useState<{ latitude?: number; longitude?: number }>({});
 
   const form = useForm<ProfileUpdateData>({
     defaultValues: {
@@ -71,6 +73,8 @@ export default function UnifiedProfileSettings({
       address: "",
       twofa_status: "0",
       email_status: "0",
+  latitude: "",
+  longitude: "",
     },
   });
 
@@ -95,6 +99,8 @@ export default function UnifiedProfileSettings({
           address: data.address || "",
           twofa_status: data.twofa_status?.toString() || "0",
           email_status: data.email_status?.toString() || "0",
+          latitude: (data as any)?.latitude?.toString?.() || "",
+          longitude: (data as any)?.longitude?.toString?.() || "",
         });
       }
     } catch (error) {
@@ -148,6 +154,9 @@ export default function UnifiedProfileSettings({
     setLoading(true);
 
     try {
+  // include lat/lng from selection if present
+  if (coords.latitude != null) data.latitude = String(coords.latitude);
+  if (coords.longitude != null) data.longitude = String(coords.longitude);
       const {
         data: updatedUser,
         token: newToken,
@@ -374,12 +383,21 @@ export default function UnifiedProfileSettings({
                       Address
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        disabled={!isEditing}
-                        className={!isEditing ? "bg-gray-50" : ""}
-                        placeholder="Enter your address"
-                      />
+                      <div>
+                        <LocationAutocomplete
+                          disabled={!isEditing}
+                          value={{ address: field.value || "" }}
+                          onChange={(v) => {
+                            field.onChange(v.address);
+                            setCoords({ latitude: v.latitude, longitude: v.longitude });
+                          }}
+                        />
+                        {/* Keep hidden inputs synced for submission/validation if needed */}
+                        <input type="hidden" value={form.watch("latitude")}
+                          readOnly hidden />
+                        <input type="hidden" value={form.watch("longitude")}
+                          readOnly hidden />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
