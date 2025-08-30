@@ -2,7 +2,7 @@
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
 import { useAuth } from "@/context/AuthContext";
 // import CartIcon from "../CartIcon";
-import Link from "next/link";
+import Link from "next/link"; 
 import { useRouter } from "next/navigation";
 // import { Button } from "../ui/button";
 // import { Bell } from "lucide-react";
