@@ -36,6 +36,9 @@ export interface ProfileUpdateData {
     address: string;
     twofa_status: string;
     email_status: string;
+    // Optional coordinates captured via Google Places Autocomplete
+    latitude?: string;
+    longitude?: string;
 }
 
 export interface BusinessPolicyData {
@@ -104,9 +107,16 @@ export async function updateUserProfile(data: ProfileUpdateData): Promise<{
 
     try {
         const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
+        // Append known fields explicitly to avoid sending undefined
+        formData.append("firstname", data.firstname);
+        formData.append("lastname", data.lastname);
+        formData.append("username", data.username);
+        formData.append("email", data.email);
+        formData.append("address", data.address);
+        formData.append("twofa_status", data.twofa_status);
+        formData.append("email_status", data.email_status);
+        if (data.latitude) formData.append("latitude", data.latitude);
+        if (data.longitude) formData.append("longitude", data.longitude);
 
         const response = await fetch(`${baseUrl}/dashboard/profile/updateUserProfile`, {
             method: "POST",

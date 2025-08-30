@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Calendar, MessageCircle, MapPin, Package } from "lucide-react";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import Image from "next/image";
 import { notFound, useParams } from "next/navigation";
 import { ArtisanMessageInitiationModal } from "@/components/messages/artisan-message-initiation-modal";
@@ -25,6 +26,11 @@ export default function ArtisanProfilePage() {
 
   const [artisan, setArtisan] = useState<any>(null);
   const [reviews, setReviews] = useState<ReviewData[]>([]);
+  const googleKey =
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+    process.env.NEXT_PUBLIC_GOOGLE_API_KEY ||
+    "";
+  const { isLoaded } = useLoadScript({ googleMapsApiKey: googleKey });
 
   const handleGetArtisan = async (id: string) => {
     try {
@@ -188,6 +194,84 @@ export default function ArtisanProfilePage() {
                 </div>
               </div>
             </div>
+
+            {/* Location (Google Address + Map) */}
+            {(() => {
+              const address =
+                artisan?.google_address ||
+                artisan?.artisan_business_details?.address ||
+                [
+                  artisan?.artisan_business_details?.address_line1,
+                  artisan?.artisan_business_details?.address_line2,
+                  artisan?.artisan_business_details?.city,
+                  artisan?.artisan_business_details?.state,
+                  artisan?.artisan_business_details?.country,
+                ]
+                  .filter(Boolean)
+                  .join(", ") || "";
+
+              const latCand =
+                artisan?.latitude ??
+                artisan?.artisan_business_details?.latitude ??
+                artisan?.lat;
+              const lngCand =
+                artisan?.longitude ??
+                artisan?.artisan_business_details?.longitude ??
+                artisan?.lng;
+
+              const lat = typeof latCand === "string" ? Number(latCand) : latCand;
+              const lng = typeof lngCand === "string" ? Number(lngCand) : lngCand;
+              const hasCoords = typeof lat === "number" && typeof lng === "number" && !Number.isNaN(lat) && !Number.isNaN(lng);
+
+              if (!address && !hasCoords) return null;
+
+              return (
+                <section className="space-y-4 rounded-lg border p-6 bg-white shadow-sm">
+                  <h3 className="text-lg font-semibold text-[#502266] flex items-center gap-2">
+                    <MapPin className="h-5 w-5" /> Location
+                  </h3>
+                  {address && (
+                    <div className="text-sm text-gray-700">
+                      <span className="break-words">{address}</span>
+                    </div>
+                  )}
+                  {hasCoords ? (
+                    isLoaded ? (
+                      <div className="h-56 w-full overflow-hidden rounded-lg border">
+                        <GoogleMap
+                          zoom={14}
+                          center={{ lat, lng }}
+                          mapContainerStyle={{ width: "100%", height: "100%" }}
+                          options={{ streetViewControl: false, mapTypeControl: false }}
+                        >
+                          <Marker position={{ lat, lng }} />
+                        </GoogleMap>
+                      </div>
+                    ) : (
+                      <a
+                        className="text-blue-600 underline text-sm"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : `https://maps.google.com/?q=${lat},${lng}`}
+                      >
+                        Open in Google Maps
+                      </a>
+                    )
+                  ) : (
+                    address && (
+                      <a
+                        className="text-blue-600 underline text-sm"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                      >
+                        View on Google Maps
+                      </a>
+                    )
+                  )}
+                </section>
+              );
+            })()}
           </div>
         </div>
 

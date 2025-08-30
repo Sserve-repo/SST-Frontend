@@ -88,6 +88,7 @@ import { getRegions } from "@/actions/product";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { LoadingSpinner } from "../ui/loading-spinner";
+import LocationAutocomplete from "@/components/profile/LocationAutocomplete";
 import { format } from "date-fns";
 import {
   BusinessDetailsData,
@@ -185,6 +186,7 @@ UnifiedProfileSettingsProps) {
     null
   );
   const { setAuth } = useAuth();
+  const [coords, setCoords] = useState<{ latitude?: number; longitude?: number }>({});
 
   const form = useForm<ProfileUpdateData>({
     resolver: zodResolver(profileSchema),
@@ -538,6 +540,9 @@ UnifiedProfileSettingsProps) {
   const onSubmit = async (data: ProfileUpdateData) => {
     setLoading(true);
     try {
+  // include coordinates if user picked a place
+  if (coords.latitude != null) data.latitude = String(coords.latitude);
+  if (coords.longitude != null) data.longitude = String(coords.longitude);
       const {
         data: updatedUser,
         token: newToken,
@@ -765,7 +770,7 @@ UnifiedProfileSettingsProps) {
   const availableTabs = getAvailableTabs();
 
   return (
-    <div className="max-w-5xl h-full w-full mx-auto p-6 sm:py-8 space-y-6">
+    <div className="max-w-5xl h-full w-full mx-auto p-6 sm:py-8 mb-28 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -962,17 +967,20 @@ UnifiedProfileSettingsProps) {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-2" />
-                          Address
-                        </FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            disabled={!isEditing}
-                            className={!isEditing ? "bg-gray-50" : ""}
-                            placeholder="Enter your address"
-                          />
+                          <div>
+                            <LocationAutocomplete
+                              disabled={!isEditing}
+                              value={{ address: field.value || "" }}
+                              onChange={(v) => {
+                                field.onChange(v.address);
+                                setCoords({
+                                  latitude: v.latitude,
+                                  longitude: v.longitude,
+                                });
+                              }}
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1517,11 +1525,11 @@ UnifiedProfileSettingsProps) {
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Select shipping option" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent>
+                              <SelectContent position="popper" className="max-h-64 overflow-y-auto w-[var(--radix-select-trigger-width)]">
                                 <SelectItem value="car">Car</SelectItem>
                                 <SelectItem value="truck">Truck</SelectItem>
                                 <SelectItem value="bike">Bike</SelectItem>
@@ -1666,11 +1674,11 @@ UnifiedProfileSettingsProps) {
                             value={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select document type" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent position="popper" className="max-h-64 overflow-y-auto w-[var(--radix-select-trigger-width)]">
                               <SelectItem value="passport">Passport</SelectItem>
                               <SelectItem value="drivers_license">
                                 Driver&apos;s License
@@ -1893,11 +1901,11 @@ UnifiedProfileSettingsProps) {
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Select province" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent>
+                              <SelectContent position="popper" className="max-h-64 overflow-y-auto w-[var(--radix-select-trigger-width)]">
                                 {Array.isArray(provinces) &&
                                   provinces.map((province) => (
                                     <SelectItem
@@ -1927,11 +1935,11 @@ UnifiedProfileSettingsProps) {
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Select category" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent>
+                              <SelectContent position="popper" className="max-h-64 overflow-y-auto w-[var(--radix-select-trigger-width)]">
                                 {Array.isArray(productCategories) &&
                                   productCategories.map((category) => (
                                     <SelectItem
@@ -1958,11 +1966,11 @@ UnifiedProfileSettingsProps) {
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Select region" />
                                 </SelectTrigger>
                               </FormControl>
-                              <SelectContent>
+                              <SelectContent position="popper" className="max-h-64 overflow-y-auto w-[var(--radix-select-trigger-width)]">
                                 {Array.isArray(productRegions) &&
                                   productRegions.map((region) => (
                                     <SelectItem
